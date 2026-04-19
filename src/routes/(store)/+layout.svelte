@@ -75,7 +75,8 @@
 		const mq = window.matchMedia('(prefers-color-scheme: light)');
 		isDark = !mq.matches;
 		applyTheme();
-		mq.addEventListener('change', (e) => { isDark = !e.matches; applyTheme(); });
+		function onThemeChange(e: MediaQueryListEvent) { isDark = !e.matches; applyTheme(); }
+		mq.addEventListener('change', onThemeChange);
 
 		function onScroll() {
 			const y = window.scrollY;
@@ -119,6 +120,7 @@
 
 		return () => {
 			clearTimeout(timer);
+			mq.removeEventListener('change', onThemeChange);
 			window.removeEventListener('scroll', onScroll);
 			window.removeEventListener('mousemove', onMouseMove);
 			window.removeEventListener('keydown', onKeydown);
@@ -161,7 +163,7 @@
 
 <div class="app">
 	<!-- Nav -->
-	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled}>
+	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled} aria-label="Navegación principal">
 		<a href="/" class="nav-brand" onclick={closeMenu}>
 			<span>DACEWAV</span><em>.</em>
 		</a>

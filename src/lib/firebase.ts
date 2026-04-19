@@ -33,10 +33,14 @@ function validateConfig() {
 	return true;
 }
 
+import type { FirebaseApp } from 'firebase/app';
+import type { Database } from 'firebase/database';
+import type { Auth } from 'firebase/auth';
+
 // Lazy init — only on client side (Firebase SDK doesn't work in Workers SSR)
-let _app: any = null;
-let _db: any = null;
-let _auth: any = null;
+let _app: FirebaseApp | null = null;
+let _db: Database | null = null;
+let _auth: Auth | null = null;
 let _initError: Error | null = null;
 
 async function initFirebase() {

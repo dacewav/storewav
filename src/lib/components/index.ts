@@ -10,7 +10,6 @@ export { default as Badge } from './Badge.svelte';
 export { default as Modal } from './Modal.svelte';
 export { default as Skeleton } from './Skeleton.svelte';
 export { default as EmptyState } from './EmptyState.svelte';
-export { default as Toast } from './Toast.svelte';
 export { default as Spinner } from './Spinner.svelte';
 export { default as Tabs } from './Tabs.svelte';
 export { default as Collapsible } from './Collapsible.svelte';
@@ -23,3 +22,5 @@ export { default as Filters } from './Filters.svelte';
 export { default as Waveform } from './Waveform.svelte';
 export { default as WishlistPanel } from './WishlistPanel.svelte';
 export { default as BeatModal } from './BeatModal.svelte';
+export { default as Icon } from './Icon.svelte';
+// Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

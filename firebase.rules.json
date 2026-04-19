@@ -1,15 +1,19 @@
 {
   "rules": {
+    "admins": {
+      ".read": "auth != null",
+      ".write": false
+    },
     "beats": {
       ".read": true,
-      ".write": "auth != null && auth.token.admin === true",
+      ".write": "root.child('admins').child(auth.uid).val() === true",
       "$beatId": {
         ".validate": "newData.hasChildren(['title', 'artist', 'bpm', 'key', 'genre', 'coverUrl', 'audioUrl', 'licenses', 'createdAt', 'active'])",
         "title": { ".validate": "newData.isString() && newData.val().length > 0" },
         "artist": { ".validate": "newData.isString()" },
-        "bpm": { ".validate": "newData.isNumber() && newData.val() > 0" },
+        "bpm": { ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 999" },
         "key": { ".validate": "newData.isString()" },
-        "genre": { ".validate": "newData.isString()" },
+        "genre": { ".validate": "newData.isString() && newData.val().length > 0" },
         "tags": {
           ".validate": true,
           "$tag": { ".validate": "newData.isString()" }
@@ -17,29 +21,35 @@
         "coverUrl": { ".validate": "newData.isString()" },
         "audioUrl": { ".validate": "newData.isString()" },
         "licenses": {
-          "basic": { ".validate": "newData.isNumber()" },
-          "premium": { ".validate": "newData.isNumber()" },
-          "unlimited": { ".validate": "newData.isNumber()" },
-          "exclusive": { ".validate": "newData.isNumber()" }
+          ".validate": "newData.hasChildren(['basic', 'premium', 'unlimited', 'exclusive'])",
+          "basic": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "premium": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "unlimited": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "exclusive": { ".validate": "newData.isNumber() && newData.val() >= 0" }
         },
         "createdAt": { ".validate": "newData.isNumber()" },
-        "active": { ".validate": "newData.isBoolean()" }
+        "active": { ".validate": "newData.isBoolean()" },
+        "$other": { ".validate": false }
       }
     },
     "settings": {
       ".read": true,
-      ".write": "auth != null && auth.token.admin === true"
+      ".write": "root.child('admins').child(auth.uid).val() === true"
     },
     "theme": {
       ".read": true,
-      ".write": "auth != null && auth.token.admin === true"
+      ".write": "root.child('admins').child(auth.uid).val() === true"
     },
     "analytics": {
-      ".read": "auth != null && auth.token.admin === true",
+      ".read": "root.child('admins').child(auth.uid).val() === true",
       ".write": "auth != null",
       "events": {
         "$eventId": {
-          ".validate": "newData.hasChildren(['name', 'timestamp'])"
+          ".validate": "newData.hasChildren(['name', 'timestamp'])",
+          "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+          "data": { ".validate": true },
+          "timestamp": { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
         }
       }
     }

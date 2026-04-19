@@ -12,6 +12,7 @@ import type { Action } from 'svelte/action';
 export const tilt: Action<HTMLElement, { max?: number; scale?: number }> = (node, params = {}) => {
 	const max = params.max ?? 8;
 	const scale = params.scale ?? 1;
+	let leaveTimer: ReturnType<typeof setTimeout> | null = null;
 
 	function onMouseMove(e: MouseEvent) {
 		const rect = node.getBoundingClientRect();
@@ -23,7 +24,7 @@ export const tilt: Action<HTMLElement, { max?: number; scale?: number }> = (node
 	function onMouseLeave() {
 		node.style.transform = '';
 		node.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-		setTimeout(() => { node.style.transition = ''; }, 400);
+		leaveTimer = setTimeout(() => { node.style.transition = ''; }, 400);
 	}
 
 	// Skip on touch
@@ -35,6 +36,7 @@ export const tilt: Action<HTMLElement, { max?: number; scale?: number }> = (node
 
 	return {
 		destroy() {
+			if (leaveTimer) clearTimeout(leaveTimer);
 			node.removeEventListener('mousemove', onMouseMove);
 			node.removeEventListener('mouseleave', onMouseLeave);
 		}
@@ -100,6 +102,8 @@ export const staggerReveal: Action<HTMLElement, { delay?: number; threshold?: nu
 
 /** Click ripple effect */
 export const ripple: Action<HTMLElement> = (node) => {
+	let rippleTimer: ReturnType<typeof setTimeout> | null = null;
+
 	function onClick(e: MouseEvent) {
 		const rect = node.getBoundingClientRect();
 		const x = e.clientX - rect.left;
@@ -121,13 +125,14 @@ export const ripple: Action<HTMLElement> = (node) => {
 		node.style.position = node.style.position || 'relative';
 		node.style.overflow = 'hidden';
 		node.appendChild(span);
-		setTimeout(() => span.remove(), 600);
+		rippleTimer = setTimeout(() => span.remove(), 600);
 	}
 
 	node.addEventListener('click', onClick);
 
 	return {
 		destroy() {
+			if (rippleTimer) clearTimeout(rippleTimer);
 			node.removeEventListener('click', onClick);
 		}
 	};

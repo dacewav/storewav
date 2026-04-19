@@ -43,14 +43,17 @@ export const beatsList = derived(beats, ($beats) => {
 		.map(([id, beat]) => ({ id, ...beat }));
 });
 
+/** Total de beats activos (evita recalcular array completo) */
+export const beatsCount = derived(beatsList, ($list) => $list.length);
+
 /** Helper: géneros únicos */
 export const genres = derived(beatsList, ($list) => {
-	const set = new Set($list.map((b) => b.genre));
-	return [...set].sort();
+	if ($list.length === 0) return [];
+	return [...new Set($list.map((b) => b.genre))].sort();
 });
 
 /** Helper: tags únicos */
 export const allTags = derived(beatsList, ($list) => {
-	const set = new Set($list.flatMap((b) => b.tags));
-	return [...set].sort();
+	if ($list.length === 0) return [];
+	return [...new Set($list.flatMap((b) => b.tags))].sort();
 });

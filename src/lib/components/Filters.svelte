@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { beatsList, genres, allTags } from '$lib/stores';
+	import { genres, allTags } from '$lib/stores';
 
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
 
@@ -124,15 +124,15 @@
 	{#if hasActive}
 		<div class="active-filters">
 			{#if filters.genre}
-				<span class="active-tag">{filters.genre} <button onclick={() => update('genre', '')}>×</button></span>
+				<span class="active-tag">{filters.genre} <button onclick={() => update('genre', '')} aria-label="Quitar filtro {filters.genre}">×</button></span>
 			{/if}
 			{#if filters.key}
-				<span class="active-tag">{filters.key} <button onclick={() => update('key', '')}>×</button></span>
+				<span class="active-tag">{filters.key} <button onclick={() => update('key', '')} aria-label="Quitar filtro {filters.key}">×</button></span>
 			{/if}
 			{#each filters.tags as tag}
-				<span class="active-tag">{tag} <button onclick={() => toggleTag(tag)}>×</button></span>
+				<span class="active-tag">{tag} <button onclick={() => toggleTag(tag)} aria-label="Quitar tag {tag}">×</button></span>
 			{/each}
-			<button class="clear-all" onclick={clearAll}>Limpiar todo</button>
+			<button class="clear-all" onclick={clearAll} aria-label="Limpiar todos los filtros">Limpiar todo</button>
 		</div>
 	{/if}
 </div>

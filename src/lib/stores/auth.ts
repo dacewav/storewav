@@ -9,6 +9,7 @@
 
 import { writable } from 'svelte/store';
 import { getAuthInstance } from '$lib/firebase';
+import { PUBLIC_ADMIN_UIDS } from '$env/static/public';
 
 export type AuthUser = {
 	uid: string;
@@ -24,11 +25,31 @@ export type AuthState = {
 	error: string | null;
 };
 
-// TODO: Mover a variable de entorno o Firebase custom claims
-const ADMIN_UIDS: string[] = [];
+const ADMIN_UIDS: string[] = PUBLIC_ADMIN_UIDS
+	.split(',')
+	.map(s => s.trim())
+	.filter(Boolean);
 
 const store = writable<AuthState>({ user: null, isAdmin: false, loading: true, error: null });
 let unsub: (() => void) | null = null;
+
+/** Verifica si el UID es admin (local UIDs + Firebase DB) */
+async function checkAdmin(uid: string): Promise<boolean> {
+	// Fast path: local UIDs
+	if (ADMIN_UIDS.includes(uid)) return true;
+
+	// Remote check: Firebase admins/{uid}
+	try {
+		const db = await (await import('$lib/firebase')).getDb();
+		if (!db) return false;
+
+		const { ref, get } = await import('firebase/database');
+		const snap = await get(ref(db, `admins/${uid}`));
+		return snap.val() === true;
+	} catch {
+		return false;
+	}
+}
 
 /** Iniciar listener de auth */
 export async function initAuth() {
@@ -43,7 +64,7 @@ export async function initAuth() {
 
 		const { onAuthStateChanged } = await import('firebase/auth');
 
-		unsub = onAuthStateChanged(auth, (fbUser) => {
+		unsub = onAuthStateChanged(auth, async (fbUser) => {
 			if (fbUser) {
 				const user: AuthUser = {
 					uid: fbUser.uid,
@@ -51,7 +72,10 @@ export async function initAuth() {
 					email: fbUser.email,
 					photoURL: fbUser.photoURL
 				};
-				store.set({ user, isAdmin: ADMIN_UIDS.includes(fbUser.uid), loading: false, error: null });
+				// Set user immediately, check admin async
+				store.set({ user, isAdmin: false, loading: false, error: null });
+				const isAdmin = await checkAdmin(fbUser.uid);
+				store.update((s) => ({ ...s, isAdmin }));
 			} else {
 				store.set({ user: null, isAdmin: false, loading: false, error: null });
 			}

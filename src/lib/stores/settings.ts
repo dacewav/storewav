@@ -50,10 +50,3 @@ const DEFAULT: SettingsData = {
 };
 
 export const settings = createFirebaseStore<SettingsData>('settings', DEFAULT);
-
-/** Sub-store para cada sección (lectura directa, sin escribir) */
-export function getHeroSettings() {
-	return { subscribe: (fn: (v: HeroSettings) => void) => {
-		return settings.subscribe((s) => fn(s.data?.hero ?? DEFAULT.hero));
-	}};
-}

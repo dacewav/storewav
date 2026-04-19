@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { onMount } from 'svelte';
 
 	let {
 		open = $bindable(false),
@@ -16,10 +15,13 @@
 
 	let closing = $state(false);
 	let scrollY = $state(0);
+	let modalEl: HTMLElement | undefined = $state();
+	let previouslyFocused: HTMLElement | null = null;
+	let closeTimer: ReturnType<typeof setTimeout> | null = null;
 
 	function close() {
 		closing = true;
-		setTimeout(() => {
+		closeTimer = setTimeout(() => {
 			open = false;
 			closing = false;
 		}, 200);
@@ -27,6 +29,25 @@
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape') close();
+		if (e.key === 'Tab' && modalEl) trapFocus(e);
+	}
+
+	function trapFocus(e: KeyboardEvent) {
+		const focusable = modalEl!.querySelectorAll<HTMLElement>(
+			'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+		);
+		if (focusable.length === 0) return;
+
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+
+		if (e.shiftKey && document.activeElement === first) {
+			e.preventDefault();
+			last.focus();
+		} else if (!e.shiftKey && document.activeElement === last) {
+			e.preventDefault();
+			first.focus();
+		}
 	}
 
 	function handleBackdropClick(e: MouseEvent) {
@@ -37,18 +58,41 @@
 
 	$effect(() => {
 		if (open && typeof document !== 'undefined') {
+			previouslyFocused = document.activeElement as HTMLElement;
 			scrollY = window.scrollY;
 			document.body.style.overflow = 'hidden';
 			document.body.style.position = 'fixed';
 			document.body.style.top = `-${scrollY}px`;
 			document.body.style.width = '100%';
+
+			// Focus first focusable element after render
+			requestAnimationFrame(() => {
+				if (modalEl) {
+					const first = modalEl.querySelector<HTMLElement>('button:not([disabled]), [href], input, [tabindex]:not([tabindex="-1"])');
+					first?.focus();
+				}
+			});
 		} else if (typeof document !== 'undefined') {
 			document.body.style.overflow = '';
 			document.body.style.position = '';
 			document.body.style.top = '';
 			document.body.style.width = '';
 			window.scrollTo(0, scrollY);
+
+			// Restore focus to trigger element
+			previouslyFocused?.focus();
 		}
+
+		return () => {
+			if (closeTimer) clearTimeout(closeTimer);
+			// Cleanup body styles if component unmounts while open
+			if (typeof document !== 'undefined') {
+				document.body.style.overflow = '';
+				document.body.style.position = '';
+				document.body.style.top = '';
+				document.body.style.width = '';
+			}
+		};
 	});
 </script>
 
@@ -63,6 +107,7 @@
 		aria-modal="true"
 		aria-label={title || 'Modal'}
 		tabindex="-1"
+		bind:this={modalEl}
 	>
 		<div class="modal" class:closing style="max-width: {maxWidth};">
 			{#if title}

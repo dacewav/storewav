@@ -15,6 +15,7 @@ type AnalyticsEvent = {
 
 const BATCH_SIZE = 10;
 const FLUSH_INTERVAL = 30_000; // 30s
+const MAX_QUEUE_SIZE = 50; // Drop oldest if exceeded
 
 let queue: AnalyticsEvent[] = [];
 let flushTimer: ReturnType<typeof setInterval> | null = null;
@@ -59,6 +60,11 @@ export const analytics = {
 	/** Registrar un evento */
 	track(name: string, data: Record<string, unknown> = {}) {
 		queue.push({ name, data, timestamp: Date.now() });
+
+		// Cap queue — drop oldest events if over limit
+		if (queue.length > MAX_QUEUE_SIZE) {
+			queue = queue.slice(-MAX_QUEUE_SIZE);
+		}
 
 		// Flush si acumula mucho
 		if (queue.length >= BATCH_SIZE) {

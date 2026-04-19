@@ -1,61 +1,28 @@
-# 🎨 Design References — DACEWAV.STORE
+# 🎨 Referencias de Diseño
 
-> Reglas anti-slop y guías de diseño para este proyecto.
-> Consultar ANTES de diseñar cualquier componente.
+> Recursos que la IA debe consultar antes de diseñar componentes.
+> Estos NO son skills — son listas de inspiración y mejores prácticas.
 
----
+## Awesome Design Systems
+https://github.com/alexpate/awesome-design-systems
+- Lista curada de design systems de productos reales
+- Útil para: inspiración de componentes, patrones de UI, tokens de diseño
+- **Consultar cuando:** diseñes un componente nuevo o busques patrones
 
-## Dirección Estética
+## Frontend Design Skills
+- `steipete/frontend-design` — production-grade, anti-AI-slop
+- `qrucio/anthropic-frontend-design` — con design intelligence tool
+- Principio: NUNCA usar Inter, Roboto, Arial. SIEMPRE tipografía distintiva.
 
-- **Dirección:** Retro-futurista / Neon-dark — oscuro profundo con acentos neón que brillan
-- **Paleta:** bg `#0a0a0a`, surface `#111`/`#161616`, accent `#00ff88` (neón verde), text `#fff`/`#888`
-- **Fonts:** Syne (display), Space Grotesk (body), DM Mono (code/datos)
-- **Diferenciador:** El glow neón + efectos de audio visual (waveform, partículas)
+## Composio
+https://docs.composio.dev/docs
+- Conecta la IA con 1000+ apps (GitHub, Firebase, Gmail, etc.)
+- Útil para: automatizaciones, webhooks, integraciones externas
+- **Instalar con:** `npx skills add composiohq/skills`
 
-## Anti-Slop Rules
-
-### ❌ NUNCA usar
-- Inter, Roboto, Arial, system fonts
-- Purple gradients on white backgrounds
-- Emojis como iconos de UI (usar SVG: Lucide, Heroicons)
-- Layouts genéricos SaaS sin carácter
-- Hover states que escalan y rompen layout
-
-### ✅ SIEMPRE usar
-- SVG icons (Lucide preferido)
-- CSS variables para todo (tokens)
-- `cursor-pointer` en elementos interactivos
-- Contraste mínimo 4.5:1 (accesibilidad)
-- Transiciones suaves 150-300ms
-- Responsive: 320px, 768px, 1024px, 1440px
-
-## Motion Guidelines
-
-- Staggered reveals en page load (animation-delay)
-- CSS-only cuando sea posible
-- Duración: fast 150ms, normal 300ms
-- Easing: `cubic-bezier(0.16, 1, 0.3, 1)` (--ease-out)
-- Glow effects neón en hover/focus
-
-## Spatial Composition
-
-- Generous negative space para respiración
-- Grid de cards asimétrico en hero
-- Overlap sutil entre elementos
-- Diagonal/flow en secciones de transición
-
-## Pre-Delivery Checklist
-
-- [ ] No emojis como iconos (SVG only)
-- [ ] Typography es characterful (Syne/Space Grotesk/DM Mono)
-- [ ] Color scheme usa tokens CSS, no hardcodeados
-- [ ] Hover states son estables (color/opacity/shadow, no scale)
-- [ ] cursor-pointer en interactivos
-- [ ] Contraste 4.5:1 mínimo
-- [ ] Responsive en todos los breakpoints
-- [ ] No horizontal scroll en móvil
-- [ ] npm run build pasa
-
----
-
-*Basado en: Anthropic frontend-design skill + anti-slop guidelines*
+## Reglas de Diseño para este Proyecto
+1. Paleta: fondo oscuro (#0a0a0a), accent neón (#00ff88)
+2. Fonts: Syne (display), Space Grotesk (body), DM Mono (mono)
+3. NADA genérico — cada componente debe tener personalidad
+4. Referenciar awesome-design-systems antes de diseñar
+5. Seguir las guías de frontend-design skill para anti-slop

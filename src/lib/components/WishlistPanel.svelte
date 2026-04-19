@@ -27,7 +27,8 @@
 </script>
 
 {#if open}
-	<div class="panel-backdrop" onclick={() => open = false}></div>
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="panel-backdrop" onclick={() => open = false} onkeydown={(e) => { if (e.key === 'Escape') open = false; }} role="presentation" aria-hidden="true"></div>
 	<aside class="wishlist-panel">
 		<div class="panel-header">
 			<h3 class="panel-title">Favoritos</h3>

@@ -10,6 +10,8 @@ export interface ToastItem {
 }
 
 let nextId = 0;
+const MAX_TOASTS = 5;
+const pendingTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
 function createToastStore() {
 	const { subscribe, update } = writable<ToastItem[]>([]);
@@ -18,18 +20,33 @@ function createToastStore() {
 		subscribe,
 		add(message: string, type: ToastType = 'default', duration = 2800) {
 			const id = ++nextId;
-			update((toasts) => [...toasts, { id, message, type, duration }]);
+			update((toasts) => {
+				// Cap max visible toasts — remove oldest if exceeded
+				const list = toasts.length >= MAX_TOASTS ? toasts.slice(-(MAX_TOASTS - 1)) : toasts;
+				return [...list, { id, message, type, duration }];
+			});
 			if (duration > 0) {
-				setTimeout(() => {
+				const timer = setTimeout(() => {
+					pendingTimers.delete(id);
 					update((toasts) => toasts.filter((t) => t.id !== id));
 				}, duration);
+				pendingTimers.set(id, timer);
 			}
 			return id;
 		},
 		remove(id: number) {
+			const timer = pendingTimers.get(id);
+			if (timer) {
+				clearTimeout(timer);
+				pendingTimers.delete(id);
+			}
 			update((toasts) => toasts.filter((t) => t.id !== id));
 		},
 		clear() {
+			for (const timer of pendingTimers.values()) {
+				clearTimeout(timer);
+			}
+			pendingTimers.clear();
 			update(() => []);
 		}
 	};

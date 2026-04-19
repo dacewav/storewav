@@ -51,24 +51,24 @@
 	</div>
 
 	<div class="topbar-actions">
-		<button class="tb-btn" onclick={onUndo} title="Deshacer (Ctrl+Z)">
+		<button class="tb-btn" onclick={onUndo} title="Deshacer (Ctrl+Z)" aria-label="Deshacer">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h13a4 4 0 010 8H7"/><path d="M3 10l5-5M3 10l5 5"/></svg>
 		</button>
-		<button class="tb-btn" onclick={onRedo} title="Rehacer (Ctrl+Shift+Z)">
+		<button class="tb-btn" onclick={onRedo} title="Rehacer (Ctrl+Shift+Z)" aria-label="Rehacer">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10H8a4 4 0 000 8h9"/><path d="M21 10l-5-5M21 10l-5 5"/></svg>
 		</button>
 		<div class="tb-sep"></div>
-		<button class="tb-btn tb-save" onclick={onSave} title="Guardar (Ctrl+S)">
+		<button class="tb-btn tb-save" onclick={onSave} title="Guardar (Ctrl+S)" aria-label="Guardar">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
 		</button>
-		<button class="tb-btn" onclick={onExport} title="Exportar">
+		<button class="tb-btn" onclick={onExport} title="Exportar" aria-label="Exportar">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
 		</button>
-		<button class="tb-btn" onclick={onImport} title="Importar">
+		<button class="tb-btn" onclick={onImport} title="Importar" aria-label="Importar">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
 		</button>
 		<div class="tb-sep"></div>
-		<button class="tb-btn tb-danger" onclick={onLogout} title="Salir">
+		<button class="tb-btn tb-danger" onclick={onLogout} title="Salir" aria-label="Cerrar sesión">
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
 		</button>
 	</div>

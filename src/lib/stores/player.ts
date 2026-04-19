@@ -5,6 +5,7 @@
  */
 
 import { writable, derived } from 'svelte/store';
+import { browser } from '$app/environment';
 
 export type PlayerState = {
 	playing: boolean;
@@ -34,29 +35,54 @@ const DEFAULT: PlayerState = {
 
 const store = writable<PlayerState>(DEFAULT);
 let audio: HTMLAudioElement | null = null;
+let audioListenersAttached = false;
 
-function getAudio(): HTMLAudioElement {
-	if (!audio) {
+function getAudio(): HTMLAudioElement | null {
+	if (!audio && browser) {
 		audio = new Audio();
 		audio.volume = DEFAULT.volume;
-
-		audio.addEventListener('timeupdate', () => {
-			store.update((s) => ({ ...s, currentTime: audio!.currentTime }));
-		});
-
-		audio.addEventListener('loadedmetadata', () => {
-			store.update((s) => ({ ...s, duration: audio!.duration }));
-		});
-
-		audio.addEventListener('ended', () => {
-			store.update((s) => ({ ...s, playing: false }));
-		});
+		attachAudioListeners();
 	}
 	return audio;
 }
 
+/** Throttled timeupdate — update store max every 200ms */
+let lastTimeUpdate = 0;
+function onTimeUpdate() {
+	const now = Date.now();
+	if (now - lastTimeUpdate < 200 && audio!.currentTime !== audio!.duration) return;
+	lastTimeUpdate = now;
+	store.update((s) => ({ ...s, currentTime: audio!.currentTime }));
+}
+
+function onLoadedMetadata() {
+	store.update((s) => ({ ...s, duration: audio!.duration }));
+}
+
+function onEnded() {
+	store.update((s) => ({ ...s, playing: false }));
+}
+
+function attachAudioListeners() {
+	if (!audio || audioListenersAttached) return;
+	audioListenersAttached = true;
+	audio.addEventListener('timeupdate', onTimeUpdate);
+	audio.addEventListener('loadedmetadata', onLoadedMetadata);
+	audio.addEventListener('ended', onEnded);
+}
+
+/** Cleanup listeners (para hot reload / SPA navigation) */
+function detachAudioListeners() {
+	if (!audio || !audioListenersAttached) return;
+	audio.removeEventListener('timeupdate', onTimeUpdate);
+	audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+	audio.removeEventListener('ended', onEnded);
+	audioListenersAttached = false;
+}
+
 function play(beat: { id: string; title: string; artist: string; coverUrl: string; audioUrl: string }) {
 	const a = getAudio();
+	if (!a) return; // SSR guard
 
 	// Si es el mismo beat, toggle play/pause
 	let currentBeatId: string | null = null;
@@ -83,36 +109,46 @@ function play(beat: { id: string; title: string; artist: string; coverUrl: strin
 }
 
 function pause() {
-	getAudio().pause();
+	const a = getAudio();
+	if (!a) return;
+	a.pause();
 	store.update((s) => ({ ...s, playing: false }));
 }
 
 function resume() {
-	getAudio().play();
+	const a = getAudio();
+	if (!a) return;
+	a.play();
 	store.update((s) => ({ ...s, playing: true }));
 }
 
 function seek(time: number) {
 	const a = getAudio();
+	if (!a) return;
 	a.currentTime = time;
 }
 
 function setVolume(vol: number) {
 	const a = getAudio();
+	if (!a) return;
 	a.volume = vol;
 	store.update((s) => ({ ...s, volume: vol, muted: vol === 0 }));
 }
 
 function toggleMute() {
 	const a = getAudio();
+	if (!a) return;
 	a.muted = !a.muted;
-	store.update((s) => ({ ...s, muted: a!.muted }));
+	store.update((s) => ({ ...s, muted: a.muted }));
 }
 
 function stop() {
 	const a = getAudio();
+	if (!a) return;
 	a.pause();
+	detachAudioListeners();
 	a.src = '';
+	audio = null;
 	store.set(DEFAULT);
 }
 
@@ -125,6 +161,8 @@ export const player = {
 	setVolume,
 	toggleMute,
 	stop,
+	/** Exponer el Audio element interno (para waveform live, etc.) */
+	getAudioElement: () => getAudio(),
 	/** Progreso 0-1 */
 	progress: derived(store, ($s) => ($s.duration > 0 ? $s.currentTime / $s.duration : 0)),
 	/** Tiempo formateado */
