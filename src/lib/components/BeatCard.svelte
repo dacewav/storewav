@@ -27,7 +27,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<article class="beat-card" use:tilt={{ max: 6 }} onclick={() => onclick?.(beat)} onkeydown={(e) => { if (e.key === 'Enter') onclick?.(beat); }} role="button" tabindex="0">
+<article class="beat-card" use:tilt={{ max: 6 }} onclick={() => onclick?.(beat)} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onclick?.(beat); } }} role="button" tabindex="0">
 	<!-- Cover -->
 	<div class="beat-cover">
 		{#if beat.coverUrl}

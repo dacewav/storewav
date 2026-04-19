@@ -10,6 +10,7 @@
 	let navScrolled = $state(false);
 	let lastScrollY = $state(0);
 	let loaderVisible = $state(true);
+	let loaderFading = $state(false);
 	let cursorX = $state(-500);
 	let cursorY = $state(-500);
 	let menuOpen = $state(false);
@@ -70,7 +71,8 @@
 	});
 
 	onMount(() => {
-		const timer = setTimeout(() => { loaderVisible = false; }, 800);
+		const timer = setTimeout(() => { loaderFading = true; }, 800);
+		const removeTimer = setTimeout(() => { loaderVisible = false; }, 1300);
 
 		// Detect system theme preference
 		const mq = window.matchMedia('(prefers-color-scheme: light)');
@@ -121,6 +123,7 @@
 
 		return () => {
 			clearTimeout(timer);
+			clearTimeout(removeTimer);
 			mq.removeEventListener('change', onThemeChange);
 			window.removeEventListener('scroll', onScroll);
 			window.removeEventListener('mousemove', onMouseMove);
@@ -141,7 +144,7 @@
 
 <!-- Loader -->
 {#if loaderVisible}
-<div id="loader">
+<div id="loader" class:fading={loaderFading}>
 	<div id="loader-brand">DACE<em>WAV</em></div>
 	<div class="ld-dots">
 		<div class="ld"></div>
@@ -486,6 +489,8 @@
 	/* ── Main ── */
 	.main {
 		flex: 1;
+		/* Space for fixed player bar */
+		padding-bottom: 80px;
 	}
 
 	/* ── Footer ── */

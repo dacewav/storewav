@@ -17,17 +17,26 @@
 	let modalOpen = $state(false);
 	let selectedBeat: (Beat & { id: string }) | null = $state(null);
 
+	// Clear selected beat when modal closes
+	$effect(() => {
+		if (!modalOpen) {
+			// Delay to avoid clearing during close animation
+			const timer = setTimeout(() => { selectedBeat = null; }, 250);
+			return () => clearTimeout(timer);
+		}
+	});
+
 	// Filtered + sorted beats
-	let filteredBeats = $derived(() => {
+	let filteredBeats = $derived.by(() => {
 		let list = [...beats];
 
 		// Search
-		if (filters.search) {
-			const q = filters.search.toLowerCase();
+		if (filters.search?.trim()) {
+			const q = filters.search.trim().toLowerCase();
 			list = list.filter(b =>
-				b.title.toLowerCase().includes(q) ||
-				b.artist.toLowerCase().includes(q) ||
-				b.genre.toLowerCase().includes(q)
+				b.title?.toLowerCase().includes(q) ||
+				b.artist?.toLowerCase().includes(q) ||
+				b.genre?.toLowerCase().includes(q)
 			);
 		}
 
@@ -135,9 +144,9 @@
 
 	<!-- Beat grid -->
 	{#if beats.length > 0}
-		{#if filteredBeats().length > 0}
+		{#if filteredBeats.length > 0}
 			<div class="beat-grid">
-				{#each filteredBeats() as beat (beat.id)}
+				{#each filteredBeats as beat (beat.id)}
 					<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} />
 				{/each}
 			</div>
