@@ -76,7 +76,7 @@
 
 <div class="app">
 	<!-- Nav -->
-	<nav class="nav" class:nav-hidden class:nav-scrolled>
+	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled}>
 		<a href="/" class="nav-brand">
 			<span>DACEWAV</span><em>.</em>
 		</a>
@@ -137,11 +137,11 @@
 		transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
 	}
 
-	.nav.nav-hidden {
+	.nav.n-hidden {
 		transform: translateY(-100%);
 	}
 
-	.nav.nav-scrolled {
+	.nav.n-scrolled {
 		background: rgba(6, 4, 4, 0.95);
 		border-bottom-color: rgba(0, 255, 136, 0.1);
 	}
