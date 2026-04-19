@@ -1,17 +1,23 @@
 <script lang="ts">
 	import { Card, Badge, Skeleton } from '$lib/components';
+	import { beatsList, wishlist, settings, auth } from '$lib/stores';
 
-	// Placeholder stats — will connect to Firebase in Block 2
-	const stats = [
-		{ label: 'Beats', value: '—', icon: '🎵' },
-		{ label: 'Ventas', value: '—', icon: '💰' },
-		{ label: 'Visitas', value: '—', icon: '👁️' },
-		{ label: 'Wishlist', value: '—', icon: '❤️' }
-	];
+	let beats = $derived($beatsList);
+	let wl = $derived($wishlist);
+	let settingsData = $derived($settings.data);
+	let authState = $derived($auth);
 
-	const recentActivity: { action: string; time: string; type: 'success' | 'warning' | 'default' }[] = [
-		{ action: 'Firebase conectado — Block 2 pendiente', time: 'Ahora', type: 'warning' }
-	];
+	const stats = $derived([
+		{ label: 'Beats', value: String(beats.length || '—'), icon: '🎵' },
+		{ label: 'Wishlist', value: String(wl.length || '—'), icon: '❤️' },
+		{ label: 'Géneros', value: String([...new Set(beats.map(b => b.genre))].length || '—'), icon: '🏷️' },
+		{ label: 'Licencias', value: '4', icon: '📄' }
+	]);
+
+	let recentActivity = $derived<{ action: string; time: string; type: 'success' | 'warning' | 'default' }[]>([
+		{ action: authState.user ? `Sesión: ${authState.user.email}` : 'Sin sesión', time: 'Ahora', type: authState.user ? 'success' : 'warning' },
+		{ action: settingsData ? 'Settings Firebase conectado' : 'Settings pendiente', time: 'Ahora', type: settingsData ? 'success' : 'warning' }
+	]);
 </script>
 
 <div class="dashboard">
@@ -20,7 +26,7 @@
 			<h1 class="dash-title">Dashboard</h1>
 			<p class="dash-sub">Panel de control DACEWAV</p>
 		</div>
-		<Badge variant="accent">v0.2.0</Badge>
+		<Badge variant="accent">v0.3.0</Badge>
 	</div>
 
 	<!-- Stats grid -->
@@ -95,11 +101,11 @@
 		</div>
 		<div class="info-row">
 			<span class="info-label">Bloque actual</span>
-			<span class="info-value">1 — Design System ✅</span>
+			<span class="info-value">2 — Firebase Layer ✅</span>
 		</div>
 		<div class="info-row">
 			<span class="info-label">Próximo</span>
-			<span class="info-value">Bloque 2 — Firebase Layer</span>
+			<span class="info-value">Bloque 3 — Core Components</span>
 		</div>
 	</div>
 </div>

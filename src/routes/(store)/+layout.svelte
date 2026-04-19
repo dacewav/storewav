@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { settings } from '$lib/stores';
+	import { ToastContainer } from '$lib/components';
 
 	let { children } = $props();
 
@@ -13,6 +15,9 @@
 	let menuOpen = $state(false);
 	let isDark = $state(true);
 	let mobileMenuEl: HTMLElement | undefined = $state();
+
+	// Settings from Firebase
+	let settingsData = $derived($settings.data);
 
 	function toggleMenu() {
 		menuOpen = !menuOpen;
@@ -226,12 +231,20 @@
 			<div class="footer-sub">Todos los derechos reservados · 2026</div>
 		</div>
 		<div class="footer-links">
-			<a href="https://instagram.com" class="footer-link" target="_blank" rel="noopener">Instagram</a>
-			<a href="https://youtube.com" class="footer-link" target="_blank" rel="noopener">YouTube</a>
-			<a href="https://wa.me" class="footer-link" target="_blank" rel="noopener">WhatsApp</a>
+			{#if settingsData?.links?.length}
+				{#each settingsData.links as link}
+					<a href={link.url} class="footer-link" target="_blank" rel="noopener">{link.label}</a>
+				{/each}
+			{:else}
+				<a href="https://instagram.com" class="footer-link" target="_blank" rel="noopener">Instagram</a>
+				<a href="https://youtube.com" class="footer-link" target="_blank" rel="noopener">YouTube</a>
+				<a href="https://wa.me" class="footer-link" target="_blank" rel="noopener">WhatsApp</a>
+			{/if}
 		</div>
 	</footer>
 </div>
+
+<ToastContainer />
 
 <style>
 	.app {

@@ -1,16 +1,27 @@
 <script lang="ts">
 	import { Button, Card } from '$lib/components';
+	import { auth, loginWithGoogle } from '$lib/stores';
+	import { goto } from '$app/navigation';
 
 	let loading = $state(false);
 	let error = $state('');
+	let authState = $derived($auth);
+
+	// Si ya está logueado, redirigir al admin
+	$effect(() => {
+		if (authState.user && authState.isAdmin) {
+			goto('/admin');
+		}
+	});
 
 	async function handleGoogleLogin() {
 		loading = true;
 		error = '';
-		// Block 2: connect to Firebase Auth
-		// const provider = new GoogleAuthProvider();
-		// await signInWithPopup(auth, provider);
-		error = 'Firebase Auth — conectar en Bloque 2';
+		try {
+			await loginWithGoogle();
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Error al iniciar sesión';
+		}
 		loading = false;
 	}
 </script>

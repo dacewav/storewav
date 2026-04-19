@@ -1,9 +1,16 @@
 <script lang="ts">
-	import { Skeleton } from '$lib/components';
+	import { Skeleton, EmptyState } from '$lib/components';
+	import { beatsList, genres, settings } from '$lib/stores';
+
+	let beats = $derived($beatsList);
+	let genreList = $derived($genres);
+	let settingsData = $derived($settings.data);
+	let heroTitle = $derived(settingsData?.hero?.title ?? 'Beats que');
+	let heroSub = $derived(settingsData?.hero?.subtitle ?? 'Trap · R&B · Drill · Beats profesionales para tu próximo hit');
 </script>
 
 <svelte:head>
-	<title>DACEWAV — Beats que rompen</title>
+	<title>{settingsData?.hero?.title ?? 'DACEWAV'} — Beats que rompen</title>
 </svelte:head>
 
 <!-- Hero -->
@@ -13,17 +20,17 @@
 		En vivo · Producción profesional
 	</div>
 	<h1 class="hero-title">
-		Beats que<br>
+		{heroTitle}<br>
 		<span class="glow-word">rompen.</span>
 	</h1>
-	<p class="hero-sub">Trap · R&B · Drill · Beats profesionales para tu próximo hit</p>
+	<p class="hero-sub">{heroSub}</p>
 	<div class="hero-stats">
 		<div class="stat">
-			<div class="stat-num">—</div>
+			<div class="stat-num">{beats.length || '—'}</div>
 			<div class="stat-label">beats</div>
 		</div>
 		<div class="stat">
-			<div class="stat-num">—</div>
+			<div class="stat-num">{genreList.length || '—'}</div>
 			<div class="stat-label">géneros</div>
 		</div>
 		<div class="stat">
@@ -48,14 +55,41 @@
 	<div class="section-header">
 		<h2 class="section-title">Catálogo</h2>
 		<div class="section-line"></div>
-		<div class="section-badge">Próximamente</div>
+		<div class="section-badge">{beats.length ? `${beats.length} beats` : 'Próximamente'}</div>
 	</div>
 
-	<div class="beat-grid">
-		{#each Array(6) as _, i}
-			<Skeleton lines={3} />
-		{/each}
-	</div>
+	{#if beats.length > 0}
+		<div class="beat-grid">
+			{#each beats as beat (beat.id)}
+				<div class="beat-card">
+					<div class="beat-cover">
+						{#if beat.coverUrl}
+							<img src={beat.coverUrl} alt={beat.title} loading="lazy" />
+						{:else}
+							<div class="beat-cover-placeholder">🎵</div>
+						{/if}
+					</div>
+					<div class="beat-info">
+						<div class="beat-title">{beat.title}</div>
+						<div class="beat-meta">
+							<span>{beat.genre}</span>
+							<span>·</span>
+							<span>{beat.bpm} BPM</span>
+							<span>·</span>
+							<span>{beat.key}</span>
+						</div>
+						<div class="beat-price">Desde ${beat.licenses?.basic ?? 29.99}</div>
+					</div>
+				</div>
+			{/each}
+		</div>
+	{:else}
+		<div class="beat-grid">
+			{#each Array(6) as _, i}
+				<Skeleton lines={3} />
+			{/each}
+		</div>
+	{/if}
 </section>
 
 <!-- CTA Section -->
@@ -282,6 +316,74 @@
 		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 		gap: var(--beat-gap);
 		align-items: start;
+	}
+
+	/* ── Beat Card ── */
+	.beat-card {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		overflow: hidden;
+		transition: all var(--duration-normal) var(--ease-out);
+		cursor: pointer;
+	}
+
+	.beat-card:hover {
+		border-color: var(--border-hover-accent);
+		box-shadow: var(--shadow-lg), 0 0 30px rgba(var(--accent-rgb), 0.08);
+		transform: translateY(-2px);
+	}
+
+	.beat-cover {
+		aspect-ratio: 16/9;
+		overflow: hidden;
+		background: var(--surface2);
+	}
+
+	.beat-cover img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.beat-cover-placeholder {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 2rem;
+		opacity: 0.3;
+	}
+
+	.beat-info {
+		padding: var(--space-4) var(--space-5);
+	}
+
+	.beat-title {
+		font-family: var(--font-display);
+		font-size: var(--text-base);
+		font-weight: 700;
+		color: var(--text);
+		margin-bottom: var(--space-1);
+	}
+
+	.beat-meta {
+		display: flex;
+		gap: var(--space-2);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-secondary);
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.beat-price {
+		margin-top: var(--space-3);
+		font-family: var(--font-display);
+		font-size: var(--text-sm);
+		font-weight: 700;
+		color: var(--accent);
 	}
 
 	/* ── CTA Section ── */
