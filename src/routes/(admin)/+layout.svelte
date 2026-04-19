@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AdminTopbar, AdminSidebar } from '$lib/components';
-	import { auth, logout } from '$lib/stores';
+	import { auth } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import type { Snippet } from 'svelte';
 
