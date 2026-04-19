@@ -73,15 +73,15 @@ analytics/events/{date}/{id} → analytics/counts/{beatId} → analytics/daily/{
 
 | # | Tarea | Estado | Notas |
 |---|-------|--------|-------|
-| 1 | `npm create svelte@latest` | ⬜ | Skeleton project, TypeScript, no ESLint/Prettier |
-| 2 | Firebase SDK instalado | ⬜ | `npm install firebase` |
-| 3 | `.env` creado | ⬜ | Firebase keys (NO commitear) |
-| 4 | `src/lib/firebase.ts` | ⬜ | Módulo central Firebase |
-| 5 | Cloudflare config | ⬜ | `@sveltejs/adapter-cloudflare` |
-| 6 | `.gitignore` correcto | ⬜ | node_modules, .env, .svelte-kit, dist |
-| 7 | `npm run build` exitoso | ⬜ | Verificar que compila |
-| 8 | Primer commit + push | ⬜ | "chore: project setup" |
-| 9 | `npm run dev` funciona | ⬜ | Abrir localhost:5173, ver página |
+| 1 | `npm create svelte@latest` | ✅ | Skeleton project, TypeScript |
+| 2 | Firebase SDK instalado | ✅ | `npm install firebase` |
+| 3 | `.env` creado | ✅ | Keys vacías — rellenar con valores reales |
+| 4 | `src/lib/firebase.ts` | ✅ | Singleton, modular SDK v9, exports db + auth |
+| 5 | Cloudflare config | ✅ | `@sveltejs/adapter-cloudflare` en svelte.config.js |
+| 6 | `.gitignore` correcto | ✅ | node_modules, .env, .svelte-kit, build |
+| 7 | `npm run build` exitoso | ✅ | Build en 145ms client + 2.3s SSR |
+| 8 | Primer commit + push | ⬜ | Pendiente — necesita .env con keys reales o skip |
+| 9 | `npm run dev` funciona | ⬜ | Pendiente
 
 ## Decisiones Pendientes del Bloque
 
