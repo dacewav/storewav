@@ -44,15 +44,20 @@
 	});
 
 	let deleting = $state<string | null>(null);
+	let deleteTarget = $state<BeatWithId | null>(null);
 
 	async function handleDelete(beat: BeatWithId) {
-		if (deleting === beat.id) {
-			await deleteBeat(beat.id);
-			deleting = null;
-		} else {
-			deleting = beat.id;
-			setTimeout(() => { deleting = null; }, 3000);
-		}
+		deleteTarget = beat;
+	}
+
+	async function confirmDelete() {
+		if (!deleteTarget) return;
+		await deleteBeat(deleteTarget.id);
+		deleteTarget = null;
+	}
+
+	function cancelDelete() {
+		deleteTarget = null;
 	}
 
 	async function handleDuplicate(beat: BeatWithId) {
@@ -180,10 +185,9 @@
 						<button class="btn-action" title="Duplicar" onclick={() => handleDuplicate(beat)}>📋</button>
 						<button
 							class="btn-action btn-del"
-							class:confirm={deleting === beat.id}
-							title={deleting === beat.id ? 'Confirmar borrado' : 'Borrar'}
+							title="Borrar"
 							onclick={() => handleDelete(beat)}
-						>{deleting === beat.id ? '⚠️' : '🗑️'}</button>
+						>🗑️</button>
 					</div>
 				</div>
 			{/each}
@@ -200,6 +204,23 @@
 		</EmptyState>
 	{/if}
 </div>
+
+<!-- Delete confirm modal -->
+{#if deleteTarget}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="modal-overlay" onclick={cancelDelete}>
+		<div class="modal-box" onclick={(e) => e.stopPropagation()}>
+			<div class="modal-icon">🗑️</div>
+			<h3 class="modal-title">¿Borrar este beat?</h3>
+			<p class="modal-text">"{deleteTarget.title || 'Sin título'}" se eliminará permanentemente.</p>
+			<div class="modal-actions">
+				<button class="btn-cancel" onclick={cancelDelete}>Cancelar</button>
+				<button class="btn-confirm-delete" onclick={confirmDelete}>Sí, borrar</button>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <style>
 	.beats-admin { max-width: 1000px; margin: 0 auto; }
@@ -503,12 +524,67 @@
 	.btn-action:hover { background: var(--surface-hover); border-color: var(--border); }
 	.btn-edit:hover { background: rgba(var(--accent-rgb), 0.1); border-color: rgba(var(--accent-rgb), 0.3); }
 	.btn-del:hover { background: var(--danger-glow); border-color: var(--danger); }
-	.btn-del.confirm { background: var(--danger-glow); border-color: var(--danger); animation: pulse 0.5s ease-in-out infinite; }
 
-	@keyframes pulse {
-		0%, 100% { transform: scale(1); }
-		50% { transform: scale(1.1); }
+	/* Delete modal */
+	.modal-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: var(--z-modal);
+		background: rgba(0,0,0,0.6);
+		backdrop-filter: blur(4px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		animation: fadeIn 0.2s var(--ease-out);
 	}
+
+	.modal-box {
+		background: var(--bg-secondary);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-6);
+		max-width: 400px;
+		width: 90%;
+		text-align: center;
+		animation: scaleIn 0.25s var(--ease-out);
+	}
+
+	.modal-icon { font-size: 2.5rem; margin-bottom: var(--space-3); }
+	.modal-title { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: var(--text); margin-bottom: var(--space-2); }
+	.modal-text { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-5); }
+	.modal-actions { display: flex; gap: var(--space-3); justify-content: center; }
+
+	.btn-cancel {
+		padding: var(--space-2) var(--space-5);
+		min-height: var(--touch-min);
+		background: transparent;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.btn-cancel:hover { background: var(--surface-hover); color: var(--text); }
+
+	.btn-confirm-delete {
+		padding: var(--space-2) var(--space-5);
+		min-height: var(--touch-min);
+		background: var(--danger);
+		color: white;
+		border: none;
+		border-radius: var(--radius-md);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.btn-confirm-delete:hover { opacity: 0.9; }
+
+	@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+	@keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 	@media (max-width: 768px) {
 		.stats-row { grid-template-columns: 1fr 1fr; }

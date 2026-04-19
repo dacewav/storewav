@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { BeatEditor, Spinner, EmptyState } from '$lib/components';
-	import { beats, updateBeat } from '$lib/stores';
+	import { beats, updateBeat, deleteBeat } from '$lib/stores';
+	import { goto } from '$app/navigation';
 	import type { Beat } from '$lib/stores/beats';
 
 	let beatId = $derived(page.params.id);
@@ -31,7 +32,15 @@
 		}
 	}
 
-	// Mark as unsaved on any change
+	async function handleDelete() {
+		try {
+			await deleteBeat(beatId);
+			goto('/admin/beats');
+		} catch (err) {
+			console.error(err);
+		}
+	}
+
 	function markDirty() {
 		if (saveStatus === 'saved') saveStatus = 'unsaved';
 	}
@@ -51,7 +60,7 @@
 	{:else if beat}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div onchange={markDirty} oninput={markDirty}>
-			<BeatEditor bind:beat onSave={handleSave} {saveStatus} />
+			<BeatEditor bind:beat onSave={handleSave} onDelete={handleDelete} {saveStatus} />
 		</div>
 	{:else}
 		<EmptyState icon="❌" title="Beat no encontrado" subtitle="El beat que buscas no existe o fue eliminado">

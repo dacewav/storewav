@@ -1,70 +1,169 @@
 <script lang="ts">
 	import { Card, Badge } from '$lib/components';
-	import type { Beat, LicenseNames, Platforms } from '$lib/stores/beats';
+	import type { Beat, Platforms } from '$lib/stores/beats';
 
 	let {
 		beat = $bindable(),
 		onSave,
+		onDelete,
 		saveStatus = 'saved'
 	}: {
 		beat: Partial<Beat>;
 		onSave?: () => void;
+		onDelete?: () => void;
 		saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 	} = $props();
 
 	let activeTab = $state('info');
+	let deleteConfirm = $state(false);
+	let tagInput = $state('');
+	let tagInputEl: HTMLInputElement | undefined = $state();
+
+	// Audio preview state
+	let previewAudio: HTMLAudioElement | undefined = $state();
+	let previewPlaying = $state(false);
+	let previewTime = $state(0);
+	let previewDuration = $state(0);
 
 	const GENRES = ['Trap', 'R&B', 'Drill', 'Corrido', 'Ambient', 'Pop', 'Hip-Hop', 'Reggaeton', 'Otro'];
 	const KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
 		'Am', 'Bbm', 'Bm', 'Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m'];
+	const LICENSE_KEYS = ['basic', 'premium', 'unlimited', 'exclusive'] as const;
 
-	let tagsStr = $derived((beat.tags ?? []).join(', '));
-
-	function updateTags(val: string) {
-		beat.tags = val.split(',').map(t => t.trim()).filter(Boolean);
+	// Keyboard shortcuts
+	function handleKeydown(e: KeyboardEvent) {
+		if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+			e.preventDefault();
+			onSave?.();
+		}
 	}
 
+	// Tags
+	function addTag(tag: string) {
+		const t = tag.trim();
+		if (!t || (beat.tags ?? []).includes(t)) return;
+		beat.tags = [...(beat.tags ?? []), t];
+		tagInput = '';
+	}
+
+	function removeTag(tag: string) {
+		beat.tags = (beat.tags ?? []).filter(t => t !== tag);
+	}
+
+	function handleTagKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter' || e.key === ',') {
+			e.preventDefault();
+			addTag(tagInput);
+		} else if (e.key === 'Backspace' && !tagInput && (beat.tags ?? []).length > 0) {
+			beat.tags = beat.tags!.slice(0, -1);
+		}
+	}
+
+	// Platforms
 	function updatePlatform(key: keyof Platforms, val: string) {
 		if (!beat.platforms) beat.platforms = {};
 		beat.platforms[key] = val;
 	}
 
+	// Licenses
 	function updateLicense(key: string, val: number) {
 		if (!beat.licenses) beat.licenses = { basic: 0, premium: 0, unlimited: 0, exclusive: 0 };
 		(beat.licenses as Record<string, number>)[key] = val;
 	}
 
-	function updateLicenseName(key: string, val: string) {
-		if (!beat.licenseNames) beat.licenseNames = {};
-		(beat.licenseNames as Record<string, string>)[key] = val;
+	function updateLicenseField(key: string, field: 'name' | 'desc', val: string) {
+		if (field === 'name') {
+			if (!beat.licenseNames) beat.licenseNames = {};
+			(beat.licenseNames as Record<string, string>)[key] = val;
+		} else {
+			if (!beat.licenseDescs) beat.licenseDescs = {};
+			(beat.licenseDescs as Record<string, string>)[key] = val;
+		}
 	}
 
-	function updateLicenseDesc(key: string, val: string) {
-		if (!beat.licenseDescs) beat.licenseDescs = {};
-		(beat.licenseDescs as Record<string, string>)[key] = val;
+	function loadDefaultLics() {
+		beat.licenseNames = { basic: 'Basic', premium: 'Premium', unlimited: 'Unlimited', exclusive: 'Exclusive' };
+		beat.licenseDescs = { basic: 'MP3 · 1 uso', premium: 'WAV · Sin tag', unlimited: 'WAV + Stems', exclusive: 'Exclusivo total' };
 	}
 
-	const LICENSE_KEYS = ['basic', 'premium', 'unlimited', 'exclusive'] as const;
+	// Audio preview
+	function togglePreview() {
+		if (!previewAudio) return;
+		if (previewPlaying) {
+			previewAudio.pause();
+		} else {
+			previewAudio.play();
+		}
+		previewPlaying = !previewPlaying;
+	}
+
+	function formatTime(s: number) {
+		const m = Math.floor(s / 60);
+		const sec = Math.floor(s % 60);
+		return `${m}:${sec.toString().padStart(2, '0')}`;
+	}
+
+	function seekPreview(e: MouseEvent) {
+		if (!previewAudio || !previewDuration) return;
+		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+		const pct = (e.clientX - rect.left) / rect.width;
+		previewAudio.currentTime = pct * previewDuration;
+	}
+
+	// Delete confirm
+	function handleDelete() {
+		deleteConfirm = true;
+	}
+
+	function confirmDelete() {
+		deleteConfirm = false;
+		onDelete?.();
+	}
+
+	function cancelDelete() {
+		deleteConfirm = false;
+	}
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="editor">
 	<!-- Tabs -->
 	<div class="tabs">
-		<button class="tab" class:active={activeTab === 'info'} onclick={() => activeTab = 'info'}>Info</button>
-		<button class="tab" class:active={activeTab === 'lics'} onclick={() => activeTab = 'lics'}>Licencias</button>
-		<button class="tab" class:active={activeTab === 'media'} onclick={() => activeTab = 'media'}>Media</button>
-		<button class="tab" class:active={activeTab === 'plat'} onclick={() => activeTab = 'plat'}>Plataformas</button>
-		<button class="tab" class:active={activeTab === 'style'} onclick={() => activeTab = 'style'}>Card Style</button>
+		<button class="tab" class:active={activeTab === 'info'} onclick={() => activeTab = 'info'}>
+			<span class="tab-icon">📝</span> Info
+		</button>
+		<button class="tab" class:active={activeTab === 'lics'} onclick={() => activeTab = 'lics'}>
+			<span class="tab-icon">📄</span> Licencias
+		</button>
+		<button class="tab" class:active={activeTab === 'media'} onclick={() => activeTab = 'media'}>
+			<span class="tab-icon">🎵</span> Media
+		</button>
+		<button class="tab" class:active={activeTab === 'plat'} onclick={() => activeTab = 'plat'}>
+			<span class="tab-icon">🔗</span> Plataformas
+		</button>
+		<button class="tab" class:active={activeTab === 'style'} onclick={() => activeTab = 'style'}>
+			<span class="tab-icon">🎨</span> Card Style
+		</button>
 	</div>
 
-	<!-- Save bar -->
+	<!-- Save bar (sticky) -->
 	<div class="save-bar">
-		<Badge variant={saveStatus === 'saved' ? 'accent' : saveStatus === 'saving' ? 'warning' : saveStatus === 'error' ? 'danger' : 'muted'}>
-			{saveStatus === 'saved' ? '✓ Guardado' : saveStatus === 'saving' ? 'Guardando...' : saveStatus === 'error' ? 'Error' : 'Sin guardar'}
-		</Badge>
-		{#if onSave}
-			<button class="btn-save" onclick={onSave}>Guardar</button>
-		{/if}
+		<div class="save-left">
+			<Badge variant={saveStatus === 'saved' ? 'accent' : saveStatus === 'saving' ? 'warning' : saveStatus === 'error' ? 'danger' : 'muted'}>
+				{saveStatus === 'saved' ? '✓ Guardado' : saveStatus === 'saving' ? 'Guardando...' : saveStatus === 'error' ? 'Error al guardar' : '● Sin guardar'}
+			</Badge>
+		</div>
+		<div class="save-right">
+			{#if onDelete}
+				<button class="btn-delete" onclick={handleDelete}>🗑️ Borrar</button>
+			{/if}
+			{#if onSave}
+				<button class="btn-save" onclick={onSave}>
+					Guardar <kbd>Ctrl+S</kbd>
+				</button>
+			{/if}
+		</div>
 	</div>
 
 	<!-- Tab: Info -->
@@ -72,7 +171,7 @@
 		<Card>
 			<h3 class="section-title">Información básica</h3>
 			<div class="grid-2">
-				<div class="field">
+				<div class="field" class:required-empty={!beat.title?.trim()}>
 					<label for="b-title">Título *</label>
 					<input id="b-title" type="text" bind:value={beat.title} placeholder="Nombre del beat" />
 				</div>
@@ -96,19 +195,38 @@
 						{#each KEYS as k}<option value={k}>{k}</option>{/each}
 					</select>
 				</div>
-				<div class="field">
-					<label for="b-tags">Tags (separados por coma)</label>
-					<input id="b-tags" type="text" value={tagsStr} oninput={(e) => updateTags(e.currentTarget.value)} placeholder="Trap, Dark, Cinematic" />
+			</div>
+
+			<!-- Tags (chip-based) -->
+			<div class="field">
+				<label>Tags</label>
+				<div class="tags-wrap">
+					{#each beat.tags ?? [] as tag}
+						<span class="tag-chip">
+							{tag}
+							<button class="tag-remove" onclick={() => removeTag(tag)} title="Quitar">✕</button>
+						</span>
+					{/each}
+					<input
+						class="tag-input"
+						bind:this={tagInputEl}
+						bind:value={tagInput}
+						onkeydown={handleTagKeydown}
+						onblur={() => addTag(tagInput)}
+						placeholder={(beat.tags ?? []).length === 0 ? 'Escribe y Enter para añadir...' : '+ tag'}
+					/>
 				</div>
 			</div>
+
 			<div class="field">
 				<label for="b-desc">Descripción</label>
 				<textarea id="b-desc" bind:value={beat.description} placeholder="Descripción del beat..." rows="3"></textarea>
 			</div>
+
 			<div class="field">
-				<label>
+				<label class="toggle-label">
 					<input type="checkbox" bind:checked={beat.active} />
-					Beat activo (visible en la tienda)
+					<span class="toggle-text">Beat activo <span class="toggle-hint">(visible en la tienda)</span></span>
 				</label>
 			</div>
 		</Card>
@@ -117,7 +235,10 @@
 	<!-- Tab: Licencias -->
 	{#if activeTab === 'lics'}
 		<Card>
-			<h3 class="section-title">Licencias y precios</h3>
+			<div class="section-header">
+				<h3 class="section-title">Licencias y precios</h3>
+				<button class="btn-ghost" onclick={loadDefaultLics}>↓ Cargar defaults</button>
+			</div>
 			<div class="lic-grid">
 				{#each LICENSE_KEYS as lk}
 					<div class="lic-row">
@@ -127,7 +248,7 @@
 						<div class="grid-3">
 							<div class="field">
 								<label for="lic-name-{lk}">Nombre</label>
-								<input id="lic-name-{lk}" type="text" value={beat.licenseNames?.[lk] ?? ''} oninput={(e) => updateLicenseName(lk, e.currentTarget.value)} placeholder={lk.charAt(0).toUpperCase() + lk.slice(1)} />
+								<input id="lic-name-{lk}" type="text" value={beat.licenseNames?.[lk] ?? ''} oninput={(e) => updateLicenseField(lk, 'name', e.currentTarget.value)} placeholder={lk.charAt(0).toUpperCase() + lk.slice(1)} />
 							</div>
 							<div class="field">
 								<label for="lic-price-{lk}">Precio (MXN)</label>
@@ -135,7 +256,7 @@
 							</div>
 							<div class="field">
 								<label for="lic-desc-{lk}">Descripción</label>
-								<input id="lic-desc-{lk}" type="text" value={beat.licenseDescs?.[lk] ?? ''} oninput={(e) => updateLicenseDesc(lk, e.currentTarget.value)} placeholder="MP3 · 1 uso" />
+								<input id="lic-desc-{lk}" type="text" value={beat.licenseDescs?.[lk] ?? ''} oninput={(e) => updateLicenseField(lk, 'desc', e.currentTarget.value)} placeholder="MP3 · 1 uso" />
 							</div>
 						</div>
 					</div>
@@ -148,21 +269,56 @@
 	{#if activeTab === 'media'}
 		<Card>
 			<h3 class="section-title">Archivos multimedia</h3>
-			<p class="field-desc">Por ahora ingresa URLs directas. El upload de archivos llega en el Bloque 6.</p>
+			<p class="field-desc">Ingresa URLs directas. Upload de archivos llega pronto.</p>
+
+			<!-- Cover -->
 			<div class="field">
 				<label for="b-cover">Cover URL (imagen)</label>
-				<input id="b-cover" type="url" bind:value={beat.coverUrl} placeholder="https://..." />
+				<div class="media-input-row">
+					<input id="b-cover" type="url" bind:value={beat.coverUrl} placeholder="https://..." />
+					{#if beat.coverUrl}
+						<button class="btn-ghost btn-sm" onclick={() => beat.coverUrl = ''}>✕</button>
+					{/if}
+				</div>
 				{#if beat.coverUrl}
-					<img class="preview-img" src={beat.coverUrl} alt="Cover preview" />
+					<div class="cover-preview">
+						<img src={beat.coverUrl} alt="Cover preview" onerror={(e) => (e.currentTarget as HTMLImageElement).style.display = 'none'} />
+					</div>
 				{/if}
 			</div>
+
+			<!-- Audio -->
 			<div class="field">
 				<label for="b-audio">Audio URL (WAV/MP3)</label>
 				<input id="b-audio" type="url" bind:value={beat.audioUrl} placeholder="https://..." />
 			</div>
+
+			<!-- Preview + Player -->
 			<div class="field">
-				<label for="b-preview">Preview URL (MP3, opcional)</label>
-				<input id="b-preview" type="url" bind:value={beat.previewUrl} placeholder="https://..." />
+				<label for="b-preview">Preview URL (MP3)</label>
+				<div class="media-input-row">
+					<input id="b-preview" type="url" bind:value={beat.previewUrl} placeholder="https://..." />
+				</div>
+				{#if beat.previewUrl}
+					<div class="inline-player">
+						<button class="play-btn" onclick={togglePreview}>
+							{previewPlaying ? '⏸' : '▶'}
+						</button>
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div class="progress-bar" onclick={seekPreview}>
+							<div class="progress-fill" style="width: {previewDuration > 0 ? (previewTime / previewDuration) * 100 : 0}%"></div>
+						</div>
+						<span class="time">{formatTime(previewTime)} / {formatTime(previewDuration)}</span>
+						<audio
+							bind:this={previewAudio}
+							src={beat.previewUrl}
+							ontimeupdate={() => previewTime = previewAudio?.currentTime ?? 0}
+							onloadedmetadata={() => previewDuration = previewAudio?.duration ?? 0}
+							onended={() => { previewPlaying = false; previewTime = 0; }}
+						></audio>
+					</div>
+				{/if}
 			</div>
 		</Card>
 	{/if}
@@ -172,15 +328,15 @@
 		<Card>
 			<h3 class="section-title">Enlaces a plataformas</h3>
 			<div class="field">
-				<label for="b-spotify" style="color: #1db954">🎵 Spotify</label>
+				<label for="b-spotify" class="plat-label" style="--plat-color: #1db954">🎵 Spotify</label>
 				<input id="b-spotify" type="url" value={beat.platforms?.spotify ?? ''} oninput={(e) => updatePlatform('spotify', e.currentTarget.value)} placeholder="https://open.spotify.com/..." />
 			</div>
 			<div class="field">
-				<label for="b-youtube" style="color: #ff0000">▶ YouTube</label>
+				<label for="b-youtube" class="plat-label" style="--plat-color: #ff0000">▶ YouTube</label>
 				<input id="b-youtube" type="url" value={beat.platforms?.youtube ?? ''} oninput={(e) => updatePlatform('youtube', e.currentTarget.value)} placeholder="https://youtube.com/..." />
 			</div>
 			<div class="field">
-				<label for="b-soundcloud" style="color: #ff5500">☁ SoundCloud</label>
+				<label for="b-soundcloud" class="plat-label" style="--plat-color: #ff5500">☁ SoundCloud</label>
 				<input id="b-soundcloud" type="url" value={beat.platforms?.soundCloud ?? ''} oninput={(e) => updatePlatform('soundCloud', e.currentTarget.value)} placeholder="https://soundcloud.com/..." />
 			</div>
 		</Card>
@@ -189,8 +345,8 @@
 	<!-- Tab: Card Style -->
 	{#if activeTab === 'style'}
 		<Card>
-			<h3 class="section-title">Estilo de tarjeta (override)</h3>
-			<p class="field-desc">Overrides por encima del estilo global de tarjeta. Dejar vacío para usar el global.</p>
+			<h3 class="section-title">Estilo de tarjeta</h3>
+			<p class="field-desc">Overrides por encima del estilo global. Dejar en "(usar global)" para no sobreescribir.</p>
 			<div class="grid-2">
 				<div class="field">
 					<label for="b-glow">Glow</label>
@@ -226,19 +382,38 @@
 	{/if}
 </div>
 
+<!-- Delete confirm modal -->
+{#if deleteConfirm}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="modal-overlay" onclick={cancelDelete}>
+		<div class="modal-box" onclick={(e) => e.stopPropagation()}>
+			<div class="modal-icon">🗑️</div>
+			<h3 class="modal-title">¿Borrar este beat?</h3>
+			<p class="modal-text">"{beat.title || 'Sin título'}" se eliminará permanentemente. Esta acción no se puede deshacer.</p>
+			<div class="modal-actions">
+				<button class="btn-cancel" onclick={cancelDelete}>Cancelar</button>
+				<button class="btn-confirm-delete" onclick={confirmDelete}>Sí, borrar</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
 <style>
 	.editor { display: flex; flex-direction: column; gap: var(--space-4); }
 
+	/* Tabs */
 	.tabs {
 		display: flex;
 		gap: var(--space-1);
 		border-bottom: 1px solid var(--border);
 		padding-bottom: var(--space-2);
 		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	.tab {
-		padding: var(--space-2) var(--space-4);
+		padding: var(--space-2) var(--space-3);
 		min-height: var(--touch-min);
 		background: transparent;
 		border: 1px solid transparent;
@@ -248,19 +423,36 @@
 		cursor: pointer;
 		transition: all var(--duration-fast);
 		white-space: nowrap;
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
 	}
 
 	.tab:hover { color: var(--text); background: var(--surface-hover); }
 	.tab.active { color: var(--accent); background: rgba(var(--accent-rgb), 0.08); border-color: var(--border); border-bottom-color: transparent; }
+	.tab-icon { font-size: var(--text-xs); }
 
+	/* Save bar */
 	.save-bar {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		padding: var(--space-2) 0;
+		position: sticky;
+		top: 52px;
+		z-index: 10;
+		background: var(--bg);
+		border-bottom: 1px solid var(--border);
+		margin-bottom: var(--space-2);
 	}
 
+	.save-left { display: flex; align-items: center; gap: var(--space-2); }
+	.save-right { display: flex; align-items: center; gap: var(--space-2); }
+
 	.btn-save {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
 		padding: var(--space-2) var(--space-5);
 		min-height: var(--touch-min);
 		background: var(--accent);
@@ -275,11 +467,41 @@
 
 	.btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
 
+	.btn-save kbd {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		padding: 1px 5px;
+		border-radius: 3px;
+		background: rgba(0,0,0,0.2);
+		color: inherit;
+		opacity: 0.7;
+	}
+
+	.btn-delete {
+		padding: var(--space-2) var(--space-3);
+		min-height: var(--touch-min);
+		background: transparent;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.btn-delete:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-glow); }
+
+	/* Section */
 	.section-title { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--text); margin-bottom: var(--space-4); }
+	.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4); }
+	.section-header .section-title { margin-bottom: 0; }
 	.field-desc { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-3); }
 
+	/* Fields */
 	.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
-	.field label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: var(--space-2); }
+	.field label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+	.field.required-empty input { border-color: var(--danger); }
+	.field.required-empty label { color: var(--danger); }
 
 	.field input[type="text"],
 	.field input[type="number"],
@@ -301,25 +523,238 @@
 	.field input:focus, .field select:focus, .field textarea:focus { border-color: rgba(var(--accent-rgb), 0.5); }
 	.field input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 
+	.toggle-label { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; }
+	.toggle-text { font-size: var(--text-sm); color: var(--text); text-transform: none; letter-spacing: 0; }
+	.toggle-hint { color: var(--text-muted); font-size: var(--text-xs); }
+
 	.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
 	.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-3); }
 
-	.lic-grid { display: flex; flex-direction: column; gap: var(--space-4); }
+	/* Tags */
+	.tags-wrap {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1);
+		padding: var(--space-2);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		min-height: var(--touch-min);
+		align-items: center;
+		cursor: text;
+		transition: border-color 0.2s;
+	}
+
+	.tags-wrap:focus-within { border-color: rgba(var(--accent-rgb), 0.5); }
+
+	.tag-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 2px 8px;
+		border-radius: var(--radius-full);
+		background: rgba(var(--accent-rgb), 0.1);
+		border: 1px solid rgba(var(--accent-rgb), 0.25);
+		color: var(--accent);
+		font-size: var(--text-xs);
+		font-family: var(--font-mono);
+		white-space: nowrap;
+	}
+
+	.tag-remove {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		border: none;
+		background: transparent;
+		color: var(--accent);
+		cursor: pointer;
+		font-size: 8px;
+		padding: 0;
+		opacity: 0.6;
+		transition: opacity 0.2s;
+	}
+
+	.tag-remove:hover { opacity: 1; background: rgba(var(--accent-rgb), 0.2); }
+
+	.tag-input {
+		flex: 1;
+		min-width: 80px;
+		border: none;
+		background: transparent;
+		color: var(--text);
+		font-size: var(--text-sm);
+		outline: none;
+		padding: 2px 0;
+	}
+
+	/* Licenses */
+	.lic-grid { display: flex; flex-direction: column; gap: var(--space-3); }
 	.lic-row { padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
 	.lic-header { margin-bottom: var(--space-2); }
 	.lic-key { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
 
-	.preview-img {
-		width: 100%;
-		max-width: 200px;
-		height: auto;
-		border-radius: var(--radius-md);
-		border: 1px solid var(--border);
+	/* Media */
+	.media-input-row { display: flex; gap: var(--space-2); }
+	.media-input-row input { flex: 1; }
+
+	.cover-preview {
 		margin-top: var(--space-2);
-		object-fit: cover;
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		border: 1px solid var(--border);
+		max-width: 200px;
 	}
+
+	.cover-preview img {
+		width: 100%;
+		height: auto;
+		display: block;
+		object-fit: cover;
+		aspect-ratio: 1;
+	}
+
+	/* Inline player */
+	.inline-player {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		margin-top: var(--space-2);
+		padding: var(--space-2) var(--space-3);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+	}
+
+	.play-btn {
+		min-width: 36px;
+		min-height: 36px;
+		border-radius: 50%;
+		border: 1px solid var(--border);
+		background: transparent;
+		color: var(--accent);
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: var(--text-sm);
+		transition: all 0.2s;
+		flex-shrink: 0;
+	}
+
+	.play-btn:hover { background: rgba(var(--accent-rgb), 0.1); border-color: rgba(var(--accent-rgb), 0.3); }
+
+	.progress-bar {
+		flex: 1;
+		height: 6px;
+		background: var(--border);
+		border-radius: 3px;
+		cursor: pointer;
+		overflow: hidden;
+	}
+
+	.progress-fill {
+		height: 100%;
+		background: var(--accent);
+		border-radius: 3px;
+		transition: width 0.1s linear;
+	}
+
+	.time {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		color: var(--text-muted);
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	/* Platforms */
+	.plat-label { color: var(--plat-color) !important; }
+
+	/* Buttons */
+	.btn-ghost {
+		padding: var(--space-1) var(--space-3);
+		min-height: 32px;
+		background: transparent;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		color: var(--text-secondary);
+		font-size: var(--text-xs);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
+	.btn-sm { min-height: 28px; padding: 2px 8px; }
+
+	/* Delete modal */
+	.modal-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: var(--z-modal);
+		background: rgba(0,0,0,0.6);
+		backdrop-filter: blur(4px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		animation: fadeIn 0.2s var(--ease-out);
+	}
+
+	.modal-box {
+		background: var(--bg-secondary);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-6);
+		max-width: 400px;
+		width: 90%;
+		text-align: center;
+		animation: scaleIn 0.25s var(--ease-out);
+	}
+
+	.modal-icon { font-size: 2.5rem; margin-bottom: var(--space-3); }
+	.modal-title { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: var(--text); margin-bottom: var(--space-2); }
+	.modal-text { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-5); }
+
+	.modal-actions { display: flex; gap: var(--space-3); justify-content: center; }
+
+	.btn-cancel {
+		padding: var(--space-2) var(--space-5);
+		min-height: var(--touch-min);
+		background: transparent;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.btn-cancel:hover { background: var(--surface-hover); color: var(--text); }
+
+	.btn-confirm-delete {
+		padding: var(--space-2) var(--space-5);
+		min-height: var(--touch-min);
+		background: var(--danger);
+		color: white;
+		border: none;
+		border-radius: var(--radius-md);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.btn-confirm-delete:hover { opacity: 0.9; }
+
+	@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+	@keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 	@media (max-width: 768px) {
 		.grid-2, .grid-3 { grid-template-columns: 1fr; }
+		.save-bar { flex-direction: column; gap: var(--space-2); align-items: stretch; }
+		.save-right { justify-content: flex-end; }
 	}
 </style>
