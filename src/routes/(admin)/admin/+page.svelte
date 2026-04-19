@@ -26,7 +26,7 @@
 			<h1 class="dash-title">Dashboard</h1>
 			<p class="dash-sub">Panel de control DACEWAV</p>
 		</div>
-		<Badge variant="accent">v0.4.0</Badge>
+		<Badge variant="accent">v0.5.0</Badge>
 	</div>
 
 	<!-- Stats grid -->
@@ -101,11 +101,11 @@
 		</div>
 		<div class="info-row">
 			<span class="info-label">Bloque actual</span>
-			<span class="info-value">3 — Core Components ✅</span>
+			<span class="info-value">4 — Tienda (Página) ✅</span>
 		</div>
 		<div class="info-row">
 			<span class="info-label">Próximo</span>
-			<span class="info-value">Bloque 4 — Tienda (Página Principal)</span>
+			<span class="info-value">Bloque 5 — Tienda (Beat Page)</span>
 		</div>
 	</div>
 </div>
