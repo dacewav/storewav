@@ -128,25 +128,13 @@ function generateGlowVariants(color: string, intensity: number = 1) {
 }
 
 /**
- * Modo light: invierte paleta base
+ * Modo light: usa data-theme attribute para que CSS [data-theme="light"] aplique.
+ * No aplicar overrides inline — dejar que app.css maneje los colores via cascada.
  */
-function getLightOverrides(): Record<string, string> {
-	return {
-		'--bg': '#f5f5f5',
-		'--bg-secondary': '#ebebeb',
-		'--surface': '#ffffff',
-		'--surface2': '#f0f0f0',
-		'--surface-hover': '#e8e8e8',
-		'--surface-active': '#e0e0e0',
-		'--text': '#0a0a0a',
-		'--text-secondary': 'rgba(10, 10, 10, 0.55)',
-		'--text-muted': 'rgba(10, 10, 10, 0.25)',
-		'--text-hint': 'rgba(10, 10, 10, 0.15)',
-		'--border': 'rgba(0, 0, 0, 0.08)',
-		'--border2': 'rgba(0, 0, 0, 0.15)',
-		'--border-hover': 'rgba(0, 0, 0, 0.2)',
-		'--backdrop': 'rgba(255, 255, 255, 0.7)',
-	};
+function setLightMode(enabled: boolean) {
+	if (typeof document === 'undefined') return;
+	document.documentElement.setAttribute('data-theme', enabled ? 'light' : 'dark');
+	document.documentElement.style.colorScheme = enabled ? 'light' : 'dark';
 }
 
 /**
@@ -159,9 +147,9 @@ export function applyTheme(config: ThemeConfig) {
 	const root = document.documentElement;
 	const vars: Record<string, string> = {};
 
-	// 1. Light mode overrides (aplicar PRIMERO, otros valores pisan)
-	if (config.lightMode) {
-		Object.assign(vars, getLightOverrides());
+	// 1. Light mode — delegar a data-theme attribute + CSS
+	if (config.lightMode !== undefined) {
+		setLightMode(config.lightMode);
 	}
 
 	// 2. Direct mappings

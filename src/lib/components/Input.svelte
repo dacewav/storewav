@@ -1,5 +1,5 @@
 <script lang="ts">
-	type InputType = 'text' | 'number' | 'email' | 'password' | 'search';
+	type InputType = 'text' | 'number' | 'email' | 'password' | 'search' | 'tel' | 'url';
 
 	let {
 		type = 'text',

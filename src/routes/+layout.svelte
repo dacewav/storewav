@@ -12,4 +12,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 
+<a href="#main-content" class="sr-only" style="z-index: var(--z-toast);">
+	Saltar al contenido
+</a>
+
 {@render children()}

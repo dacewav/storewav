@@ -1,8 +1,18 @@
 <script lang="ts">
 	import { AdminTopbar, AdminSidebar } from '$lib/components';
+	import { goto } from '$app/navigation';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
+
+	// Block 2: check auth → redirect to /login if not admin
+	// onMount(async () => {
+	// 	const { onAuthStateChanged } = await import('firebase/auth');
+	// 	const auth = await getAuthInstance();
+	// 	onAuthStateChanged(auth, (user) => {
+	// 		if (!user) goto('/login');
+	// 	});
+	// });
 
 	let activeSection = $state('dashboard');
 	let saveStatus = $state<'saved' | 'saving' | 'unsaved' | 'error'>('saved');

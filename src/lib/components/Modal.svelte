@@ -5,10 +5,12 @@
 	let {
 		open = $bindable(false),
 		title = '',
+		maxWidth = '500px',
 		children
 	}: {
 		open?: boolean;
 		title?: string;
+		maxWidth?: string;
 		children: Snippet;
 	} = $props();
 
@@ -62,7 +64,7 @@
 		aria-label={title || 'Modal'}
 		tabindex="-1"
 	>
-		<div class="modal" class:closing>
+		<div class="modal" class:closing style="max-width: {maxWidth};">
 			{#if title}
 				<div class="modal-header">
 					<h2 class="modal-title">{title}</h2>
@@ -103,7 +105,6 @@
 		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
 		width: 100%;
-		max-width: 500px;
 		max-height: 85vh;
 		overflow-y: auto;
 		animation: slideUp var(--duration-normal) var(--ease-out);

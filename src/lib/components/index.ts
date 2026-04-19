@@ -16,3 +16,4 @@ export { default as Tabs } from './Tabs.svelte';
 export { default as Collapsible } from './Collapsible.svelte';
 export { default as AdminTopbar } from './AdminTopbar.svelte';
 export { default as AdminSidebar } from './AdminSidebar.svelte';
+export { default as ToastContainer } from './ToastContainer.svelte';

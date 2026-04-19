@@ -22,6 +22,8 @@
 				class="si"
 				class:active={active === item.id}
 				onclick={() => active = item.id}
+				title={item.label}
+				aria-label={item.label}
 			>
 				<span class="si-icon">{item.icon}</span>
 				<span class="si-label">{item.label}</span>

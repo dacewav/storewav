@@ -19,22 +19,49 @@ const firebaseConfig = {
 	appId: PUBLIC_FIREBASE_APP_ID
 };
 
+/** Valida que las env vars existan antes de intentar init */
+function validateConfig() {
+	const required = Object.entries(firebaseConfig);
+	const missing = required.filter(([, v]) => !v).map(([k]) => k);
+	if (missing.length > 0) {
+		console.error(
+			`[Firebase] Variables de entorno faltantes: ${missing.join(', ')}\n` +
+			`→ Copia .env.example a .env y completa los valores.`
+		);
+		return false;
+	}
+	return true;
+}
+
 // Lazy init — only on client side (Firebase SDK doesn't work in Workers SSR)
 let _app: any = null;
 let _db: any = null;
-let _auth: any = null;
+let _auth: null | Promise<any> = null;
+let _initError: Error | null = null;
 
 async function initFirebase() {
 	if (!browser) return;
 	if (_app) return;
+	if (_initError) throw _initError;
 
-	const { initializeApp, getApps } = await import('firebase/app');
-	const { getDatabase } = await import('firebase/database');
-	const { getAuth } = await import('firebase/auth');
+	if (!validateConfig()) {
+		_initError = new Error('Firebase config incompleta — revisa .env');
+		throw _initError;
+	}
 
-	_app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-	_db = getDatabase(_app);
-	_auth = getAuth(_app);
+	try {
+		const { initializeApp, getApps } = await import('firebase/app');
+		const { getDatabase } = await import('firebase/database');
+		const { getAuth } = await import('firebase/auth');
+
+		_app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+		_db = getDatabase(_app);
+		_auth = getAuth(_app);
+	} catch (err) {
+		_initError = err instanceof Error ? err : new Error(String(err));
+		console.error('[Firebase] Error de inicialización:', _initError.message);
+		throw _initError;
+	}
 }
 
 export async function getDb() {
@@ -50,4 +77,14 @@ export async function getAuthInstance() {
 export async function getApp() {
 	await initFirebase();
 	return _app;
+}
+
+/** ¿Firebase se inicializó correctamente? */
+export function isFirebaseReady() {
+	return _app !== null && _initError === null;
+}
+
+/** Último error de init (si lo hubo) */
+export function getFirebaseError() {
+	return _initError;
 }

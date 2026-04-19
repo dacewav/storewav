@@ -23,7 +23,7 @@
 </script>
 
 {#if visible}
-	<div class="toast toast-{type}" role="status" aria-live="polite">
+	<div class="toast toast-{type}" role="status" aria-live="polite" aria-atomic="true">
 		{#if type === 'success'}
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
 		{:else if type === 'error'}

@@ -72,6 +72,11 @@
   --tracking-wide: 0.05em;
   --tracking-wider: 0.1em;
 
+  /* ── Line Height ── */
+  --leading-tight: 1.3;
+  --leading-normal: 1.7;
+  --leading-relaxed: 1.9;
+
   /* ── Typography (admin → Firebase theme/font*) ── */
   --font-display: 'Syne', sans-serif;
   --font-body: 'Space Grotesk', sans-serif;
@@ -207,7 +212,7 @@
 html {
   font-family: var(--font-body);
   font-size: 14px;
-  line-height: 1.7;
+  line-height: var(--leading-normal);
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -236,6 +241,11 @@ a:hover {
 img, video, svg {
   display: block;
   max-width: 100%;
+}
+
+::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
 }
 
 button {
@@ -644,6 +654,28 @@ body:hover #cursor-glow {
 .fs-xs { font-size: var(--text-xs); }
 .fs-sm { font-size: var(--text-sm); }
 
+/* Flex direction */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Padding helpers */
+.pt-xs { padding-top: var(--space-1); }
+.pt-sm { padding-top: var(--space-2); }
+.pt-md { padding-top: var(--space-4); }
+.pt-lg { padding-top: var(--space-6); }
+.pb-xs { padding-bottom: var(--space-1); }
+.pb-sm { padding-bottom: var(--space-2); }
+.pb-md { padding-bottom: var(--space-4); }
+.pb-lg { padding-bottom: var(--space-6); }
+.px-sm { padding-inline: var(--space-2); }
+.px-md { padding-inline: var(--space-4); }
+.px-lg { padding-inline: var(--space-6); }
+.py-sm { padding-block: var(--space-2); }
+.py-md { padding-block: var(--space-4); }
+.py-lg { padding-block: var(--space-6); }
+
 /* Hide on breakpoints */
 .hide-mobile {
   display: block;
@@ -726,6 +758,18 @@ body:hover #cursor-glow {
 
 [data-theme="light"] #scroll-progress {
   box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.4);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(var(--accent-rgb), 0.12);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--accent-rgb), 0.25);
+}
+
+[data-theme="light"] {
+  scrollbar-color: rgba(var(--accent-rgb), 0.12) transparent;
 }
 
 [data-theme="light"] .glow-word {
