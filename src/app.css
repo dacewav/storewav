@@ -25,11 +25,11 @@
   --text-muted: rgba(245, 238, 238, 0.25);
   --text-hint: rgba(245, 238, 238, 0.15);
 
-  --accent: #00ff88;
-  --accent-dim: #00cc6a;
+  --accent: #dc2626;
+  --accent-dim: #b91c1c;
   --accent-glow: rgba(var(--accent-rgb), 0.12);
   --accent-glow-strong: rgba(var(--accent-rgb), 0.25);
-  --accent-rgb: 0, 255, 136;
+  --accent-rgb: 220, 38, 38;
 
   --red: #7f1d1d;
   --red-light: #991b1b;
