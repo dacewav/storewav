@@ -30,6 +30,28 @@
         "createdAt": { ".validate": "newData.isNumber()" },
         "active": { ".validate": "newData.isBoolean()" },
         "cardStyle": { ".validate": true },
+        "description": { ".validate": "newData.isString()" },
+        "previewUrl": { ".validate": "newData.isString()" },
+        "platforms": {
+          ".validate": true,
+          "spotify": { ".validate": "newData.isString()" },
+          "youtube": { ".validate": "newData.isString()" },
+          "soundCloud": { ".validate": "newData.isString()" }
+        },
+        "licenseNames": {
+          ".validate": true,
+          "basic": { ".validate": "newData.isString()" },
+          "premium": { ".validate": "newData.isString()" },
+          "unlimited": { ".validate": "newData.isString()" },
+          "exclusive": { ".validate": "newData.isString()" }
+        },
+        "licenseDescs": {
+          ".validate": true,
+          "basic": { ".validate": "newData.isString()" },
+          "premium": { ".validate": "newData.isString()" },
+          "unlimited": { ".validate": "newData.isString()" },
+          "exclusive": { ".validate": "newData.isString()" }
+        },
         "$other": { ".validate": false }
       }
     },

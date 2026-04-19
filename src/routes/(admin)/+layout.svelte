@@ -24,10 +24,12 @@
 
 	const navGroups = [
 		{
-			label: 'General',
+			label: 'Contenido',
 			items: [
 				{ href: '/admin', label: 'Dashboard', icon: '📊' },
+				{ href: '/admin/beats', label: 'Beats', icon: '🎵' },
 				{ href: '/admin/hero', label: 'Hero', icon: '🏠' },
+				{ href: '/admin/content', label: 'Contenido', icon: '✏️' },
 			]
 		},
 		{

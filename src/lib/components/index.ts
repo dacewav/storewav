@@ -24,4 +24,5 @@ export { default as WishlistPanel } from './WishlistPanel.svelte';
 export { default as BeatModal } from './BeatModal.svelte';
 export { default as Icon } from './Icon.svelte';
 export { default as Testimonials } from './Testimonials.svelte';
+export { default as BeatEditor } from './BeatEditor.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar
