@@ -81,6 +81,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 
+<!-- Banner (admin-editable) -->
+<div class="site-banner" style="display:none">
+	<div class="banner-inner"></div>
+</div>
+
 <!-- Loader -->
 {#if loaderVisible}
 <div id="loader">
@@ -182,6 +187,24 @@
 		min-height: 100dvh;
 		position: relative;
 		z-index: var(--z-content);
+	}
+
+	/* ── Banner ── */
+	.site-banner {
+		position: relative;
+		z-index: var(--z-content);
+		overflow: hidden;
+		background: var(--red);
+		padding: var(--space-2) 0;
+	}
+
+	.banner-inner {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text);
+		text-align: center;
+		white-space: nowrap;
+		letter-spacing: 0.05em;
 	}
 
 	/* ── Nav ── */
