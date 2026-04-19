@@ -24,7 +24,7 @@ tareas_totales: 9
 - **Firebase project:** dacewav-store-3b0f5
 - **Estilo:** dark (#0a0a0a), accent neón (#00ff88), fonts Syne/Space Grotesk/DM Mono
 - **Proyecto anterior:** catalog (vanilla JS v5.2) — se deja atrás PERO se migran features
-- **Archivo de análisis:** `CATALOG-ANALYSIS.md` — lee esto para entender qué migrar
+- **Archivo de análisis:** `.guide/CATALOG-ANALYSIS.md` — lee esto para entender qué migrar
 
 ### Features a migrar desde catalog
 - **Player** (AP object) → Svelte component + store
@@ -54,13 +54,13 @@ theme → bg, surface, accent, text, muted, glow*, cardOpacity, radiusGlobal, he
 analytics/events/{date}/{id} → analytics/counts/{beatId} → analytics/daily/{date}
 ```
 - `README.md` — descripción básica
-- `PROJECT_STATE.md` — memoria del proyecto
-- `LIVE-STATUS.md` — health check de guía
-- `CHANGELOG.md` — log de sesiones
-- `BOOTSTRAP.sh` — script de inicio
-- `INSTALL-SKILLS.sh` — instala skills de diseño
-- `REVIEW-GUIDE.md` — protocolo de actualización de guía
-- `docs/DESIGN-REFERENCES.md` — se crea al instalar skills
+- `.guide/PROJECT_STATE.md` — memoria del proyecto
+- `.guide/LIVE-STATUS.md` — health check de guía
+- `.guide/CHANGELOG.md` — log de sesiones
+- `.guide/BOOTSTRAP.sh` — script de inicio
+- `.guide/INSTALL-SKILLS.sh` — instala skills de diseño
+- `.guide/REVIEW-GUIDE.md` — protocolo de actualización de guía
+- `.guide/docs/DESIGN-REFERENCES.md` — se crea al instalar skills
 
 ### Lo que NO existe aún
 - `package.json`

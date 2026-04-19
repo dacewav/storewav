@@ -80,7 +80,7 @@ echo ""
 echo "  ─── Recursos de Referencia ───"
 
 # Crear archivo de referencias que la IA puede consultar
-REFS_FILE="docs/DESIGN-REFERENCES.md"
+REFS_FILE=".guide/docs/DESIGN-REFERENCES.md"
 mkdir -p docs
 
 cat > "$REFS_FILE" << 'EOF'
@@ -114,7 +114,7 @@ https://docs.composio.dev/docs
 5. Seguir las guías de frontend-design skill para anti-slop
 EOF
 
-echo "  → Referencias guardadas en docs/DESIGN-REFERENCES.md ✅"
+echo "  → Referencias guardadas en .guide/docs/DESIGN-REFERENCES.md ✅"
 echo ""
 
 # ═══════════════════════════════════════

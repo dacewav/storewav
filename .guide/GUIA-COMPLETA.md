@@ -9,23 +9,23 @@
 
 | Archivo | Qué hace | Cuándo usarlo |
 |---------|----------|---------------|
-| `MEGA-PROMPT.md` | Prompt para copiar/pegar en cada chat nuevo | **SIEMPRE** al inicio de cada sesión |
-| `QUICK-START.md` | Prompts cortos para arrancar rápido | Cuando no quieres copiar el mega prompt |
-| `PROTOCOLO-SESION.md` | Flujo paso a paso de cada sesión | Referencia de la IA |
-| `PROTOCOLO-TESTS.md` | Cómo testear cada tipo de cambio | Después de cada implementación |
-| `PROJECT_STATE.md` | Memoria compartida entre chats | **SIEMPRE** — se lee y se actualiza |
-| `BLOCK-CONTEXT.md` | Contexto rápido del bloque actual | **SIEMPRE** — más rápido que PROJECT_STATE |
-| `CHANGELOG.md` | Log de sesiones — qué hicimos, qué aprendimos | Al final de cada sesión |
-| `LIVE-STATUS.md` | Health check en tiempo real de la guía | Al inicio y final de cada sesión |
-| `REVIEW-GUIDE.md` | Protocolo para actualizar la guía chat con chat | Al final de cada sesión |
-| `INTERRUPTION-HANDLER.md` | Cómo manejar peticiones fuera del bloque | Cuando el usuario pide algo puntual |
-| `PARKING-LOT.md` | Ideas en espera — sin interrumpir el flujo | Cuando tengas una idea para después |
-| `BOOTSTRAP.sh` | Script que clona, skills y muestra estado + health check | Al inicio de cada sesión |
-| `INSTALL-SKILLS.sh` | Instala skills de diseño (frontend-design, composio) | En bootstrap o manual |
-| `PRE-COMMIT.sh` | Validación antes de cada commit | Antes de cada commit |
-| `GUIA-COMPLETA.md` (este archivo) | Visión general + arquitectura + prompts por bloque | Referencia de diseño |
-| `ERRORES-COMUNES.md` | Errores conocidos y sus soluciones | Cuando algo falla |
-| `docs/DESIGN-REFERENCES.md` | Referencias de diseño y anti-slop rules | Antes de diseñar |
+| `.guide/MEGA-PROMPT.md` | Prompt para copiar/pegar en cada chat nuevo | **SIEMPRE** al inicio de cada sesión |
+| `.guide/QUICK-START.md` | Prompts cortos para arrancar rápido | Cuando no quieres copiar el mega prompt |
+| `.guide/PROTOCOLO-SESION.md` | Flujo paso a paso de cada sesión | Referencia de la IA |
+| `.guide/PROTOCOLO-TESTS.md` | Cómo testear cada tipo de cambio | Después de cada implementación |
+| `.guide/PROJECT_STATE.md` | Memoria compartida entre chats | **SIEMPRE** — se lee y se actualiza |
+| `.guide/BLOCK-CONTEXT.md` | Contexto rápido del bloque actual | **SIEMPRE** — más rápido que PROJECT_STATE |
+| `.guide/CHANGELOG.md` | Log de sesiones — qué hicimos, qué aprendimos | Al final de cada sesión |
+| `.guide/LIVE-STATUS.md` | Health check en tiempo real de la guía | Al inicio y final de cada sesión |
+| `.guide/REVIEW-GUIDE.md` | Protocolo para actualizar la guía chat con chat | Al final de cada sesión |
+| `.guide/INTERRUPTION-HANDLER.md` | Cómo manejar peticiones fuera del bloque | Cuando el usuario pide algo puntual |
+| `.guide/PARKING-LOT.md` | Ideas en espera — sin interrumpir el flujo | Cuando tengas una idea para después |
+| `.guide/BOOTSTRAP.sh` | Script que clona, skills y muestra estado + health check | Al inicio de cada sesión |
+| `.guide/INSTALL-SKILLS.sh` | Instala skills de diseño (frontend-design, composio) | En bootstrap o manual |
+| `.guide/PRE-COMMIT.sh` | Validación antes de cada commit | Antes de cada commit |
+| `.guide/GUIA-COMPLETA.md` (este archivo) | Visión general + arquitectura + prompts por bloque | Referencia de diseño |
+| `.guide/ERRORES-COMUNES.md` | Errores conocidos y sus soluciones | Cuando algo falla |
+| `.guide/docs/DESIGN-REFERENCES.md` | Referencias de diseño y anti-slop rules | Antes de diseñar |
 
 ---
 

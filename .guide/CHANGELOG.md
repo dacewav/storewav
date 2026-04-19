@@ -1,7 +1,7 @@
 # 📋 CHANGELOG.md — Log de Sesiones
 
 > Cada chat que termina escribe aquí qué hizo, qué aprendió, qué falló.
-> Es la memoria viva del proyecto — más detallada que PROJECT_STATE.md.
+> Es la memoria viva del proyecto — más detallada que .guide/PROJECT_STATE.md.
 
 ---
 
@@ -60,26 +60,26 @@
 - catalog SÍ tiene: skeleton loading, audio error recovery, cross-tab sync, keyboard shortcuts
 
 ### Impacto en la Guía
-- [x] PROJECT_STATE.md — agregar decisiones técnicas basadas en análisis
-- [x] BLOCK-CONTEXT.md — agregar features a migrar + estructura Firebase
-- [x] CATALOG-ANALYSIS.md — NUEVO análisis completo
-- [x] MIGRATION.md — NUEVO plan de migración de datos
-- [x] ACCESSIBILITY.md — NUEVO plan de accesibilidad
-- [x] PERFORMANCE.md — NUEVO budget de performance
-- [x] LOADING-STATES.md — NUEVO estados de carga por componente
-- [x] CONTENT-VERSIONING.md — NUEVO rollback de contenido
-- [x] MOBILE.md — NUEVO plan móvil
-- [x] ANTI-PATTERNS.md — agregar sección de seguridad
-- [x] PROTOCOLO-TESTS.md — agregar tests de mobile y accessibility
-- [x] DEFINITION-OF-DONE.md — NUEVO criterios explícitos de done por tipo de tarea
-- [x] FIREBASE-MONITOR.md — NUEVO cuotas, límites, monitoreo
-- [x] KEYBOARD-SHORTCUTS.md — NUEVO atajos unificados tienda+admin
-- [x] LARGE-CATALOG.md — NUEVO escalabilidad para catálogos grandes
-- [x] TOAST-SYSTEM.md — NUEVO diseño del sistema de notificaciones
-- [x] SEO.md — NUEVO estrategia SEO completa (robots, sitemap, structured data, OG)
-- [x] README.md — actualizar índice con 37 archivos
+- [x] .guide/PROJECT_STATE.md — agregar decisiones técnicas basadas en análisis
+- [x] .guide/BLOCK-CONTEXT.md — agregar features a migrar + estructura Firebase
+- [x] .guide/CATALOG-ANALYSIS.md — NUEVO análisis completo
+- [x] .guide/MIGRATION.md — NUEVO plan de migración de datos
+- [x] .guide/ACCESSIBILITY.md — NUEVO plan de accesibilidad
+- [x] .guide/PERFORMANCE.md — NUEVO budget de performance
+- [x] .guide/LOADING-STATES.md — NUEVO estados de carga por componente
+- [x] .guide/CONTENT-VERSIONING.md — NUEVO rollback de contenido
+- [x] .guide/MOBILE.md — NUEVO plan móvil
+- [x] .guide/ANTI-PATTERNS.md — agregar sección de seguridad
+- [x] .guide/PROTOCOLO-TESTS.md — agregar tests de mobile y accessibility
+- [x] .guide/DEFINITION-OF-DONE.md — NUEVO criterios explícitos de done por tipo de tarea
+- [x] .guide/FIREBASE-MONITOR.md — NUEVO cuotas, límites, monitoreo
+- [x] .guide/KEYBOARD-SHORTCUTS.md — NUEVO atajos unificados tienda+admin
+- [x] .guide/LARGE-CATALOG.md — NUEVO escalabilidad para catálogos grandes
+- [x] .guide/TOAST-SYSTEM.md — NUEVO diseño del sistema de notificaciones
+- [x] .guide/SEO.md — NUEVO estrategia SEO completa (robots, sitemap, structured data, OG)
+- [x] .guide/README.md — actualizar índice con 37 archivos
 - [x] CHANGELOG.md — registrar sesión completa
-- [x] LIVE-STATUS.md — actualizar métricas
+- [x] .guide/LIVE-STATUS.md — actualizar métricas
 
 ### Estado final
 - Guía completa con 26 archivos

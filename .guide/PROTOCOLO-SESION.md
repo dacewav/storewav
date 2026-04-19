@@ -8,7 +8,7 @@
 
 ```
 Clona el repo, instala skills y ejecuta el bootstrap:
-git clone https://github.com/dacewav/store.git && cd store && bash BOOTSTRAP.sh
+git clone https://github.com/dacewav/store.git && cd store && bash .guide/BOOTSTRAP.sh
 
 Esto automáticamente:
 - Instala skills de diseño (frontend-design, anthropic-frontend-design, composio)
@@ -18,7 +18,7 @@ Esto automáticamente:
 
 Luego lee BLOCK-CONTEXT.md (contexto rápido del bloque actual — 1 minuto).
 Si necesitas más detalle → lee PROJECT_STATE.md completo.
-Lee docs/DESIGN-REFERENCES.md antes de diseñar cualquier componente.
+Lee .guide/docs/DESIGN-REFERENCES.md antes de diseñar cualquier componente.
 ```
 
 ## Paso 2: Confirmar bloque actual
@@ -62,7 +62,7 @@ Después de CADA implementación, la IA DEBE responder:
 
 ```bash
 # Ejecutar pre-commit check
-bash PRE-COMMIT.sh
+bash .guide/PRE-COMMIT.sh
 
 # Si pasa → continuar:
 # Actualizar PROJECT_STATE.md: cambiar [ ] por [x] en la tarea completada

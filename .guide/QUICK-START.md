@@ -12,7 +12,7 @@ DACEWAV.STORE — co-piloto de desarrollo.
 Stack: SvelteKit + Firebase + Cloudflare.
 
 PASO 1: Ejecuta esto:
-  cd store && bash BOOTSTRAP.sh
+  cd store && bash .guide/BOOTSTRAP.sh
 
 PASO 2: Lee estos 3 archivos (en orden):
   1. PROJECT_STATE.md → dónde estamos

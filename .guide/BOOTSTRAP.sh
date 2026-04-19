@@ -60,9 +60,9 @@ echo "  ESTADO DEL PROYECTO"
 echo "═══════════════════════════════════════════════"
 
 # 2. Leer estado
-if [ -f "PROJECT_STATE.md" ]; then
+if [ -f ".guide/PROJECT_STATE.md" ]; then
     echo ""
-    echo "📋 PROJECT_STATE.md encontrado"
+    echo "📋 .guide/PROJECT_STATE.md encontrado"
     echo ""
 
     # Extraer bloque actual
@@ -131,7 +131,7 @@ echo "  HEALTH CHECK DE LA GUÍA"
 echo "═══════════════════════════════════════════════"
 echo ""
 
-if [ -f "LIVE-STATUS.md" ]; then
+if [ -f ".guide/LIVE-STATUS.md" ]; then
     # Extraer métricas básicas
     VERSION=$(grep "guide_version:" LIVE-STATUS.md | head -1 | sed 's/.*: *"//' | sed 's/".*//')
     SESIONES=$(grep "total_sesiones:" LIVE-STATUS.md | head -1 | sed 's/.*: *//')
@@ -146,7 +146,7 @@ if [ -f "LIVE-STATUS.md" ]; then
     PENDING=$(grep "⬜" LIVE-STATUS.md | wc -l)
     if [ "$PENDING" -gt 0 ]; then
         echo "  ⚠️  $PENDING archivos de guía sin verificar"
-        echo "  → Ejecutar check de INICIO (ver REVIEW-GUIDE.md)"
+        echo "  → Ejecutar check de INICIO (ver .guide/REVIEW-GUIDE.md)"
     else
         echo "  ✅ Guía verificada"
     fi
@@ -188,7 +188,7 @@ echo "  PARKING LOT (ideas en espera)"
 echo "═══════════════════════════════════════════════"
 echo ""
 
-if [ -f "PARKING-LOT.md" ]; then
+if [ -f ".guide/PARKING-LOT.md" ]; then
     PENDING_IDEAS=$(grep -c "⏳" PARKING-LOT.md 2>/dev/null || echo "0")
     if [ "$PENDING_IDEAS" -gt 0 ]; then
         echo "  💡 $PENDING_IDEAS idea(s) pendiente(s):"
@@ -208,13 +208,13 @@ echo "  LISTO PARA TRABAJAR"
 echo "═══════════════════════════════════════════════"
 echo ""
 echo "Próximos pasos:"
-echo "  1. Lee BLOCK-CONTEXT.md (contexto del bloque actual — RÁPIDO)"
+echo "  1. Lee .guide/BLOCK-CONTEXT.md (contexto del bloque actual — RÁPIDO)"
 echo "  2. Si necesitas más detalle → PROJECT_STATE.md"
-echo "  3. Revisa LIVE-STATUS.md → health check de guía"
+echo "  3. Revisa .guide/LIVE-STATUS.md → health check de guía"
 echo "  4. Toma UNA tarea a la vez"
 echo "  5. Hazla, TESTÉALA, verifica que funciona"
-echo "  6. Ejecuta: bash PRE-COMMIT.sh (validación)"
-echo "  7. Actualiza PROJECT_STATE.md + BLOCK-CONTEXT.md"
+echo "  6. Ejecuta: bash .guide/PRE-COMMIT.sh (validación)"
+echo "  7. Actualiza .guide/PROJECT_STATE.md + .guide/BLOCK-CONTEXT.md"
 echo "  8. Haz commit"
-echo "  9. Al cerrar: ejecutar REVIEW-GUIDE.md"
+echo "  9. Al cerrar: ejecutar .guide/REVIEW-GUIDE.md"
 echo ""

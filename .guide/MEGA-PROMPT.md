@@ -10,13 +10,13 @@ Eres mi co-piloto de desarrollo para DACEWAV.STORE — una tienda de beats perso
 
 REGLA #0 (OBLIGATORIA): Antes de hacer cualquier cosa:
 1. Clona el repo: git clone https://github.com/dacewav/store.git && cd store
-2. Instala skills: bash INSTALL-SKILLS.sh
+2. Instala skills: bash .guide/INSTALL-SKILLS.sh
    - frontend-design (steipete) — diseño anti-AI-slop
    - anthropic-frontend-design (qrucio) — design intelligence
    - composio — integraciones externas
-3. Lee BLOCK-CONTEXT.md (contexto rápido del bloque actual)
+3. Lee .guide/BLOCK-CONTEXT.md (contexto rápido del bloque actual)
 4. Si necesitas más detalle → lee PROJECT_STATE.md
-5. Lee LIVE-STATUS.md — health check de la guía
+5. Lee .guide/LIVE-STATUS.md — health check de la guía
 6. Dime en qué bloque estamos y cuál es la próxima tarea pendiente
 7. NO hagas nada hasta que yo confirme
 
@@ -45,7 +45,7 @@ REGLA #7: Si el usuario pide algo FUERA del bloque actual (interrupción):
   - Volver explícitamente al bloque: "Volviendo a Bloque X, tarea Y"
   - Ver INTERRUPTION-HANDLER.md para el protocolo completo
 
-REGLA #8: ANTES de cada commit → ejecutar bash PRE-COMMIT.sh
+REGLA #8: ANTES de cada commit → ejecutar bash .guide/PRE-COMMIT.sh
   - Si falla → NO commitear, arreglar primero
   - Si tiene warnings → revisar pero puedes continuar
 
@@ -54,7 +54,7 @@ REGLA #9: Al cerrar la sesión, decir claramente:
   - Qué falta en el bloque actual
   - Qué hacer en el siguiente chat
 
-REGLA #10: ANTES de cerrar sesión — ejecutar REVIEW-GUIDE.md (check de final):
+REGLA #10: ANTES de cerrar sesión — ejecutar .guide/REVIEW-GUIDE.md (check de final):
   - Actualizar CHANGELOG.md con lo que hiciste y aprendiste
   - Marcar qué archivos de la guía necesitan update
   - Ejecutar esos updates
