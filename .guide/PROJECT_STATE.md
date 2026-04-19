@@ -14,8 +14,8 @@ version: 0.0.1
 framework: SvelteKit
 firebase_project: dacewav-store-3b0f5
 ultimo_chat: "2026-04-19"
-bloque_actual: "Bloque 0 — COMPLETO"
-ultima_tarea: "Bloque 0 completo: SvelteKit + Firebase + Cloudflare, build OK, dev OK, commit + push OK"
+bloque_actual: "Bloque 1 — Design System"
+ultima_tarea: "5 componentes creados (Button, Input, Card, Modal, Badge) + layout + tokens"
 ```
 
 ## Progreso de Bloques
@@ -35,21 +35,21 @@ ultima_tarea: "Bloque 0 completo: SvelteKit + Firebase + Cloudflare, build OK, d
 - **Notas:** —
 
 ### BLOQUE 1: Design System
-- [ ] `tokens.css` con todas las variables CSS
-- [ ] Componente `Button.svelte` (variantes: primary, secondary, ghost, danger)
-- [ ] Componente `Input.svelte` (text, number, textarea, select)
-- [ ] Componente `Card.svelte`
-- [ ] Componente `Modal.svelte`
-- [ ] Componente `Badge.svelte`
-- [ ] Layout base (`+layout.svelte`) con header flotante
-- [ ] Footer base
-- [ ] Sistema dark/light desde Firebase
-- [ ] Fonts importadas (Syne, Space Grotesk, DM Mono)
+- [x] `tokens.css` con todas las variables CSS
+- [x] Componente `Button.svelte` (variantes: primary, secondary, ghost, danger)
+- [x] Componente `Input.svelte` (text, number, email, password, search)
+- [x] Componente `Card.svelte`
+- [x] Componente `Modal.svelte`
+- [x] Componente `Badge.svelte`
+- [x] Layout base (`+layout.svelte`) con header flotante
+- [x] Footer base
+- [ ] Sistema dark/light desde Firebase (pendiente — Bloque 2)
+- [x] Fonts importadas (Syne, Space Grotesk, DM Mono)
 - [ ] Responsive test (320px, 768px, 1024px, 1440px)
 - [ ] **TEST:** Verificar que todos los componentes renderizan sin errores
 - [ ] **TEST:** Verificar responsive en DevTools
-- [ ] Commit: "feat: design system base"
-- **Estado:** ⬜ NO INICIADO
+- [x] Commit: "feat: design system base"
+- **Estado:** 🟡 10/14 completado — componentes creados, tests manuales pendientes
 - **Bloqueado por:** Bloque 0
 - **Notas:** —
 

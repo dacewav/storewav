@@ -73,15 +73,20 @@ analytics/events/{date}/{id} → analytics/counts/{beatId} → analytics/daily/{
 
 | # | Tarea | Estado | Notas |
 |---|-------|--------|-------|
-| 1 | `npm create svelte@latest` | ✅ | Skeleton project, TypeScript |
-| 2 | Firebase SDK instalado | ✅ | `npm install firebase` |
-| 3 | `.env` creado | ✅ | Keys reales configuradas |
-| 4 | `src/lib/firebase.ts` | ✅ | Singleton, modular SDK v9, exports db + auth |
-| 5 | Cloudflare config | ✅ | `@sveltejs/adapter-cloudflare` en svelte.config.js |
-| 6 | `.gitignore` correcto | ✅ | node_modules, .env, .svelte-kit, build |
-| 7 | `npm run build` exitoso | ✅ | Build en 144ms client + 2.3s SSR |
-| 8 | Primer commit + push | ✅ | `a36f8f9` pushed to main |
-| 9 | `npm run dev` funciona | ✅ | localhost:5173 carga correctamente |
+| 1 | `tokens.css` | ✅ | 70+ CSS variables, base reset, utility classes |
+| 2 | `Button.svelte` | ✅ | primary/secondary/ghost/danger, sm/md/lg, loading state |
+| 3 | `Input.svelte` | ✅ | text/number/email/password/search, label, error, bindable |
+| 4 | `Card.svelte` | ✅ | hoverable variant, padding toggle |
+| 5 | `Modal.svelte` | ✅ | backdrop click, Escape key, slideUp animation |
+| 6 | `Badge.svelte` | ✅ | default/accent/danger/warning/muted |
+| 7 | Layout base | ✅ | Sticky header, logo, nav, footer |
+| 8 | Footer base | ✅ | En layout, estilo mono |
+| 9 | Dark/light Firebase | ⬜ | Pendiente — requiere Bloque 2 (Firebase stores) |
+| 10 | Fonts importadas | ✅ | Google Fonts: Syne, Space Grotesk, DM Mono |
+| 11 | Responsive test | ⬜ | Requiere browser verification |
+| 12 | TEST: componentes renderizan | ⬜ | Requiere browser verification |
+| 13 | TEST: responsive DevTools | ⬜ | Requiere browser verification |
+| 14 | Commit + push | ⬜ | Listo para commitear |
 
 ## Decisiones Pendientes del Bloque
 
