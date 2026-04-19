@@ -61,7 +61,7 @@
 		cursor: pointer;
 		white-space: nowrap;
 		position: relative;
-		transition: color 0.15s;
+		transition: color var(--duration-fast);
 		min-height: var(--touch-min);
 	}
 

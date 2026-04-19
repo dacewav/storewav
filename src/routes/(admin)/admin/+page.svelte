@@ -6,12 +6,13 @@
 	let wl = $derived($wishlist);
 	let settingsData = $derived($settings.data);
 	let authState = $derived($auth);
+	let brandName = $derived(settingsData?.brand?.name ?? 'DACEWAV');
 
 	const stats = $derived([
 		{ label: 'Beats', value: String(beats.length || '—'), icon: '🎵' },
 		{ label: 'Wishlist', value: String(wl.length || '—'), icon: '❤️' },
 		{ label: 'Géneros', value: String([...new Set(beats.map(b => b.genre))].length || '—'), icon: '🏷️' },
-		{ label: 'Licencias', value: '4', icon: '📄' }
+		{ label: 'Licencias', value: String(beats.length > 0 && beats[0].licenses ? Object.keys(beats[0].licenses).length : 4), icon: '📄' }
 	]);
 
 	let recentActivity = $derived<{ action: string; time: string; type: 'success' | 'warning' | 'default' }[]>([
@@ -24,9 +25,9 @@
 	<div class="dash-header">
 		<div>
 			<h1 class="dash-title">Dashboard</h1>
-			<p class="dash-sub">Panel de control DACEWAV</p>
+			<p class="dash-sub">Panel de control {brandName}</p>
 		</div>
-		<Badge variant="accent">v0.5.0</Badge>
+		<Badge variant="accent">v0.9.0</Badge>
 	</div>
 
 	<!-- Stats grid -->
@@ -229,7 +230,7 @@
 		color: var(--text-secondary);
 		font-size: var(--text-sm);
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 		text-align: left;
 	}
 

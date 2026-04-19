@@ -1,11 +1,16 @@
 <script lang="ts">
 	import { wishlist, beatsList, player } from '$lib/stores';
 	import { EmptyState } from '$lib/components';
+	import Icon from './Icon.svelte';
 
 	let {
-		open = $bindable(false)
+		open = $bindable(false),
+		emptyTitle = 'Sin favoritos',
+		emptySub = 'Añade beats a tu lista para verlos aquí'
 	}: {
 		open?: boolean;
+		emptyTitle?: string;
+		emptySub?: string;
 	} = $props();
 
 	let wishIds = $derived($wishlist);
@@ -31,15 +36,20 @@
 	<div class="panel-backdrop" onclick={() => open = false} onkeydown={(e) => { if (e.key === 'Escape') open = false; }} role="presentation" aria-hidden="true"></div>
 	<aside class="wishlist-panel">
 		<div class="panel-header">
-			<h3 class="panel-title">Favoritos</h3>
+			<h3 class="panel-title">
+				Favoritos
+				{#if wishBeats.length > 0}
+					<span class="wish-count">{wishBeats.length}</span>
+				{/if}
+			</h3>
 			<button class="panel-close" onclick={() => open = false} aria-label="Cerrar">
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+				<Icon name="close" size={16} />
 			</button>
 		</div>
 
 		<div class="panel-body">
 			{#if wishBeats.length === 0}
-				<EmptyState icon="♡" title="Sin favoritos" subtitle="Añade beats a tu lista para verlos aquí" />
+				<EmptyState icon="♡" title={emptyTitle} subtitle={emptySub} />
 			{:else}
 				{#each wishBeats as beat (beat.id)}
 					<div class="wish-item">
@@ -55,7 +65,7 @@
 							<div class="wish-meta">{beat.genre} · {beat.bpm} BPM</div>
 						</div>
 						<button class="wish-remove" onclick={() => wishlist.toggle(beat.id)} aria-label="Quitar">
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+							<Icon name="close" size={12} />
 						</button>
 					</div>
 				{/each}
@@ -100,6 +110,20 @@
 		font-size: var(--text-lg);
 		font-weight: 700;
 		color: var(--text);
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+
+	.wish-count {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		padding: 1px 8px;
+		border-radius: var(--radius-full);
+		background: rgba(var(--accent-rgb), 0.1);
+		border: 1px solid rgba(var(--accent-rgb), 0.2);
+		color: var(--accent);
+		letter-spacing: 0.04em;
 	}
 
 	.panel-close {
@@ -113,7 +137,7 @@
 		background: transparent;
 		color: var(--text-muted);
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 	}
 
 	.panel-close:hover {
@@ -133,11 +157,12 @@
 		gap: var(--space-3);
 		padding: var(--space-3);
 		border-radius: var(--radius-md);
-		transition: background 0.15s;
+		transition: all 0.2s var(--ease-out);
 	}
 
 	.wish-item:hover {
 		background: var(--surface-hover);
+		transform: translateX(2px);
 	}
 
 	.wish-cover {
@@ -191,7 +216,7 @@
 		background: transparent;
 		color: var(--text-muted);
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 		flex-shrink: 0;
 	}
 

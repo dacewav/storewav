@@ -65,9 +65,9 @@
 		height: 56px;
 		flex-shrink: 0;
 		border-radius: var(--radius-md);
-		background: linear-gradient(90deg, var(--surface2) 25%, rgba(255, 255, 255, 0.04) 50%, var(--surface2) 75%);
+		background: linear-gradient(90deg, var(--surface2) 25%, rgba(var(--accent-rgb), 0.03) 50%, var(--surface2) 75%);
 		background-size: 200% 100%;
-		animation: shimmer 1.5s infinite;
+		animation: shimmer 1.8s ease-in-out infinite;
 	}
 
 	.skeleton-compact {
@@ -79,9 +79,9 @@
 
 	.skeleton-img {
 		width: 100%;
-		background: linear-gradient(90deg, var(--surface2) 25%, rgba(255, 255, 255, 0.04) 50%, var(--surface2) 75%);
+		background: linear-gradient(90deg, var(--surface2) 25%, rgba(var(--accent-rgb), 0.03) 50%, var(--surface2) 75%);
 		background-size: 200% 100%;
-		animation: shimmer 1.5s infinite;
+		animation: shimmer 1.8s ease-in-out infinite;
 	}
 
 	.skeleton-body {
@@ -98,9 +98,9 @@
 	.skeleton-line {
 		height: 12px;
 		border-radius: var(--radius-sm);
-		background: linear-gradient(90deg, var(--surface2) 25%, rgba(255, 255, 255, 0.04) 50%, var(--surface2) 75%);
+		background: linear-gradient(90deg, var(--surface2) 25%, rgba(var(--accent-rgb), 0.03) 50%, var(--surface2) 75%);
 		background-size: 200% 100%;
-		animation: shimmer 1.5s infinite;
+		animation: shimmer 1.8s ease-in-out infinite;
 		margin-bottom: var(--space-2);
 	}
 

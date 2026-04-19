@@ -71,7 +71,7 @@
 		color: var(--text-secondary);
 		font-size: var(--text-sm);
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 		text-align: left;
 	}
 

@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { Button } from '$lib/components';
+	import { settings } from '$lib/stores';
 	import { page } from '$app/state';
+
+	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 </script>
 
 <svelte:head>
-	<title>404 — DACEWAV</title>
+	<title>404 — {brandName}</title>
 </svelte:head>
 
 <div class="error-page">

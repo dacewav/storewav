@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { player } from '$lib/stores';
+	import Icon from './Icon.svelte';
 
 	let state = $derived($player);
 	let progressVal = $derived(state.duration > 0 ? state.currentTime / state.duration : 0);
@@ -54,9 +55,9 @@
 
 				<button class="ctrl-btn ctrl-play" onclick={() => state.playing ? player.pause() : player.resume()} aria-label={state.playing ? 'Pausar' : 'Reproducir'}>
 					{#if state.playing}
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+						<Icon name="pause" size={16} />
 					{:else}
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+						<Icon name="play" size={16} />
 					{/if}
 				</button>
 
@@ -67,14 +68,14 @@
 			<div class="player-right">
 				<button class="ctrl-btn" onclick={() => player.toggleMute()} aria-label={state.muted ? 'Activar sonido' : 'Silenciar'}>
 					{#if state.muted || state.volume === 0}
-						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+						<Icon name="volumeOff" size={14} />
 					{:else}
-						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+						<Icon name="volumeOn" size={14} />
 					{/if}
 				</button>
 
 				<button class="ctrl-btn" onclick={() => player.stop()} aria-label="Cerrar">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+					<Icon name="close" size={14} />
 				</button>
 			</div>
 		</div>
@@ -98,13 +99,24 @@
 		border-top-color: rgba(var(--accent-rgb), 0.2);
 	}
 
+	.player-bar.playing::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, var(--accent), transparent);
+		opacity: 0.3;
+	}
+
 	/* ── Progress ── */
 	.progress-track {
 		position: relative;
 		height: 4px;
 		background: var(--surface2);
 		cursor: pointer;
-		transition: height 0.15s;
+		transition: height var(--duration-fast);
 	}
 
 	.progress-track:hover {
@@ -126,7 +138,7 @@
 		background: var(--accent);
 		border-radius: 50%;
 		transform: translate(-50%, -50%) scale(0);
-		transition: transform 0.15s;
+		transition: transform var(--duration-fast);
 		box-shadow: var(--glow-sm);
 	}
 
@@ -157,6 +169,16 @@
 		border-radius: var(--radius-md);
 		object-fit: cover;
 		flex-shrink: 0;
+		transition: transform 0.3s var(--ease-out);
+	}
+
+	.player-bar.playing .player-cover {
+		animation: play-cover-pulse 2s ease-in-out infinite;
+	}
+
+	@keyframes play-cover-pulse {
+		0%, 100% { transform: scale(1); }
+		50% { transform: scale(1.05); }
 	}
 
 	.player-cover-placeholder {
@@ -164,7 +186,7 @@
 		align-items: center;
 		justify-content: center;
 		background: var(--surface2);
-		font-size: 1rem;
+		font-size: var(--text-base);
 	}
 
 	.player-text {
@@ -203,7 +225,7 @@
 		background: transparent;
 		color: var(--text-secondary);
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 	}
 
 	.ctrl-btn:hover {

@@ -114,7 +114,7 @@
 		border: 2px solid var(--bg);
 		box-shadow: var(--shadow-sm);
 		cursor: pointer;
-		transition: transform 0.15s;
+		transition: transform var(--duration-fast);
 	}
 
 	.range::-webkit-slider-thumb:hover {

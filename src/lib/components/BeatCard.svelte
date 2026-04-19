@@ -1,19 +1,43 @@
 <script lang="ts">
 	import type { Beat } from '$lib/stores/beats';
-	import { wishlist } from '$lib/stores';
+	import { wishlist, settings } from '$lib/stores';
 	import { tilt } from '$lib/actions';
+	import Icon from './Icon.svelte';
+	import {
+		mergeCardStyles,
+		cardStyleToCSS,
+		type CardStyleConfig
+	} from '$lib/cardStyleEngine';
 
 	let {
 		beat,
 		onplay,
-		onclick
+		onclick,
+		labelFrom = 'Desde'
 	}: {
 		beat: Beat & { id: string };
 		onplay?: (beat: Beat & { id: string }) => void;
 		onclick?: (beat: Beat & { id: string }) => void;
+		labelFrom?: string;
 	} = $props();
 
 	let inWishlist = $derived(wishlist.isIn(beat.id));
+
+	// Card style engine: merge global (from settings) + per-beat
+	// Read accent-rgb from CSS var (set by theme engine from Firebase)
+	let accentRgb = $state('220, 38, 38');
+	$effect(() => {
+		if (typeof document !== 'undefined') {
+			const val = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb').trim();
+			if (val) accentRgb = val;
+		}
+	});
+	let globalCardStyle = $derived($settings.data?.cardStyle ?? {});
+	let cardStyle = $derived(
+		mergeCardStyles(globalCardStyle as Partial<CardStyleConfig>, (beat.cardStyle ?? {}) as Partial<CardStyleConfig>)
+	);
+	let inlineCSS = $derived(cardStyleToCSS(cardStyle, accentRgb));
+	let hasShimmer = $derived(cardStyle.shimmer === true);
 
 	function handleWishlist(e: MouseEvent) {
 		e.stopPropagation();
@@ -27,33 +51,48 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<article class="beat-card" use:tilt={{ max: 6 }} onclick={() => onclick?.(beat)} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onclick?.(beat); } }} role="button" tabindex="0">
+<article
+	class="beat-card"
+	class:has-shimmer={hasShimmer}
+	use:tilt={{ max: 6 }}
+	onclick={() => onclick?.(beat)}
+	onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onclick?.(beat); } }}
+	role="button"
+	tabindex="0"
+	style={inlineCSS || undefined}
+>
+	<!-- Shimmer overlay -->
+	{#if hasShimmer}
+		<div class="shimmer-overlay"></div>
+	{/if}
+
 	<!-- Cover -->
 	<div class="beat-cover">
 		{#if beat.coverUrl}
 			<img src={beat.coverUrl} alt={beat.title} loading="lazy" />
 		{:else}
 			<div class="beat-cover-placeholder">
-				<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+				<Icon name="music" size={32} />
 			</div>
 		{/if}
 
 		<!-- Play overlay -->
 		<button class="beat-play" onclick={handlePlay} aria-label="Reproducir {beat.title}">
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+			<Icon name="play" size={20} />
 		</button>
 
 		<!-- Wishlist -->
 		<button class="beat-wish" class:active={$inWishlist} onclick={handleWishlist} aria-label="{$inWishlist ? 'Quitar de' : 'Añadir a'} favoritos">
-			{#if $inWishlist}
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-			{:else}
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-			{/if}
+			<Icon name="heart" size={14} filled={$inWishlist} />
 		</button>
 
 		<!-- Genre badge -->
 		<span class="beat-genre">{beat.genre}</span>
+
+		<!-- Cover overlay from style engine -->
+		{#if cardStyle.coverOverlay}
+			<div class="beat-cover-overlay" style="background: {cardStyle.coverOverlay};"></div>
+		{/if}
 	</div>
 
 	<!-- Info -->
@@ -72,7 +111,7 @@
 			</div>
 		{/if}
 		<div class="beat-price">
-			<span class="price-from">Desde</span>
+			<span class="price-from">{labelFrom}</span>
 			<span class="price-amount">${beat.licenses?.basic ?? 29.99}</span>
 		</div>
 	</div>
@@ -80,6 +119,7 @@
 
 <style>
 	.beat-card {
+		position: relative;
 		background: var(--surface);
 		border: 1px solid var(--border);
 		border-radius: var(--card-radius);
@@ -92,6 +132,31 @@
 		border-color: var(--border-hover-accent);
 		box-shadow: var(--shadow-lg), 0 0 30px rgba(var(--accent-rgb), 0.08);
 		transform: translateY(-3px);
+	}
+
+	/* ── Shimmer overlay ── */
+	.shimmer-overlay {
+		position: absolute;
+		inset: 0;
+		z-index: 3;
+		pointer-events: none;
+		overflow: hidden;
+		border-radius: inherit;
+	}
+
+	.shimmer-overlay::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			105deg,
+			transparent 40%,
+			rgba(255, 255, 255, 0.06) 45%,
+			rgba(255, 255, 255, 0.12) 50%,
+			rgba(255, 255, 255, 0.06) 55%,
+			transparent 60%
+		);
+		animation: cardShimmer 2.5s ease-in-out infinite;
 	}
 
 	/* ── Cover ── */
@@ -122,6 +187,13 @@
 		color: var(--text-muted);
 	}
 
+	.beat-cover-overlay {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		z-index: 1;
+	}
+
 	/* Play button */
 	.beat-play {
 		position: absolute;
@@ -141,6 +213,7 @@
 		opacity: 0;
 		transition: all 0.25s var(--ease-out);
 		box-shadow: var(--glow-accent);
+		z-index: 2;
 	}
 
 	.beat-card:hover .beat-play {
@@ -160,9 +233,9 @@
 		width: 32px;
 		height: 32px;
 		border-radius: 50%;
-		background: rgba(0, 0, 0, 0.5);
+		background: var(--overlay-bg);
 		backdrop-filter: blur(8px);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border: 1px solid var(--border);
 		color: var(--text-secondary);
 		display: flex;
 		align-items: center;
@@ -170,6 +243,7 @@
 		cursor: pointer;
 		transition: all 0.2s;
 		opacity: 0;
+		z-index: 2;
 	}
 
 	.beat-card:hover .beat-wish,
@@ -178,7 +252,7 @@
 	}
 
 	.beat-wish:hover {
-		background: rgba(0, 0, 0, 0.7);
+		background: var(--surface-hover);
 		color: var(--accent);
 		transform: scale(1.1);
 	}
@@ -196,11 +270,12 @@
 		font-size: var(--text-2xs);
 		padding: 2px 8px;
 		border-radius: var(--radius-full);
-		background: rgba(0, 0, 0, 0.6);
+		background: var(--overlay-bg);
 		backdrop-filter: blur(8px);
 		color: var(--text);
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
+		z-index: 2;
 	}
 
 	/* ── Info ── */
@@ -244,7 +319,7 @@
 
 	.beat-tag {
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		padding: 1px 6px;
 		border-radius: var(--radius-full);
 		background: var(--surface2);

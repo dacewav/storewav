@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { settings } from '$lib/stores';
+	import { settings, wishlist } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel } from '$lib/components';
+	import Icon from '$lib/components/Icon.svelte';
 
 	let { children } = $props();
 
@@ -20,6 +21,28 @@
 
 	// Settings from Firebase
 	let settingsData = $derived($settings.data);
+	let brandName = $derived(settingsData?.brand?.name ?? 'DACEWAV');
+	let brandLogo = $derived(settingsData?.brand?.logo ?? '');
+	let brandSplit = $derived(() => {
+		const name = brandName;
+		// Split at last vowel-consonant boundary for the <em> styling
+		// Default: split "DACEWAV" into "DACE" + "WAV"
+		if (name.length > 4) {
+			return { first: name.slice(0, -3), last: name.slice(-3) };
+		}
+		return { first: name, last: '' };
+	});
+	let loaderText = $derived(settingsData?.loader?.brandText ?? brandName);
+	let loaderEnabled = $derived(settingsData?.loader?.enabled !== false);
+	let footerText = $derived(settingsData?.brand?.footerText ?? 'Todos los derechos reservados');
+	let metaDesc = $derived(settingsData?.brand?.metaDescription ?? 'Beats que rompen');
+	let wishCount = $derived($wishlist.length);
+
+	// Banner
+	let bannerEnabled = $derived(settingsData?.banner?.enabled && settingsData?.banner?.text);
+	let bannerText = $derived(settingsData?.banner?.text ?? '');
+	let bannerUrl = $derived(settingsData?.banner?.url ?? '');
+	let bannerAnim = $derived(settingsData?.banner?.animation ?? 'static');
 
 	function toggleMenu() {
 		menuOpen = !menuOpen;
@@ -134,18 +157,30 @@
 </script>
 
 <svelte:head>
-	<meta name="description" content="DACEWAV — Beats que rompen" />
+	<meta name="description" content="{brandName} — {metaDesc}" />
 </svelte:head>
 
 <!-- Banner (admin-editable) -->
-<div class="site-banner" style="display:none">
-	<div class="banner-inner"></div>
+{#if bannerEnabled}
+<div class="site-banner">
+	{#if bannerUrl}
+		<a href={bannerUrl} class="banner-inner banner-{bannerAnim}" target="_blank" rel="noopener">{bannerText}</a>
+	{:else}
+		<div class="banner-inner banner-{bannerAnim}">{bannerText}</div>
+	{/if}
 </div>
+{/if}
 
 <!-- Loader -->
-{#if loaderVisible}
+{#if loaderEnabled && loaderVisible}
 <div id="loader" class:fading={loaderFading}>
-	<div id="loader-brand">DACE<em>WAV</em></div>
+	<div id="loader-brand">
+		{#if brandSplit().last}
+			{brandSplit().first}<em>{brandSplit().last}</em>
+		{:else}
+			{loaderText}
+		{/if}
+	</div>
 	<div class="ld-dots">
 		<div class="ld"></div>
 		<div class="ld"></div>
@@ -169,7 +204,13 @@
 	<!-- Nav -->
 	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled} aria-label="Navegación principal">
 		<a href="/" class="nav-brand" onclick={closeMenu}>
-			<span>DACEWAV</span><em>.</em>
+			{#if brandLogo}
+				<img class="nav-logo" src={brandLogo} alt={brandName} />
+			{:else if brandSplit().last}
+				<span>{brandSplit().first}</span><em>{brandSplit().last}</em>.
+			{:else}
+				<span>{brandName}</span><em>.</em>
+			{/if}
 		</a>
 
 		<!-- Desktop links -->
@@ -177,14 +218,13 @@
 			<a href="/" class="nav-link">Catálogo</a>
 			<a href="/admin" class="nav-link">Admin</a>
 			<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={() => wishlistOpen = true}>
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+				<Icon name="heart" size={14} />
+				{#if wishCount > 0}
+					<span class="nav-badge">{wishCount}</span>
+				{/if}
 			</button>
 			<button class="icon-btn" title="Cambiar tema" aria-label="Cambiar tema" onclick={toggleTheme}>
-				{#if isDark}
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-				{:else}
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-				{/if}
+				<Icon name={isDark ? 'sun' : 'moon'} size={14} />
 			</button>
 		</div>
 
@@ -210,15 +250,14 @@
 			<a href="/admin" class="mobile-link" onclick={closeMenu}>Admin</a>
 			<div class="mobile-actions">
 				<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={() => { closeMenu(); wishlistOpen = true; }}>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+					<Icon name="heart" size={16} />
 					<span>Favoritos</span>
+					{#if wishCount > 0}
+						<span class="nav-badge nav-badge-inline">{wishCount}</span>
+					{/if}
 				</button>
 				<button class="icon-btn" title="Cambiar tema" aria-label="Cambiar tema" onclick={() => { toggleTheme(); closeMenu(); }}>
-					{#if isDark}
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-					{:else}
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-					{/if}
+					<Icon name={isDark ? 'sun' : 'moon'} size={16} />
 					<span>Tema</span>
 				</button>
 			</div>
@@ -233,8 +272,14 @@
 	<!-- Footer -->
 	<footer class="footer">
 		<div class="footer-left">
-			<div class="footer-brand">DACE<em>WAV</em></div>
-			<div class="footer-sub">Todos los derechos reservados · 2026</div>
+			<div class="footer-brand">
+			{#if brandSplit().last}
+				{brandSplit().first}<em>{brandSplit().last}</em>
+			{:else}
+				{brandName}
+			{/if}
+		</div>
+			<div class="footer-sub">{footerText}</div>
 		</div>
 		<div class="footer-links">
 			{#if settingsData?.links?.length}
@@ -251,7 +296,11 @@
 </div>
 
 <Player />
-<WishlistPanel bind:open={wishlistOpen} />
+<WishlistPanel
+	bind:open={wishlistOpen}
+	emptyTitle={settingsData?.labels?.wishlistEmptyTitle ?? 'Sin favoritos'}
+	emptySub={settingsData?.labels?.wishlistEmptySub ?? 'Añade beats a tu lista para verlos aquí'}
+/>
 <ToastContainer />
 
 <style>
@@ -279,6 +328,28 @@
 		text-align: center;
 		white-space: nowrap;
 		letter-spacing: 0.05em;
+		text-decoration: none;
+		display: block;
+	}
+
+	a.banner-inner:hover {
+		color: var(--bg);
+	}
+
+	.banner-scroll {
+		animation: banner-scroll 12s linear infinite;
+	}
+
+	.banner-fade-pulse {
+		animation: banner-fade-pulse 3s ease-in-out infinite;
+	}
+
+	.banner-bounce {
+		animation: banner-bounce 2s ease-in-out infinite;
+	}
+
+	.banner-glow-pulse {
+		animation: banner-glow-pulse 2.5s ease-in-out infinite;
 	}
 
 	/* ── Nav ── */
@@ -305,6 +376,17 @@
 		border-bottom-color: var(--nav-border-scrolled);
 	}
 
+	.nav.n-scrolled::after {
+		content: '';
+		position: absolute;
+		bottom: -1px;
+		left: 10%;
+		right: 10%;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.15), transparent);
+		pointer-events: none;
+	}
+
 	.nav-brand {
 		font-family: var(--font-display);
 		font-size: 1.4rem;
@@ -315,6 +397,17 @@
 		display: flex;
 		align-items: baseline;
 		cursor: pointer;
+		transition: transform 0.2s var(--ease-out);
+	}
+
+	.nav-brand:hover {
+		transform: scale(1.03);
+	}
+
+	.nav-logo {
+		height: 28px;
+		width: auto;
+		object-fit: contain;
 	}
 
 	.nav-brand em {
@@ -372,12 +465,38 @@
 		transition: all 0.2s;
 		padding: 0;
 		flex-shrink: 0;
+		position: relative;
 	}
 
 	.icon-btn:hover {
 		color: var(--accent);
 		border-color: rgba(var(--accent-rgb), 0.3);
 		transform: rotate(15deg);
+	}
+
+	.nav-badge {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		min-width: 16px;
+		height: 16px;
+		padding: 0 4px;
+		border-radius: var(--radius-full);
+		background: var(--accent);
+		color: var(--bg);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 600;
+		line-height: 1;
+		box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.4);
+	}
+
+	.nav-badge-inline {
+		position: static;
+		margin-left: var(--space-2);
 	}
 
 	/* ── Hamburger ── */
@@ -425,6 +544,7 @@
 		z-index: calc(var(--z-nav) - 1);
 		background: var(--overlay-bg);
 		backdrop-filter: blur(4px);
+		animation: fadeIn var(--duration-fast) var(--ease-out);
 	}
 
 	.mobile-menu {
@@ -441,6 +561,7 @@
 		flex-direction: column;
 		gap: var(--space-2);
 		animation: slideInRight 0.3s var(--ease-out);
+		box-shadow: var(--shadow-menu);
 	}
 
 	.mobile-link {
@@ -451,15 +572,21 @@
 		text-decoration: none;
 		padding: var(--space-3) var(--space-4);
 		border-radius: var(--radius-md);
-		transition: all 0.15s;
+		transition: all 0.2s var(--ease-out);
 		min-height: var(--touch-min);
 		display: flex;
 		align-items: center;
+		animation: fadeInUp 0.3s var(--ease-out) both;
+	}
+
+	.mobile-link:nth-child(2) {
+		animation-delay: 60ms;
 	}
 
 	.mobile-link:hover {
 		background: var(--surface);
 		color: var(--accent);
+		transform: translateX(4px);
 	}
 
 	.mobile-actions {
@@ -468,6 +595,7 @@
 		margin-top: var(--space-4);
 		padding-top: var(--space-4);
 		border-top: 1px solid var(--border);
+		animation: fadeInUp 0.3s var(--ease-out) 120ms both;
 	}
 
 	.mobile-actions .icon-btn {
@@ -509,11 +637,11 @@
 		content: '';
 		position: absolute;
 		top: 0;
-		left: 10%;
-		right: 10%;
+		left: 15%;
+		right: 15%;
 		height: 1px;
-		background: linear-gradient(90deg, transparent, var(--accent), transparent);
-		opacity: 0.2;
+		background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.12), transparent);
+		pointer-events: none;
 	}
 
 	.footer-brand {
@@ -521,6 +649,11 @@
 		font-size: 1.2rem;
 		font-weight: 800;
 		color: var(--text);
+		transition: color 0.2s;
+	}
+
+	.footer-brand:hover {
+		color: var(--accent);
 	}
 
 	.footer-brand em {
@@ -532,6 +665,7 @@
 		font-size: var(--text-2xs);
 		color: var(--text-hint);
 		margin-top: 4px;
+		letter-spacing: 0.02em;
 	}
 
 	.footer-links {
@@ -545,15 +679,32 @@
 		font-size: var(--text-2xs);
 		color: var(--text-secondary);
 		text-decoration: none;
-		transition: color 0.15s;
+		transition: all 0.2s var(--ease-out);
 		cursor: pointer;
 		min-height: var(--touch-min);
 		display: flex;
 		align-items: center;
+		position: relative;
+		letter-spacing: 0.02em;
+	}
+
+	.footer-link::after {
+		content: '';
+		position: absolute;
+		bottom: 8px;
+		left: 0;
+		width: 0;
+		height: 1px;
+		background: var(--accent);
+		transition: width 0.25s var(--ease-out);
 	}
 
 	.footer-link:hover {
 		color: var(--accent);
+	}
+
+	.footer-link:hover::after {
+		width: 100%;
 	}
 
 	/* ── Responsive ── */

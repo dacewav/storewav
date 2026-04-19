@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { Button, Card } from '$lib/components';
-	import { auth, loginWithGoogle } from '$lib/stores';
+	import { auth, loginWithGoogle, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
 
 	let loading = $state(false);
 	let error = $state('');
 	let authState = $derived($auth);
+	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
 	// Si ya está logueado, redirigir al admin
 	$effect(() => {
@@ -27,7 +28,7 @@
 </script>
 
 <svelte:head>
-	<title>Login — DACEWAV</title>
+	<title>Login — {brandName}</title>
 </svelte:head>
 
 <div class="login-page">
@@ -38,7 +39,7 @@
 
 	<div class="login-card">
 		<div class="login-brand">
-			<span class="brand-text">DACE<em>WAV</em></span>
+			<span class="brand-text">{brandName}</span>
 			<span class="brand-dot">.</span>
 		</div>
 
@@ -243,7 +244,7 @@
 		font-size: var(--text-xs);
 		color: var(--text-muted);
 		text-decoration: none;
-		transition: color 0.15s;
+		transition: color var(--duration-fast);
 	}
 
 	.back-link:hover {

@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { AdminTopbar, AdminSidebar } from '$lib/components';
-	import { auth } from '$lib/stores';
+	import { auth, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
 
 	let authState = $derived($auth);
+	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
 	// Redirect a login si no está autenticado
 	$effect(() => {
@@ -46,11 +47,11 @@
 </script>
 
 <svelte:head>
-	<title>Admin — DACEWAV</title>
+	<title>Admin — {brandName}</title>
 </svelte:head>
 
 <div class="admin-layout">
-	<AdminTopbar {saveStatus} onSave={() => {}}>
+	<AdminTopbar {brandName} {saveStatus} onSave={() => {}}>
 		<span class="admin-section-label">{activeSection}</span>
 	</AdminTopbar>
 

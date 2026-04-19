@@ -3,6 +3,7 @@
 	import { Spinner } from '$lib/components';
 
 	let {
+		brandName = 'DACEWAV',
 		saveStatus = 'saved',
 		onSave,
 		onExport,
@@ -12,6 +13,7 @@
 		onLogout,
 		children
 	}: {
+		brandName?: string;
 		saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 		onSave?: () => void;
 		onExport?: () => void;
@@ -33,7 +35,7 @@
 </script>
 
 <header class="topbar">
-	<div class="topbar-brand">DACE<em>·</em> Admin</div>
+	<div class="topbar-brand">{brandName}<em>·</em> Admin</div>
 
 	<div class="save-status">
 		{#if saveStatus === 'saving'}
@@ -154,7 +156,7 @@
 		background: transparent;
 		color: var(--text-secondary);
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 		padding: 0;
 	}
 

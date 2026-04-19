@@ -26,6 +26,7 @@ export type Beat = {
 	licenses: License;
 	createdAt: number;
 	active: boolean;
+	cardStyle?: Record<string, unknown>;
 };
 
 export type BeatsMap = Record<string, Beat>;

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Icon from './Icon.svelte';
+
 	let {
 		message = '',
 		visible = $bindable(false),
@@ -25,11 +27,11 @@
 {#if visible}
 	<div class="toast toast-{type}" role="status" aria-live="polite" aria-atomic="true">
 		{#if type === 'success'}
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+			<Icon name="check" size={14} />
 		{:else if type === 'error'}
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+			<Icon name="error" size={14} />
 		{:else if type === 'warning'}
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+			<Icon name="warning" size={14} />
 		{/if}
 		<span>{message}</span>
 	</div>

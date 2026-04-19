@@ -3,16 +3,38 @@
 	import { Modal, Badge } from '$lib/components';
 	import { player, wishlist } from '$lib/stores';
 	import Waveform from './Waveform.svelte';
+	import Icon from './Icon.svelte';
 
 	let {
 		open = $bindable(false),
-		beat
+		beat,
+		labelPreview = 'Escuchar preview',
+		labelLicenses = 'Licencias',
+		labelBuy = 'Comprar',
+		licenseLabels = {
+			basic: 'Basic',
+			premium: 'Premium',
+			unlimited: 'Unlimited',
+			exclusive: 'Exclusive'
+		},
+		licenseDescs = {
+			basic: 'MP3 · 1 uso',
+			premium: 'WAV · Sin tag',
+			unlimited: 'WAV + Stems',
+			exclusive: 'Exclusivo total'
+		}
 	}: {
 		open?: boolean;
 		beat: (Beat & { id: string }) | null;
+		labelPreview?: string;
+		labelLicenses?: string;
+		labelBuy?: string;
+		licenseLabels?: Record<string, string>;
+		licenseDescs?: Record<string, string>;
 	} = $props();
 
 	let inWishlist = $derived(beat ? wishlist.isIn(beat.id) : null);
+	let selectedLicense = $state('');
 
 	function handlePlay() {
 		if (!beat) return;
@@ -25,12 +47,14 @@
 		});
 	}
 
-	const licenseLabels: Record<string, string> = {
-		basic: 'Basic',
-		premium: 'Premium',
-		unlimited: 'Unlimited',
-		exclusive: 'Exclusive'
-	};
+	function selectLicense(key: string) {
+		selectedLicense = selectedLicense === key ? '' : key;
+	}
+
+	// Reset selected license when modal opens with new beat
+	$effect(() => {
+		if (beat) selectedLicense = '';
+	});
 </script>
 
 {#if beat}
@@ -41,8 +65,11 @@
 				{#if beat.coverUrl}
 					<img src={beat.coverUrl} alt={beat.title} />
 				{:else}
-					<div class="beat-cover-placeholder">🎵</div>
+					<div class="beat-cover-placeholder">
+						<Icon name="music" size={48} />
+					</div>
 				{/if}
+				<span class="cover-genre">{beat.genre}</span>
 			</div>
 
 			<!-- Info -->
@@ -52,17 +79,12 @@
 					<p class="beat-artist">{beat.artist}</p>
 				</div>
 				<button class="beat-wish-btn" class:active={$inWishlist} onclick={() => beat && wishlist.toggle(beat.id)} aria-label="Favoritos">
-					{#if $inWishlist}
-						<svg width="18" height="18" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-					{:else}
-						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-					{/if}
+					<Icon name="heart" size={18} filled={$inWishlist} />
 				</button>
 			</div>
 
 			<!-- Meta badges -->
 			<div class="beat-badges">
-				<Badge variant="default">{beat.genre}</Badge>
 				<Badge variant="default">{beat.bpm} BPM</Badge>
 				<Badge variant="default">{beat.key}</Badge>
 				{#each beat.tags ?? [] as tag}
@@ -77,22 +99,46 @@
 
 			<!-- Play button -->
 			<button class="beat-play-btn" onclick={handlePlay}>
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-				Escuchar preview
+				<Icon name="play" size={18} />
+				{labelPreview}
 			</button>
 
 			<!-- Licenses -->
 			{#if beat.licenses}
 				<div class="licenses">
-					<div class="licenses-title">Licencias</div>
+					<div class="licenses-header">
+						<div class="licenses-title">{labelLicenses}</div>
+						{#if selectedLicense}
+							<span class="selected-badge">
+								{licenseLabels[selectedLicense]} · ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
+							</span>
+						{/if}
+					</div>
 					<div class="licenses-grid">
 						{#each Object.entries(beat.licenses) as [key, price]}
-							<div class="license-item">
+							<button
+								class="license-item"
+								class:selected={selectedLicense === key}
+								onclick={() => selectLicense(key)}
+							>
 								<div class="license-name">{licenseLabels[key] ?? key}</div>
 								<div class="license-price">${price}</div>
-							</div>
+								{#if licenseDescs[key]}
+									<div class="license-desc">{licenseDescs[key]}</div>
+								{/if}
+							</button>
 						{/each}
 					</div>
+					{#if selectedLicense}
+						<a
+							class="buy-btn"
+							href="https://wa.me?text=Quiero%20la%20licencia%20{licenseLabels[selectedLicense]}%20de%20{encodeURIComponent(beat.title)}"
+							target="_blank"
+							rel="noopener"
+						>
+							{labelBuy} {licenseLabels[selectedLicense]} — ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
+						</a>
+					{/if}
 				</div>
 			{/if}
 		</div>
@@ -106,18 +152,25 @@
 		gap: var(--space-4);
 	}
 
+	/* ── Cover ── */
 	.beat-cover {
 		width: 100%;
 		aspect-ratio: 16/9;
 		border-radius: var(--radius-md);
 		overflow: hidden;
 		background: var(--surface2);
+		position: relative;
 	}
 
 	.beat-cover img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		transition: transform 0.5s var(--ease-out);
+	}
+
+	.beat-cover:hover img {
+		transform: scale(1.03);
 	}
 
 	.beat-cover-placeholder {
@@ -126,10 +179,25 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 2.5rem;
-		opacity: 0.3;
+		color: var(--text-muted);
 	}
 
+	.cover-genre {
+		position: absolute;
+		bottom: var(--space-3);
+		left: var(--space-3);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		padding: 2px 10px;
+		border-radius: var(--radius-full);
+		background: var(--overlay-bg);
+		backdrop-filter: blur(8px);
+		color: var(--text);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	/* ── Header ── */
 	.beat-header {
 		display: flex;
 		align-items: flex-start;
@@ -168,6 +236,7 @@
 	.beat-wish-btn:hover {
 		border-color: rgba(var(--accent-rgb), 0.3);
 		color: var(--accent);
+		transform: scale(1.05);
 	}
 
 	.beat-wish-btn.active {
@@ -175,12 +244,14 @@
 		color: var(--accent);
 	}
 
+	/* ── Badges ── */
 	.beat-badges {
 		display: flex;
 		gap: var(--space-2);
 		flex-wrap: wrap;
 	}
 
+	/* ── Waveform ── */
 	.beat-waveform {
 		padding: var(--space-3);
 		background: var(--surface);
@@ -188,6 +259,7 @@
 		border-radius: var(--radius-md);
 	}
 
+	/* ── Play ── */
 	.beat-play-btn {
 		display: flex;
 		align-items: center;
@@ -203,18 +275,33 @@
 		font-size: var(--text-sm);
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all 0.25s var(--ease-out);
 		min-height: 52px;
+		position: relative;
+		overflow: hidden;
 	}
 
 	.beat-play-btn:hover {
 		background: var(--accent-dim);
 		box-shadow: var(--glow-accent);
+		transform: translateY(-1px);
 	}
 
+	.beat-play-btn:active {
+		transform: translateY(0);
+	}
+
+	/* ── Licenses ── */
 	.licenses {
 		border-top: 1px solid var(--border);
 		padding-top: var(--space-4);
+	}
+
+	.licenses-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-3);
 	}
 
 	.licenses-title {
@@ -222,7 +309,17 @@
 		font-size: var(--text-sm);
 		font-weight: 700;
 		color: var(--text);
-		margin-bottom: var(--space-3);
+	}
+
+	.selected-badge {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		padding: 2px 10px;
+		border-radius: var(--radius-full);
+		background: rgba(var(--accent-rgb), 0.1);
+		border: 1px solid rgba(var(--accent-rgb), 0.3);
+		color: var(--accent);
+		letter-spacing: 0.04em;
 	}
 
 	.licenses-grid {
@@ -237,13 +334,22 @@
 		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
 		text-align: center;
-		transition: all 0.15s;
+		transition: all 0.2s var(--ease-out);
 		cursor: pointer;
+		font-family: inherit;
+		color: inherit;
 	}
 
 	.license-item:hover {
 		border-color: var(--border-hover-accent);
-		background: rgba(var(--accent-rgb), 0.05);
+		background: rgba(var(--accent-rgb), 0.04);
+		transform: translateY(-1px);
+	}
+
+	.license-item.selected {
+		border-color: var(--accent);
+		background: rgba(var(--accent-rgb), 0.08);
+		box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.15);
 	}
 
 	.license-name {
@@ -255,10 +361,48 @@
 		margin-bottom: var(--space-1);
 	}
 
+	.license-item.selected .license-name {
+		color: var(--accent);
+	}
+
 	.license-price {
 		font-family: var(--font-display);
 		font-size: var(--text-lg);
 		font-weight: 800;
 		color: var(--accent);
+	}
+
+	.license-desc {
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		margin-top: var(--space-1);
+	}
+
+	/* ── Buy button ── */
+	.buy-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		margin-top: var(--space-3);
+		padding: var(--space-3) var(--space-4);
+		background: var(--accent);
+		color: var(--bg);
+		border: none;
+		border-radius: var(--radius-lg);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-decoration: none;
+		min-height: 44px;
+		transition: all 0.2s var(--ease-out);
+	}
+
+	.buy-btn:hover {
+		background: var(--accent-dim);
+		box-shadow: var(--glow-sm);
+		color: var(--bg);
+		transform: translateY(-1px);
 	}
 </style>

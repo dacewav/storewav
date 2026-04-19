@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Icon from './Icon.svelte';
+
 	type Option = { value: string; label: string };
 
 	let {
@@ -33,9 +35,7 @@
 				<option value={opt.value}>{opt.label}</option>
 			{/each}
 		</select>
-		<svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-			<path d="M6 9l6 6 6-6"/>
-		</svg>
+		<span class="chevron"><Icon name="chevronDown" size={12} /></span>
 	</div>
 </div>
 

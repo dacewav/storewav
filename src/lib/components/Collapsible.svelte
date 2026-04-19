@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import Icon from './Icon.svelte';
 
 	let {
 		title,
@@ -15,9 +16,7 @@
 <div class="collapsible">
 	<button class="header" onclick={() => open = !open} aria-expanded={open}>
 		<span class="title">{title}</span>
-		<svg class="chevron" class:rotated={open} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-			<path d="M6 9l6 6 6-6"/>
-		</svg>
+		<span class="chevron" class:rotated={open}><Icon name="chevronDown" size={14} /></span>
 	</button>
 	<div class="body-wrap" class:open>
 		<div class="body">
@@ -47,7 +46,7 @@
 		font-size: var(--text-sm);
 		font-weight: 600;
 		cursor: pointer;
-		transition: background 0.15s;
+		transition: background var(--duration-fast);
 		text-align: left;
 	}
 

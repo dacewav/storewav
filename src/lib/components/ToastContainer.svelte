@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { toasts, type ToastItem } from '$lib/toastStore';
+	import Icon from './Icon.svelte';
 
 	let items = $derived($toasts);
 </script>
@@ -9,15 +10,15 @@
 		{#each items as item (item.id)}
 			<div class="toast toast-{item.type}" role="status" aria-live="polite" aria-atomic="true">
 				{#if item.type === 'success'}
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+					<Icon name="check" size={14} />
 				{:else if item.type === 'error'}
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+					<Icon name="error" size={14} />
 				{:else if item.type === 'warning'}
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+					<Icon name="warning" size={14} />
 				{/if}
 				<span>{item.message}</span>
 				<button class="toast-close" onclick={() => toasts.remove(item.id)} aria-label="Cerrar">
-					<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+					<Icon name="close" size={12} />
 				</button>
 			</div>
 		{/each}
@@ -84,7 +85,7 @@
 		border-radius: var(--radius-sm);
 		color: var(--text-muted);
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 	}
 
 	.toast-close:hover {

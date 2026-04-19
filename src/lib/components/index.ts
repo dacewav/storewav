@@ -23,4 +23,5 @@ export { default as Waveform } from './Waveform.svelte';
 export { default as WishlistPanel } from './WishlistPanel.svelte';
 export { default as BeatModal } from './BeatModal.svelte';
 export { default as Icon } from './Icon.svelte';
+export { default as Testimonials } from './Testimonials.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

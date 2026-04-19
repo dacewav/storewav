@@ -88,7 +88,7 @@
 		border-radius: var(--radius-md);
 		border: 2px solid var(--border2);
 		pointer-events: none;
-		transition: border-color 0.15s;
+		transition: border-color var(--duration-fast);
 	}
 
 	.swatch-wrap:hover .swatch {

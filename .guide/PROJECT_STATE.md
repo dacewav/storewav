@@ -11,12 +11,12 @@
 ```yaml
 proyecto: dacewav/store
 repo: https://github.com/dacewav/store.git
-version: 0.5.0
+version: 1.0.0
 framework: SvelteKit + Cloudflare
 firebase_project: dacewav-store-3b0f5
-ultimo_chat: "2026-04-19 13:35"
-bloque_actual: "Bloque 4 — Tienda (Página Principal) ✅ COMPLETO"
-ultima_tarea: "Integración BeatCard, Filters, Player, WishlistPanel, BeatModal en store page"
+ultimo_chat: "2026-04-19 23:36"
+bloque_actual: "Bloque 4 — Tienda (Página Principal) ✅ COMPLETO + PULIDO x7"
+ultima_tarea: "Pulido s7: banner, testimonials, brand everywhere, zero hardcoded brand refs"
 proxima_tarea: "Bloque 5 — Tienda (Beat Page)"
 ```
 
@@ -59,7 +59,10 @@ sr-only, truncate, line-clamp-2/3, flex-center, flex-between, btn-row, w-full, m
 lang="es", preconnect Google Fonts, non-blocking font loading, noscript fallback, SVG favicon
 
 **Icon system:**
-`src/lib/icons.ts` — 14 íconos centralizados (heart, play, pause, close, search, check, warning, error, volumeOn, volumeOff, music, tag, sun, moon). Componente `<Icon>` declarativo.
+`src/lib/icons.ts` — 20 íconos centralizados (heart, play, pause, close, search, check, warning, error, volumeOn, volumeOff, music, tag, sun, moon, chevronDown, chevronUp, settings, edit, trash, plus). Componente `<Icon>` declarativo.
+
+**Card Style Engine:**
+`src/lib/cardStyleEngine.ts` — 30 animation presets (float, hologram, glitch, colorShift, shimmer, borderGlow, rotate3d, jello, wobble, heartbeat, tada, rubberBand, swing, bounce, shake, headShake, flip, lightSpeed, blurIn, zoomPulse, gradientBorder, etc.) + glow (5 tipos) + CSS filters + hover effects + shimmer overlay. Merge global (settings.cardStyle) + per-beat (beat.cardStyle).
 
 ---
 
@@ -67,6 +70,19 @@ lang="es", preconnect Google Fonts, non-blocking font loading, noscript fallback
 
 **9 stores:**
 `_firebaseStore.ts` (base), `beats.ts`, `settings.ts`, `theme.ts`, `auth.ts`, `wishlist.ts`, `analytics.ts`, `player.ts`, `init.ts`
+
+**Settings structure (11 secciones, 42+ textos editables desde admin):**
+- `settings/hero` → title, subtitle, eyebrow, glowWord
+- `settings/section` → title, dividerTitle (HTML), dividerSub
+- `settings/cta` → title, subtitle, buttonText, buttonUrl
+- `settings/layout` → cardsPerRow, showWishlist
+- `settings/links` → [{label, url, icon}]
+- `settings/brand` → name, logo, favicon, footerText, metaDescription
+- `settings/loader` → enabled, brandText
+- `settings/banner` → enabled, text, url, animation (static|scroll|fade-pulse|bounce|glow-pulse)
+- `settings/testimonials` → [{name, text, stars, avatar}]
+- `settings/cardStyle` → glow, animation, shimmer, hoverScale, brightness, saturate
+- `settings/labels` → 24 labels (search, empty states, modal, filters, stats, prices, license names/descs)
 
 **Arquitectura:**
 - `_firebaseStore.ts`: Factory genérico con ref counting, lazy subscribe, loading/error/data state
@@ -120,7 +136,7 @@ lang="es", preconnect Google Fonts, non-blocking font loading, noscript fallback
 
 ---
 
-### BLOQUE 4: Tienda — Página Principal ✅ COMPLETO
+### BLOQUE 4: Tienda — Página Principal ✅ COMPLETO + PULIDO
 - [x] Hero section (título/subtitle desde settings)
 - [x] Grid de beats con BeatCard (tilt, play, wishlist)
 - [x] Filtros integrados (search, genre, key, sort, tags)
@@ -131,6 +147,22 @@ lang="es", preconnect Google Fonts, non-blocking font loading, noscript fallback
 - [x] Empty state (sin beats + sin resultados filtro)
 - [x] Sort funcional (8 opciones)
 - [x] Filtrado reactivo (search, genre, key, tags combinables)
+- [x] **Pulido:** SVGs inline → Icon (11 componentes, 20 iconos)
+- [x] **Pulido:** Light mode fix (hardcoded colors → tokens)
+- [x] **Pulido:** CardStyleEngine (30 animation presets, per-beat + global)
+- [x] **Pulido:** Hero staggered entrance animations
+- [x] **Pulido:** BeatModal license select + buy CTA + cover genre badge
+- [x] **Pulido:** Player playing glow + cover pulse
+- [x] **Pulido:** Beat grid staggerReveal
+- [x] **Pulido:** CTA radial glow + hover lift
+- [x] **Pulido:** Firebase rules (cardStyle field)
+- [x] **Pulido s3:** Filters counter (X de Y beats), animated active tags
+- [x] **Pulido s3:** Nav accent glow on scroll, brand hover scale, wishlist badge
+- [x] **Pulido s3:** Footer gradient line, link underline animation, brand hover
+- [x] **Pulido s3:** Mobile menu staggered links, shadow, hover translateX
+- [x] **Pulido s3:** WishlistPanel count badge, item hover
+- [x] **Pulido s3:** Skeleton accent-tinted shimmer
+- [x] **Pulido s3:** Section badge hover glow, global fadeIn keyframe
 
 ### BLOQUE 5: Tienda — Beat Page ⬜
 - [ ] Ruta dinámica `/beat/[id]`

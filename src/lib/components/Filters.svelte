@@ -1,14 +1,29 @@
 <script lang="ts">
 	import { genres, allTags } from '$lib/stores';
+	import Icon from './Icon.svelte';
 
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
 
 	let {
 		filters = $bindable({ search: '', genre: '', key: '', sort: 'newest', tags: [] as string[] }),
-		onchange
+		onchange,
+		total = 0,
+		filtered = 0,
+		placeholder = 'Buscar beats...',
+		labelAll = 'Todos',
+		labelKey = 'Tonalidad',
+		labelTags = 'Tags',
+		labelClear = 'Limpiar todo'
 	}: {
 		filters?: FilterState;
 		onchange?: (filters: FilterState) => void;
+		total?: number;
+		filtered?: number;
+		placeholder?: string;
+		labelAll?: string;
+		labelKey?: string;
+		labelTags?: string;
+		labelClear?: string;
 	} = $props();
 
 	let genreList = $derived($genres);
@@ -56,17 +71,17 @@
 <div class="filters">
 	<!-- Search -->
 	<div class="filter-search">
-		<svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+		<span class="search-icon"><Icon name="search" size={14} /></span>
 		<input
 			class="search-input"
 			type="text"
-			placeholder="Buscar beats..."
+			placeholder={placeholder}
 			bind:value={filters.search}
 			oninput={() => onchange?.(filters)}
 		/>
 		{#if filters.search}
 			<button class="search-clear" onclick={() => { update('search', ''); }} aria-label="Limpiar">
-				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+				<Icon name="close" size={12} />
 			</button>
 		{/if}
 	</div>
@@ -74,7 +89,7 @@
 	<!-- Genre pills -->
 	{#if genreList.length > 0}
 		<div class="filter-pills">
-			<button class="pill" class:active={!filters.genre} onclick={() => update('genre', '')}>Todos</button>
+			<button class="pill" class:active={!filters.genre} onclick={() => update('genre', '')}>{labelAll}</button>
 			{#each genreList as genre}
 				<button class="pill" class:active={filters.genre === genre} onclick={() => update('genre', genre)}>{genre}</button>
 			{/each}
@@ -85,7 +100,7 @@
 	<div class="filter-row">
 		<div class="filter-select-wrap">
 			<select class="filter-select" bind:value={filters.key} onchange={() => onchange?.(filters)}>
-				<option value="">Tonalidad</option>
+				<option value="">{labelKey}</option>
 				{#each allKeys as k}
 					<option value={k}>{k}</option>
 				{/each}
@@ -101,8 +116,8 @@
 		</div>
 
 		<button class="tags-toggle" class:active={showTags} onclick={() => showTags = !showTags}>
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-			Tags
+			<Icon name="tag" size={14} />
+			{labelTags}
 			{#if filters.tags.length}
 				<span class="tags-count">{filters.tags.length}</span>
 			{/if}
@@ -111,8 +126,8 @@
 
 	<!-- Tag cloud -->
 	{#if showTags && tagList.length > 0}
-		<div class="tag-cloud">
-			{#each tagList as tag}
+		<div class="tag-cloud" role="group" aria-label="Tags">
+			{#each tagList as tag (tag)}
 				<button class="tag-btn" class:active={filters.tags.includes(tag)} onclick={() => toggleTag(tag)}>
 					{tag}
 				</button>
@@ -121,18 +136,23 @@
 	{/if}
 
 	<!-- Active filters -->
-	{#if hasActive}
+	{#if hasActive || (total > 0 && filtered !== total)}
 		<div class="active-filters">
+			<span class="filter-count" class:filtering={hasActive}>
+				{filtered} de {total} beats
+			</span>
 			{#if filters.genre}
 				<span class="active-tag">{filters.genre} <button onclick={() => update('genre', '')} aria-label="Quitar filtro {filters.genre}">×</button></span>
 			{/if}
 			{#if filters.key}
 				<span class="active-tag">{filters.key} <button onclick={() => update('key', '')} aria-label="Quitar filtro {filters.key}">×</button></span>
 			{/if}
-			{#each filters.tags as tag}
+			{#each filters.tags as tag (tag)}
 				<span class="active-tag">{tag} <button onclick={() => toggleTag(tag)} aria-label="Quitar tag {tag}">×</button></span>
 			{/each}
-			<button class="clear-all" onclick={clearAll} aria-label="Limpiar todos los filtros">Limpiar todo</button>
+			{#if hasActive}
+				<button class="clear-all" onclick={clearAll} aria-label="Limpiar todos los filtros">{labelClear}</button>
+			{/if}
 		</div>
 	{/if}
 </div>
@@ -169,7 +189,7 @@
 		font-size: var(--text-sm);
 		min-height: var(--touch-min);
 		outline: none;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 	}
 
 	.search-input:focus {
@@ -217,7 +237,7 @@
 		color: var(--text-secondary);
 		white-space: nowrap;
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
 		min-height: 36px;
@@ -257,7 +277,7 @@
 		appearance: none;
 		cursor: pointer;
 		outline: none;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 	}
 
 	.filter-select:focus {
@@ -276,7 +296,7 @@
 		color: var(--text-secondary);
 		font-size: var(--text-sm);
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 		white-space: nowrap;
 		min-height: 40px;
 	}
@@ -294,7 +314,7 @@
 
 	.tags-count {
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		background: var(--accent);
 		color: var(--bg);
 		width: 18px;
@@ -318,14 +338,14 @@
 
 	.tag-btn {
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		padding: 3px 10px;
 		border-radius: var(--radius-full);
 		border: 1px solid var(--border);
 		background: transparent;
 		color: var(--text-muted);
 		cursor: pointer;
-		transition: all 0.15s;
+		transition: all var(--duration-fast);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 	}
@@ -349,6 +369,18 @@
 		align-items: center;
 	}
 
+	.filter-count {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		letter-spacing: 0.04em;
+		transition: color 0.2s;
+	}
+
+	.filter-count.filtering {
+		color: var(--accent);
+	}
+
 	.active-tag {
 		display: inline-flex;
 		align-items: center;
@@ -369,7 +401,7 @@
 		color: var(--accent);
 		cursor: pointer;
 		padding: 0;
-		font-size: 14px;
+		font-size: var(--text-sm);
 		line-height: 1;
 	}
 
