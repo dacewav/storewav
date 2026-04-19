@@ -60,30 +60,30 @@
 	.btn-sm {
 		font-size: var(--text-sm);
 		padding: var(--space-1) var(--space-3);
-		height: 32px;
+		min-height: 36px;
 	}
 
 	.btn-md {
 		font-size: var(--text-sm);
 		padding: var(--space-2) var(--space-4);
-		height: 40px;
+		min-height: var(--touch-min);
 	}
 
 	.btn-lg {
 		font-size: var(--text-base);
 		padding: var(--space-3) var(--space-6);
-		height: 48px;
+		min-height: 52px;
 	}
 
 	/* ── Primary ── */
 	.btn-primary {
-		background: var(--color-accent);
-		color: var(--color-bg);
+		background: var(--accent);
+		color: var(--bg);
 		font-weight: 600;
 	}
 
 	.btn-primary:hover:not(:disabled) {
-		background: var(--color-accent-dim);
+		background: var(--accent-dim);
 		box-shadow: var(--glow-accent);
 	}
 
@@ -93,14 +93,14 @@
 
 	/* ── Secondary ── */
 	.btn-secondary {
-		background: var(--color-surface);
-		color: var(--color-text);
-		border-color: var(--color-border);
+		background: var(--surface);
+		color: var(--text);
+		border-color: var(--border);
 	}
 
 	.btn-secondary:hover:not(:disabled) {
-		background: var(--color-surface-hover);
-		border-color: var(--color-border-hover);
+		background: var(--surface-hover);
+		border-color: var(--border-hover);
 	}
 
 	.btn-secondary:active:not(:disabled) {
@@ -110,24 +110,24 @@
 	/* ── Ghost ── */
 	.btn-ghost {
 		background: transparent;
-		color: var(--color-text-secondary);
+		color: var(--text-secondary);
 	}
 
 	.btn-ghost:hover:not(:disabled) {
-		background: var(--color-surface);
-		color: var(--color-text);
+		background: var(--surface);
+		color: var(--text);
 	}
 
 	/* ── Danger ── */
 	.btn-danger {
-		background: var(--color-danger);
-		color: var(--color-text);
+		background: var(--danger);
+		color: var(--text);
 		font-weight: 600;
 	}
 
 	.btn-danger:hover:not(:disabled) {
-		background: var(--color-danger-dim);
-		box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+		background: var(--danger-dim);
+		box-shadow: 0 0 20px var(--danger-glow-strong);
 	}
 
 	.btn-danger:active:not(:disabled) {

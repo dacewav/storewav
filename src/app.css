@@ -1,11 +1,18 @@
 /* ============================================
-   DACEWAV.STORE — Design Tokens
+   DACEWAV.STORE — Design System
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap');
 
 :root {
-  /* ── Colors (dark with neon green accent) ── */
+  /* ════════════════════════════════════════════
+     THEME — Editable from admin via Firebase
+     Estos son los ÚNICOS valores que el admin
+     puede cambiar. El admin escribe a Firebase,
+     Firebase → document.documentElement.style.setProperty()
+     ════════════════════════════════════════════ */
+
+  /* ── Colors (admin → Firebase theme/) ── */
   --bg: #060404;
   --bg-secondary: #0a0a0a;
   --surface: #0f0808;
@@ -26,33 +33,54 @@
 
   --danger: #ff4444;
   --danger-dim: #cc3333;
+  --danger-glow: rgba(255, 68, 68, 0.15);
+  --danger-glow-strong: rgba(255, 68, 68, 0.3);
   --warning: #ffaa00;
+  --warning-glow: rgba(255, 170, 0, 0.15);
+  --warning-dim: rgba(255, 170, 0, 0.3);
   --success: #00ff88;
 
   --border: rgba(255, 255, 255, 0.06);
   --border2: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.15);
 
-  /* ── Glow presets ── */
+  --backdrop: rgba(0, 0, 0, 0.7);
+
+  /* ── Glow (admin → Firebase theme/glow*) ── */
   --glow-sm: 0 0 20px rgba(0, 255, 136, 0.2);
   --glow-md: 0 0 40px rgba(0, 255, 136, 0.25), 0 0 80px rgba(0, 255, 136, 0.08);
   --glow-lg: 0 0 60px rgba(0, 255, 136, 0.3), 0 0 120px rgba(0, 255, 136, 0.1);
+  --glow-accent: 0 0 20px rgba(0, 255, 136, 0.3);
 
-  /* ── Typography ── */
+  /* ── Shadows ── */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+
+  /* ── Tracking ── */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.1em;
+
+  /* ── Typography (admin → Firebase theme/font*) ── */
   --font-display: 'Syne', sans-serif;
   --font-body: 'Space Grotesk', sans-serif;
   --font-mono: 'DM Mono', monospace;
 
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
-  --text-5xl: 3rem;
-  --text-6xl: 3.75rem;
-  --text-7xl: 4.5rem;
+  --text-2xs: 0.625rem;   /* 10px */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  --text-6xl: 3.75rem;    /* 60px */
+  --text-7xl: 4.5rem;     /* 72px */
 
   /* ── Spacing ── */
   --space-1: 0.25rem;
@@ -68,16 +96,16 @@
   --space-20: 5rem;
   --space-24: 6rem;
 
-  /* ── Border Radius ── */
+  /* ── Border Radius (admin → Firebase theme/radiusGlobal) ── */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* ── Card ── */
+  /* ── Card (admin → Firebase theme/cardOpacity) ── */
   --card-radius: var(--radius-lg);
-  --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --card-opacity: 1;
 
   /* ── Transitions ── */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -101,18 +129,52 @@
 
   /* ── Layout ── */
   --max-width: 1400px;
+  --container-padding: clamp(1rem, 5vw, 2.5rem);
   --nav-blur: 24px;
   --grain-opacity: 0.25;
   --grain-blend: overlay;
+
+  /* ── Touch ── */
+  --touch-min: 44px;
 
   /* ── Waveform bar ── */
   --wbar-h: 12px;
   --wbar-r: 2px;
   --wbar-color: rgba(255, 255, 255, 0.12);
   --wbar-active: var(--accent);
+
+  /* ── Breakpoints (reference — use in @media) ── */
+  /* --bp-xs: 480px; */
+  /* --bp-sm: 768px; */
+  /* --bp-md: 1024px; */
+  /* --bp-lg: 1440px; */
 }
 
-/* ── Base Reset ── */
+/* ════════════════════════════════════════════
+   THEME MAPPING — Firebase → CSS
+   Admin escribe estos paths en Firebase y
+   theme.ts los aplica como CSS variables.
+
+   theme/bg → --bg
+   theme/bgSecondary → --bg-secondary
+   theme/surface → --surface
+   theme/surface2 → --surface2
+   theme/accent → --accent (auto-genera --accent-dim, --accent-glow, etc.)
+   theme/text → --text
+   theme/textSecondary → --text-secondary
+   theme/fontDisplay → --font-display
+   theme/fontBody → --font-body
+   theme/radiusGlobal → --radius-lg (escala los demás)
+   theme/cardOpacity → --card-opacity
+   theme/glowColor → base para --glow-* presets
+   theme/glowIntensity → multiplica opacidad de glow
+   theme/grainOpacity → --grain-opacity
+   ════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   BASE RESET
+   ════════════════════════════════════════════ */
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -147,13 +209,25 @@ a:hover {
   color: var(--accent-dim);
 }
 
-/* Selection */
+img, video, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
 ::selection {
   background: var(--accent);
   color: var(--bg);
 }
 
-/* Scrollbar */
+/* ════════════════════════════════════════════
+   SCROLLBAR
+   ════════════════════════════════════════════ */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -172,13 +246,30 @@ a:hover {
   background: rgba(0, 255, 136, 0.3);
 }
 
-/* Focus visible */
+/* ════════════════════════════════════════════
+   FOCUS
+   ════════════════════════════════════════════ */
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* ── Grain overlay ── */
+/* ════════════════════════════════════════════
+   CONTAINER
+   ════════════════════════════════════════════ */
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* ════════════════════════════════════════════
+   GRAIN OVERLAY
+   ════════════════════════════════════════════ */
+
 body::before {
   content: '';
   position: fixed;
@@ -190,7 +281,10 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
 }
 
-/* ── Scroll Progress ── */
+/* ════════════════════════════════════════════
+   SCROLL PROGRESS
+   ════════════════════════════════════════════ */
+
 #scroll-progress {
   position: fixed;
   top: 0;
@@ -203,7 +297,10 @@ body::before {
   box-shadow: 0 0 10px var(--accent);
 }
 
-/* ── Cursor Glow ── */
+/* ════════════════════════════════════════════
+   CURSOR GLOW (desktop only)
+   ════════════════════════════════════════════ */
+
 #cursor-glow {
   position: fixed;
   width: 400px;
@@ -222,7 +319,14 @@ body:hover #cursor-glow {
   opacity: 1;
 }
 
-/* ── Floating Orbs ── */
+@media (hover: none) {
+  #cursor-glow { display: none; }
+}
+
+/* ════════════════════════════════════════════
+   FLOATING ORBS
+   ════════════════════════════════════════════ */
+
 .orb {
   position: fixed;
   border-radius: 50%;
@@ -261,51 +365,22 @@ body:hover #cursor-glow {
   animation: orbFloat 11s ease-in-out infinite 4s;
 }
 
+@media (max-width: 768px) {
+  .orb1 { width: 350px; height: 350px; }
+  .orb2 { width: 250px; height: 250px; }
+  .orb3 { display: none; }
+}
+
 @keyframes orbFloat {
   0%, 100% { transform: translate(0, 0); }
   33% { transform: translate(40px, -30px); }
   66% { transform: translate(-25px, 40px); }
 }
 
-/* ── Skeleton Loading ── */
-.skeleton-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--card-radius);
-  overflow: hidden;
-}
+/* ════════════════════════════════════════════
+   SCROLL REVEAL
+   ════════════════════════════════════════════ */
 
-.skeleton-img {
-  width: 100%;
-  aspect-ratio: 16/9;
-  background: linear-gradient(90deg, var(--surface2) 25%, rgba(255,255,255,0.04) 50%, var(--surface2) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.skeleton-body {
-  padding: 1rem 1.25rem;
-}
-
-.skeleton-line {
-  height: 12px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--surface2) 25%, rgba(255,255,255,0.04) 50%, var(--surface2) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  margin-bottom: 8px;
-}
-
-.skeleton-line.w60 { width: 60%; }
-.skeleton-line.w40 { width: 40%; }
-.skeleton-line.w80 { width: 80%; }
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* ── Scroll Reveal ── */
 .reveal {
   opacity: 0;
   transform: translateY(30px);
@@ -321,7 +396,10 @@ body:hover #cursor-glow {
   transition-delay: calc(var(--si, 0) * 80ms);
 }
 
-/* ── Loader ── */
+/* ════════════════════════════════════════════
+   LOADER
+   ════════════════════════════════════════════ */
+
 #loader {
   position: fixed;
   inset: 0;
@@ -370,7 +448,10 @@ body:hover #cursor-glow {
   50% { opacity: 1; transform: scaleY(1.5); }
 }
 
-/* ── Animations ── */
+/* ════════════════════════════════════════════
+   ANIMATIONS
+   ════════════════════════════════════════════ */
+
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -418,7 +499,11 @@ body:hover #cursor-glow {
   100% { background-position: 0% 50%; }
 }
 
-/* ── Utility ── */
+/* ════════════════════════════════════════════
+   UTILITY CLASSES
+   ════════════════════════════════════════════ */
+
+/* Screen reader only */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -429,4 +514,99 @@ body:hover #cursor-glow {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* Text truncation */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Flex helpers */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Hide on breakpoints */
+.hide-mobile {
+  display: block;
+}
+
+.hide-desktop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  .hide-desktop {
+    display: block !important;
+  }
+}
+
+/* Touch-friendly minimum targets */
+.touch-target {
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+}
+
+/* ════════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .orb { display: none; }
+  #cursor-glow { display: none; }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ════════════════════════════════════════════
+   RESPONSIVE GRID HELPERS
+   ════════════════════════════════════════════ */
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 480px) {
+  .grid-auto {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
 }

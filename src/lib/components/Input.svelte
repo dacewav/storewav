@@ -19,7 +19,7 @@
 		id?: string;
 	} = $props();
 
-	const inputId = id || `input-${Math.random().toString(36).slice(2, 8)}`;
+	const inputId = $derived(id || `input-${Math.random().toString(36).slice(2, 8)}`);
 </script>
 
 <div class="field">
@@ -52,42 +52,42 @@
 		font-family: var(--font-body);
 		font-size: var(--text-sm);
 		font-weight: 500;
-		color: var(--color-text-secondary);
+		color: var(--text-secondary);
 	}
 
 	.input {
 		font-family: var(--font-body);
 		font-size: var(--text-sm);
-		color: var(--color-text);
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
+		color: var(--text);
+		background: var(--surface);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
 		padding: var(--space-2) var(--space-3);
-		height: 40px;
+		min-height: var(--touch-min);
 		width: 100%;
 		transition: all var(--duration-fast) var(--ease-out);
 		outline: none;
 	}
 
 	.input::placeholder {
-		color: var(--color-text-muted);
+		color: var(--text-muted);
 	}
 
 	.input:hover:not(:disabled) {
-		border-color: var(--color-border-hover);
+		border-color: var(--border-hover);
 	}
 
 	.input:focus {
-		border-color: var(--color-accent);
-		box-shadow: 0 0 0 3px var(--color-accent-glow);
+		border-color: var(--accent);
+		box-shadow: 0 0 0 3px var(--accent-glow);
 	}
 
 	.input.has-error {
-		border-color: var(--color-danger);
+		border-color: var(--danger);
 	}
 
 	.input.has-error:focus {
-		box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.15);
+		box-shadow: 0 0 0 3px var(--danger-glow);
 	}
 
 	.input:disabled {
@@ -98,6 +98,6 @@
 	.error {
 		font-family: var(--font-body);
 		font-size: var(--text-xs);
-		color: var(--color-danger);
+		color: var(--danger);
 	}
 </style>

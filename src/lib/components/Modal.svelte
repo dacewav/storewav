@@ -60,7 +60,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: var(--z-modal);
-		background: rgba(0, 0, 0, 0.7);
+		background: var(--backdrop);
 		backdrop-filter: blur(4px);
 		display: flex;
 		align-items: center;
@@ -70,8 +70,8 @@
 	}
 
 	.modal {
-		background: var(--color-bg-secondary);
-		border: 1px solid var(--color-border);
+		background: var(--bg-secondary);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
 		width: 100%;
 		max-width: 500px;
@@ -86,14 +86,14 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: var(--space-5);
-		border-bottom: 1px solid var(--color-border);
+		border-bottom: 1px solid var(--border);
 	}
 
 	.modal-title {
 		font-family: var(--font-display);
 		font-size: var(--text-lg);
 		font-weight: 600;
-		color: var(--color-text);
+		color: var(--text);
 	}
 
 	.modal-close {
@@ -105,14 +105,14 @@
 		background: transparent;
 		border: none;
 		border-radius: var(--radius-md);
-		color: var(--color-text-muted);
+		color: var(--text-muted);
 		cursor: pointer;
 		transition: all var(--duration-fast) var(--ease-out);
 	}
 
 	.modal-close:hover {
-		background: var(--color-surface);
-		color: var(--color-text);
+		background: var(--surface);
+		color: var(--text);
 	}
 
 	.modal-body {

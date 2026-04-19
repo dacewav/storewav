@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { Skeleton } from '$lib/components';
+</script>
+
 <svelte:head>
 	<title>DACEWAV — Beats que rompen</title>
 </svelte:head>
@@ -49,14 +53,7 @@
 
 	<div class="beat-grid">
 		{#each Array(6) as _, i}
-			<div class="skeleton-card">
-				<div class="skeleton-img"></div>
-				<div class="skeleton-body">
-					<div class="skeleton-line w60"></div>
-					<div class="skeleton-line w40"></div>
-					<div class="skeleton-line w80"></div>
-				</div>
-			</div>
+			<Skeleton lines={3} />
 		{/each}
 	</div>
 </section>
@@ -66,7 +63,7 @@
 	.hero {
 		position: relative;
 		z-index: 1;
-		padding: 7rem 2.5rem 5rem;
+		padding: clamp(4rem, 12vw, 7rem) var(--container-padding) clamp(2.5rem, 8vw, 5rem);
 		text-align: center;
 		overflow: hidden;
 	}
@@ -97,7 +94,7 @@
 		align-items: center;
 		gap: 8px;
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		letter-spacing: 0.2em;
 		text-transform: uppercase;
 		color: var(--accent);
@@ -130,7 +127,7 @@
 
 	.hero-title {
 		font-family: var(--font-display);
-		font-size: clamp(2.8rem, 8vw, 6.5rem);
+		font-size: clamp(2.4rem, 8vw, 6.5rem);
 		font-weight: 800;
 		letter-spacing: -0.04em;
 		line-height: 1;
@@ -148,7 +145,7 @@
 	}
 
 	.hero-sub {
-		font-size: 14px;
+		font-size: var(--text-sm);
 		color: var(--text-secondary);
 		max-width: 520px;
 		margin: 0 auto 2rem;
@@ -162,9 +159,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 3rem;
+		gap: clamp(1.5rem, 5vw, 3rem);
 		flex-wrap: wrap;
-		margin-top: 3rem;
+		margin-top: clamp(2rem, 5vw, 3rem);
 		padding-top: 2rem;
 		border-top: 1px solid var(--border);
 		position: relative;
@@ -173,14 +170,14 @@
 
 	.stat-num {
 		font-family: var(--font-display);
-		font-size: 2rem;
+		font-size: clamp(1.5rem, 4vw, 2rem);
 		font-weight: 800;
 		color: var(--text);
 	}
 
 	.stat-label {
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		color: var(--text-secondary);
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
@@ -191,7 +188,7 @@
 		position: relative;
 		z-index: 1;
 		text-align: center;
-		padding: 5rem 2.5rem;
+		padding: clamp(3rem, 8vw, 5rem) var(--container-padding);
 		overflow: hidden;
 	}
 
@@ -205,7 +202,7 @@
 
 	.section-divider-text {
 		font-family: var(--font-display);
-		font-size: clamp(2rem, 6vw, 4.5rem);
+		font-size: clamp(1.8rem, 6vw, 4.5rem);
 		font-weight: 900;
 		letter-spacing: -0.04em;
 		line-height: 1.1;
@@ -221,12 +218,11 @@
 	}
 
 	.section-divider-sub {
-		font-size: 13px;
+		font-size: var(--text-sm);
 		color: var(--text-secondary);
 		margin-top: 1rem;
 		max-width: 500px;
-		margin-left: auto;
-		margin-right: auto;
+		margin-inline: auto;
 		position: relative;
 		line-height: 1.8;
 	}
@@ -235,7 +231,7 @@
 	.section {
 		position: relative;
 		z-index: 1;
-		padding: var(--space-16) 2.5rem;
+		padding: var(--space-16) var(--container-padding);
 	}
 
 	.section-header {
@@ -261,7 +257,7 @@
 
 	.section-badge {
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		padding: 3px 10px;
 		border-radius: var(--radius-full);
 		border: 1px solid rgba(0, 255, 136, 0.3);
@@ -270,26 +266,33 @@
 		letter-spacing: 0.06em;
 	}
 
-	/* ── Beat Grid ── */
+	/* ── Beat Grid — responsive 3 breakpoints ── */
 	.beat-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-		gap: 16px;
+		gap: var(--space-4);
 		align-items: start;
 	}
 
-	/* ── Responsive ── */
-	@media (max-width: 768px) {
-		.hero {
-			padding: 4rem 1.25rem 3rem;
+	@media (max-width: 1024px) {
+		.beat-grid {
+			grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+			gap: var(--space-3);
+		}
+	}
+
+	@media (max-width: 480px) {
+		.beat-grid {
+			grid-template-columns: 1fr;
+			gap: var(--space-3);
 		}
 
-		.section {
-			padding: 2.5rem 1.25rem;
+		.hero-title {
+			font-size: clamp(2rem, 10vw, 2.8rem);
 		}
 
-		.section-divider {
-			padding: 3rem 1.25rem;
+		.section-header {
+			flex-wrap: wrap;
 		}
 	}
 </style>

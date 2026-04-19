@@ -12,12 +12,19 @@
 	let loaderVisible = $state(true);
 	let cursorX = $state(-500);
 	let cursorY = $state(-500);
+	let menuOpen = $state(false);
+
+	function toggleMenu() {
+		menuOpen = !menuOpen;
+	}
+
+	function closeMenu() {
+		menuOpen = false;
+	}
 
 	onMount(() => {
-		// Hide loader after content loads
 		const timer = setTimeout(() => { loaderVisible = false; }, 800);
 
-		// Scroll handler
 		function onScroll() {
 			const y = window.scrollY;
 			const max = document.documentElement.scrollHeight - window.innerHeight;
@@ -26,21 +33,43 @@
 			navHidden = y > 100 && y > lastScrollY;
 			navScrolled = y > 50;
 			lastScrollY = y;
+
+			if (menuOpen) closeMenu();
 		}
 
-		// Cursor glow
 		function onMouseMove(e: MouseEvent) {
 			cursorX = e.clientX;
 			cursorY = e.clientY;
 		}
 
+		function onKeydown(e: KeyboardEvent) {
+			if (e.key === 'Escape' && menuOpen) closeMenu();
+		}
+
 		window.addEventListener('scroll', onScroll, { passive: true });
 		window.addEventListener('mousemove', onMouseMove, { passive: true });
+		window.addEventListener('keydown', onKeydown);
+
+		// Reveal on scroll
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						entry.target.classList.add('vis');
+						observer.unobserve(entry.target);
+					}
+				});
+			},
+			{ threshold: 0.15 }
+		);
+		document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 
 		return () => {
 			clearTimeout(timer);
 			window.removeEventListener('scroll', onScroll);
 			window.removeEventListener('mousemove', onMouseMove);
+			window.removeEventListener('keydown', onKeydown);
+			observer.disconnect();
 		};
 	});
 </script>
@@ -49,6 +78,7 @@
 	<link rel="icon" href={favicon} />
 	<meta name="description" content="DACEWAV — Beats que rompen" />
 	<meta name="theme-color" content="#060404" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 
 <!-- Loader -->
@@ -77,20 +107,54 @@
 <div class="app">
 	<!-- Nav -->
 	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled}>
-		<a href="/" class="nav-brand">
+		<a href="/" class="nav-brand" onclick={closeMenu}>
 			<span>DACEWAV</span><em>.</em>
 		</a>
-		<div class="nav-links">
+
+		<!-- Desktop links -->
+		<div class="nav-links hide-mobile">
 			<a href="/" class="nav-link">Catálogo</a>
 			<a href="/admin" class="nav-link">Admin</a>
-			<button class="theme-toggle" title="Favoritos">
+			<button class="icon-btn" title="Favoritos">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
 			</button>
-			<button class="theme-toggle" title="Cambiar tema">
+			<button class="icon-btn" title="Cambiar tema">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
 			</button>
 		</div>
+
+		<!-- Hamburger (mobile only) -->
+		<button
+			class="hamburger hide-desktop"
+			onclick={toggleMenu}
+			aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+			aria-expanded={menuOpen}
+		>
+			<span class="burger-line" class:open={menuOpen}></span>
+			<span class="burger-line" class:open={menuOpen}></span>
+			<span class="burger-line" class:open={menuOpen}></span>
+		</button>
 	</nav>
+
+	<!-- Mobile menu overlay -->
+	{#if menuOpen}
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="mobile-overlay" onclick={closeMenu} onkeydown={() => {}}></div>
+		<div class="mobile-menu">
+			<a href="/" class="mobile-link" onclick={closeMenu}>Catálogo</a>
+			<a href="/admin" class="mobile-link" onclick={closeMenu}>Admin</a>
+			<div class="mobile-actions">
+				<button class="icon-btn" title="Favoritos" onclick={closeMenu}>
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+					<span>Favoritos</span>
+				</button>
+				<button class="icon-btn" title="Cambiar tema" onclick={closeMenu}>
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+					<span>Tema</span>
+				</button>
+			</div>
+		</div>
+	{/if}
 
 	<!-- Main -->
 	<main class="main">
@@ -104,9 +168,9 @@
 			<div class="footer-sub">Todos los derechos reservados · 2026</div>
 		</div>
 		<div class="footer-links">
-			<a href="#" class="footer-link">Instagram</a>
-			<a href="#" class="footer-link">YouTube</a>
-			<a href="#" class="footer-link">WhatsApp</a>
+			<a href="https://instagram.com" class="footer-link" target="_blank" rel="noopener">Instagram</a>
+			<a href="https://youtube.com" class="footer-link" target="_blank" rel="noopener">YouTube</a>
+			<a href="https://wa.me" class="footer-link" target="_blank" rel="noopener">WhatsApp</a>
 		</div>
 	</footer>
 </div>
@@ -128,9 +192,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		padding: 1rem 2.5rem;
+		padding: 1rem var(--container-padding);
 		background: rgba(6, 4, 4, 0.88);
 		backdrop-filter: blur(var(--nav-blur));
 		border-bottom: 1px solid var(--border);
@@ -170,7 +232,7 @@
 	}
 
 	.nav-link {
-		font-size: 11px;
+		font-size: var(--text-2xs);
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: var(--text-secondary);
@@ -199,9 +261,9 @@
 		width: 100%;
 	}
 
-	.theme-toggle {
-		width: 32px;
-		height: 32px;
+	.icon-btn {
+		min-width: var(--touch-min);
+		min-height: var(--touch-min);
 		border-radius: 50%;
 		border: 1px solid var(--border2);
 		background: transparent;
@@ -210,16 +272,121 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 14px;
 		transition: all 0.2s;
 		padding: 0;
 		flex-shrink: 0;
 	}
 
-	.theme-toggle:hover {
+	.icon-btn:hover {
 		color: var(--accent);
 		border-color: rgba(0, 255, 136, 0.3);
 		transform: rotate(15deg);
+	}
+
+	/* ── Hamburger ── */
+	.hamburger {
+		display: none;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 5px;
+		width: var(--touch-min);
+		height: var(--touch-min);
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+	}
+
+	.burger-line {
+		display: block;
+		width: 20px;
+		height: 2px;
+		background: var(--text);
+		border-radius: 1px;
+		transition: all 0.3s var(--ease-out);
+		transform-origin: center;
+	}
+
+	.burger-line.open:nth-child(1) {
+		transform: translateY(7px) rotate(45deg);
+	}
+
+	.burger-line.open:nth-child(2) {
+		opacity: 0;
+	}
+
+	.burger-line.open:nth-child(3) {
+		transform: translateY(-7px) rotate(-45deg);
+	}
+
+	/* ── Mobile Menu ── */
+	.mobile-overlay {
+		display: none;
+		position: fixed;
+		inset: 0;
+		z-index: calc(var(--z-nav) - 1);
+		background: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(4px);
+	}
+
+	.mobile-menu {
+		display: none;
+		position: fixed;
+		top: 0;
+		right: 0;
+		width: min(300px, 85vw);
+		height: 100dvh;
+		z-index: var(--z-nav);
+		background: var(--bg-secondary);
+		border-left: 1px solid var(--border);
+		padding: 5rem var(--space-6) var(--space-6);
+		flex-direction: column;
+		gap: var(--space-2);
+		animation: slideInRight 0.3s var(--ease-out);
+	}
+
+	.mobile-link {
+		font-family: var(--font-display);
+		font-size: var(--text-xl);
+		font-weight: 600;
+		color: var(--text);
+		text-decoration: none;
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius-md);
+		transition: all 0.15s;
+		min-height: var(--touch-min);
+		display: flex;
+		align-items: center;
+	}
+
+	.mobile-link:hover {
+		background: var(--surface);
+		color: var(--accent);
+	}
+
+	.mobile-actions {
+		display: flex;
+		gap: var(--space-3);
+		margin-top: var(--space-4);
+		padding-top: var(--space-4);
+		border-top: 1px solid var(--border);
+	}
+
+	.mobile-actions .icon-btn {
+		flex: 1;
+		border-radius: var(--radius-md);
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+	}
+
+	.mobile-actions .icon-btn span {
+		font-family: var(--font-body);
+	}
+
+	@keyframes slideInRight {
+		from { transform: translateX(100%); }
+		to { transform: translateX(0); }
 	}
 
 	/* ── Main ── */
@@ -232,10 +399,10 @@
 		position: relative;
 		z-index: var(--z-content);
 		border-top: 1px solid var(--border);
-		padding: 3rem 2.5rem 4rem;
+		padding: var(--space-12) var(--container-padding) var(--space-16);
 		display: grid;
 		grid-template-columns: 1fr auto;
-		gap: 2rem;
+		gap: var(--space-8);
 		align-items: end;
 	}
 
@@ -263,7 +430,7 @@
 	}
 
 	.footer-sub {
-		font-size: 11px;
+		font-size: var(--text-2xs);
 		color: var(--text-hint);
 		margin-top: 4px;
 	}
@@ -276,11 +443,14 @@
 	}
 
 	.footer-link {
-		font-size: 11px;
+		font-size: var(--text-2xs);
 		color: var(--text-secondary);
 		text-decoration: none;
 		transition: color 0.15s;
 		cursor: pointer;
+		min-height: var(--touch-min);
+		display: flex;
+		align-items: center;
 	}
 
 	.footer-link:hover {
@@ -289,17 +459,17 @@
 
 	/* ── Responsive ── */
 	@media (max-width: 768px) {
-		.nav {
-			padding: 1rem;
+		.hamburger {
+			display: flex;
+		}
+
+		.mobile-overlay,
+		.mobile-menu {
+			display: flex;
 		}
 
 		.footer {
 			grid-template-columns: 1fr;
-			padding: 2rem 1rem 3rem;
-		}
-
-		#cursor-glow {
-			display: none;
 		}
 	}
 </style>

@@ -32,32 +32,32 @@
 	}
 
 	.badge-default {
-		background: var(--color-surface);
-		color: var(--color-text-secondary);
-		border: 1px solid var(--color-border);
+		background: var(--surface);
+		color: var(--text-secondary);
+		border: 1px solid var(--border);
 	}
 
 	.badge-accent {
-		background: var(--color-accent-glow);
-		color: var(--color-accent);
-		border: 1px solid var(--color-accent-dim);
+		background: var(--accent-glow);
+		color: var(--accent);
+		border: 1px solid var(--accent-dim);
 	}
 
 	.badge-danger {
-		background: rgba(255, 68, 68, 0.15);
-		color: var(--color-danger);
-		border: 1px solid var(--color-danger-dim);
+		background: var(--danger-glow);
+		color: var(--danger);
+		border: 1px solid var(--danger-dim);
 	}
 
 	.badge-warning {
-		background: rgba(255, 170, 0, 0.15);
-		color: var(--color-warning);
-		border: 1px solid rgba(255, 170, 0, 0.3);
+		background: var(--warning-glow);
+		color: var(--warning);
+		border: 1px solid var(--warning-dim);
 	}
 
 	.badge-muted {
 		background: transparent;
-		color: var(--color-text-muted);
-		border: 1px solid var(--color-border);
+		color: var(--text-muted);
+		border: 1px solid var(--border);
 	}
 </style>

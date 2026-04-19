@@ -18,8 +18,8 @@
 
 <style>
 	.card {
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
+		background: var(--surface);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
 		overflow: hidden;
 		transition: all var(--duration-normal) var(--ease-out);
@@ -34,8 +34,8 @@
 	}
 
 	.card.hoverable:hover {
-		border-color: var(--color-border-hover);
-		background: var(--color-surface-hover);
+		border-color: var(--border-hover);
+		background: var(--surface-hover);
 		box-shadow: var(--shadow-lg);
 		transform: translateY(-2px);
 	}
