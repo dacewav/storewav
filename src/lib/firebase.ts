@@ -36,7 +36,7 @@ function validateConfig() {
 // Lazy init — only on client side (Firebase SDK doesn't work in Workers SSR)
 let _app: any = null;
 let _db: any = null;
-let _auth: null | Promise<any> = null;
+let _auth: any = null;
 let _initError: Error | null = null;
 
 async function initFirebase() {
