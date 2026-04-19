@@ -115,10 +115,10 @@
 		<div class="nav-links hide-mobile">
 			<a href="/" class="nav-link">Catálogo</a>
 			<a href="/admin" class="nav-link">Admin</a>
-			<button class="icon-btn" title="Favoritos">
+			<button class="icon-btn" title="Favoritos" aria-label="Favoritos">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
 			</button>
-			<button class="icon-btn" title="Cambiar tema">
+			<button class="icon-btn" title="Cambiar tema" aria-label="Cambiar tema">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
 			</button>
 		</div>
@@ -144,11 +144,11 @@
 			<a href="/" class="mobile-link" onclick={closeMenu}>Catálogo</a>
 			<a href="/admin" class="mobile-link" onclick={closeMenu}>Admin</a>
 			<div class="mobile-actions">
-				<button class="icon-btn" title="Favoritos" onclick={closeMenu}>
+				<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={closeMenu}>
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
 					<span>Favoritos</span>
 				</button>
-				<button class="icon-btn" title="Cambiar tema" onclick={closeMenu}>
+				<button class="icon-btn" title="Cambiar tema" aria-label="Cambiar tema" onclick={closeMenu}>
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
 					<span>Tema</span>
 				</button>

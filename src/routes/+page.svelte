@@ -62,7 +62,7 @@
 	/* ── Hero ── */
 	.hero {
 		position: relative;
-		z-index: 1;
+		z-index: var(--z-content);
 		padding: clamp(4rem, 12vw, 7rem) var(--container-padding) clamp(2.5rem, 8vw, 5rem);
 		text-align: center;
 		overflow: hidden;
@@ -104,7 +104,7 @@
 		border-radius: var(--radius-full);
 		background: rgba(var(--accent-rgb), 0.06);
 		position: relative;
-		z-index: 1;
+		z-index: var(--z-content);
 	}
 
 	.dot {
@@ -133,7 +133,7 @@
 		line-height: 1;
 		margin-bottom: 1.5rem;
 		position: relative;
-		z-index: 1;
+		z-index: var(--z-content);
 		color: var(--text);
 	}
 
@@ -151,7 +151,7 @@
 		margin: 0 auto 2rem;
 		line-height: 1.9;
 		position: relative;
-		z-index: 1;
+		z-index: var(--z-content);
 		letter-spacing: 0.02em;
 	}
 
@@ -165,7 +165,7 @@
 		padding-top: 2rem;
 		border-top: 1px solid var(--border);
 		position: relative;
-		z-index: 1;
+		z-index: var(--z-content);
 	}
 
 	.stat-num {
@@ -186,7 +186,7 @@
 	/* ── Section Divider ── */
 	.section-divider {
 		position: relative;
-		z-index: 1;
+		z-index: var(--z-content);
 		text-align: center;
 		padding: clamp(3rem, 8vw, 5rem) var(--container-padding);
 		overflow: hidden;
@@ -230,7 +230,7 @@
 	/* ── Section ── */
 	.section {
 		position: relative;
-		z-index: 1;
+		z-index: var(--z-content);
 		padding: var(--section-padding) var(--container-padding);
 	}
 

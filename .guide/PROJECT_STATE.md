@@ -247,3 +247,4 @@ ultima_tarea: "Auditoría deep + responsive + theme engine + catalog analysis"
 | `.guide/BLOCK-CONTEXT.md` | Contexto rápido del bloque | Siempre al inicio |
 | `src/lib/theme.ts` | Firebase → CSS vars bridge | Bloque 2 (stores) |
 | `src/app.css` | Design tokens completos | Siempre (referencia de variables) |
+| **Catalog v5.2** | https://github.com/dacewav/catalog | Referencia de diseño y features — NO extraer código, reconstruir desde cero |

@@ -136,6 +136,7 @@
   --z-modal: 700;
   --z-toast: 800;
   --z-loader: 9999;
+  --z-progress: 99998;
 
   /* ── Layout (admin → Firebase) ── */
   --max-width: 1400px;
@@ -316,7 +317,7 @@ body::before {
   left: 0;
   height: 2px;
   background: linear-gradient(90deg, var(--accent), var(--accent-dim), var(--accent));
-  z-index: 99999;
+  z-index: var(--z-progress);
   width: 0%;
   transition: width 0.1s;
   box-shadow: 0 0 10px var(--accent);
