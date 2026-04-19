@@ -1,219 +1,256 @@
-# 📖 CATÁLOGO — Análisis Profundo (v5.2)
+# 📊 CATALOG-ANÁLISIS — v5.2 → SvelteKit
 
-> Revisión exhaustiva del proyecto catalog para entender qué funciona,
-> qué está roto, y qué debemos MIGRAR vs DESCARTAR al nuevo store.
-
----
-
-## Arquitectura del Store (index.html + src/)
-
-### Módulos y sus responsabilidades
-
-| Módulo | Líneas aprox | Qué hace | Calidad |
-|--------|-------------|----------|---------|
-| `main.js` | ~200 | Entry point. Wira módulos, expone globals, keyboard shortcuts, cross-tab sync, audio error recovery, inspector | ⭐⭐⭐⭐ Bueno |
-| `state.js` | ~35 | Estado global único. Firebase ref, beats[], settings, theme, filters, wishlist, waveform cache | ⭐⭐⭐ Bien pero mezcla concerns |
-| `player.js` | ~200 | Audio player (AP object). Play/pause/prev/next/seek/volume. Track plays via Firebase. UI por getElementById | ⭐⭐⭐⭐ Bueno, acoplado a DOM |
-| `cards.js` | ~400+ | Render de beat cards. CardStyle engine complejo (glow, animaciones, filtros). HTML inline | ⭐⭐⭐⭐⭐ Muy completo pero denso |
-| `settings.js` | ~300+ | Hero builder, brand, banner, social links, custom links, floating elements | ⭐⭐⭐⭐ Muy potente, mezcla admin stuff |
-| `theme.js` | ~150 | Aplica tema a CSS vars. Light/dark toggle. Firebase sync. Cambio detection para particles/animaciones | ⭐⭐⭐⭐ Bien |
-| `filters.js` | ~150 | Genre buttons, key/mood selects, search, tag cloud, sort (8 opciones), active filter tags | ⭐⭐⭐⭐⭐ Completo |
-| `waveform.js` | ~120 | Genera waveform desde audio (AudioContext), cache en localStorage, SVG output | ⭐⭐⭐⭐ Funcional pero pesado |
-| `effects.js` | ~250 | Cursor glow (lerp), scroll progress, hero parallax, scroll-nav hide, 3D tilt, staggered reveal, EQ animation | ⭐⭐⭐⭐⭐ Excelentes efectos |
-| `live-edit.js` | ~150 | Bridge postMessage admin↔store. ACK confirmation, buffering, batch updates | ⭐⭐⭐⭐⭐ Clave para admin real-time |
-| `hash-router.js` | ~100 | Deep links #/beat/<id>, browser back/forward, copy-link button, title update | ⭐⭐⭐⭐ Bien pero hash-based |
-| `analytics.js` | ~80 | Event tracking con debounce, batch flush a Firebase, counters | ⭐⭐⭐⭐ Bien |
-| `wishlist.js` | ~100 | Favoritos en localStorage, badge counter, WhatsApp share | ⭐⭐⭐⭐ Simple y funcional |
-| `error-handler.js` | ~50 | Logging centralizado, error recovery | ⭐⭐⭐⭐ Bien |
-| `utils.js` | ~100 | hexRgba, loadFont, formatTime, safeJSON, debounce, esc, applyAnim | ⭐⭐⭐⭐ Funciones puras |
-| `card-style-engine.js` | ~100 | Merge de card styles (global + per-beat + custom) | ⭐⭐⭐⭐ Motor de estilos |
-
-### Flujo de datos del Store
-
-```
-Firebase RTDB
-    ↓ onValue()
-state.js (state.allBeats, state.siteSettings, state.T)
-    ↓
-main.js boot:
-    1. initAllEffects()
-    2. initThemeSync() → applyTheme() → CSS vars
-    3. Firebase ref('beats') → state.allBeats → renderAll()
-    4. Firebase ref('settings') → state.siteSettings → applySettings()
-    5. Firebase ref('theme') → state.T → applyTheme()
-    6. initLiveEditBridge()
-    7. initAnalytics()
-```
-
-### Estructura Firebase (inferida del código)
-
-```
-beats/
-  {beatId}/
-    name: string
-    genre: string
-    bpm: number
-    key: string (ej: "Cm")
-    tags: string[]
-    imageUrl: string
-    audioUrl: string
-    previewUrl: string
-    licenses: [{type, priceMXN, priceUSD, ...}]
-    cardStyle: {filter, glow, anim, style, border, shadow, hover, transform}
-    order: number
-    plays: number
-    clicks: number
-    views: number
-    waClicks: number
-    createdAt: number
-
-settings/
-  siteName: string
-  heroTitle: string
-  heroSubtitle: string
-  whatsapp: string
-  instagram: string
-  bannerActive: boolean
-  bannerText: string
-  bannerAnim: string
-  heroLinks: [{label, url, icon}]
-  floatingElements: [{...}]
-
-theme/
-  bg, surface, surface2, accent, text, muted, hint, border, border2, red
-  glowColor, glowBlur, glowIntensity
-  cardOpacity, blurBg, grainOpacity, radiusGlobal
-  heroTitleCustom, heroGlowOn, heroGlowInt, heroStrokeOn, etc.
-  logoUrl, logoWidth, logoHeight, logoRotation
-  fontDisplay, fontBody
-  lightMode: boolean
-  (y muchos más — tema MUY extensible)
-
-analytics/
-  events/{date}/{eventId}
-  counts/{beatId}/{clicks, views, waClicks}
-  daily/{date}/total
-
-customEmojis: [{name, url, height}]
-```
+> Análisis profundo del catalog (vanilla JS v5.2) para migrar features a store (SvelteKit).
+> NO copiar código. Reconstruir con Svelte signals + componentes reactivos.
 
 ---
 
-## Arquitectura del Admin (admin.html + admin/)
+## Arquitectura: Old vs New
 
-### Estado actual
-
-- **`admin.html`** — ~2000+ líneas de HTML con scripts inline
-- **`admin-main.js`** — Stub que importa módulos de `admin/` directory
-- **Módulos admin/** — colors, fonts, nav, text-colorizer, QR, cmd-palette, resize, beat-preview, beats, card-global, beat-live-preview, r2, features, trash, gallery, click-handler, firebase-init
-
-### El problema del Admin
-
-1. **Scripts inline** — El HTML tiene <script> tags que cargan ANTES que el bundle modular. Condiciones de carrera.
-2. **No comparte state** — El admin tiene su propio manejo de estado, separado del store.
-3. **Firebase init duplicado** — `firebase-init.js` inicializa Firebase otra vez.
-4. **Window globals** — Todo se cuelga en `window` para que los onclick inline funcionen.
-5. **Live edit bridge** — Es la ÚNICA conexión real-time entre admin y store, via postMessage a un iframe.
-
-### Flujo admin → store (cómo se reflejan los cambios)
-
-```
-Admin edita un beat
-    ↓
-Admin escribe a Firebase RTDB (beats/{id}/...)
-    ↓
-Store tiene onValue(ref('beats')) → se actualiza automáticamente
-    ↓
-BONUS: Admin también envía postMessage al iframe del store
-    → Store recibe en live-edit.js → actualiza state directamente
-    → Esto es MÁS RÁPIDO que esperar Firebase
-```
-
-### Features del Admin (de admin-main.js)
-
-| Módulo | Función |
-|--------|---------|
-| `colors.js` | Editor de colores con color picker |
-| `fonts.js` | Selector de fonts |
-| `nav.js` | Navegación del admin |
-| `text-colorizer.js` | Editor visual de texto con colores |
-| `qr.js` | Generador de QR |
-| `cmd-palette.js` | Command palette (Ctrl+K) |
-| `resize.js` | Resize de paneles |
-| `beat-preview.js` | Preview de beats en admin |
-| `beats.js` | CRUD completo de beats |
-| `card-global.js` | Editor de card styles globales |
-| `beat-live-preview.js` | Preview en vivo de cambios |
-| `r2.js` | Cloudflare R2 upload |
-| `features.js` | Features toggles |
-| `trash.js` | Papelera / recuperación |
-| `gallery.js` | Gestor de imágenes |
+| Aspecto | Catalog (v5.2) | Store (SvelteKit) |
+|---|---|---|
+| Framework | Vanilla JS + esbuild | SvelteKit + Vite |
+| State | `state.js` global object | Svelte stores ($state, $derived) |
+| DOM | `getElementById`, innerHTML | Svelte templates, {#each}, bind: |
+| Events | `window.onclick`, inline `onclick=""` | Svelte event handlers |
+| Routing | Hash router (`#/beat/id`) | File-based (`/beat/[id]`) |
+| Build | Custom esbuild script | Vite (incluido) |
+| Deploy | Cloudflare Pages | Cloudflare Pages (mismo) |
+| Firebase | Compat SDK v8 | Modular SDK v9+ |
+| Admin | Iframe + postMessage bridge | Misma app, ruta `/admin` |
+| CSS | Global + inline styles | Scoped Svelte + tokens globales |
 
 ---
 
-## Lo que SÍ funciona bien (migrar al nuevo store)
+## Features del Catalog — Inventario Completo
 
-| Feature | Por qué funciona | Cómo migrar |
-|---------|-----------------|-------------|
-| Player (AP object) | Completo, auto-next, play tracking | Portar como Svelte component + store |
-| Filters system | Género, key, mood, search, sort, tag cloud | Portar como Svelte component |
-| Effects (cursor, parallax, tilt) | Muy pulidos, performantes | Portar como Svelte actions/directives |
-| Waveform SVG | Cache + SVG render, buen UX | Portar como Svelte component |
-| Live edit bridge (postMessage) | ÚNICO puente real-time admin↔store | Mejorar con Svelte reactivity |
-| Analytics (batched) | Debounced, batched, Firebase | Portar como Svelte store |
-| Wishlist | Simple, localStorage, WhatsApp share | Portar como Svelte store |
-| Card style engine | Muy completo (glow, anim, filters) | Simplificar para v1, expandir después |
-| Hero builder | Configurable, con glow/stroke/segments | Portar como Svelte component |
-| Cross-tab sync | localStorage events | Reemplazar con Svelte stores + Firebase |
-| Hash router | Deep links, copy-link, title update | Reemplazar con SvelteKit file routing |
-| Skeleton loading | Placeholder cards mientras carga | Portar como Svelte component |
-| Audio error recovery | Retry logic, timeout handling | Portar |
+### 🎵 TIENDA (Público)
 
-## Lo que NO funciona (descartar o reescribir)
+#### 1. Audio Player (`player.js` — 247 líneas)
+- Play/pause/prev/next/seek/volume
+- Track plays vía Firebase transaction
+- Auto-next al terminar
+- EQ visualizer animado
+- Barra de progreso (desktop + modal)
+- Waveform progress sync
+- **Portar:** ✅ → `Player.svelte` + `playerStore`
 
-| Feature | Problema | Solución en nuevo store |
-|---------|----------|----------------------|
-| Window globals para onclick | Acopla todo al DOM global | Svelte events + component props |
-| getElementById en player | Frágil, depende de IDs exactos | Svelte bind:this |
-| Inline scripts en admin.html | Race conditions, no modular | Todo en SvelteKit routes |
-| Firebase compat SDK | Pesado, no tree-shakeable | Firebase modular SDK (v9+) |
-| esbuild custom build | Limitaciones de SSR/HMR | Vite (incluido con SvelteKit) |
-| localStorage como bridge | No confiable, desincroniza | Firebase onValue() directo |
-| CSS externo sin procesar | No purge, no scope | Svelte scoped styles + tokens |
-| Cache busting manual (hashFile) | Propenso a errores | Vite lo hace automático |
+#### 2. Beat Cards (`cards.js` — 380 líneas)
+- Card con imagen, nombre, BPM, key, genre, tags
+- Play hint overlay
+- Wishlist button (♡/♥)
+- Precio "desde" con MXN/USD
+- "Ver licencias" CTA
+- Featured badge
+- **Card Style Engine** (601 líneas — la parte más compleja):
+  - Merge global + per-beat + custom styles
+  - **Glow:** 5 tipos (active, rgb, pulse, breathe, neon)
+  - **Animations:** 30+ tipos (flotar, holograma, glitch, cambio-color, etc.)
+  - **Hover FX:** scale, brightness, saturate, blur, sibling blur, hue-rotate
+  - **Filters:** brightness, contrast, saturate, grayscale, sepia, hue, invert
+  - **Border:** width, style, color, per-beat
+  - **Shadow:** inset, x/y, blur, spread, color, opacity
+  - **Transform:** rotate, scale, skew, translate
+  - **Shimmer:** overlay animado
+  - **Blur FX:** aura, ripple
+- **Portar:** ✅ → `BeatCard.svelte` + `cardStyleEngine.ts` (adaptar, simplificar)
+
+#### 3. Filtros (`filters.js` — 224 líneas)
+- Genre buttons (horizontal scroll en mobile)
+- Key dropdown
+- Mood/Tag dropdown
+- Search input con clear
+- Sort (8 opciones: newest, oldest, name-az/za, bpm-asc/desc, price-asc/desc)
+- Tag cloud (expandible, popular tags por frecuencia)
+- Active filter tags (removibles individualmente)
+- "Limpiar todo" button
+- Contador de beats filtrados
+- No-results state
+- **Portar:** ✅ → `Filters.svelte` + `TagCloud.svelte`
+
+#### 4. Waveform (`waveform.js` — 130 líneas)
+- Genera SVG desde audio (AudioContext + analyser)
+- Cache en localStorage
+- Render en card como SVG clip-path
+- **Portar:** ✅ → `Waveform.svelte` + store (lazy load)
+
+#### 5. Effects (`effects.js` — 180 líneas)
+- **Cursor glow** — lerp suave (0.08 factor)
+- **Scroll progress** — barra 2px en top
+- **Hero parallax** — translateY + opacity al scrollear
+- **Scroll-aware nav** — hide on scroll down, show on scroll up
+- **3D tilt en cards** — perspective + rotateX/Y basado en mouse
+- **Sibling blur** — JS-driven (throttled, performant)
+- **Staggered reveal** — IntersectionObserver con delay escalonado
+- **EQ visualizer** — barras random cada 120ms
+- **Animated counter** — count up animation
+- **Portar:** ✅ → Svelte actions (`use:parallax`, `use:tilt`, `use:cursorGlow`)
+
+#### 6. Settings/Content (`settings.js` — 280 líneas)
+- **Hero builder** — título con glow/stroke, subtitle, eyebrow, gradient
+- **Text colorizer** — segmentos coloreados en título
+- **Social links** — WhatsApp, Instagram, email
+- **Banner** — 5 animaciones (scroll, fade-pulse, bounce, glow-pulse, static)
+- **Custom links** — header, hero, footer locations
+- **Floating elements** — imágenes/texto posicionados libremente
+- **Testimonials** — grid con stars
+- **Brand/Logo** — URL, width, height, rotation, scale, text toggle
+- **Section divider** — título con glow, subtitle
+- **Portar:** ✅ → Settings store + componentes dinámicos
+
+#### 7. Theme System (`theme.js` — 230 líneas)
+- **50+ CSS variables** editables desde admin
+- **Light mode** toggle + sync
+- **Glow system** — color, intensity, blur, animation presets
+- **Font loading** — Google Fonts dinámico
+- **Particles** — count, speed, type, color, opacity
+- **Animation presets** — per-element (logo, title, player, cards, buttons)
+- **Card effects** — opacity, shadow, blur, radius
+- **Layout** — section padding, beat gap, hero margin
+- **Blend modes** — orbs, grain, waveform
+- **Portar:** ✅ → `theme.ts` (ya existe) + Firebase store (Bloque 2)
+
+#### 8. Modal (`modal.js` — 145 líneas)
+- Beat detail con imagen, nombre, metadata
+- Licenses grid (tipo, precio MXN/USD)
+- Player integrado
+- WhatsApp purchase CTA
+- Navigation entre beats
+- Deep link via hash
+- **Portar:** ✅ → `BeatModal.svelte` (expandir Modal.svelte existente)
+
+#### 9. Wishlist (`wishlist.js` — 111 líneas)
+- localStorage persist
+- Badge counter en nav
+- Toggle por beat
+- Lista completa (panel/overlay)
+- WhatsApp share con lista formateada
+- **Portar:** ✅ → `wishlistStore` + `WishlistPanel.svelte`
+
+#### 10. Analytics (`analytics.js` — 72 líneas)
+- Debounced event tracking
+- Batch flush a Firebase
+- Play/click/view/wa counters
+- **Portar:** ✅ → `analyticsStore`
+
+#### 11. Live Edit Bridge (`live-edit.js` — 121 líneas)
+- postMessage admin↔store (iframe)
+- ACK confirmation
+- Buffer updates
+- Batch apply
+- **Portar:** ⚠️ No necesario si admin es misma app (pero útil para preview live)
+
+#### 12. Audio Error Recovery (`main.js` inline — ~30 líneas)
+- Retry con delay (2s)
+- Timeout (10s)
+- Visual feedback (red glow)
+- Toast notification
+- **Portar:** ✅ → player store
+
+#### 13. Hash Router (`hash-router.js` — 91 líneas)
+- Deep links `#/beat/id`
+- Browser back/forward
+- Copy link button
+- Title update
+- **Portar:** ❌ SvelteKit file routing reemplaza esto
+
+#### 14. Cross-tab Sync (`main.js` inline — ~20 líneas)
+- localStorage events para theme, emojis, floating
+- **Portar:** ✅ → Svelte + Firebase realtime (reemplaza localStorage bridge)
 
 ---
 
-## Features del Admin que DEBEMOS replicar
+### 🔧 ADMIN (Panel de control)
 
-| Feature Admin | En catalog | En nuevo store |
-|--------------|-----------|---------------|
-| CRUD beats | beats.js (inline) | /admin/beats SvelteKit route |
-| Color picker | colors.js | /admin/settings color inputs |
-| Font selector | fonts.js | /admin/settings font dropdown |
-| Card style editor | card-global.js | /admin/settings card section |
-| Gallery de imágenes | gallery.js | /admin/gallery SvelteKit route |
-| Beat live preview | beat-live-preview.js | iframe + Firebase onValue |
-| Text colorizer | text-colorizer.js | Rich text editor component |
-| Command palette | cmd-palette.js | Keyboard shortcut + modal |
-| QR generator | qr.js | /admin/tools/qr |
-| Import/Export | inline scripts | /admin/settings import/export |
-| Undo/Redo | inline scripts | History stack in Svelte store |
-| Auto-save | inline scripts | Debounced Firebase writes |
+#### Core
+| Módulo | Líneas | Función | Portar |
+|---|---|---|---|
+| `firebase-init.js` | 499 | Auth, Firebase init, bootstrapping | ✅ Auth store |
+| `helpers.js` | — | Utils compartidas | ✅ utils |
+| `core.js` | — | Undo/redo, auto-save, preview bridge | ✅ UndoStore + autosave |
+| `click-handler.js` | — | Event delegation | ❌ Svelte events |
+| `state.js` | — | Admin state | ✅ Svelte $state |
+
+#### Theme
+| Módulo | Líneas | Función | Portar |
+|---|---|---|---|
+| `colors.js` | — | Color pickers | ✅ ThemeEditor |
+| `fonts.js` | — | Font selector | ✅ ThemeEditor |
+| `glow.js` | 145 | Glow controls | ✅ ThemeEditor |
+| `gradient.js` | 141 | Gradient editor | ✅ ThemeEditor |
+| `theme-presets.js` | — | Presets save/load | ✅ ThemeEditor |
+| `theme-io.js` | — | Import/export theme | ✅ ThemeEditor |
+| `particles.js` | — | Particle config | ✅ ThemeEditor |
+
+#### Beats
+| Módulo | Líneas | Función | Portar |
+|---|---|---|---|
+| `beats.js` | 460 | CRUD completo | ✅ BeatsAdmin |
+| `beat-preview.js` | 423 | Preview en admin | ✅ BeatsAdmin |
+| `beat-presets.js` | 274 | Card style presets | ✅ BeatsAdmin |
+| `beat-card-style.js` | 144 | Per-beat card style | ✅ BeatsAdmin |
+| `beat-live-preview.js` | 208 | Live preview | ✅ BeatsAdmin |
+| `beat-licenses.js` | — | License editor | ✅ BeatsAdmin |
+| `beat-inline-edit.js` | — | Quick edit | ✅ BeatsAdmin |
+
+#### Card System
+| Módulo | Líneas | Función | Portar |
+|---|---|---|---|
+| `card-global.js` | 165 | Global card style | ✅ CardEditor |
+| `card-style-ui.js` | 288 | Card style UI | ✅ CardEditor |
+| `card-effect-presets.js` | 192 | Effect presets | ✅ CardEditor |
+
+#### Content
+| Módulo | Líneas | Función | Portar |
+|---|---|---|---|
+| `hero-preview.js` | 191 | Hero live preview | ✅ ContentEditor |
+| `text-colorizer.js` | 196 | Visual text editor | ✅ ContentEditor |
+| `floating.js` | 148 | Floating elements | ✅ ContentEditor |
+| `gallery.js` | 301 | Image gallery | ✅ ContentEditor |
+| `emojis.js` | — | Custom emojis | 🟡 Bajo |
+
+#### Utilities
+| Módulo | Líneas | Función | Portar |
+|---|---|---|---|
+| `cmd-palette.js` | — | Ctrl+K command palette | 🟡 Bajo |
+| `qr.js` | — | QR generator | 🟡 Bajo |
+| `export.js` | 160 | Export data | ✅ Backup |
+| `trash.js` | 183 | Soft delete + restore | ✅ BeatsAdmin |
+| `snapshots.js` | 195 | Theme snapshots | 🟡 Medio |
+| `undo.js` | — | Undo/redo | ✅ Core |
+| `autosave.js` | — | Auto-save | ✅ Core |
+| `fullscreen.js` | — | Preview fullscreen | 🟡 Bajo |
+| `changelog.js` | — | Change log | 🟡 Bajo |
+| `resize.js` | — | Panel resize | 🟡 Bajo |
+| `features.js` | — | Feature toggles | ✅ Settings |
+| `preview-sync.js` | 170 | Preview sync | ✅ Preview |
+| `preview-resize.js` | — | Preview resize | 🟡 Bajo |
+| `preview-live.js` | — | Live preview | ✅ Preview |
+| `r2.js` | — | Cloudflare R2 upload | ✅ Upload |
 
 ---
 
-## Errores de diseño que encontré
+## Diseño Visual — Dirección
 
-1. **state.js mezcla Firebase refs con UI state** — `db` y `allBeats` son diferentes concerns
-2. **player.js depende de IDs de DOM** — `getElementById('track-fill')` es frágil
-3. **settings.js tiene lógica de admin** — `heroTitleSegments` del colorizer admin está en el store
-4. **waveform.js descarga audio completo** — Para generar waveform, baja el archivo entero. Costoso.
-5. **live-edit.js tiene postMessage Y Firebase** — Dos caminos para lo mismo. Confuso.
-6. **no hay error boundaries** — Si un módulo falla, toda la app crashea
-7. **analytics escribe directo a Firebase** — Sin cola persistente. Si pierdes conexión, pierdes eventos.
-8. **wishlist solo vive en localStorage** — No se sincroniza entre dispositivos.
+### Del catalog actual (dark + rojo):
+- Fondo: `#060404` a `#0a0a0a` (casi negro con tinte rojo)
+- Accent: `#dc2626` (rojo) — **CAMBIAR a la paleta del usuario**
+- Surface: `#0f0808` (negro con tinte rojo oscuro)
+- Grain overlay
+- Floating orbs difusos
+- Glassmorphism nav
+- Glow effects prominentes
+
+### Para store (mejorado, misma línea):
+- Fondo: dark con tono rojo profundo (no puro negro)
+- Accent: configurable (default rojo intenso)
+- Efectos: glow, grain, orbs (heredados del catalog)
+- Cards: hover effects, glow, shimmer
+- Tipografía: Syne (display) + Space Grotesk (body) + DM Mono (code)
+- **Más pulido, más responsive, más performant**
 
 ---
 
-*Análisis completado: 2026-04-19*
+## Bloques Expandidos (Plan v2)
+
+Ver PROJECT_STATE.md para el plan completo con subtareas.

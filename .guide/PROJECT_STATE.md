@@ -10,241 +10,240 @@
 
 ```yaml
 proyecto: dacewav/store
-version: 0.0.1
+version: 0.1.0
 framework: SvelteKit
 firebase_project: dacewav-store-3b0f5
 ultimo_chat: "2026-04-19"
 bloque_actual: "Bloque 1 — Design System"
-ultima_tarea: "5 componentes creados (Button, Input, Card, Modal, Badge) + layout + tokens"
+ultima_tarea: "Auditoría deep + responsive + theme engine + catalog analysis"
 ```
 
 ## Progreso de Bloques
 
-### BLOQUE 0: Setup del Proyecto
-- [x] `npm create svelte@latest` ejecutado
-- [x] Firebase SDK instalado y configurado
-- [x] `.env` creado con Firebase keys (NO commiteado)
-- [x] `firebase.ts` módulo central creado
-- [x] Cloudflare Pages config (`@sveltejs/adapter-cloudflare`)
-- [x] `.gitignore` correcto (node_modules, .env, dist, .svelte-kit)
-- [x] Primer `npm run build` exitoso
-- [x] Primer commit: "chore: project setup"
-- [x] Primer push a GitHub
+### BLOQUE 0: Setup del Proyecto ✅
+- [x] SvelteKit + Firebase + Cloudflare
+- [x] `.env` + firebase.ts
+- [x] Primer build + push
 - **Estado:** ✅ COMPLETO
-- **Bloqueado por:** nada
-- **Notas:** —
-
-### BLOQUE 1: Design System
-- [x] `tokens.css` con todas las variables CSS
-- [x] Componente `Button.svelte` (variantes: primary, secondary, ghost, danger)
-- [x] Componente `Input.svelte` (text, number, email, password, search)
-- [x] Componente `Card.svelte`
-- [x] Componente `Modal.svelte`
-- [x] Componente `Badge.svelte`
-- [x] Layout base (`+layout.svelte`) con header flotante
-- [x] Footer base
-- [ ] Sistema dark/light desde Firebase (pendiente — Bloque 2)
-- [x] Fonts importadas (Syne, Space Grotesk, DM Mono)
-- [ ] Responsive test (320px, 768px, 1024px, 1440px)
-- [ ] **TEST:** Verificar que todos los componentes renderizan sin errores
-- [ ] **TEST:** Verificar responsive en DevTools
-- [x] Commit: "feat: design system base"
-- **Estado:** 🟡 10/14 completado — componentes creados, tests manuales pendientes
-- **Bloqueado por:** Bloque 0
-- **Notas:** —
-
-### BLOQUE 2: Firebase Layer
-- [ ] Store `beats.ts` — lee/escribe `beats/` en Firebase
-- [ ] Store `settings.ts` — lee/escribe `settings/` en Firebase, aplica CSS vars
-- [ ] Store `auth.ts` — login/logout, expone `isAdmin`
-- [ ] Reglas de seguridad Firebase desplegadas
-- [ ] **TEST:** Escribir un dato desde consola y leerlo en otro store
-- [ ] **TEST:** Verificar que settings aplica CSS variables al DOM
-- [ ] **TEST:** Verificar que auth rechaza escritura sin login
-- [ ] Commit: "feat: firebase layer with reactive stores"
-- **Estado:** ⬜ NO INICIADO
-- **Bloqueado por:** Bloque 0
-- **Notas:** —
-
-### BLOQUE 3: Tienda — Página Principal
-- [ ] Hero section (lee de `settings/hero`)
-- [ ] Beat card component
-- [ ] Beat grid (lee de `beats/`)
-- [ ] Player de audio global
-- [ ] Sistema de filtros (género, BPM, key)
-- [ ] Wishlist (localStorage)
-- [ ] Animaciones de entrada
-- [ ] Responsive completo
-- [ ] **TEST:** Crear un beat fake en Firebase → aparece en la tienda
-- [ ] **TEST:** Cambiar hero title en Firebase → se actualiza sin recargar
-- [ ] **TEST:** Filtros funcionan correctamente
-- [ ] **TEST:** Player reproduce audio sin errores
-- [ ] **TEST:** Wishlist persiste entre recargas
-- [ ] **TEST:** Responsive en móvil (320px)
-- [ ] Commit: "feat: store homepage with hero, cards, player, filters"
-- **Estado:** ⬜ NO INICIADO
-- **Bloqueado por:** Bloques 1, 2
-- **Notas:** —
-
-### BLOQUE 4: Tienda — Página de Beat
-- [ ] Ruta `/beat/[id]`
-- [ ] Detalles del beat (BPM, key, tags, descripción)
-- [ ] Player integrado
-- [ ] Opciones de licencia/contrato
-- [ ] Botón de compra (placeholder)
-- [ ] **TEST:** Navegar a `/beat/test-id` con beat fake
-- [ ] **TEST:** Player funciona en página individual
-- [ ] **TEST:** Deep link funciona (compartir URL)
-- [ ] Commit: "feat: individual beat page with licensing"
-- **Estado:** ⬜ NO INICIADO
-- **Bloqueado por:** Bloque 3
-- **Notas:** —
-
-### BLOQUE 5: Admin — Auth + Dashboard
-- [ ] Login con Google (Firebase Auth)
-- [ ] Protección de rutas `/admin/*`
-- [ ] Dashboard con métricas básicas (total beats, vistas, etc.)
-- [ ] Layout admin (sidebar + contenido)
-- [ ] **TEST:** Sin login → redirige a login
-- [ ] **TEST:** Con login correcto → acceso al dashboard
-- [ ] **TEST:** Con login incorrecto → mensaje de error
-- [ ] Commit: "feat: admin auth and dashboard"
-- **Estado:** ⬜ NO INICIADO
-- **Bloqueado por:** Bloque 2
-- **Notas:** —
-
-### BLOQUE 6: Admin — Beats CRUD
-- [ ] Lista de beats con búsqueda
-- [ ] Formulario crear beat (título, BPM, key, tags, precio, licencia)
-- [ ] Upload audio → Firebase Storage/R2
-- [ ] Upload cover image → Firebase Storage/R2
-- [ ] Editar beat existente
-- [ ] Eliminar beat con confirmación
-- [ ] Preview de audio en admin
-- [ ] Auto-save con debounce
-- [ ] **TEST:** Crear beat → aparece en la lista admin
-- [ ] **TEST:** Crear beat → aparece en la tienda (sin recargar)
-- [ ] **TEST:** Editar beat → cambios se reflejan en tienda
-- [ ] **TEST:** Eliminar beat → desaparece de tienda
-- [ ] **TEST:** Upload audio → se sube correctamente
-- [ ] **TEST:** Upload cover → se sube y muestra preview
-- [ ] Commit: "feat: admin beats CRUD with upload"
-- **Estado:** ⬜ NO INICIADO
-- **Bloqueado por:** Bloque 5
-- **Notas:** —
-
-### BLOQUE 7: Admin — Theme Editor
-- [ ] Color pickers (accent, bg, text, card)
-- [ ] Font selector con preview
-- [ ] Border-radius slider
-- [ ] Glow/brillo slider
-- [ ] Toggle dark/light
-- [ ] Live preview (iframe de tienda)
-- [ ] Botón guardar (publica a Firebase)
-- [ ] Botón deshacer
-- [ ] **TEST:** Cambiar accent color → se refleja en preview
-- [ ] **TEST:** Guardar → visitantes de tienda real ven el cambio
-- [ ] **TEST:** Deshacer → revierte al estado anterior
-- [ ] Commit: "feat: admin theme editor with live preview"
-- **Estado:** ⬜ NO INICIADO
-- **Bloqueado por:** Bloque 6
-- **Notas:** —
-
-### BLOQUE 8: Admin — Contenido
-- [ ] Editor de hero (título, sub, imagen, video)
-- [ ] Gestor de links (redes sociales, custom)
-- [ ] Gallery de imágenes
-- [ ] **TEST:** Cambiar hero → se refleja en tienda
-- [ ] **TEST:** Agregar link → aparece en tienda
-- [ ] Commit: "feat: admin content editor"
-- **Estado:** ⬜ NO INICIADO
-- **Bloqueado por:** Bloque 7
-- **Notas:** —
-
-### BLOQUE 9: Admin — Extras
-- [ ] Blog / páginas estáticas
-- [ ] Drumkits / presets CRUD
-- [ ] Editor de contratos/licencias
-- [ ] Analytics básico
-- [ ] Cada sub-feature testeada individualmente
-- [ ] Commit: "feat: blog, drumkits, contracts, analytics"
-- **Estado:** ⬜ NO INICIADO
-- **Bloqueado por:** Bloque 8
-- **Notas:** —
-
-### BLOQUE 10: Polish & Deploy
-- [ ] SEO audit (meta tags, sitemap, OG)
-- [ ] Lighthouse > 90 en todas las métricas
-- [ ] Mobile testing real
-- [ ] Deploy a Cloudflare Pages
-- [ ] Dominio custom
-- [ ] **TEST:** Lighthouse score verificado
-- [ ] **TEST:** Deploy funciona correctamente
-- [ ] **TEST:** Acceso por dominio custom
-- [ ] Commit: "chore: production deploy"
-- **Estado:** ⬜ NO INICIADO
-- **Bloqueado por:** Bloque 9
-- **Notas:** —
-
-## Errores y Soluciones (log)
-
-| Fecha | Error | Solución |
-|-------|-------|----------|
-| — | — | — |
-
-## Decisiones Técnicas
-
-| Decisión | Razón | Fecha |
-|----------|-------|-------|
-| SvelteKit como framework | Transición natural desde vanilla JS, SSR, routing | 2026-04-19 |
-| Firebase Realtime DB | Ya está configurado, sincronización en tiempo real nativa | 2026-04-19 |
-| Cloudflare Pages | Gratis, rápido, el usuario ya usa Cloudflare | 2026-04-19 |
-| Firebase modular SDK v9+ | Tree-shaking, más ligero que compat SDK del catalog | 2026-04-19 |
-| Migrar player, filters, effects, waveform, analytics | Funcionan bien en catalog, solo necesitan port a Svelte | 2026-04-19 |
-| Descartar hash-router | SvelteKit tiene file-based routing nativo | 2026-04-19 |
-| Descartar window globals | Svelte events + component props reemplazan onclick inline | 2026-04-19 |
-| Descartar localStorage bridge | Firebase onValue() es el puente real-time, no localStorage | 2026-04-19 |
-| Simplificar card-style-engine v1 | Catalog tiene glow/anim/filter MUY complejo. v1 = básico | 2026-04-19 |
-| R2 para audio, Firebase Storage para images | R2 es más barato para archivos grandes (audio) | 2026-04-19 |
-| Admin = iframe preview + Firebase writes | Admin escribe a Firebase, store escucha. Iframe para preview instantáneo | 2026-04-19 |
-
-## Configuración del Entorno
-
-```bash
-# Requisitos previos
-node >= 18
-npm >= 9
-git
-cuenta Firebase (ya tiene)
-cuenta Cloudflare (asumido)
-
-# Clonar y empezar
-git clone https://github.com/dacewav/store.git
-cd store
-npm install
-cp .env.example .env  # llenar con Firebase keys
-npm run dev
-```
-
-## Skills Instaladas
-
-| Skill | Fuente | Propósito | Estado |
-|-------|--------|-----------|--------|
-| frontend-design | steipete/frontend-design | Diseño production-grade, anti-AI-slop | ⬜ no instalada |
-| anthropic-frontend-design | qrucio/anthropic-frontend-design | Design intelligence, paletas, fonts | ⬜ no instalada |
-| composio | composiohq/skills | Integraciones externas (GitHub, etc.) | ⬜ no instalada |
-
-> Las skills se instalan automáticamente con `bash INSTALL-SKILLS.sh`
-> o durante el bootstrap (`bash BOOTSTRAP.sh`).
-
-## Recursos de Referencia (no skills)
-
-| Recurso | URL | Para qué |
-|---------|-----|----------|
-| Awesome Design Systems | github.com/alexpate/awesome-design-systems | Inspiración de componentes y patrones |
-| skills.sh frontend-design | skills.sh/anthropics/skills/frontend-design | Guía anti-slop de Anthropic |
-| Composio docs | docs.composio.dev/docs | Integraciones con apps externas |
 
 ---
 
-**ÚLTIMA ACTUALIZACIÓN:** 2026-04-19 — Guía inicial creada, proyecto no iniciado aún.
+### BLOQUE 1: Design System 🟡 (casi completo)
+- [x] `tokens.css` — 80+ variables (colors, spacing, radius, shadows, tracking, z-index)
+- [x] `Button.svelte` — primary/secondary/ghost/danger, sm/md/lg, loading, touch targets
+- [x] `Input.svelte` — text/number/email/password/search, bindable, error state
+- [x] `Card.svelte` — hoverable, padding toggle
+- [x] `Modal.svelte` — backdrop, Escape, slideUp
+- [x] `Badge.svelte` — 5 variants con tokens
+- [x] `Skeleton.svelte` — configurable lines + aspectRatio
+- [x] Layout — sticky nav, hamburger mobile, cursor glow, orbs, scroll progress, footer
+- [x] Page — hero fluido, section divider, skeleton grid
+- [x] Responsive — 3 breakpoints (480/768/1024px), fluid padding
+- [x] Touch targets ≥ 44px
+- [x] `prefers-reduced-motion` + `@media (hover: none)`
+- [x] IntersectionObserver para scroll reveal
+- [x] Utility classes (container, truncate, line-clamp, flex helpers, sr-only)
+- [x] `theme.ts` — Firebase → CSS vars bridge (12 direct + auto-variants)
+- [x] CSS variable consistency audit (0 mismatches)
+- [ ] **TEST:** Browser visual verification
+- [ ] **TEST:** Responsive en 320px, 768px, 1024px, 1440px
+- **Estado:** 🟡 95% — falta testing visual
+- **Bloqueado por:** nada
+- **Notas:** Colores actuales son placeholder. El accent se configura desde Firebase en Bloque 2.
+
+---
+
+### BLOQUE 2: Firebase Layer + Stores
+- [ ] `stores/beats.ts` — onValue a `beats/`, reactive Svelte store
+- [ ] `stores/settings.ts` — onValue a `settings/`, reactive
+- [ ] `stores/theme.ts` — onValue a `theme/`, aplica CSS vars via theme.ts
+- [ ] `stores/auth.ts` — Google Auth, expone `isAdmin`
+- [ ] `stores/wishlist.ts` — localStorage + reactive
+- [ ] `stores/analytics.ts` — batched events → Firebase
+- [ ] `stores/player.ts` — audio state, play/pause/seek/volume
+- [ ] Reglas de seguridad Firebase desplegadas
+- [ ] Cache local (localStorage) para offline-first
+- [ ] **TEST:** Leer/escribir datos desde consola
+- [ ] **TEST:** settings aplica CSS vars al DOM
+- [ ] **TEST:** auth rechaza escritura sin login
+- [ ] **TEST:** player reproduce audio
+- **Estado:** ⬜ NO INICIADO
+- **Bloqueado por:** Bloque 1
+- **Notas:** Usar Firebase modular SDK v9+. Lazy init (solo client).
+
+---
+
+### BLOQUE 3: Tienda — Componentes Core
+- [ ] `BeatCard.svelte` — imagen, metadata, play hint, wishlist, precio, licencias CTA
+- [ ] `BeatCard.svelte` — card style engine (glow, animaciones, hover FX, filters, shimmer)
+- [ ] `Player.svelte` — bottom bar, play/pause/prev/next/seek/volume, EQ visualizer
+- [ ] `Player.svelte` — waveform progress, auto-next, track plays
+- [ ] `Filters.svelte` — genre buttons, key/mood dropdowns, search, sort, tag cloud
+- [ ] `Filters.svelte` — active filter tags, "limpiar todo", counter
+- [ ] `Waveform.svelte` — SVG desde audio, cache, lazy load
+- [ ] `WishlistPanel.svelte` — lista, badge counter, WhatsApp share
+- [ ] `BeatModal.svelte` — detalle + licenses + player integrado
+- [ ] Svelte actions: `use:tilt`, `use:parallax`, `use:cursorGlow`, `use:staggerReveal`
+- [ ] **TEST:** Cards renderizan con datos fake
+- [ ] **TEST:** Filtros funcionan correctamente
+- [ ] **TEST:** Player reproduce audio
+- [ ] **TEST:** Wishlist persiste entre recargas
+- [ ] **TEST:** Responsive en móvil (320px)
+- **Estado:** ⬜ NO INICIADO
+- **Bloqueado por:** Bloques 1, 2
+- **Notas:** NO copiar card-style-engine del catalog. Reconstruir con CSS vars + Svelte reactivity.
+
+---
+
+### BLOQUE 4: Tienda — Página Principal
+- [ ] Hero section (lee de settings/hero, glow/stroke configurable)
+- [ ] Beat grid (lee de beats/, filter + sort reactivo)
+- [ ] Player global (sincronizado con cards)
+- [ ] Sistema de filtros completo
+- [ ] Wishlist
+- [ ] Animaciones de entrada (stagger reveal)
+- [ ] Section divider (configurable)
+- [ ] Testimonials (si settings.testimonialsActive)
+- [ ] Banner animado (si settings.bannerActive)
+- [ ] Floating elements
+- [ ] Custom links (header, hero, footer)
+- [ ] Stats animados (beat count, genre count)
+- [ ] Responsive completo
+- [ ] **TEST:** Beat fake en Firebase → aparece en tienda
+- [ ] **TEST:** Cambio en Firebase → se actualiza sin recargar
+- [ ] **TEST:** Hero title editable con glow/stroke
+- [ ] **TEST:** Responsive en móvil
+- **Estado:** ⬜ NO INICIADO
+- **Bloqueado por:** Bloque 3
+- **Notas:** La page ya tiene hero + skeleton. Expandir con datos reales.
+
+---
+
+### BLOQUE 5: Tienda — Página de Beat
+- [ ] Ruta `/beat/[id]`
+- [ ] Detalles (BPM, key, tags, description)
+- [ ] Player integrado
+- [ ] Licenses grid (tipo, precio MXN/USD)
+- [ ] Botón de compra (WhatsApp CTA)
+- [ ] Deep link funcional (compartir URL)
+- [ ] Waveform visual
+- [ ] Beats relacionados
+- [ ] **TEST:** Navegar a `/beat/test-id` con beat fake
+- [ ] **TEST:** Player funciona en página individual
+- [ ] **TEST:** Deep link funciona
+- **Estado:** ⬜ NO INICIADO
+- **Bloqueado por:** Bloque 3
+
+---
+
+### BLOQUE 6: Admin — Auth + Layout
+- [ ] Login con Google (Firebase Auth)
+- [ ] Protección de rutas `/admin/*`
+- [ ] Admin layout con sidebar
+- [ ] Dashboard con stats básicos
+- [ ] Nav admin (beats, settings, theme, content)
+- [ ] **TEST:** Login/logout funciona
+- [ ] **TEST:** Rutas protegidas redirigen a login
+- **Estado:** ⬜ NO INICIADO
+- **Bloqueado por:** Bloque 2
+
+---
+
+### BLOQUE 7: Admin — Beats CRUD
+- [ ] Lista de beats con search + sort
+- [ ] Crear/editar beat (form completo)
+- [ ] Upload audio/cover (Firebase Storage o R2)
+- [ ] Delete (soft → trash)
+- [ ] Drag & drop reorder
+- [ ] Bulk operations (delete, activate, deactivate)
+- [ ] Card style editor (per-beat)
+- [ ] License editor (tipo, MXN, USD)
+- [ ] Auto-save
+- [ ] Undo/redo
+- [ ] Live preview (iframe o side-by-side)
+- [ ] **TEST:** CRUD completo
+- [ ] **TEST:** Cambios se reflejan en tienda
+- **Estado:** ⬜ NO INICIADO
+- **Bloqueado por:** Bloques 5, 6
+
+---
+
+### BLOQUE 8: Admin — Theme Editor
+- [ ] Color pickers (bg, surface, accent, text, borders)
+- [ ] Font selector (Google Fonts)
+- [ ] Glow controls (color, intensity, blur, animation)
+- [ ] Card effects (opacity, shadow, radius)
+- [ ] Layout controls (padding, gap, hero margin)
+- [ ] Gradient editor
+- [ ] Presets (save/load/import/export)
+- [ ] Live preview
+- [ ] Light/dark toggle
+- [ ] **TEST:** Cambios se aplican en tiempo real
+- [ ] **TEST:** Presets guardan/cargan correctamente
+- **Estado:** ⬜ NO INICIADO
+- **Bloqueado por:** Bloque 6
+
+---
+
+### BLOQUE 9: Admin — Content Editor
+- [ ] Hero editor (título, subtitle, eyebrow, glow/stroke, gradient)
+- [ ] Text colorizer (segmentos coloreados)
+- [ ] Banner editor (texto, animación, velocidad)
+- [ ] Social links (WhatsApp, Instagram, email)
+- [ ] Custom links (header, hero, footer)
+- [ ] Floating elements (posicionar, animar)
+- [ ] Gallery (upload, manage, pick)
+- [ ] **TEST:** Cambios de contenido se reflejan en tienda
+- **Estado:** ⬜ NO INICIADO
+- **Bloqueado por:** Bloques 7, 8
+
+---
+
+### BLOQUE 10: Polish & Deploy
+- [ ] SEO (meta tags, sitemap, robots.txt)
+- [ ] Lighthouse audit (90+ en todas)
+- [ ] Performance (lazy load, code split, image optimization)
+- [ ] Error boundaries
+- [ ] Loading states
+- [ ] Deploy a Cloudflare Pages
+- [ ] Custom domain
+- [ ] **TEST:** Lighthouse 90+
+- [ ] **TEST:** Deploy funciona
+- **Estado:** ⬜ NO INICIADO
+- **Bloqueado por:** Bloque 9
+
+---
+
+## Decisiones Técnicas
+
+| Decisión | Opción elegida | Razón |
+|---|---|---|
+| TypeScript | ✅ TS | Type safety, mejor DX |
+| Firebase Storage vs R2 | Pendiente | R2 más barato, Firebase más integrado |
+| Auth provider | Solo Google | Simple, el user solo necesita admin |
+| Card style engine | CSS vars + Svelte props | NO innerHTML como catalog |
+| Admin route | `/admin` en misma app | Sin iframe, sin postMessage |
+| Player | Svelte store + Web Audio API | Reactive state management |
+| Responsive | 3 breakpoints + fluid (clamp) | 480/768/1024px |
+
+---
+
+## Errores Conocidos
+
+| Error | Solución | Fecha |
+|---|---|---|
+| CSS variable mismatch (--color-*) | Renombrar a tokens directos | 2026-04-19 |
+| .reveal sin IntersectionObserver | Agregar observer en layout | 2026-04-19 |
+| Font-sizes hardcodeados sin token | Agregar --text-2xs, mapear a tokens | 2026-04-19 |
+| Touch targets < 44px | min-height: var(--touch-min) | 2026-04-19 |
+
+---
+
+## Archivos de Referencia
+
+| Archivo | Qué contiene | Cuándo usar |
+|---|---|---|
+| `.guide/CATALOG-ANALYSIS.md` | Features del catalog v5.2 | Antes de migrar cada feature |
+| `.guide/BLOCK-CONTEXT.md` | Contexto rápido del bloque | Siempre al inicio |
+| `src/lib/theme.ts` | Firebase → CSS vars bridge | Bloque 2 (stores) |
+| `src/app.css` | Design tokens completos | Siempre (referencia de variables) |
