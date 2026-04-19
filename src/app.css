@@ -525,6 +525,45 @@ body:hover #cursor-glow {
   100% { background-position: 0% 50%; }
 }
 
+/* ── Banner animations (admin → settings) ── */
+@keyframes banner-scroll {
+  from { transform: translateX(100%); }
+  to { transform: translateX(-100%); }
+}
+
+@keyframes banner-fade-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes banner-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes banner-glow-pulse {
+  0%, 100% { text-shadow: none; opacity: 0.7; }
+  50% { text-shadow: 0 0 12px rgba(255, 255, 255, 0.5); opacity: 1; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ── Player animations (Block 3) ── */
+@keyframes play-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(var(--accent-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
+}
+
+/* ── Entrance animations ── */
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ════════════════════════════════════════════
    UTILITY CLASSES
    ════════════════════════════════════════════ */
@@ -575,6 +614,37 @@ body:hover #cursor-glow {
   align-items: center;
   justify-content: space-between;
 }
+
+/* Button rows (admin actions) */
+.btn-row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Width */
+.w-full { width: 100%; }
+
+/* Margin helpers */
+.mt-xs { margin-top: var(--space-1); }
+.mt-sm { margin-top: var(--space-2); }
+.mt-md { margin-top: var(--space-4); }
+.mt-lg { margin-top: var(--space-6); }
+.mb-xs { margin-bottom: var(--space-1); }
+.mb-sm { margin-bottom: var(--space-2); }
+.mb-md { margin-bottom: var(--space-4); }
+.mb-lg { margin-bottom: var(--space-6); }
+
+/* Gap helpers */
+.gap-xs { gap: var(--space-1); }
+.gap-sm { gap: var(--space-2); }
+.gap-md { gap: var(--space-4); }
+
+/* Font size helpers */
+.fs-2xs { font-size: var(--text-2xs); }
+.fs-xs { font-size: var(--text-xs); }
+.fs-sm { font-size: var(--text-sm); }
 
 /* Hide on breakpoints */
 .hide-mobile {
