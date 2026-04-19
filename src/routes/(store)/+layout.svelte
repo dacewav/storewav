@@ -12,6 +12,7 @@
 	let cursorY = $state(-500);
 	let menuOpen = $state(false);
 	let isDark = $state(true);
+	let mobileMenuEl: HTMLElement | undefined = $state();
 
 	function toggleMenu() {
 		menuOpen = !menuOpen;
@@ -32,6 +33,35 @@
 	function closeMenu() {
 		menuOpen = false;
 	}
+
+	/** Focus trap para mobile menu */
+	function trapFocus(e: KeyboardEvent) {
+		if (!menuOpen || e.key !== 'Tab' || !mobileMenuEl) return;
+
+		const focusable = mobileMenuEl.querySelectorAll<HTMLElement>(
+			'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+		);
+		if (focusable.length === 0) return;
+
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+
+		if (e.shiftKey && document.activeElement === first) {
+			e.preventDefault();
+			last.focus();
+		} else if (!e.shiftKey && document.activeElement === last) {
+			e.preventDefault();
+			first.focus();
+		}
+	}
+
+	// Auto-focus primer elemento del menú al abrir
+	$effect(() => {
+		if (menuOpen && mobileMenuEl) {
+			const first = mobileMenuEl.querySelector<HTMLElement>('a, button');
+			first?.focus();
+		}
+	});
 
 	onMount(() => {
 		const timer = setTimeout(() => { loaderVisible = false; }, 800);
@@ -61,6 +91,7 @@
 
 		function onKeydown(e: KeyboardEvent) {
 			if (e.key === 'Escape' && menuOpen) closeMenu();
+			trapFocus(e);
 		}
 
 		window.addEventListener('scroll', onScroll, { passive: true });
@@ -163,7 +194,7 @@
 	{#if menuOpen}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div class="mobile-overlay" onclick={closeMenu} onkeydown={() => {}}></div>
-		<div class="mobile-menu">
+		<div class="mobile-menu" bind:this={mobileMenuEl}>
 			<a href="/" class="mobile-link" onclick={closeMenu}>Catálogo</a>
 			<a href="/admin" class="mobile-link" onclick={closeMenu}>Admin</a>
 			<div class="mobile-actions">

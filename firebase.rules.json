@@ -1,0 +1,47 @@
+{
+  "rules": {
+    "beats": {
+      ".read": true,
+      ".write": "auth != null && auth.token.admin === true",
+      "$beatId": {
+        ".validate": "newData.hasChildren(['title', 'artist', 'bpm', 'key', 'genre', 'coverUrl', 'audioUrl', 'licenses', 'createdAt', 'active'])",
+        "title": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "artist": { ".validate": "newData.isString()" },
+        "bpm": { ".validate": "newData.isNumber() && newData.val() > 0" },
+        "key": { ".validate": "newData.isString()" },
+        "genre": { ".validate": "newData.isString()" },
+        "tags": {
+          ".validate": true,
+          "$tag": { ".validate": "newData.isString()" }
+        },
+        "coverUrl": { ".validate": "newData.isString()" },
+        "audioUrl": { ".validate": "newData.isString()" },
+        "licenses": {
+          "basic": { ".validate": "newData.isNumber()" },
+          "premium": { ".validate": "newData.isNumber()" },
+          "unlimited": { ".validate": "newData.isNumber()" },
+          "exclusive": { ".validate": "newData.isNumber()" }
+        },
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "active": { ".validate": "newData.isBoolean()" }
+      }
+    },
+    "settings": {
+      ".read": true,
+      ".write": "auth != null && auth.token.admin === true"
+    },
+    "theme": {
+      ".read": true,
+      ".write": "auth != null && auth.token.admin === true"
+    },
+    "analytics": {
+      ".read": "auth != null && auth.token.admin === true",
+      ".write": "auth != null",
+      "events": {
+        "$eventId": {
+          ".validate": "newData.hasChildren(['name', 'timestamp'])"
+        }
+      }
+    }
+  }
+}
