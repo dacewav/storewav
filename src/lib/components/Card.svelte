@@ -22,7 +22,10 @@
 		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
 		overflow: hidden;
-		transition: all var(--duration-normal) var(--ease-out);
+		transition:
+			transform var(--duration-normal) var(--ease-out),
+			border-color var(--duration-normal) var(--ease-out),
+			box-shadow var(--duration-normal) var(--ease-out);
 	}
 
 	.card.padding {
@@ -34,9 +37,10 @@
 	}
 
 	.card.hoverable:hover {
-		border-color: var(--border-hover);
-		background: var(--surface-hover);
-		box-shadow: var(--shadow-lg);
+		border-color: var(--border-hover-accent);
+		box-shadow:
+			var(--shadow-lg),
+			0 0 30px rgba(var(--accent-rgb), 0.08);
 		transform: translateY(-2px);
 	}
 
