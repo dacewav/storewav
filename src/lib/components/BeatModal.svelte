@@ -166,7 +166,7 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		transition: transform 0.5s var(--ease-out);
+		transition: transform var(--duration-slow) var(--ease-out);
 	}
 
 	.beat-cover:hover img {
@@ -229,7 +229,7 @@
 		background: transparent;
 		color: var(--text-muted);
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 		flex-shrink: 0;
 	}
 
@@ -275,7 +275,7 @@
 		font-size: var(--text-sm);
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.25s var(--ease-out);
+		transition: all var(--duration-normal) var(--ease-out);
 		min-height: 52px;
 		position: relative;
 		overflow: hidden;
@@ -334,7 +334,7 @@
 		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
 		text-align: center;
-		transition: all 0.2s var(--ease-out);
+		transition: all var(--duration-fast) var(--ease-out);
 		cursor: pointer;
 		font-family: inherit;
 		color: inherit;
@@ -396,7 +396,7 @@
 		letter-spacing: 0.04em;
 		text-decoration: none;
 		min-height: 44px;
-		transition: all 0.2s var(--ease-out);
+		transition: all var(--duration-fast) var(--ease-out);
 	}
 
 	.buy-btn:hover {

@@ -112,7 +112,7 @@
 	.section-title { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--text); margin-bottom: var(--space-4); }
 	.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
 	.field label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
-	.field input[type="text"] { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color 0.2s; }
+	.field input[type="text"] { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color var(--duration-fast); }
 	.field input[type="text"]:focus { border-color: rgba(var(--accent-rgb), 0.5); }
 	.row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 	.row .field { flex: 1; min-width: 120px; }

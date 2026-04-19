@@ -248,7 +248,7 @@
 		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
 		overflow: hidden;
-		transition: border-color 0.2s;
+		transition: border-color var(--duration-fast);
 	}
 
 	.uploader:hover { border-color: rgba(var(--accent-rgb), 0.3); }
@@ -265,7 +265,7 @@
 		justify-content: center;
 		cursor: pointer;
 		background: var(--surface);
-		transition: background 0.2s;
+		transition: background var(--duration-fast);
 	}
 
 	.drop-zone:hover { background: var(--surface-hover); }
@@ -283,7 +283,7 @@
 	.empty-icon { font-size: 2rem; opacity: 0.5; }
 	.empty-main { font-size: var(--text-sm); color: var(--text-secondary); }
 	.empty-sub { font-size: var(--text-xs); color: var(--text-muted); }
-	.empty-hint { font-family: var(--font-mono); font-size: 10px; color: var(--text-hint); margin-top: var(--space-1); }
+	.empty-hint { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-hint); margin-top: var(--space-1); }
 
 	/* Progress */
 	.progress-state {
@@ -305,7 +305,7 @@
 		align-items: center;
 		justify-content: center;
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		color: var(--accent);
 		font-weight: 600;
 	}
@@ -335,7 +335,7 @@
 		align-items: center;
 		justify-content: center;
 		opacity: 0;
-		transition: opacity 0.2s;
+		transition: opacity var(--duration-fast);
 	}
 
 	.img-preview:hover .img-overlay { opacity: 1; }
@@ -358,7 +358,7 @@
 	}
 
 	.audio-hint {
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		color: var(--text-muted);
 		text-align: center;
 		padding-bottom: var(--space-2);
@@ -376,7 +376,7 @@
 		align-items: center;
 		justify-content: center;
 		font-size: var(--text-sm);
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 		flex-shrink: 0;
 	}
 
@@ -400,7 +400,7 @@
 
 	.time {
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		color: var(--text-muted);
 		white-space: nowrap;
 		flex-shrink: 0;
@@ -418,7 +418,7 @@
 
 	.label {
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		color: var(--text-muted);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
@@ -437,7 +437,7 @@
 		align-items: center;
 		justify-content: center;
 		font-size: var(--text-xs);
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 	}
 
 	.btn-action:hover { background: var(--surface-hover); }

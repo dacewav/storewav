@@ -434,7 +434,7 @@
 	}
 
 	.btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
-	.btn-save kbd { font-family: var(--font-mono); font-size: 10px; padding: 1px 5px; border-radius: 3px; background: rgba(0,0,0,0.2); color: inherit; opacity: 0.7; }
+	.btn-save kbd { font-family: var(--font-mono); font-size: var(--text-2xs); padding: 1px 5px; border-radius: 3px; background: rgba(0,0,0,0.2); color: inherit; opacity: 0.7; }
 
 	.btn-delete {
 		padding: var(--space-2) var(--space-3);
@@ -475,7 +475,7 @@
 		font-size: var(--text-sm);
 		min-height: var(--touch-min);
 		outline: none;
-		transition: border-color 0.2s;
+		transition: border-color var(--duration-fast);
 		font-family: inherit;
 	}
 
@@ -501,7 +501,7 @@
 		min-height: var(--touch-min);
 		align-items: center;
 		cursor: text;
-		transition: border-color 0.2s;
+		transition: border-color var(--duration-fast);
 	}
 
 	.tags-wrap:focus-within { border-color: rgba(var(--accent-rgb), 0.5); }
@@ -524,8 +524,8 @@
 		display: flex; align-items: center; justify-content: center;
 		width: 14px; height: 14px; border-radius: 50%;
 		border: none; background: transparent; color: var(--accent);
-		cursor: pointer; font-size: 8px; padding: 0; opacity: 0.6;
-		transition: opacity 0.2s;
+		cursor: pointer; font-size: var(--text-2xs); padding: 0; opacity: 0.6;
+		transition: opacity var(--duration-fast);
 	}
 
 	.tag-remove:hover { opacity: 1; background: rgba(var(--accent-rgb), 0.2); }
@@ -602,7 +602,7 @@
 		padding: var(--space-2) var(--space-5); min-height: var(--touch-min);
 		background: transparent; border: 1px solid var(--border);
 		border-radius: var(--radius-md); color: var(--text-secondary);
-		font-size: var(--text-sm); cursor: pointer; transition: all 0.2s;
+		font-size: var(--text-sm); cursor: pointer; transition: all var(--duration-fast);
 	}
 
 	.btn-cancel:hover { background: var(--surface-hover); color: var(--text); }
@@ -611,7 +611,7 @@
 		padding: var(--space-2) var(--space-5); min-height: var(--touch-min);
 		background: var(--danger); color: white; border: none;
 		border-radius: var(--radius-md); font-size: var(--text-sm);
-		font-weight: 600; cursor: pointer; transition: all 0.2s;
+		font-weight: 600; cursor: pointer; transition: all var(--duration-fast);
 	}
 
 	.btn-confirm-delete:hover { opacity: 0.9; }

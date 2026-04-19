@@ -4,15 +4,16 @@
 
 ---
 
-## Bloque Actual: 4 — Tienda (Página Principal) ✅ (completo + pulido)
+## Bloque Actual: 5 — Tienda — Beat Page 🚧 (en progreso)
 
 ```yaml
-bloque: 4
-nombre: "Tienda — Página Principal"
-estado: "completo + pulido"
-componentes_integrados: BeatCard, Filters, BeatModal, Player, WishlistPanel
-paginas_modificadas: +page.svelte, +layout.svelte
-ultima_sesion_pulido: "2026-04-19 23:02"
+bloque: 5
+nombre: "Tienda — Beat Page"
+estado: "en progreso"
+componentes_integrados: Waveform, BeatCard, Badge, Icon, Skeleton, EmptyState
+paginas_creadas: beat/[id]/+page.svelte, beat/[id]/+page.ts
+paginas_modificadas: +page.svelte (store — click navega a /beat/[id])
+ultima_sesion: "2026-04-20 00:49"
 ```
 
 ## Estado
@@ -21,82 +22,56 @@ ultima_sesion_pulido: "2026-04-19 23:02"
 - ✅ Bloque 1: Design System completo (20 componentes, 116+ tokens, theme engine, light mode)
 - ✅ Bloque 2: Firebase Layer + Stores completo (9 stores, Firebase rules, admin auth)
 - ✅ Bloque 3: Core Components completo (6 componentes, 4 actions, integración verificada)
-- ✅ Bloque 4: Tienda — Página Principal completo
-- ✅ Auditoría profunda + 18 mejoras de calidad
-- ✅ **Pulido sesión 2** (2026-04-19 23:02):
-  - Migración SVGs inline → `<Icon>` (11 componentes, 20 iconos)
-  - Light mode fix: hardcoded `rgba(0,0,0)` → tokens CSS
-  - CardStyleEngine: 30 animation presets (float, hologram, glitch, shimmer, etc.)
-  - BeatCard: integración cardStyleEngine (per-beat + global styles desde Firebase)
-  - Firebase rules: campo `cardStyle` permitido en beats y settings
-  - Settings store: `cardStyle` config global (glow, animation, shimmer, etc.)
-  - Hero: staggered entrance animations (eyebrow → title → subtitle → stats)
-  - CTA: radial glow, hover lift, refined transitions
-  - Section divider: accent gradient line
-  - BeatModal: license select/deselect, buy CTA, cover genre badge, description per license
-  - Player: playing glow line, cover pulse animation
-  - Beat grid: staggerReveal action para entrada escalonada
-- ✅ **Pulido sesión 3** (2026-04-19 23:09):
-  - Filters: contador de beats filtrados (X de Y), animated active tags
-  - Nav: accent glow line on scroll, brand hover scale, wishlist badge count
-  - Footer: refined gradient line, link underline animation, brand hover
-  - Mobile menu: staggered link entrance, shadow, link hover translateX
-  - WishlistPanel: count badge in header, item hover translateX
-  - Skeleton: accent-tinted shimmer gradient
-  - Section badge: hover glow
-  - Global: fadeIn keyframe
-- ✅ **Pulido sesión 4 — Zero Hardcoded Audit** (2026-04-19 23:16):
-  - `accentRgb` en BeatCard: `'220, 38, 38'` → lee `--accent-rgb` del DOM (reactivo al theme)
-  - Font sizes: `10px` → `var(--text-2xs)`, `14px` → `var(--text-sm)`, `1rem` → `var(--text-base)`, `9px` → `var(--text-2xs)`
-  - Transiciones: todos los `0.15s` → `var(--duration-fast)` (13 occurrences, 7 componentes)
-  - Mobile menu shadow: hardcoded `rgba(0,0,0,0.15)` → `var(--shadow-menu)` (light/dark adaptado)
-  - Token `--shadow-menu` añadido a `:root` + `[data-theme="light"]`
-  - Comentarios de font-size tokens corregidos (base 14px, no 16px)
-- ✅ **Pulido sesión 5 — Settings-Driven Content** (2026-04-19 23:22):
-  - Settings store expandido: 9 secciones (hero, section, cta, layout, links, brand, loader, cardStyle, labels)
-  - **28 textos** que eran hardcodeados ahora salen de Firebase settings
-  - Store page: hero eyebrow, glow word, divider, section title, CTA, empty state → todos desde settings
-  - Layout: loader brand, nav brand, footer brand/text, meta description → desde settings
-  - Filters: placeholder, "Todos", "Tonalidad", "Tags", "Limpiar todo" → props editables
-  - BeatModal: "Escuchar preview", "Licencias", "Comprar" → props editables
-  - WishlistPanel: empty state texts → props editables
-  - Firebase rules actualizadas para nuevas secciones de settings
-  - Secciones condicionales: hero eyebrow, divider, CTA desaparecen si están vacíos
-- ✅ **Pulido sesión 6 — More Editables** (2026-04-19 23:31):
-  - Favicon: import hardcodeado → lee de `settings.brand.favicon` (fallback a SVG local)
-  - Logo: `settings.brand.logo` → muestra imagen en nav si está seteado, sino texto
-  - Stats labels: "beats", "géneros", "licencias" → `labels.statBeats/Genres/Licenses`
-  - Price label: "Desde" en BeatCard → `labelFrom` prop → `labels.priceFrom`
-  - License names: "Basic/Premium/Unlimited/Exclusive" → props `licenseLabels` → settings
-  - License descs: "MP3·1 uso" etc. → props `licenseDescs` → settings
-  - **Total: 36 textos editables** desde Firebase admin
-- ✅ **Pulido sesión 7 — Banner, Testimonials, Brand Everywhere** (2026-04-19 23:36):
-  - Banner: `display:none` → editable desde `settings/banner` (text, url, animation: 5 tipos)
-  - Testimonials: componente nuevo, sección dinámica desde `settings/testimonials`
-  - Stats "4" hardcodeado → dinámico (cuenta licenses del primer beat)
-  - Brand name → error page, login page, admin layout, admin dashboard, admin topbar
-  - AdminTopbar: `DACE· Admin` → prop `brandName`
-  - Admin dashboard: version badge actualizado, "Panel de control" → dinámico
-  - **Total: 42+ textos editables** desde Firebase admin
-  - 0 referencias hardcodeadas a "DACEWAV" fuera de fallbacks y settings DEFAULT
-- ✅ Build: 0 errores, 0 warnings críticos
+- ✅ Bloque 4: Tienda — Página Principal completo + pulido (8 sesiones)
+- 🚧 Bloque 5: Tienda — Beat Page (en progreso)
+  - ✅ Ruta dinámica `/beat/[id]` creada
+  - ✅ Cover grande 1:1 con hover zoom
+  - ✅ Waveform interactivo integrado
+  - ✅ Info completa: título, artista, BPM, key, genre, tags, descripción
+  - ✅ Licencias 2x2 grid con select/deselect + buy CTA (WhatsApp)
+  - ✅ Play button full-width
+  - ✅ Wishlist toggle
+  - ✅ Platform links (Spotify, YouTube, SoundCloud) con colores de marca
+  - ✅ Beats relacionados (mismo genre, max 4, fallback random)
+  - ✅ Meta tags SEO (og:title, og:description, og:image)
+  - ✅ Back link al catálogo
+  - ✅ Loading skeleton
+  - ✅ Empty state si beat no existe
+  - ✅ Responsive (2 col → 1 col en mobile)
+  - ✅ Sticky cover en desktop
+  - ✅ Todos los textos editables desde settings
+  - ✅ Store page: click BeatCard → navega a `/beat/[id]` (antes abría modal)
+  - ✅ BeatModal removido de store page (dead code cleanup)
+  - ✅ Build: 0 errores
+
+## Bloque 4 — Historial de Pulido (completo)
+
+- ✅ **Sesión 2** (2026-04-19 23:02): SVGs inline → `<Icon>`, light mode, CardStyleEngine 30 presets, BeatCard integración
+- ✅ **Sesión 3** (2026-04-19 23:09): Filters contador, nav glow, footer refine, mobile menu, WishlistPanel
+- ✅ **Sesión 4** (2026-04-19 23:16): Zero Hardcoded Audit — accentRgb reactivo, font-size tokens, transition tokens
+- ✅ **Sesión 5** (2026-04-19 23:22): Settings-Driven Content — 28 textos editables desde Firebase
+- ✅ **Sesión 6** (2026-04-19 23:31): More Editables — favicon, logo, stats, price, license labels (36 textos)
+- ✅ **Sesión 7** (2026-04-19 23:36): Banner, Testimonials, Brand Everywhere (42+ textos)
+- ✅ **Sesión 8** (2026-04-20 00:39): Auditoría profunda final
+  - AdminTopbar: 6 SVGs inline → `<Icon>` (undo, redo, save, export, import, logout)
+  - Login: error SVG → `<Icon name="error" />`
+  - 6 nuevos íconos en `icons.ts`
+  - Font-sizes: 10px/8px → `var(--text-2xs)` (7 fixes)
+  - Transiciones: 0.2s/0.25s/0.3s/0.35s → tokens (25+ fixes across 12 files)
+  - 0 TODOs/FIXMEs, 0 console.log debug, 0 hardcoded colores en store
+  - `prefers-reduced-motion`, focus trap modal, ARIA labels ✅
 
 ## Qué viene después
 
-**Bloque 5: Tienda — Beat Page**
-- Ruta dinámica `/beat/[id]`
-- Beat detail con cover grande
-- Waveform interactivo
-- Licencias + precios
-- Beats relacionados
-- Meta tags (SEO)
+**Bloque 6: Checkout / Carrito** (si aplica)
+**Bloque 7: Upload de audio/covers**
+**Bloque 8: Admin cardStyle editor**
 
-## Pendientes para pulir en chats siguientes
+## Pendientes
 
 ### Frontend
 - [ ] Testing visual en browser real (responsive, colores, animaciones)
 - [ ] Verify cardStyleEngine con datos reales de Firebase (per-beat styles)
-- [ ] Migrar AdminTopbar SVGs a `<Icon>` (cuando se toque admin)
 
 ### Backend/Admin
 - [ ] Configurar Firebase admins/{uid} en consola Firebase
@@ -110,4 +85,4 @@ ultima_sesion_pulido: "2026-04-19 23:02"
 
 ---
 
-**Última actualización:** 2026-04-19 13:19
+**Última actualización:** 2026-04-20 00:49

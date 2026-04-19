@@ -157,7 +157,7 @@
 		gap: var(--space-3);
 		padding: var(--space-3);
 		border-radius: var(--radius-md);
-		transition: all 0.2s var(--ease-out);
+		transition: all var(--duration-fast) var(--ease-out);
 	}
 
 	.wish-item:hover {

@@ -397,7 +397,7 @@
 		background: var(--nav-bg);
 		backdrop-filter: blur(var(--nav-blur));
 		border-bottom: 1px solid var(--border);
-		transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+		transition: transform var(--duration-normal) cubic-bezier(0.4, 0, 0.2, 1), background var(--duration-normal);
 	}
 
 	.nav.n-hidden {
@@ -459,7 +459,7 @@
 		text-transform: uppercase;
 		color: var(--text-secondary);
 		text-decoration: none;
-		transition: color 0.2s;
+		transition: color var(--duration-fast);
 		position: relative;
 		cursor: pointer;
 	}
@@ -472,7 +472,7 @@
 		width: 0;
 		height: 1px;
 		background: var(--accent);
-		transition: width 0.3s;
+		transition: width var(--duration-normal);
 	}
 
 	.nav-link:hover {
@@ -494,7 +494,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 		padding: 0;
 		flex-shrink: 0;
 		position: relative;
@@ -681,7 +681,7 @@
 		font-size: 1.2rem;
 		font-weight: 800;
 		color: var(--text);
-		transition: color 0.2s;
+		transition: color var(--duration-fast);
 	}
 
 	.footer-brand:hover {

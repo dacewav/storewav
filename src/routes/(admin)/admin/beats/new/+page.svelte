@@ -43,7 +43,7 @@
 		font-size: var(--text-sm);
 		color: var(--text-secondary);
 		text-decoration: none;
-		transition: color 0.2s;
+		transition: color var(--duration-fast);
 		display: inline-block;
 		margin-bottom: var(--space-2);
 	}

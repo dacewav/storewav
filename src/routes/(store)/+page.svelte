@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Skeleton, EmptyState, BeatCard, Filters, BeatModal, Testimonials } from '$lib/components';
+	import { goto } from '$app/navigation';
+	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials } from '$lib/components';
 	import { beatsList, genres, settings, player } from '$lib/stores';
 	import { staggerReveal } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
@@ -78,19 +79,6 @@
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
 	let filters: FilterState = $state({ search: '', genre: '', key: '', sort: 'newest', tags: [] });
 
-	// Modal
-	let modalOpen = $state(false);
-	let selectedBeat: (Beat & { id: string }) | null = $state(null);
-
-	// Clear selected beat when modal closes
-	$effect(() => {
-		if (!modalOpen) {
-			// Delay to avoid clearing during close animation
-			const timer = setTimeout(() => { selectedBeat = null; }, 250);
-			return () => clearTimeout(timer);
-		}
-	});
-
 	// Filtered + sorted beats
 	let filteredBeats = $derived.by(() => {
 		let list = [...beats];
@@ -146,8 +134,7 @@
 	}
 
 	function handleBeatClick(beat: Beat & { id: string }) {
-		selectedBeat = beat;
-		modalOpen = true;
+		goto(`/beat/${beat.id}`);
 	}
 </script>
 
@@ -285,27 +272,6 @@
 	</a>
 </div>
 {/if}
-
-<!-- Beat Modal -->
-<BeatModal
-	bind:open={modalOpen}
-	beat={selectedBeat}
-	labelPreview={labels.beatPreview ?? 'Escuchar preview'}
-	labelLicenses={labels.licenses ?? 'Licencias'}
-	labelBuy={labels.buyPrefix ?? 'Comprar'}
-	licenseLabels={{
-		basic: labels.licenseBasic ?? 'Basic',
-		premium: labels.licensePremium ?? 'Premium',
-		unlimited: labels.licenseUnlimited ?? 'Unlimited',
-		exclusive: labels.licenseExclusive ?? 'Exclusive'
-	}}
-	licenseDescs={{
-		basic: labels.licenseBasicDesc ?? 'MP3 · 1 uso',
-		premium: labels.licensePremiumDesc ?? 'WAV · Sin tag',
-		unlimited: labels.licenseUnlimitedDesc ?? 'WAV + Stems',
-		exclusive: labels.licenseExclusiveDesc ?? 'Exclusivo total'
-	}}
-/>
 
 <style>
 	/* ── Hero ── */

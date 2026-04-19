@@ -14,10 +14,10 @@ repo: https://github.com/dacewav/store.git
 version: 1.0.0
 framework: SvelteKit + Cloudflare
 firebase_project: dacewav-store-3b0f5
-ultimo_chat: "2026-04-19 23:36"
-bloque_actual: "Bloque 4 — Tienda (Página Principal) ✅ COMPLETO + PULIDO x7"
-ultima_tarea: "Pulido s7: banner, testimonials, brand everywhere, zero hardcoded brand refs"
-proxima_tarea: "Bloque 5 — Tienda (Beat Page)"
+ultimo_chat: "2026-04-20 00:49"
+bloque_actual: "Bloque 5 — Tienda (Beat Page) 🚧 EN PROGRESO"
+ultima_tarea: "Beat Page: ruta /beat/[id], cover 1:1, waveform, licencias, related beats, SEO"
+proxima_tarea: "Pulir Bloque 5 + testing visual"
 ```
 
 ## Progreso de Bloques
@@ -163,14 +163,23 @@ lang="es", preconnect Google Fonts, non-blocking font loading, noscript fallback
 - [x] **Pulido s3:** WishlistPanel count badge, item hover
 - [x] **Pulido s3:** Skeleton accent-tinted shimmer
 - [x] **Pulido s3:** Section badge hover glow, global fadeIn keyframe
+- [x] **Pulido s4-s7:** Settings-driven (42+ editables), zero hardcoded brand, banner, testimonials
+- [x] **Pulido s8:** Auditoría profunda final — AdminTopbar 6 SVGs→Icon, login SVG→Icon, 6 nuevos iconos, font-sizes 10px→tokens (7 fixes), transiciones 0.2s→tokens (25+ fixes, 12 files), 0 TODOs, 0 console.log debug, focus trap modal ✅, ARIA labels ✅, `prefers-reduced-motion` ✅
 
-### BLOQUE 5: Tienda — Beat Page ⬜
-- [ ] Ruta dinámica `/beat/[id]`
-- [ ] Beat detail con cover grande
-- [ ] Waveform interactivo
-- [ ] Licencias + precios
-- [ ] Beats relacionados
-- [ ] Meta tags (SEO)
+### BLOQUE 5: Tienda — Beat Page 🚧
+- [x] Ruta dinámica `/beat/[id]`
+- [x] Beat detail con cover grande (1:1, hover zoom, sticky en desktop)
+- [x] Waveform interactivo
+- [x] Licencias + precios (2x2 grid, select/deselect, buy CTA WhatsApp)
+- [x] Beats relacionados (same genre, max 4, fallback random)
+- [x] Meta tags SEO (og:title, og:description, og:image)
+- [x] Platform links (Spotify, YouTube, SoundCloud)
+- [x] Back link al catálogo
+- [x] Loading skeleton + empty state
+- [x] Responsive (2col → 1col)
+- [x] Store page: click → navega a /beat/[id] (modal removido)
+- [x] Todos los textos editables desde settings
+- [ ] Testing visual en browser real
 
 ### BLOQUE 6: Admin Auth + Layout ⬜
 - [ ] Login page con Google Auth UI

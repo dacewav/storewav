@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Card } from '$lib/components';
+	import { Button, Card, Icon } from '$lib/components';
 	import { auth, loginWithGoogle, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
 
@@ -50,7 +50,7 @@
 
 		{#if error}
 			<div class="login-error" role="alert">
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+				<Icon name="error" size={14} />
 				{error}
 			</div>
 		{/if}
@@ -202,7 +202,7 @@
 		font-size: var(--text-sm);
 		font-weight: 500;
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 	}
 
 	.google-btn:hover:not(:disabled) {

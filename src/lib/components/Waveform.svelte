@@ -184,6 +184,6 @@
 	}
 
 	.waveform-active {
-		transition: fill 0.1s;
+		transition: fill var(--duration-fast);
 	}
 </style>

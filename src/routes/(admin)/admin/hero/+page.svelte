@@ -288,7 +288,7 @@
 		font-size: var(--text-sm);
 		min-height: var(--touch-min);
 		outline: none;
-		transition: border-color 0.2s;
+		transition: border-color var(--duration-fast);
 	}
 
 	.field input[type="text"]:focus,
@@ -355,7 +355,7 @@
 		color: var(--text-muted);
 		cursor: pointer;
 		font-size: var(--text-sm);
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 		flex-shrink: 0;
 	}
 
@@ -373,7 +373,7 @@
 		color: var(--text-secondary);
 		cursor: pointer;
 		font-size: var(--text-sm);
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 		min-height: var(--touch-min);
 	}
 

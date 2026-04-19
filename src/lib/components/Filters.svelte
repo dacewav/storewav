@@ -374,7 +374,7 @@
 		font-size: var(--text-2xs);
 		color: var(--text-muted);
 		letter-spacing: 0.04em;
-		transition: color 0.2s;
+		transition: color var(--duration-fast);
 	}
 
 	.filter-count.filtering {

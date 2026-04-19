@@ -362,7 +362,7 @@
 		font-size: var(--text-sm);
 		min-height: var(--touch-min);
 		outline: none;
-		transition: border-color 0.2s;
+		transition: border-color var(--duration-fast);
 	}
 
 	.search-input:focus { border-color: rgba(var(--accent-rgb), 0.5); }
@@ -480,7 +480,7 @@
 
 	.tag {
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		padding: 1px 6px;
 		border-radius: var(--radius-full);
 		background: rgba(var(--accent-rgb), 0.08);
@@ -499,7 +499,7 @@
 
 	.price-from {
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: var(--text-2xs);
 		color: var(--text-muted);
 		text-transform: uppercase;
 	}
@@ -577,7 +577,7 @@
 		color: var(--text-secondary);
 		font-size: var(--text-sm);
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 	}
 
 	.btn-cancel:hover { background: var(--surface-hover); color: var(--text); }
@@ -592,7 +592,7 @@
 		font-size: var(--text-sm);
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 	}
 
 	.btn-confirm-delete:hover { opacity: 0.9; }

@@ -171,7 +171,7 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		transition: transform 0.4s var(--ease-out);
+		transition: transform var(--duration-normal) var(--ease-out);
 	}
 
 	.beat-card:hover .beat-cover img {
@@ -211,7 +211,7 @@
 		justify-content: center;
 		cursor: pointer;
 		opacity: 0;
-		transition: all 0.25s var(--ease-out);
+		transition: all var(--duration-normal) var(--ease-out);
 		box-shadow: var(--glow-accent);
 		z-index: 2;
 	}
@@ -241,7 +241,7 @@
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all var(--duration-fast);
 		opacity: 0;
 		z-index: 2;
 	}
