@@ -6,14 +6,14 @@
 
 ---
 
-## Bloque Actual: 0 — ✅ COMPLETO
+## Bloque Actual: 1 — Design System
 
 ```yaml
-bloque: 0
-nombre: "Setup del Proyecto"
-tarea_actual: "todas completadas"
-tareas_completadas: 9
-tareas_totales: 9
+bloque: 1
+nombre: "Design System"
+tarea_actual: "tokens.css"
+tareas_completadas: 0
+tareas_totales: 14
 ```
 
 ## Qué Necesita Saber la IA
