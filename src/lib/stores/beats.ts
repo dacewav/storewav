@@ -44,6 +44,7 @@ export type Beat = {
 	licenseNames?: LicenseNames;
 	licenseDescs?: LicenseNames;
 	createdAt: number;
+	order?: number;
 	active: boolean;
 	cardStyle?: Record<string, unknown>;
 };
@@ -54,11 +55,16 @@ export type BeatsMap = Record<string, Beat>;
 
 export const beats = createFirebaseStore<BeatsMap>('beats', {});
 
-/** Todos los beats como array (activos e inactivos) */
+/** Todos los beats como array (activos e inactivos), ordenados por order then createdAt */
 export const allBeatsList = derived(beats, ($beats) => {
 	if (!$beats.data) return [];
 	return Object.entries($beats.data)
-		.sort(([, a], [, b]) => b.createdAt - a.createdAt)
+		.sort(([, a], [, b]) => {
+			const ao = a.order ?? 0;
+			const bo = b.order ?? 0;
+			if (ao !== bo) return ao - bo;
+			return b.createdAt - a.createdAt;
+		})
 		.map(([id, beat]) => ({ id, ...beat }));
 });
 
@@ -144,6 +150,19 @@ export async function duplicateBeat(id: string) {
 	};
 
 	return createBeat(dupData);
+}
+
+/** Reordenar un beat (cambia su campo order) */
+export async function reorderBeat(id: string, newOrder: number) {
+	await updateBeat(id, { order: newOrder });
+}
+
+/** Reordenar múltiples beats (swap) */
+export async function swapBeatOrders(id1: string, order1: number, id2: string, order2: number) {
+	await Promise.all([
+		updateBeat(id1, { order: order2 }),
+		updateBeat(id2, { order: order1 })
+	]);
 }
 
 /** Beat vacío para nuevo */

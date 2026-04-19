@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Card, Badge, EmptyState } from '$lib/components';
-	import { allBeatsList, beatsStats, deleteBeat, duplicateBeat, genres } from '$lib/stores';
+	import { allBeatsList, beatsStats, deleteBeat, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
 	import type { BeatWithId } from '$lib/stores/beats';
 
 	let beats = $derived($allBeatsList);
@@ -58,6 +58,15 @@
 
 	function cancelDelete() {
 		deleteTarget = null;
+	}
+
+	async function moveBeat(beat: BeatWithId, direction: 'up' | 'down') {
+		const list = filteredBeats;
+		const idx = list.findIndex(b => b.id === beat.id);
+		const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+		if (swapIdx < 0 || swapIdx >= list.length) return;
+		const other = list[swapIdx];
+		await swapBeatOrders(beat.id, beat.order ?? 0, other.id, other.order ?? 0);
 	}
 
 	async function handleDuplicate(beat: BeatWithId) {
@@ -181,6 +190,8 @@
 
 					<!-- Actions -->
 					<div class="beat-actions">
+						<button class="btn-action btn-move" title="Subir" onclick={() => moveBeat(beat, 'up')} disabled={filteredBeats.indexOf(beat) === 0}>↑</button>
+						<button class="btn-action btn-move" title="Bajar" onclick={() => moveBeat(beat, 'down')} disabled={filteredBeats.indexOf(beat) === filteredBeats.length - 1}>↓</button>
 						<a href="/admin/beats/{beat.id}" class="btn-action btn-edit" title="Editar">✏️</a>
 						<button class="btn-action" title="Duplicar" onclick={() => handleDuplicate(beat)}>📋</button>
 						<button
@@ -524,6 +535,9 @@
 	.btn-action:hover { background: var(--surface-hover); border-color: var(--border); }
 	.btn-edit:hover { background: rgba(var(--accent-rgb), 0.1); border-color: rgba(var(--accent-rgb), 0.3); }
 	.btn-del:hover { background: var(--danger-glow); border-color: var(--danger); }
+	.btn-move { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+	.btn-move:hover:not(:disabled) { color: var(--accent); background: rgba(var(--accent-rgb), 0.1); border-color: rgba(var(--accent-rgb), 0.3); }
+	.btn-move:disabled { opacity: 0.3; cursor: default; }
 
 	/* Delete modal */
 	.modal-overlay {
