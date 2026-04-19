@@ -4,17 +4,14 @@
 
 ---
 
-## Bloque Actual: 3 — Core Components ✅ (completo)
+## Bloque Actual: 4 — Tienda (Página Principal) ✅ (completo)
 
 ```yaml
-bloque: 3
-nombre: "Core Components"
+bloque: 4
+nombre: "Tienda — Página Principal"
 estado: "completo"
-commit_final: "pendiente (commits locales)"
-componentes_nuevos: 6 (BeatCard, Player, Filters, Waveform, WishlistPanel, BeatModal)
-actions: 4 (tilt, parallax, staggerReveal, ripple)
-iconos: 14 (icons.ts centralizado)
-mejoras_aplicadas: 18
+componentes_integrados: BeatCard, Filters, BeatModal, Player, WishlistPanel
+paginas_modificadas: +page.svelte, +layout.svelte
 ```
 
 ## Estado
@@ -23,21 +20,19 @@ mejoras_aplicadas: 18
 - ✅ Bloque 1: Design System completo (20 componentes, 116+ tokens, theme engine, light mode)
 - ✅ Bloque 2: Firebase Layer + Stores completo (9 stores, Firebase rules, admin auth)
 - ✅ Bloque 3: Core Components completo (6 componentes, 4 actions, integración verificada)
-- ✅ Auditoría profunda de Bloques 2-3
-- ✅ 18 mejoras aplicadas (seguridad, TS, performance, a11y, DX)
+- ✅ Bloque 4: Tienda — Página Principal completo
+- ✅ Auditoría profunda + 18 mejoras de calidad
 - ✅ Build: 0 errores, 0 warnings críticos
 
 ## Qué viene después
 
-**Bloque 4: Tienda — Página Principal**
-- Hero section con datos de Firebase settings
-- Grid de beats con BeatCard (responsive, skeleton loading)
-- Filtros integrados (Filters.svelte)
-- Player bottom bar activo
-- Wishlist panel slide-in
-- Beat modal al click
-- Empty state si no hay beats
-- Scroll reveal animations (staggerReveal action)
+**Bloque 5: Tienda — Beat Page**
+- Ruta dinámica `/beat/[id]`
+- Beat detail con cover grande
+- Waveform interactivo
+- Licencias + precios
+- Beats relacionados
+- Meta tags (SEO)
 
 ## Pendientes para pulir en chats siguientes
 

@@ -1,12 +1,80 @@
 <script lang="ts">
-	import { Skeleton, EmptyState } from '$lib/components';
-	import { beatsList, genres, settings } from '$lib/stores';
+	import { Skeleton, EmptyState, BeatCard, Filters, BeatModal } from '$lib/components';
+	import { beatsList, genres, settings, player } from '$lib/stores';
+	import type { Beat } from '$lib/stores/beats';
 
 	let beats = $derived($beatsList);
 	let genreList = $derived($genres);
 	let settingsData = $derived($settings.data);
 	let heroTitle = $derived(settingsData?.hero?.title ?? 'Beats que');
 	let heroSub = $derived(settingsData?.hero?.subtitle ?? 'Trap · R&B · Drill · Beats profesionales para tu próximo hit');
+
+	// Filters
+	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
+	let filters: FilterState = $state({ search: '', genre: '', key: '', sort: 'newest', tags: [] });
+
+	// Modal
+	let modalOpen = $state(false);
+	let selectedBeat: (Beat & { id: string }) | null = $state(null);
+
+	// Filtered + sorted beats
+	let filteredBeats = $derived(() => {
+		let list = [...beats];
+
+		// Search
+		if (filters.search) {
+			const q = filters.search.toLowerCase();
+			list = list.filter(b =>
+				b.title.toLowerCase().includes(q) ||
+				b.artist.toLowerCase().includes(q) ||
+				b.genre.toLowerCase().includes(q)
+			);
+		}
+
+		// Genre
+		if (filters.genre) {
+			list = list.filter(b => b.genre === filters.genre);
+		}
+
+		// Key
+		if (filters.key) {
+			list = list.filter(b => b.key === filters.key);
+		}
+
+		// Tags
+		if (filters.tags.length > 0) {
+			list = list.filter(b => filters.tags.some(t => b.tags?.includes(t)));
+		}
+
+		// Sort
+		switch (filters.sort) {
+			case 'newest': list.sort((a, b) => b.createdAt - a.createdAt); break;
+			case 'oldest': list.sort((a, b) => a.createdAt - b.createdAt); break;
+			case 'name-az': list.sort((a, b) => a.title.localeCompare(b.title)); break;
+			case 'name-za': list.sort((a, b) => b.title.localeCompare(a.title)); break;
+			case 'bpm-asc': list.sort((a, b) => a.bpm - b.bpm); break;
+			case 'bpm-desc': list.sort((a, b) => b.bpm - a.bpm); break;
+			case 'price-asc': list.sort((a, b) => (a.licenses?.basic ?? 0) - (b.licenses?.basic ?? 0)); break;
+			case 'price-desc': list.sort((a, b) => (b.licenses?.basic ?? 0) - (a.licenses?.basic ?? 0)); break;
+		}
+
+		return list;
+	});
+
+	function handlePlay(beat: Beat & { id: string }) {
+		player.play({
+			id: beat.id,
+			title: beat.title,
+			artist: beat.artist,
+			coverUrl: beat.coverUrl,
+			audioUrl: beat.audioUrl
+		});
+	}
+
+	function handleBeatClick(beat: Beat & { id: string }) {
+		selectedBeat = beat;
+		modalOpen = true;
+	}
 </script>
 
 <svelte:head>
@@ -58,34 +126,27 @@
 		<div class="section-badge">{beats.length ? `${beats.length} beats` : 'Próximamente'}</div>
 	</div>
 
+	<!-- Filters -->
 	{#if beats.length > 0}
-		<div class="beat-grid">
-			{#each beats as beat (beat.id)}
-				<div class="beat-card">
-					<div class="beat-cover">
-						{#if beat.coverUrl}
-							<img src={beat.coverUrl} alt={beat.title} loading="lazy" />
-						{:else}
-							<div class="beat-cover-placeholder">🎵</div>
-						{/if}
-					</div>
-					<div class="beat-info">
-						<div class="beat-title">{beat.title}</div>
-						<div class="beat-meta">
-							<span>{beat.genre}</span>
-							<span>·</span>
-							<span>{beat.bpm} BPM</span>
-							<span>·</span>
-							<span>{beat.key}</span>
-						</div>
-						<div class="beat-price">Desde ${beat.licenses?.basic ?? 29.99}</div>
-					</div>
-				</div>
-			{/each}
+		<div class="filters-wrap">
+			<Filters bind:filters />
 		</div>
+	{/if}
+
+	<!-- Beat grid -->
+	{#if beats.length > 0}
+		{#if filteredBeats().length > 0}
+			<div class="beat-grid">
+				{#each filteredBeats() as beat (beat.id)}
+					<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} />
+				{/each}
+			</div>
+		{:else}
+			<EmptyState icon="🔍" title="Sin resultados" subtitle="Prueba con otros filtros" />
+		{/if}
 	{:else}
 		<div class="beat-grid">
-			{#each Array(6) as _, i}
+			{#each Array(6) as _}
 				<Skeleton lines={3} />
 			{/each}
 		</div>
@@ -101,6 +162,9 @@
 		Escríbenos
 	</a>
 </div>
+
+<!-- Beat Modal -->
+<BeatModal bind:open={modalOpen} beat={selectedBeat} />
 
 <style>
 	/* ── Hero ── */
@@ -310,80 +374,17 @@
 		letter-spacing: 0.06em;
 	}
 
-	/* ── Beat Grid — responsive 3 breakpoints ── */
+	/* ── Filters ── */
+	.filters-wrap {
+		margin-bottom: var(--space-6);
+	}
+
+	/* ── Beat Grid ── */
 	.beat-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 		gap: var(--beat-gap);
 		align-items: start;
-	}
-
-	/* ── Beat Card ── */
-	.beat-card {
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--card-radius);
-		overflow: hidden;
-		transition: all var(--duration-normal) var(--ease-out);
-		cursor: pointer;
-	}
-
-	.beat-card:hover {
-		border-color: var(--border-hover-accent);
-		box-shadow: var(--shadow-lg), 0 0 30px rgba(var(--accent-rgb), 0.08);
-		transform: translateY(-2px);
-	}
-
-	.beat-cover {
-		aspect-ratio: 16/9;
-		overflow: hidden;
-		background: var(--surface2);
-	}
-
-	.beat-cover img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.beat-cover-placeholder {
-		width: 100%;
-		height: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 2rem;
-		opacity: 0.3;
-	}
-
-	.beat-info {
-		padding: var(--space-4) var(--space-5);
-	}
-
-	.beat-title {
-		font-family: var(--font-display);
-		font-size: var(--text-base);
-		font-weight: 700;
-		color: var(--text);
-		margin-bottom: var(--space-1);
-	}
-
-	.beat-meta {
-		display: flex;
-		gap: var(--space-2);
-		font-family: var(--font-mono);
-		font-size: var(--text-2xs);
-		color: var(--text-secondary);
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
-	}
-
-	.beat-price {
-		margin-top: var(--space-3);
-		font-family: var(--font-display);
-		font-size: var(--text-sm);
-		font-weight: 700;
-		color: var(--accent);
 	}
 
 	/* ── CTA Section ── */

@@ -11,13 +11,13 @@
 ```yaml
 proyecto: dacewav/store
 repo: https://github.com/dacewav/store.git
-version: 0.4.0
+version: 0.5.0
 framework: SvelteKit + Cloudflare
 firebase_project: dacewav-store-3b0f5
-ultimo_chat: "2026-04-19 13:19"
-bloque_actual: "Bloque 3 — Core Components ✅ COMPLETO"
-ultima_tarea: "Auditoría profunda + 18 mejoras (seguridad, performance, a11y, DX)"
-proxima_tarea: "Bloque 4 — Tienda (Página Principal)"
+ultimo_chat: "2026-04-19 13:35"
+bloque_actual: "Bloque 4 — Tienda (Página Principal) ✅ COMPLETO"
+ultima_tarea: "Integración BeatCard, Filters, Player, WishlistPanel, BeatModal en store page"
+proxima_tarea: "Bloque 5 — Tienda (Beat Page)"
 ```
 
 ## Progreso de Bloques
@@ -120,16 +120,17 @@ lang="es", preconnect Google Fonts, non-blocking font loading, noscript fallback
 
 ---
 
-### BLOQUE 4: Tienda — Página Principal ⬜
-- [ ] Hero section (título/subtitle desde settings)
-- [ ] Grid de beats con BeatCard
-- [ ] Filtros integrados (Filters.svelte)
-- [ ] Player bottom bar
-- [ ] Wishlist panel
-- [ ] Beat modal al click
-- [ ] Skeleton loading states
-- [ ] Empty state si no hay beats
-- [ ] Scroll reveal animations
+### BLOQUE 4: Tienda — Página Principal ✅ COMPLETO
+- [x] Hero section (título/subtitle desde settings)
+- [x] Grid de beats con BeatCard (tilt, play, wishlist)
+- [x] Filtros integrados (search, genre, key, sort, tags)
+- [x] Player bottom bar en layout
+- [x] Wishlist panel (nav button + mobile menu)
+- [x] Beat modal al click (cover, badges, waveform, licenses)
+- [x] Skeleton loading states
+- [x] Empty state (sin beats + sin resultados filtro)
+- [x] Sort funcional (8 opciones)
+- [x] Filtrado reactivo (search, genre, key, tags combinables)
 
 ### BLOQUE 5: Tienda — Beat Page ⬜
 - [ ] Ruta dinámica `/beat/[id]`
