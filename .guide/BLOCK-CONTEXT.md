@@ -6,13 +6,13 @@
 
 ---
 
-## Bloque Actual: NINGUNO (proyecto no iniciado)
+## Bloque Actual: 0 — ✅ COMPLETO
 
 ```yaml
 bloque: 0
 nombre: "Setup del Proyecto"
-tarea_actual: "ninguna — esperando primer chat"
-tareas_completadas: 0
+tarea_actual: "todas completadas"
+tareas_completadas: 9
 tareas_totales: 9
 ```
 
@@ -75,13 +75,13 @@ analytics/events/{date}/{id} → analytics/counts/{beatId} → analytics/daily/{
 |---|-------|--------|-------|
 | 1 | `npm create svelte@latest` | ✅ | Skeleton project, TypeScript |
 | 2 | Firebase SDK instalado | ✅ | `npm install firebase` |
-| 3 | `.env` creado | ✅ | Keys vacías — rellenar con valores reales |
+| 3 | `.env` creado | ✅ | Keys reales configuradas |
 | 4 | `src/lib/firebase.ts` | ✅ | Singleton, modular SDK v9, exports db + auth |
 | 5 | Cloudflare config | ✅ | `@sveltejs/adapter-cloudflare` en svelte.config.js |
 | 6 | `.gitignore` correcto | ✅ | node_modules, .env, .svelte-kit, build |
-| 7 | `npm run build` exitoso | ✅ | Build en 145ms client + 2.3s SSR |
-| 8 | Primer commit + push | ⬜ | Pendiente — necesita .env con keys reales o skip |
-| 9 | `npm run dev` funciona | ⬜ | Pendiente
+| 7 | `npm run build` exitoso | ✅ | Build en 144ms client + 2.3s SSR |
+| 8 | Primer commit + push | ✅ | `a36f8f9` pushed to main |
+| 9 | `npm run dev` funciona | ✅ | localhost:5173 carga correctamente |
 
 ## Decisiones Pendientes del Bloque
 

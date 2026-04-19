@@ -14,8 +14,8 @@ version: 0.0.1
 framework: SvelteKit
 firebase_project: dacewav-store-3b0f5
 ultimo_chat: "2026-04-19"
-bloque_actual: "Bloque 0 — Setup"
-ultima_tarea: "SvelteKit + Firebase SDK + Cloudflare adapter instalados, build exitoso"
+bloque_actual: "Bloque 0 — COMPLETO"
+ultima_tarea: "Bloque 0 completo: SvelteKit + Firebase + Cloudflare, build OK, dev OK, commit + push OK"
 ```
 
 ## Progreso de Bloques
@@ -28,9 +28,9 @@ ultima_tarea: "SvelteKit + Firebase SDK + Cloudflare adapter instalados, build e
 - [x] Cloudflare Pages config (`@sveltejs/adapter-cloudflare`)
 - [x] `.gitignore` correcto (node_modules, .env, dist, .svelte-kit)
 - [x] Primer `npm run build` exitoso
-- [ ] Primer commit: "chore: project setup"
-- [ ] Primer push a GitHub
-- **Estado:** 🟡 7/9 completado
+- [x] Primer commit: "chore: project setup"
+- [x] Primer push a GitHub
+- **Estado:** ✅ COMPLETO
 - **Bloqueado por:** nada
 - **Notas:** —
 
