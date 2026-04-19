@@ -8,11 +8,56 @@
 	let genreList = $derived($genres);
 	let s = $derived($settings.data);
 
-	// Hero
+	// Hero text
 	let heroTitle = $derived(s?.hero?.title ?? 'Beats que');
 	let heroSub = $derived(s?.hero?.subtitle ?? '');
 	let heroEyebrow = $derived(s?.hero?.eyebrow ?? '');
 	let heroGlow = $derived(s?.hero?.glowWord ?? 'rompen.');
+
+	// Hero Visual
+	let hv = $derived(s?.heroVisual ?? {});
+	let accent = $derived(s?.theme?.accent ?? '#dc2626');
+
+	// Resolve colors (empty = use accent)
+	let glowClr = $derived(hv.glowClr || accent);
+	let strokeClr = $derived(hv.strokeClr || accent);
+	let eyebrowClr = $derived(hv.eyebrowClr || accent);
+	let gradClr = $derived(hv.gradClr || accent);
+
+	// Hero title: color segments or glow-word
+	let hasSegments = $derived(hv.segments?.length > 0 && hv.segments.some(sg => sg.color));
+
+	// Hero CSS vars
+	let heroGlowStyle = $derived(
+		hv.glowOn ? `text-shadow: 0 0 ${hv.glowBlur ?? 20}px ${glowClr}` : 'text-shadow: none'
+	);
+	let heroTitleStyle = $derived([
+		hv.titleSize > 0 ? `font-size: ${hv.titleSize}rem` : '',
+		`letter-spacing: ${hv.letterSpacing ?? -0.04}em`,
+		`line-height: ${hv.lineHeight ?? 1}`,
+	].filter(Boolean).join(';'));
+
+	let heroGradStyle = $derived(
+		hv.gradOn
+			? `radial-gradient(ellipse ${hv.gradW ?? 80}% ${hv.gradH ?? 60}% at 50% 0%, ${hexToRgba(gradClr, hv.gradOp ?? 0.14)}, transparent)`
+			: 'none'
+	);
+
+	let eyebrowStyle = $derived([
+		`color: ${eyebrowClr}`,
+		`border-color: ${hexToRgba(eyebrowClr, 0.3)}`,
+		`background: ${hexToRgba(eyebrowClr, 0.08)}`,
+		hv.eyebrowSize > 0 ? `font-size: ${hv.eyebrowSize}px` : '',
+	].filter(Boolean).join(';'));
+
+	function hexToRgba(hex: string, alpha: number): string {
+		if (!hex) return `rgba(220,38,38,${alpha})`;
+		const h = hex.replace('#', '');
+		const r = parseInt(h.substring(0, 2), 16) || 0;
+		const g = parseInt(h.substring(2, 4), 16) || 0;
+		const b = parseInt(h.substring(4, 6), 16) || 0;
+		return `rgba(${r},${g},${b},${alpha})`;
+	}
 
 	// Section
 	let sectionTitle = $derived(s?.section?.title ?? 'Catálogo');
@@ -111,16 +156,38 @@
 </svelte:head>
 
 <!-- Hero -->
-<section class="hero">
-	{#if heroEyebrow}
-	<div class="hero-eyebrow">
-		<span class="dot"></span>
+<section class="hero" style={hv.gradOn ? `--hero-grad: ${heroGradStyle}` : ''}>
+	{#if heroEyebrow && hv.eyebrowOn !== false}
+	<div class="hero-eyebrow" style={eyebrowStyle}>
+		<span class="dot" style="background: {eyebrowClr}"></span>
 		{heroEyebrow}
 	</div>
 	{/if}
-	<h1 class="hero-title">
-		{heroTitle}<br>
-		<span class="glow-word">{heroGlow}</span>
+	<h1 class="hero-title" style="{heroGlowStyle}; {heroTitleStyle}">
+		{#if hasSegments}
+			<!-- Color segments mode -->
+			{#each hv.segments as seg}
+				{#if seg.color}
+					<span style="color: {seg.color}">{seg.text}</span>
+				{:else}
+					{seg.text}
+				{/if}
+			{/each}
+		{:else}
+			<!-- Default: title + glow word -->
+			<span>{heroTitle}</span><br>
+			{#if hv.strokeOn}
+				<span
+					class="glow-word stroke-mode"
+					style="color: transparent; -webkit-text-stroke: {hv.strokeW ?? 1}px {strokeClr}; --hw-blur: {hv.wordBlur ?? 10}px; --hw-op: {hv.wordOp ?? 0.35}"
+				>{heroGlow}</span>
+			{:else}
+				<span
+					class="glow-word"
+					style="color: {glowClr}; --hw-blur: {hv.wordBlur ?? 10}px; --hw-op: {hv.wordOp ?? 0.35}"
+				>{heroGlow}</span>
+			{/if}
+		{/if}
 	</h1>
 	{#if heroSub}
 	<p class="hero-sub">{heroSub}</p>
@@ -254,7 +321,7 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--accent-glow), transparent);
+		background: var(--hero-grad, radial-gradient(ellipse 80% 60% at 50% 0%, var(--accent-glow), transparent));
 		pointer-events: none;
 	}
 
@@ -323,9 +390,14 @@
 
 	.glow-word {
 		display: inline-block;
-		color: var(--accent);
 		position: relative;
-		text-shadow: var(--glow-md);
+		text-shadow: 0 0 calc(var(--hw-blur, 10) * 1px) currentColor;
+		opacity: var(--hw-op, 0.35);
+	}
+
+	.glow-word.stroke-mode {
+		opacity: 1;
+		text-shadow: none;
 	}
 
 	.hero-sub {

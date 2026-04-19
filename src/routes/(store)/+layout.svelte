@@ -43,6 +43,22 @@
 	let bannerText = $derived(settingsData?.banner?.text ?? '');
 	let bannerUrl = $derived(settingsData?.banner?.url ?? '');
 	let bannerAnim = $derived(settingsData?.banner?.animation ?? 'static');
+	let bannerSpeed = $derived(settingsData?.banner?.speed ?? 20);
+	let bannerEasing = $derived(settingsData?.banner?.easing ?? 'linear');
+	let bannerDir = $derived(settingsData?.banner?.direction ?? 'normal');
+	let bannerDelay = $derived(settingsData?.banner?.delay ?? 0);
+	let bannerBg = $derived(settingsData?.banner?.bgColor ?? '#7f1d1d');
+	let bannerTxtClr = $derived(settingsData?.banner?.textColor ?? '#ffffff');
+	let bannerDuration = $derived(() => {
+		const s = bannerSpeed;
+		switch (bannerAnim) {
+			case 'scroll': return `${s}s`;
+			case 'fade-pulse': return `${s / 5}s`;
+			case 'bounce': return `${s / 10}s`;
+			case 'glow-pulse': return `${s / 5}s`;
+			default: return '0s';
+		}
+	});
 
 	function toggleMenu() {
 		menuOpen = !menuOpen;
@@ -162,11 +178,19 @@
 
 <!-- Banner (admin-editable) -->
 {#if bannerEnabled}
-<div class="site-banner">
+<div class="site-banner" style="background: {bannerBg}">
 	{#if bannerUrl}
-		<a href={bannerUrl} class="banner-inner banner-{bannerAnim}" target="_blank" rel="noopener">{bannerText}</a>
+		<a
+			href={bannerUrl}
+			class="banner-inner"
+			style="color: {bannerTxtClr}; {bannerAnim !== 'static' ? `animation: banner-${bannerAnim} ${bannerDuration()} ${bannerEasing} ${bannerDelay}s infinite ${bannerDir}` : ''}"
+			target="_blank" rel="noopener"
+		>{bannerText}</a>
 	{:else}
-		<div class="banner-inner banner-{bannerAnim}">{bannerText}</div>
+		<div
+			class="banner-inner"
+			style="color: {bannerTxtClr}; {bannerAnim !== 'static' ? `animation: banner-${bannerAnim} ${bannerDuration()} ${bannerEasing} ${bannerDelay}s infinite ${bannerDir}` : ''}"
+		>{bannerText}</div>
 	{/if}
 </div>
 {/if}

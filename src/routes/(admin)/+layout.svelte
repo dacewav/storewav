@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { AdminTopbar, AdminSidebar } from '$lib/components';
+	import { AdminTopbar } from '$lib/components';
 	import { auth, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
@@ -16,34 +17,47 @@
 		}
 	});
 
-	let activeSection = $state('dashboard');
 	let saveStatus = $state<'saved' | 'saving' | 'unsaved' | 'error'>('saved');
+
+	// Detect active from URL
+	let currentPath = $derived(page.url.pathname);
 
 	const navGroups = [
 		{
 			label: 'General',
 			items: [
-				{ id: 'dashboard', label: 'Dashboard', icon: '📊' },
-				{ id: 'beats', label: 'Beats', icon: '🎵' },
-				{ id: 'orders', label: 'Pedidos', icon: '📦' }
+				{ href: '/admin', label: 'Dashboard', icon: '📊' },
+				{ href: '/admin/hero', label: 'Hero', icon: '🏠' },
 			]
 		},
 		{
 			label: 'Apariencia',
 			items: [
-				{ id: 'theme', label: 'Tema', icon: '🎨' },
-				{ id: 'content', label: 'Contenido', icon: '✏️' },
-				{ id: 'banner', label: 'Banner', icon: '📢' }
+				{ href: '/admin/theme', label: 'Tema', icon: '🎨' },
+				{ href: '/admin/content', label: 'Contenido', icon: '✏️' },
+				{ href: '/admin/brand', label: 'Brand', icon: '🏢' },
+				{ href: '/admin/banner', label: 'Banner', icon: '📢' },
+				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
+				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
 			]
 		},
 		{
 			label: 'Sistema',
 			items: [
-				{ id: 'settings', label: 'Ajustes', icon: '⚙️' },
-				{ id: 'analytics', label: 'Analytics', icon: '📈' }
+				{ href: '/admin', label: 'Ajustes', icon: '⚙️' },
 			]
 		}
 	];
+
+	// Current section label for topbar
+	let sectionLabel = $derived(() => {
+		for (const g of navGroups) {
+			for (const item of g.items) {
+				if (item.href === currentPath) return item.label;
+			}
+		}
+		return 'Admin';
+	});
 </script>
 
 <svelte:head>
@@ -52,11 +66,29 @@
 
 <div class="admin-layout">
 	<AdminTopbar {brandName} {saveStatus} onSave={() => {}}>
-		<span class="admin-section-label">{activeSection}</span>
+		<span class="admin-section-label">{sectionLabel()}</span>
 	</AdminTopbar>
 
 	<div class="admin-body">
-		<AdminSidebar groups={navGroups} bind:active={activeSection} />
+		<aside class="sidebar">
+			{#each navGroups as group, gi}
+				{#if gi > 0}
+					<div class="sep"></div>
+				{/if}
+				<div class="group-label">{group.label}</div>
+				{#each group.items as item}
+					<a
+						href={item.href}
+						class="si"
+						class:active={item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
+						title={item.label}
+					>
+						<span class="si-icon">{item.icon}</span>
+						<span class="si-label">{item.label}</span>
+					</a>
+				{/each}
+			{/each}
+		</aside>
 
 		<main class="admin-content">
 			{@render children()}
@@ -93,9 +125,88 @@
 		letter-spacing: 0.08em;
 	}
 
+	/* Sidebar */
+	.sidebar {
+		width: 200px;
+		flex-shrink: 0;
+		border-right: 1px solid var(--border);
+		background: var(--bg-secondary);
+		padding: var(--space-4) 0;
+		overflow-y: auto;
+		height: 100%;
+	}
+
+	.sep {
+		height: 1px;
+		background: var(--border);
+		margin: var(--space-3) var(--space-4);
+	}
+
+	.group-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		font-weight: 500;
+		color: var(--text-hint);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		padding: var(--space-2) var(--space-4);
+	}
+
+	.si {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		width: 100%;
+		padding: var(--space-2) var(--space-4);
+		min-height: var(--touch-min);
+		background: transparent;
+		border: none;
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		text-align: left;
+		text-decoration: none;
+	}
+
+	.si:hover {
+		color: var(--text);
+		background: var(--surface-hover);
+	}
+
+	.si.active {
+		color: var(--accent);
+		background: rgba(var(--accent-rgb), 0.08);
+	}
+
+	.si-icon {
+		font-size: var(--text-sm);
+		width: 20px;
+		text-align: center;
+		flex-shrink: 0;
+	}
+
 	@media (max-width: 768px) {
 		.admin-content {
 			padding: var(--space-4);
+		}
+
+		.sidebar {
+			width: 56px;
+		}
+
+		.group-label,
+		.si-label {
+			display: none;
+		}
+
+		.si {
+			justify-content: center;
+			padding: var(--space-3);
+		}
+
+		.si-icon {
+			width: auto;
 		}
 	}
 </style>
