@@ -11,6 +11,9 @@ build
 .DS_Store
 Thumbs.db
 
+# Wrangler (Cloudflare local dev)
+.wrangler/
+
 # IDE
 .vscode
 .idea
