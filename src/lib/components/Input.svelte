@@ -19,7 +19,7 @@
 		id?: string;
 	} = $props();
 
-	const inputId = $derived(id || `input-${Math.random().toString(36).slice(2, 8)}`);
+	const inputId = $derived(id || undefined);
 </script>
 
 <div class="field">

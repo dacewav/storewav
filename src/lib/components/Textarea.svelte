@@ -17,7 +17,7 @@
 		id?: string;
 	} = $props();
 
-	const textareaId = $derived(id || `ta-${Math.random().toString(36).slice(2, 8)}`);
+	const textareaId = $derived(id || undefined);
 </script>
 
 <div class="field">

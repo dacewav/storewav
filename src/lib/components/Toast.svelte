@@ -53,7 +53,8 @@
 		font-size: var(--text-sm);
 		color: var(--text);
 		animation: toastIn 0.3s var(--ease-out);
-		white-space: nowrap;
+		max-width: min(90vw, 400px);
+		word-break: break-word;
 	}
 
 	.toast-success {

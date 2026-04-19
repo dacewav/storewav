@@ -19,11 +19,11 @@
 			<path d="M6 9l6 6 6-6"/>
 		</svg>
 	</button>
-	{#if open}
+	<div class="body-wrap" class:open>
 		<div class="body">
 			{@render children()}
 		</div>
-	{/if}
+	</div>
 </div>
 
 <style>
@@ -69,7 +69,22 @@
 		transform: rotate(180deg);
 	}
 
+	.body-wrap {
+		display: grid;
+		grid-template-rows: 0fr;
+		transition: grid-template-rows 0.25s var(--ease-out);
+	}
+
+	.body-wrap.open {
+		grid-template-rows: 1fr;
+	}
+
 	.body {
+		overflow: hidden;
+		padding: 0 var(--space-4);
+	}
+
+	.body-wrap.open .body {
 		padding: var(--space-4);
 		border-top: 1px solid var(--border);
 	}
