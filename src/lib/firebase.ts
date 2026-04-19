@@ -1,6 +1,4 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getDatabase } from 'firebase/database';
-import { getAuth } from 'firebase/auth';
+import { browser } from '$app/environment';
 import {
 	PUBLIC_FIREBASE_API_KEY,
 	PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -21,9 +19,35 @@ const firebaseConfig = {
 	appId: PUBLIC_FIREBASE_APP_ID
 };
 
-// Singleton — evita reinicializar en hot reload
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+// Lazy init — only on client side (Firebase SDK doesn't work in Workers SSR)
+let _app: any = null;
+let _db: any = null;
+let _auth: any = null;
 
-export const db = getDatabase(app);
-export const auth = getAuth(app);
-export default app;
+async function initFirebase() {
+	if (!browser) return;
+	if (_app) return;
+
+	const { initializeApp, getApps } = await import('firebase/app');
+	const { getDatabase } = await import('firebase/database');
+	const { getAuth } = await import('firebase/auth');
+
+	_app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+	_db = getDatabase(_app);
+	_auth = getAuth(_app);
+}
+
+export async function getDb() {
+	await initFirebase();
+	return _db;
+}
+
+export async function getAuthInstance() {
+	await initFirebase();
+	return _auth;
+}
+
+export async function getApp() {
+	await initFirebase();
+	return _app;
+}
