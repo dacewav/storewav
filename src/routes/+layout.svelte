@@ -98,7 +98,7 @@
 
 <svelte:head>
 	<link rel="icon" href={faviconUrl} />
-	<meta name="theme-color" content="#060404" />
+	<meta name="theme-color" content={t?.accent || '#060404'} />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { settings, wishlist } from '$lib/stores';
+	import { settings, wishlist, auth } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 
@@ -23,10 +23,9 @@
 	let settingsData = $derived($settings.data);
 	let brandName = $derived(settingsData?.brand?.name ?? 'DACEWAV');
 	let brandLogo = $derived(settingsData?.brand?.logo ?? '');
+	let logoHeight = $derived(settingsData?.layout?.logoHeight ?? 28);
 	let brandSplit = $derived(() => {
 		const name = brandName;
-		// Split at last vowel-consonant boundary for the <em> styling
-		// Default: split "DACEWAV" into "DACE" + "WAV"
 		if (name.length > 4) {
 			return { first: name.slice(0, -3), last: name.slice(-3) };
 		}
@@ -36,7 +35,13 @@
 	let loaderEnabled = $derived(settingsData?.loader?.enabled !== false);
 	let footerText = $derived(settingsData?.brand?.footerText ?? 'Todos los derechos reservados');
 	let metaDesc = $derived(settingsData?.brand?.metaDescription ?? 'Beats que rompen');
+	let navLinks = $derived(settingsData?.links ?? []);
+	let sectionTitle = $derived(settingsData?.section?.title ?? 'Catálogo');
+	let accent = $derived(settingsData?.theme?.accent ?? '#dc2626');
 	let wishCount = $derived($wishlist.length);
+
+	// Check if current user is admin
+	let isAdmin = $derived(!!$auth.user);
 
 	// Banner
 	let bannerEnabled = $derived(settingsData?.banner?.enabled && settingsData?.banner?.text);
@@ -229,7 +234,7 @@
 	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled} aria-label="Navegación principal">
 		<a href="/" class="nav-brand" onclick={closeMenu}>
 			{#if brandLogo}
-				<img class="nav-logo" src={brandLogo} alt={brandName} />
+				<img class="nav-logo" src={brandLogo} alt={brandName} style="height: {logoHeight > 0 ? logoHeight : 28}px" />
 			{:else if brandSplit().last}
 				<span>{brandSplit().first}</span><em>{brandSplit().last}</em>.
 			{:else}
@@ -239,8 +244,13 @@
 
 		<!-- Desktop links -->
 		<div class="nav-links hide-mobile">
-			<a href="/" class="nav-link">Catálogo</a>
-			<a href="/admin" class="nav-link">Admin</a>
+			<a href="/" class="nav-link">{sectionTitle}</a>
+			{#if isAdmin}
+				<a href="/admin" class="nav-link">Admin</a>
+			{/if}
+			{#each navLinks as link}
+				<a href={link.url} class="nav-link" target="_blank" rel="noopener">{link.label}</a>
+			{/each}
 			<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={() => wishlistOpen = true}>
 				<Icon name="heart" size={14} />
 				{#if wishCount > 0}
@@ -270,8 +280,13 @@
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div class="mobile-overlay" onclick={closeMenu} onkeydown={() => {}}></div>
 		<div class="mobile-menu" bind:this={mobileMenuEl}>
-			<a href="/" class="mobile-link" onclick={closeMenu}>Catálogo</a>
-			<a href="/admin" class="mobile-link" onclick={closeMenu}>Admin</a>
+			<a href="/" class="mobile-link" onclick={closeMenu}>{sectionTitle}</a>
+			{#if isAdmin}
+				<a href="/admin" class="mobile-link" onclick={closeMenu}>Admin</a>
+			{/if}
+			{#each navLinks as link}
+				<a href={link.url} class="mobile-link" target="_blank" rel="noopener" onclick={closeMenu}>{link.label}</a>
+			{/each}
 			<div class="mobile-actions">
 				<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={() => { closeMenu(); wishlistOpen = true; }}>
 					<Icon name="heart" size={16} />
@@ -306,15 +321,9 @@
 			<div class="footer-sub">{footerText}</div>
 		</div>
 		<div class="footer-links">
-			{#if settingsData?.links?.length}
-				{#each settingsData.links as link}
-					<a href={link.url} class="footer-link" target="_blank" rel="noopener">{link.label}</a>
-				{/each}
-			{:else}
-				<a href="https://instagram.com" class="footer-link" target="_blank" rel="noopener">Instagram</a>
-				<a href="https://youtube.com" class="footer-link" target="_blank" rel="noopener">YouTube</a>
-				<a href="https://wa.me" class="footer-link" target="_blank" rel="noopener">WhatsApp</a>
-			{/if}
+			{#each navLinks as link}
+				<a href={link.url} class="footer-link" target="_blank" rel="noopener">{link.label}</a>
+			{/each}
 		</div>
 	</footer>
 </div>
@@ -429,7 +438,6 @@
 	}
 
 	.nav-logo {
-		height: 28px;
 		width: auto;
 		object-fit: contain;
 	}
