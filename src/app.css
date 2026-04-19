@@ -137,12 +137,20 @@
   --z-toast: 800;
   --z-loader: 9999;
 
-  /* ── Layout ── */
+  /* ── Layout (admin → Firebase) ── */
   --max-width: 1400px;
   --container-padding: clamp(1rem, 5vw, 2.5rem);
+  --section-padding: var(--space-16);
+  --beat-gap: var(--space-4);
+  --hero-pad-top: clamp(4rem, 12vw, 7rem);
   --nav-blur: 24px;
   --grain-opacity: 0.25;
   --grain-blend: overlay;
+
+  /* ── Opacity (admin → Firebase) ── */
+  --btn-opacity: 1;
+  --btn-opacity-hover: 0.85;
+  --bg-opacity: 1;
 
   /* ── Touch ── */
   --touch-min: 44px;
@@ -179,6 +187,12 @@
    theme/glowColor → base para --glow-* presets
    theme/glowIntensity → multiplica opacidad de glow
    theme/grainOpacity → --grain-opacity
+   theme/beatGap → --beat-gap
+   theme/sectionPadding → --section-padding
+   theme/heroPadTop → --hero-pad-top
+   theme/btnOpacity → --btn-opacity
+   theme/btnOpacityHover → --btn-opacity-hover
+   theme/bgOpacity → --bg-opacity
    ════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════
@@ -207,6 +221,7 @@ html {
 body {
   overflow-x: hidden;
   min-height: 100dvh;
+  opacity: var(--bg-opacity);
 }
 
 a {

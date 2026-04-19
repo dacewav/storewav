@@ -49,6 +49,11 @@
 		transition: all var(--duration-fast) var(--ease-out);
 		white-space: nowrap;
 		user-select: none;
+		opacity: var(--btn-opacity);
+	}
+
+	.btn:hover:not(:disabled) {
+		opacity: var(--btn-opacity-hover);
 	}
 
 	.btn:disabled {

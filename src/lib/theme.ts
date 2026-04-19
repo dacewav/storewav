@@ -63,6 +63,12 @@ const THEME_MAP: Record<string, string> = {
 	radiusGlobal: '--radius-lg',
 	cardOpacity: '--card-opacity',
 	grainOpacity: '--grain-opacity',
+	beatGap: '--beat-gap',
+	sectionPadding: '--section-padding',
+	heroPadTop: '--hero-pad-top',
+	btnOpacity: '--btn-opacity',
+	btnOpacityHover: '--btn-opacity-hover',
+	bgOpacity: '--bg-opacity',
 };
 
 /**

@@ -231,7 +231,7 @@
 	.section {
 		position: relative;
 		z-index: 1;
-		padding: var(--space-16) var(--container-padding);
+		padding: var(--section-padding) var(--container-padding);
 	}
 
 	.section-header {
@@ -270,7 +270,7 @@
 	.beat-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-		gap: var(--space-4);
+		gap: var(--beat-gap);
 		align-items: start;
 	}
 
