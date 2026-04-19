@@ -60,7 +60,7 @@
 	{:else if beat}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div onchange={markDirty} oninput={markDirty}>
-			<BeatEditor bind:beat onSave={handleSave} onDelete={handleDelete} {saveStatus} />
+			<BeatEditor bind:beat beatId={beatId} onSave={handleSave} onDelete={handleDelete} {saveStatus} />
 		</div>
 	{:else}
 		<EmptyState icon="❌" title="Beat no encontrado" subtitle="El beat que buscas no existe o fue eliminado">

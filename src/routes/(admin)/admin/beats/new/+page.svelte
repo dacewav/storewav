@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 
 	let beat = $state(emptyBeat());
+	let tempId = $state(`new-${Date.now()}`);
 	let saveStatus = $state<'saved' | 'saving' | 'unsaved' | 'error'>('unsaved');
 
 	async function handleSave() {
@@ -30,7 +31,7 @@
 		<h1 class="title">+ Nuevo beat</h1>
 	</div>
 
-	<BeatEditor bind:beat onSave={handleSave} {saveStatus} />
+	<BeatEditor bind:beat beatId={tempId} onSave={handleSave} {saveStatus} />
 </div>
 
 <style>

@@ -25,4 +25,5 @@ export { default as BeatModal } from './BeatModal.svelte';
 export { default as Icon } from './Icon.svelte';
 export { default as Testimonials } from './Testimonials.svelte';
 export { default as BeatEditor } from './BeatEditor.svelte';
+export { default as FileUpload } from './FileUpload.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

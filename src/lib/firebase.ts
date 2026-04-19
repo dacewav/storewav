@@ -36,11 +36,13 @@ function validateConfig() {
 import type { FirebaseApp } from 'firebase/app';
 import type { Database } from 'firebase/database';
 import type { Auth } from 'firebase/auth';
+import type { FirebaseStorage } from 'firebase/storage';
 
 // Lazy init — only on client side (Firebase SDK doesn't work in Workers SSR)
 let _app: FirebaseApp | null = null;
 let _db: Database | null = null;
 let _auth: Auth | null = null;
+let _storage: FirebaseStorage | null = null;
 let _initError: Error | null = null;
 
 async function initFirebase() {
@@ -61,6 +63,13 @@ async function initFirebase() {
 		_app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 		_db = getDatabase(_app);
 		_auth = getAuth(_app);
+
+		try {
+			const { getStorage } = await import('firebase/storage');
+			_storage = getStorage(_app);
+		} catch {
+			console.warn('[Firebase] Storage no disponible — uploads deshabilitados');
+		}
 	} catch (err) {
 		_initError = err instanceof Error ? err : new Error(String(err));
 		console.error('[Firebase] Error de inicialización:', _initError.message);
@@ -76,6 +85,11 @@ export async function getDb() {
 export async function getAuthInstance() {
 	await initFirebase();
 	return _auth;
+}
+
+export async function getStorageInstance() {
+	await initFirebase();
+	return _storage;
 }
 
 export async function getApp() {

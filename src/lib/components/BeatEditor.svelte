@@ -1,14 +1,17 @@
 <script lang="ts">
 	import { Card, Badge } from '$lib/components';
+	import FileUpload from './FileUpload.svelte';
 	import type { Beat, Platforms } from '$lib/stores/beats';
 
 	let {
 		beat = $bindable(),
+		beatId = 'temp',
 		onSave,
 		onDelete,
 		saveStatus = 'saved'
 	}: {
 		beat: Partial<Beat>;
+		beatId?: string;
 		onSave?: () => void;
 		onDelete?: () => void;
 		saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
@@ -18,12 +21,6 @@
 	let deleteConfirm = $state(false);
 	let tagInput = $state('');
 	let tagInputEl: HTMLInputElement | undefined = $state();
-
-	// Audio preview state
-	let previewAudio: HTMLAudioElement | undefined = $state();
-	let previewPlaying = $state(false);
-	let previewTime = $state(0);
-	let previewDuration = $state(0);
 
 	const GENRES = ['Trap', 'R&B', 'Drill', 'Corrido', 'Ambient', 'Pop', 'Hip-Hop', 'Reggaeton', 'Otro'];
 	const KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
@@ -86,43 +83,10 @@
 		beat.licenseDescs = { basic: 'MP3 · 1 uso', premium: 'WAV · Sin tag', unlimited: 'WAV + Stems', exclusive: 'Exclusivo total' };
 	}
 
-	// Audio preview
-	function togglePreview() {
-		if (!previewAudio) return;
-		if (previewPlaying) {
-			previewAudio.pause();
-		} else {
-			previewAudio.play();
-		}
-		previewPlaying = !previewPlaying;
-	}
-
-	function formatTime(s: number) {
-		const m = Math.floor(s / 60);
-		const sec = Math.floor(s % 60);
-		return `${m}:${sec.toString().padStart(2, '0')}`;
-	}
-
-	function seekPreview(e: MouseEvent) {
-		if (!previewAudio || !previewDuration) return;
-		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-		const pct = (e.clientX - rect.left) / rect.width;
-		previewAudio.currentTime = pct * previewDuration;
-	}
-
 	// Delete confirm
-	function handleDelete() {
-		deleteConfirm = true;
-	}
-
-	function confirmDelete() {
-		deleteConfirm = false;
-		onDelete?.();
-	}
-
-	function cancelDelete() {
-		deleteConfirm = false;
-	}
+	function handleDelete() { deleteConfirm = true; }
+	function confirmDelete() { deleteConfirm = false; onDelete?.(); }
+	function cancelDelete() { deleteConfirm = false; }
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -166,7 +130,7 @@
 		</div>
 	</div>
 
-	<!-- Tab: Info -->
+	<!-- ═══ Tab: Info ═══ -->
 	{#if activeTab === 'info'}
 		<Card>
 			<h3 class="section-title">Información básica</h3>
@@ -197,14 +161,16 @@
 				</div>
 			</div>
 
-			<!-- Tags (chip-based) -->
+			<!-- Tags -->
 			<div class="field">
 				<label>Tags</label>
-				<div class="tags-wrap">
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<div class="tags-wrap" onclick={() => tagInputEl?.focus()}>
 					{#each beat.tags ?? [] as tag}
 						<span class="tag-chip">
 							{tag}
-							<button class="tag-remove" onclick={() => removeTag(tag)} title="Quitar">✕</button>
+							<button class="tag-remove" onclick={() => removeTag(tag)}>✕</button>
 						</span>
 					{/each}
 					<input
@@ -232,7 +198,7 @@
 		</Card>
 	{/if}
 
-	<!-- Tab: Licencias -->
+	<!-- ═══ Tab: Licencias ═══ -->
 	{#if activeTab === 'lics'}
 		<Card>
 			<div class="section-header">
@@ -265,65 +231,67 @@
 		</Card>
 	{/if}
 
-	<!-- Tab: Media -->
+	<!-- ═══ Tab: Media ═══ -->
 	{#if activeTab === 'media'}
 		<Card>
 			<h3 class="section-title">Archivos multimedia</h3>
-			<p class="field-desc">Ingresa URLs directas. Upload de archivos llega pronto.</p>
 
-			<!-- Cover -->
-			<div class="field">
-				<label for="b-cover">Cover URL (imagen)</label>
-				<div class="media-input-row">
-					<input id="b-cover" type="url" bind:value={beat.coverUrl} placeholder="https://..." />
-					{#if beat.coverUrl}
-						<button class="btn-ghost btn-sm" onclick={() => beat.coverUrl = ''}>✕</button>
-					{/if}
+			<div class="media-grid">
+				<!-- Cover image -->
+				<div class="media-item">
+					<div class="media-label">🖼️ Cover</div>
+					<FileUpload
+						bind:value={beat.coverUrl}
+						folder="beats/covers"
+						{beatId}
+						accept="image/*"
+						type="image"
+						label="Cover · JPG, PNG, WebP"
+					/>
 				</div>
-				{#if beat.coverUrl}
-					<div class="cover-preview">
-						<img src={beat.coverUrl} alt="Cover preview" onerror={(e) => (e.currentTarget as HTMLImageElement).style.display = 'none'} />
-					</div>
-				{/if}
+
+				<!-- Audio file -->
+				<div class="media-item">
+					<div class="media-label">🎵 Audio</div>
+					<FileUpload
+						bind:value={beat.audioUrl}
+						folder="beats/audio"
+						{beatId}
+						accept="audio/*"
+						type="audio"
+						label="Audio · MP3, WAV, OGG"
+					/>
+				</div>
+
+				<!-- Preview MP3 -->
+				<div class="media-item">
+					<div class="media-label">🔊 Preview</div>
+					<FileUpload
+						bind:value={beat.previewUrl}
+						folder="beats/previews"
+						{beatId}
+						accept="audio/*"
+						type="audio"
+						label="Preview · MP3 (30s tag)"
+					/>
+				</div>
 			</div>
 
-			<!-- Audio -->
-			<div class="field">
-				<label for="b-audio">Audio URL (WAV/MP3)</label>
-				<input id="b-audio" type="url" bind:value={beat.audioUrl} placeholder="https://..." />
-			</div>
-
-			<!-- Preview + Player -->
-			<div class="field">
-				<label for="b-preview">Preview URL (MP3)</label>
-				<div class="media-input-row">
-					<input id="b-preview" type="url" bind:value={beat.previewUrl} placeholder="https://..." />
+			<p class="media-note">O puedes pegar URLs directamente:</p>
+			<div class="grid-2">
+				<div class="field">
+					<label for="b-cover-url">Cover URL</label>
+					<input id="b-cover-url" type="url" bind:value={beat.coverUrl} placeholder="https://..." />
 				</div>
-				{#if beat.previewUrl}
-					<div class="inline-player">
-						<button class="play-btn" onclick={togglePreview}>
-							{previewPlaying ? '⏸' : '▶'}
-						</button>
-						<!-- svelte-ignore a11y_click_events_have_key_events -->
-						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						<div class="progress-bar" onclick={seekPreview}>
-							<div class="progress-fill" style="width: {previewDuration > 0 ? (previewTime / previewDuration) * 100 : 0}%"></div>
-						</div>
-						<span class="time">{formatTime(previewTime)} / {formatTime(previewDuration)}</span>
-						<audio
-							bind:this={previewAudio}
-							src={beat.previewUrl}
-							ontimeupdate={() => previewTime = previewAudio?.currentTime ?? 0}
-							onloadedmetadata={() => previewDuration = previewAudio?.duration ?? 0}
-							onended={() => { previewPlaying = false; previewTime = 0; }}
-						></audio>
-					</div>
-				{/if}
+				<div class="field">
+					<label for="b-audio-url">Audio URL</label>
+					<input id="b-audio-url" type="url" bind:value={beat.audioUrl} placeholder="https://..." />
+				</div>
 			</div>
 		</Card>
 	{/if}
 
-	<!-- Tab: Plataformas -->
+	<!-- ═══ Tab: Plataformas ═══ -->
 	{#if activeTab === 'plat'}
 		<Card>
 			<h3 class="section-title">Enlaces a plataformas</h3>
@@ -342,7 +310,7 @@
 		</Card>
 	{/if}
 
-	<!-- Tab: Card Style -->
+	<!-- ═══ Tab: Card Style ═══ -->
 	{#if activeTab === 'style'}
 		<Card>
 			<h3 class="section-title">Estilo de tarjeta</h3>
@@ -466,16 +434,7 @@
 	}
 
 	.btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
-
-	.btn-save kbd {
-		font-family: var(--font-mono);
-		font-size: 10px;
-		padding: 1px 5px;
-		border-radius: 3px;
-		background: rgba(0,0,0,0.2);
-		color: inherit;
-		opacity: 0.7;
-	}
+	.btn-save kbd { font-family: var(--font-mono); font-size: 10px; padding: 1px 5px; border-radius: 3px; background: rgba(0,0,0,0.2); color: inherit; opacity: 0.7; }
 
 	.btn-delete {
 		padding: var(--space-2) var(--space-3);
@@ -562,33 +521,18 @@
 	}
 
 	.tag-remove {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 14px;
-		height: 14px;
-		border-radius: 50%;
-		border: none;
-		background: transparent;
-		color: var(--accent);
-		cursor: pointer;
-		font-size: 8px;
-		padding: 0;
-		opacity: 0.6;
+		display: flex; align-items: center; justify-content: center;
+		width: 14px; height: 14px; border-radius: 50%;
+		border: none; background: transparent; color: var(--accent);
+		cursor: pointer; font-size: 8px; padding: 0; opacity: 0.6;
 		transition: opacity 0.2s;
 	}
 
 	.tag-remove:hover { opacity: 1; background: rgba(var(--accent-rgb), 0.2); }
 
 	.tag-input {
-		flex: 1;
-		min-width: 80px;
-		border: none;
-		background: transparent;
-		color: var(--text);
-		font-size: var(--text-sm);
-		outline: none;
-		padding: 2px 0;
+		flex: 1; min-width: 80px; border: none; background: transparent;
+		color: var(--text); font-size: var(--text-sm); outline: none; padding: 2px 0;
 	}
 
 	/* Licenses */
@@ -598,77 +542,22 @@
 	.lic-key { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
 
 	/* Media */
-	.media-input-row { display: flex; gap: var(--space-2); }
-	.media-input-row input { flex: 1; }
-
-	.cover-preview {
-		margin-top: var(--space-2);
-		border-radius: var(--radius-md);
-		overflow: hidden;
-		border: 1px solid var(--border);
-		max-width: 200px;
+	.media-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: var(--space-4);
+		margin-bottom: var(--space-4);
 	}
 
-	.cover-preview img {
-		width: 100%;
-		height: auto;
-		display: block;
-		object-fit: cover;
-		aspect-ratio: 1;
-	}
+	.media-item { display: flex; flex-direction: column; gap: var(--space-2); }
+	.media-label { font-size: var(--text-sm); font-weight: 600; color: var(--text); }
 
-	/* Inline player */
-	.inline-player {
-		display: flex;
-		align-items: center;
-		gap: var(--space-2);
-		margin-top: var(--space-2);
-		padding: var(--space-2) var(--space-3);
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
-	}
-
-	.play-btn {
-		min-width: 36px;
-		min-height: 36px;
-		border-radius: 50%;
-		border: 1px solid var(--border);
-		background: transparent;
-		color: var(--accent);
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: var(--text-sm);
-		transition: all 0.2s;
-		flex-shrink: 0;
-	}
-
-	.play-btn:hover { background: rgba(var(--accent-rgb), 0.1); border-color: rgba(var(--accent-rgb), 0.3); }
-
-	.progress-bar {
-		flex: 1;
-		height: 6px;
-		background: var(--border);
-		border-radius: 3px;
-		cursor: pointer;
-		overflow: hidden;
-	}
-
-	.progress-fill {
-		height: 100%;
-		background: var(--accent);
-		border-radius: 3px;
-		transition: width 0.1s linear;
-	}
-
-	.time {
-		font-family: var(--font-mono);
-		font-size: 10px;
+	.media-note {
+		font-size: var(--text-xs);
 		color: var(--text-muted);
-		white-space: nowrap;
-		flex-shrink: 0;
+		margin-bottom: var(--space-3);
+		padding-top: var(--space-3);
+		border-top: 1px solid var(--border);
 	}
 
 	/* Platforms */
@@ -688,63 +577,41 @@
 	}
 
 	.btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
-	.btn-sm { min-height: 28px; padding: 2px 8px; }
 
 	/* Delete modal */
 	.modal-overlay {
-		position: fixed;
-		inset: 0;
-		z-index: var(--z-modal);
-		background: rgba(0,0,0,0.6);
-		backdrop-filter: blur(4px);
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		position: fixed; inset: 0; z-index: var(--z-modal);
+		background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+		display: flex; align-items: center; justify-content: center;
 		animation: fadeIn 0.2s var(--ease-out);
 	}
 
 	.modal-box {
-		background: var(--bg-secondary);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-lg);
-		padding: var(--space-6);
-		max-width: 400px;
-		width: 90%;
-		text-align: center;
+		background: var(--bg-secondary); border: 1px solid var(--border);
+		border-radius: var(--radius-lg); padding: var(--space-6);
+		max-width: 400px; width: 90%; text-align: center;
 		animation: scaleIn 0.25s var(--ease-out);
 	}
 
 	.modal-icon { font-size: 2.5rem; margin-bottom: var(--space-3); }
 	.modal-title { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: var(--text); margin-bottom: var(--space-2); }
 	.modal-text { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-5); }
-
 	.modal-actions { display: flex; gap: var(--space-3); justify-content: center; }
 
 	.btn-cancel {
-		padding: var(--space-2) var(--space-5);
-		min-height: var(--touch-min);
-		background: transparent;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
-		color: var(--text-secondary);
-		font-size: var(--text-sm);
-		cursor: pointer;
-		transition: all 0.2s;
+		padding: var(--space-2) var(--space-5); min-height: var(--touch-min);
+		background: transparent; border: 1px solid var(--border);
+		border-radius: var(--radius-md); color: var(--text-secondary);
+		font-size: var(--text-sm); cursor: pointer; transition: all 0.2s;
 	}
 
 	.btn-cancel:hover { background: var(--surface-hover); color: var(--text); }
 
 	.btn-confirm-delete {
-		padding: var(--space-2) var(--space-5);
-		min-height: var(--touch-min);
-		background: var(--danger);
-		color: white;
-		border: none;
-		border-radius: var(--radius-md);
-		font-size: var(--text-sm);
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s;
+		padding: var(--space-2) var(--space-5); min-height: var(--touch-min);
+		background: var(--danger); color: white; border: none;
+		border-radius: var(--radius-md); font-size: var(--text-sm);
+		font-weight: 600; cursor: pointer; transition: all 0.2s;
 	}
 
 	.btn-confirm-delete:hover { opacity: 0.9; }
@@ -756,5 +623,6 @@
 		.grid-2, .grid-3 { grid-template-columns: 1fr; }
 		.save-bar { flex-direction: column; gap: var(--space-2); align-items: stretch; }
 		.save-right { justify-content: flex-end; }
+		.media-grid { grid-template-columns: 1fr; }
 	}
 </style>
