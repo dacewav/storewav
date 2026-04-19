@@ -193,7 +193,7 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 1rem var(--container-padding);
-		background: rgba(6, 4, 4, 0.88);
+		background: var(--nav-bg);
 		backdrop-filter: blur(var(--nav-blur));
 		border-bottom: 1px solid var(--border);
 		transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
@@ -204,8 +204,8 @@
 	}
 
 	.nav.n-scrolled {
-		background: rgba(6, 4, 4, 0.95);
-		border-bottom-color: rgba(0, 255, 136, 0.1);
+		background: var(--nav-bg-scrolled);
+		border-bottom-color: var(--nav-border-scrolled);
 	}
 
 	.nav-brand {
@@ -279,7 +279,7 @@
 
 	.icon-btn:hover {
 		color: var(--accent);
-		border-color: rgba(0, 255, 136, 0.3);
+		border-color: rgba(var(--accent-rgb), 0.3);
 		transform: rotate(15deg);
 	}
 
@@ -326,7 +326,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: calc(var(--z-nav) - 1);
-		background: rgba(0, 0, 0, 0.5);
+		background: var(--overlay-bg);
 		backdrop-filter: blur(4px);
 	}
 

@@ -27,9 +27,13 @@
 
   --accent: #00ff88;
   --accent-dim: #00cc6a;
-  --accent-glow: rgba(0, 255, 136, 0.12);
-  --accent-glow-strong: rgba(0, 255, 136, 0.25);
+  --accent-glow: rgba(var(--accent-rgb), 0.12);
+  --accent-glow-strong: rgba(var(--accent-rgb), 0.25);
   --accent-rgb: 0, 255, 136;
+
+  --red: #7f1d1d;
+  --red-light: #991b1b;
+  --red-glow: #b91c1c;
 
   --danger: #ff4444;
   --danger-dim: #cc3333;
@@ -38,7 +42,7 @@
   --warning: #ffaa00;
   --warning-glow: rgba(255, 170, 0, 0.15);
   --warning-dim: rgba(255, 170, 0, 0.3);
-  --success: #00ff88;
+  --success: var(--accent);
 
   --border: rgba(255, 255, 255, 0.06);
   --border2: rgba(255, 255, 255, 0.12);
@@ -46,11 +50,16 @@
 
   --backdrop: rgba(0, 0, 0, 0.7);
 
+  --nav-bg: rgba(6, 4, 4, 0.88);
+  --nav-bg-scrolled: rgba(6, 4, 4, 0.95);
+  --nav-border-scrolled: rgba(var(--accent-rgb), 0.1);
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+
   /* ── Glow (admin → Firebase theme/glow*) ── */
-  --glow-sm: 0 0 20px rgba(0, 255, 136, 0.2);
-  --glow-md: 0 0 40px rgba(0, 255, 136, 0.25), 0 0 80px rgba(0, 255, 136, 0.08);
-  --glow-lg: 0 0 60px rgba(0, 255, 136, 0.3), 0 0 120px rgba(0, 255, 136, 0.1);
-  --glow-accent: 0 0 20px rgba(0, 255, 136, 0.3);
+  --glow-sm: 0 0 20px rgba(var(--accent-rgb), 0.2);
+  --glow-md: 0 0 40px rgba(var(--accent-rgb), 0.25), 0 0 80px rgba(var(--accent-rgb), 0.08);
+  --glow-lg: 0 0 60px rgba(var(--accent-rgb), 0.3), 0 0 120px rgba(var(--accent-rgb), 0.1);
+  --glow-accent: 0 0 20px rgba(var(--accent-rgb), 0.3);
 
   /* ── Shadows ── */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -191,7 +200,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 255, 136, 0.15) transparent;
+  scrollbar-color: rgba(var(--accent-rgb), 0.15) transparent;
 }
 
 body {
@@ -238,12 +247,12 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 136, 0.15);
+  background: rgba(var(--accent-rgb), 0.15);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 136, 0.3);
+  background: rgba(var(--accent-rgb), 0.3);
 }
 
 /* ════════════════════════════════════════════
@@ -308,7 +317,7 @@ body::before {
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(circle, rgba(0, 255, 136, 0.04) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.04) 0%, transparent 70%);
   transform: translate(-50%, -50%);
   transition: opacity 0.3s;
   opacity: 0;
@@ -338,7 +347,7 @@ body:hover #cursor-glow {
 .orb1 {
   width: 700px;
   height: 700px;
-  background: radial-gradient(circle, rgba(0, 255, 136, 0.15), transparent);
+  background: radial-gradient(circle, var(--accent-glow-strong), transparent);
   top: -250px;
   left: -250px;
   opacity: 0.08;
@@ -348,7 +357,7 @@ body:hover #cursor-glow {
 .orb2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(0, 204, 106, 0.12), transparent);
+  background: radial-gradient(circle, var(--accent-glow), transparent);
   bottom: -150px;
   right: -150px;
   opacity: 0.06;

@@ -67,7 +67,7 @@ const THEME_MAP: Record<string, string> = {
 
 /**
  * Genera variantes de accent a partir del color base
- * #00ff88 → accent-dim, accent-glow, accent-glow-strong, accent-rgb
+ * #dc2626 → accent-dim, accent-glow, accent-glow-strong, accent-rgb, red, red-light, red-glow
  */
 function generateAccentVariants(hex: string) {
 	const r = parseInt(hex.slice(1, 3), 16);
@@ -76,6 +76,10 @@ function generateAccentVariants(hex: string) {
 
 	// Dim: ~80% brightness
 	const dimHex = '#' + [r, g, b].map(c => Math.round(c * 0.8).toString(16).padStart(2, '0')).join('');
+	// Red variants (darker shades for orbs/gradients)
+	const redHex = '#' + [r, g, b].map(c => Math.round(c * 0.5).toString(16).padStart(2, '0')).join('');
+	const redLightHex = '#' + [r, g, b].map(c => Math.round(c * 0.6).toString(16).padStart(2, '0')).join('');
+	const redGlowHex = '#' + [r, g, b].map(c => Math.round(c * 0.7).toString(16).padStart(2, '0')).join('');
 
 	return {
 		'--accent': hex,
@@ -83,6 +87,9 @@ function generateAccentVariants(hex: string) {
 		'--accent-glow': `rgba(${r}, ${g}, ${b}, 0.12)`,
 		'--accent-glow-strong': `rgba(${r}, ${g}, ${b}, 0.25)`,
 		'--accent-rgb': `${r}, ${g}, ${b}`,
+		'--red': redHex,
+		'--red-light': redLightHex,
+		'--red-glow': redGlowHex,
 		// Derived
 		'--success': hex,
 		'--wbar-active': hex,
