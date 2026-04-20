@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { beatsList, genres, player, wishlist, settings } from '$lib/stores';
+	import { beatsList, player, wishlist, settings } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
 	import { Skeleton, Badge, BeatCard, EmptyState } from '$lib/components';
 	import Waveform from '$lib/components/Waveform.svelte';

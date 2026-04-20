@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Card, Icon } from '$lib/components';
+	import { Icon } from '$lib/components';
 	import { auth, loginWithGoogle, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import type { LabelSettings } from '$lib/stores/settings';

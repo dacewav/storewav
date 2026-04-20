@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Badge, Skeleton } from '$lib/components';
+	import { Card, Badge } from '$lib/components';
 	import { beatsList, wishlist, settings, auth } from '$lib/stores';
 
 	let beats = $derived($beatsList);

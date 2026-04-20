@@ -52,6 +52,8 @@
           "unlimited": { ".validate": "newData.isString()" },
           "exclusive": { ".validate": "newData.isString()" }
         },
+        "featured": { ".validate": "newData.isBoolean()" },
+        "order": { ".validate": "newData.isNumber()" },
         "$other": { ".validate": false }
       }
     },

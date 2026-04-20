@@ -120,6 +120,8 @@
   /* ── Card (admin → Firebase theme/cardOpacity) ── */
   --card-radius: var(--radius-lg);
   --card-opacity: 1;
+  --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --card-shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 30px rgba(var(--accent-rgb), 0.08);
 
   /* ── Transitions ── */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -743,6 +745,10 @@ body:hover #cursor-glow {
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.15);
   --shadow-menu: -8px 0 30px rgba(0, 0, 0, 0.08);
+
+  /* Cards */
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12), 0 0 20px rgba(var(--accent-rgb), 0.06);
 
   /* Danger / Warning — higher contrast for light bg */
   --danger: #dc2626;

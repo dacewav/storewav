@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Badge, EmptyState } from '$lib/components';
+	import { Badge, EmptyState } from '$lib/components';
 	import { allBeatsList, beatsStats, deleteBeat, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
 	import type { BeatWithId } from '$lib/stores/beats';
 

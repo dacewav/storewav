@@ -135,12 +135,12 @@
 		overflow: hidden;
 		cursor: pointer;
 		transition: all var(--duration-normal) var(--ease-out);
-		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+		box-shadow: var(--card-shadow);
 	}
 
 	.beat-card:hover {
 		border-color: var(--border-hover-accent);
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 30px rgba(var(--accent-rgb), 0.08);
+		box-shadow: var(--card-shadow-hover);
 		transform: translateY(-3px);
 	}
 
@@ -151,9 +151,9 @@
 	}
 
 	@keyframes playPulseRing {
-		0% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
-		70% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 12px rgba(var(--accent-rgb), 0); }
-		100% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(var(--accent-rgb), 0); }
+		0% { box-shadow: var(--card-shadow), 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
+		70% { box-shadow: var(--card-shadow), 0 0 0 12px rgba(var(--accent-rgb), 0); }
+		100% { box-shadow: var(--card-shadow), 0 0 0 0 rgba(var(--accent-rgb), 0); }
 	}
 
 	/* ── Featured Badge ── */
