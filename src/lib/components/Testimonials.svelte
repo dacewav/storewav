@@ -29,7 +29,7 @@
 				<p class="test-text">"{t.text}"</p>
 				<div class="test-author">
 					{#if t.avatar}
-						<img class="test-avatar" src={t.avatar} alt={t.name} />
+						<img class="test-avatar" src={t.avatar} alt={t.name} loading="lazy" />
 					{:else}
 						<div class="test-avatar-placeholder">{t.name.charAt(0)}</div>
 					{/if}

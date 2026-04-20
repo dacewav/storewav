@@ -55,7 +55,7 @@
 					<div class="wish-item">
 						<button class="wish-cover" onclick={() => playBeat(beat)} aria-label="Reproducir {beat.title}">
 							{#if beat.coverUrl}
-								<img src={beat.coverUrl} alt="" />
+								<img src={beat.coverUrl} alt="" loading="lazy" />
 							{:else}
 								<span>🎵</span>
 							{/if}

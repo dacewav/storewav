@@ -145,7 +145,7 @@
 					<!-- Cover -->
 					<div class="beat-cover">
 						{#if beat.coverUrl}
-							<img src={beat.coverUrl} alt={beat.title} />
+							<img src={beat.coverUrl} alt={beat.title} loading="lazy" />
 						{:else}
 							<div class="cover-ph">♦</div>
 						{/if}
