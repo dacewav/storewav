@@ -19,6 +19,7 @@
  */
 
 import { createFirebaseStore } from './_firebaseStore';
+import type { CardStyleConfig } from '$lib/cardStyleEngine';
 
 export type HeroSettings = {
 	title: string;
@@ -38,11 +39,6 @@ export type CtaSettings = {
 	subtitle: string;
 	buttonText: string;
 	buttonUrl: string;
-};
-
-export type LayoutSettings = {
-	cardsPerRow: number;
-	showWishlist: boolean;
 };
 
 export type LinkItem = {
@@ -249,7 +245,7 @@ export type SettingsData = {
 	loader: LoaderSettings;
 	banner: BannerSettings;
 	testimonials: Testimonial[];
-	cardStyle: CardStyleSettings;
+	cardStyle: CardStyleConfig;
 	animations: AnimationSettings;
 	labels: LabelSettings;
 };

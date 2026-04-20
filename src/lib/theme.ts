@@ -156,7 +156,13 @@ export function applyTheme(config: ThemeConfig) {
 	for (const [key, cssVar] of Object.entries(THEME_MAP)) {
 		const value = config[key as keyof ThemeConfig];
 		if (value !== undefined && value !== null) {
-			vars[cssVar] = String(value);
+			// Values that need 'rem' suffix
+			const needsRem = ['sectionPadding', 'heroPadTop'];
+			if (needsRem.includes(key) && typeof value === 'number') {
+				vars[cssVar] = `${value}rem`;
+			} else {
+				vars[cssVar] = String(value);
+			}
 		}
 	}
 

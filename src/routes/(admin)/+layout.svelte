@@ -36,7 +36,6 @@
 			label: 'Apariencia',
 			items: [
 				{ href: '/admin/theme', label: 'Tema', icon: '🎨' },
-				{ href: '/admin/content', label: 'Contenido', icon: '✏️' },
 				{ href: '/admin/brand', label: 'Brand', icon: '🏢' },
 				{ href: '/admin/banner', label: 'Banner', icon: '📢' },
 				{ href: '/admin/layout', label: 'Layout', icon: '📐' },

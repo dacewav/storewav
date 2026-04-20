@@ -142,7 +142,7 @@ export async function duplicateBeat(id: string) {
 
 	if (!beatData) throw new Error('Beat no encontrado');
 
-	const { title, createdAt, ...rest } = beatData;
+	const { title, createdAt, ...rest } = beatData as Beat;
 	const dupData: Omit<Beat, 'createdAt'> = {
 		...rest,
 		title: `${title} (copy)`,

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { settings, wishlist, auth } from '$lib/stores';
+	import { settings, wishlist, auth, player } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 
@@ -39,9 +39,10 @@
 	let sectionTitle = $derived(settingsData?.section?.title ?? 'Catálogo');
 	let accent = $derived(settingsData?.theme?.accent ?? '#dc2626');
 	let wishCount = $derived($wishlist.length);
+	let hasPlayer = $derived($player.beatId !== null);
 
 	// Check if current user is admin
-	let isAdmin = $derived(!!$auth.user);
+	let isAdmin = $derived($auth.isAdmin);
 
 	// Banner
 	let bannerEnabled = $derived(settingsData?.banner?.enabled && settingsData?.banner?.text);
@@ -304,7 +305,7 @@
 	{/if}
 
 	<!-- Main -->
-	<main class="main" id="main-content">
+	<main class="main" class:has-player={hasPlayer} id="main-content">
 		{@render children()}
 	</main>
 
@@ -649,6 +650,9 @@
 	/* ── Main ── */
 	.main {
 		flex: 1;
+	}
+
+	.main.has-player {
 		/* Space for fixed player bar */
 		padding-bottom: 80px;
 	}
