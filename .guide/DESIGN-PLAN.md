@@ -144,6 +144,59 @@ Cada fase se implementa en orden. Dentro de cada fase, por orden de impacto.
 
 ---
 
+## 📋 AUDIT POR FASE (post-implementación)
+
+Cada fase termina con un audit obligatorio antes de pasar a la siguiente.
+
+### Audit Template (por fase)
+
+```
+FASE X — AUDIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. BUILD:     ✅/❌ (0 errores)
+2. VISUAL:    ✅/❌ (¿se ve bien?)
+3. REGRESSION: ✅/❌ (¿algo se rompió?)
+4. MOBILE:    ✅/❌ (¿responsive OK?)
+5. A11Y:      ✅/❌ (¿focus, aria, keyboard?)
+6. TOKENS:    ✅/❌ (¿0 hardcoded colors/sizes?)
+7. CLEANUP:   ✅/❌ (¿dead code, console.logs?)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Resultado: PASS / FIX-NEEDED (items)
+```
+
+### Checklist específico por fase
+
+**Fase 1 — Card Visual Depth:**
+- [ ] Shadow visible en dark bg (no se pierde)
+- [ ] Hover shadow no causa layout shift
+- [ ] Play pulse se resetea correctamente (no se queda "pulsando")
+- [ ] Featured badge no se superpone con cover image
+- [ ] Featured badge no interfiere con play button overlay
+- [ ] Cards sin `beat.featured` no muestran badge
+
+**Fase 2 — Scroll Effects:**
+- [ ] Cursor glow no aparece en mobile (touch)
+- [ ] Lerp no causa jank (60fps en rAF)
+- [ ] Hero parallax no rompe el layout al top
+- [ ] Hero opacity no desaparece completamente (min 0.3)
+- [ ] Scroll progress bar no bloquea clicks
+- [ ] Gradient visible sobre dark bg
+
+**Fase 3 — Card Effects:**
+- [ ] Sibling blur solo en desktop (hover: hover)
+- [ ] Blur no afecta al card que se hace hover
+- [ ] Blur se quita al mouse leave (no queda borroso)
+- [ ] Performance: blur no causa lag con 20+ cards
+- [ ] Sibling blur no interfiere con staggerReveal
+
+**Fase 4 — Keyframes:**
+- [ ] Keyframes no generan warnings en build
+- [ ] `prefers-reduced-motion` las desactiva
+- [ ] No hay conflictos con keyframes existentes
+- [ ] Nombres no colisionan con Svelte built-ins
+
+---
+
 ## Referencia
 
 - **Catalog CSS:** `store-styles.css` (765 líneas)

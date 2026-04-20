@@ -330,6 +330,7 @@ body::before {
   width: 0%;
   transition: width 0.1s;
   box-shadow: 0 0 10px var(--accent);
+  pointer-events: none;
 }
 
 /* ════════════════════════════════════════════
@@ -520,17 +521,6 @@ body:hover #cursor-glow {
 @keyframes glowBreathe {
   0%, 100% { opacity: 0.5; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.02); }
-}
-
-@keyframes neonFlicker {
-  0%, 100% { opacity: 1; filter: brightness(1); }
-  7% { opacity: 0.4; filter: brightness(1.2); }
-  10% { opacity: 1; filter: brightness(1); }
-  12% { opacity: 0.4; filter: brightness(1.2); }
-  15% { opacity: 1; }
-  50% { opacity: 0.8; }
-  55% { opacity: 0.4; filter: brightness(1.2); }
-  57% { opacity: 1; filter: brightness(1); }
 }
 
 @keyframes pulseRing {

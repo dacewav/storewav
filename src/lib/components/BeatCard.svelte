@@ -146,7 +146,8 @@
 
 	/* ── Play Pulse Ring ── */
 	.beat-card.play-pulse {
-		animation: playPulseRing 0.6s ease-out;
+		/* Override inline animation from cardStyleEngine */
+		animation: playPulseRing 0.6s ease-out !important;
 	}
 
 	@keyframes playPulseRing {

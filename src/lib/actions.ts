@@ -131,34 +131,14 @@ export const siblingBlur: Action<HTMLElement, { blur?: number; opacity?: number 
 	const blurPx = params.blur ?? 3;
 	const opacity = params.opacity ?? 0.6;
 
-	function onMouseEnter() {
-		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
-		cards.forEach((card) => {
-			card.style.filter = `blur(${blurPx}px)`;
-			card.style.opacity = String(opacity);
-			card.style.transition = 'filter 0.3s, opacity 0.3s';
-		});
-	}
-
-	function onMouseLeave() {
-		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
-		cards.forEach((card) => {
-			card.style.filter = '';
-			card.style.opacity = '';
-		});
-	}
-
 	// Only on devices with hover
 	const mq = window.matchMedia('(hover: hover)');
 	if (!mq.matches) return { destroy() {} };
 
-	// Delegate: listen for mouseenter/mouseleave on cards within the grid
-	node.addEventListener('mouseenter', (e) => {
-		const card = (e.target as HTMLElement)?.closest('.beat-card');
-		if (!card) return;
+	function blurOthers(hovered: HTMLElement) {
 		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
 		cards.forEach((c) => {
-			if (c !== card) {
+			if (c !== hovered) {
 				c.style.filter = `blur(${blurPx}px)`;
 				c.style.opacity = String(opacity);
 				c.style.transition = 'filter 0.3s, opacity 0.3s';
@@ -167,17 +147,30 @@ export const siblingBlur: Action<HTMLElement, { blur?: number; opacity?: number 
 				c.style.opacity = '';
 			}
 		});
-	}, true);
+	}
 
-	node.addEventListener('mouseleave', (e) => {
-		const card = (e.target as HTMLElement)?.closest('.beat-card');
-		if (!card) return;
+	function clearAll() {
 		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
 		cards.forEach((c) => {
 			c.style.filter = '';
 			c.style.opacity = '';
 		});
-	}, true);
+	}
+
+	// mouseover bubbles (unlike mouseenter which doesn't for delegation)
+	node.addEventListener('mouseover', (e) => {
+		const card = (e.target as HTMLElement)?.closest('.beat-card');
+		if (card) blurOthers(card as HTMLElement);
+	});
+
+	// mouseout bubbles (unlike mouseleave)
+	node.addEventListener('mouseout', (e) => {
+		// Only clear if we left the grid entirely
+		const related = e.relatedTarget as HTMLElement | null;
+		if (!related || !node.contains(related)) {
+			clearAll();
+		}
+	});
 
 	return {
 		destroy() {}
