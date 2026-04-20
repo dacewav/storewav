@@ -14,10 +14,10 @@ repo: https://github.com/dacewav/store.git
 version: 1.0.0
 framework: SvelteKit + Cloudflare
 firebase_project: dacewav-store-3b0f5
-ultimo_chat: "2026-04-20 23:47"
-bloque_actual: "Post-Bloque 7 — Sesión A+B Mega Plan ✅"
-ultima_tarea: "Sesión B: animated counters, hero links, OG image, sitemap, export/import"
-proxima_tarea: "Sesión C: undo/redo, bulk actions, waveform cards, 40+ anim presets"
+ultimo_chat: "2026-04-20 23:51"
+bloque_actual: "Post-Bloque 8 — Sesión A+B+C Mega Plan ✅"
+ultima_tarea: "Sesión C: undo/redo, bulk actions, waveform cards, 40+ anim presets"
+proxima_tarea: "Sesión D: keyboard shortcuts, changelog, Lighthouse, favicons"
 commit_actual: "pendiente"
 ```
 

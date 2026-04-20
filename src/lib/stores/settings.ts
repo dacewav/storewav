@@ -443,8 +443,26 @@ const base = createFirebaseStore<SettingsData>('settings', DEFAULT);
 export type SaveStatus = 'saved' | 'saving' | 'unsaved' | 'error';
 export const saveStatus: Writable<SaveStatus> = writable('saved');
 
+/** Undo/Redo — stack de cambios */
+type UndoEntry = { dotPath: string; oldValue: unknown; newValue: unknown };
+const MAX_UNDO = 20;
+const undoStack: UndoEntry[] = [];
+const redoStack: UndoEntry[] = [];
+export const canUndo = writable(false);
+export const canRedo = writable(false);
+
 /** Helper para actualizar un campo por dot-path (ej: 'heroVisual.glowOn') */
 async function updateField(dotPath: string, value: unknown) {
+	// Get current value for undo
+	const current = getNestedValue(dotPath);
+	if (current !== value) {
+		undoStack.push({ dotPath, oldValue: current, newValue: value });
+		if (undoStack.length > MAX_UNDO) undoStack.shift();
+		redoStack.length = 0; // clear redo on new change
+		canUndo.set(true);
+		canRedo.set(false);
+	}
+
 	saveStatus.set('saving');
 	try {
 		// Firebase update acepta claves con dot-notation directamente
@@ -453,6 +471,38 @@ async function updateField(dotPath: string, value: unknown) {
 	} catch {
 		saveStatus.set('error');
 	}
+}
+
+/** Get current value by dot-path */
+function getNestedValue(dotPath: string): unknown {
+	let data: unknown;
+	const unsub = base.subscribe((s) => { data = s.data; });
+	unsub();
+	if (!data) return undefined;
+	return dotPath.split('.').reduce((obj: Record<string, unknown>, key) => {
+		if (obj == null || typeof obj !== 'object') return undefined;
+		return (obj as Record<string, unknown>)[key];
+	}, data as Record<string, unknown>);
+}
+
+/** Undo last change */
+export async function undoField() {
+	const entry = undoStack.pop();
+	if (!entry) return;
+	redoStack.push(entry);
+	canUndo.set(undoStack.length > 0);
+	canRedo.set(true);
+	await base.update({ [entry.dotPath]: entry.oldValue } as Partial<SettingsData>);
+}
+
+/** Redo last undone change */
+export async function redoField() {
+	const entry = redoStack.pop();
+	if (!entry) return;
+	undoStack.push(entry);
+	canRedo.set(redoStack.length > 0);
+	canUndo.set(true);
+	await base.update({ [entry.dotPath]: entry.newValue } as Partial<SettingsData>);
 }
 
 export const settings = {

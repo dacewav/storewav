@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AdminTopbar } from '$lib/components';
-	import { auth, settings, saveStatus as saveStatusStore } from '$lib/stores';
+	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import type { Snippet } from 'svelte';
@@ -20,6 +20,19 @@
 	});
 
 	let currentSaveStatus = $derived($saveStatusStore);
+	let undoEnabled = $derived($canUndo);
+	let redoEnabled = $derived($canRedo);
+
+	// Keyboard shortcuts: Ctrl+Z / Ctrl+Shift+Z
+	function handleKeydown(e: KeyboardEvent) {
+		if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+			e.preventDefault();
+			if (undoEnabled) undoField();
+		} else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+			e.preventDefault();
+			if (redoEnabled) redoField();
+		}
+	}
 
 	// Detect active from URL
 	let currentPath = $derived(page.url.pathname);
@@ -61,8 +74,10 @@
 	<title>Admin — {brandName}</title>
 </svelte:head>
 
+<svelte:window onkeydown={handleKeydown} />
+
 <div class="admin-layout">
-	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => {}}>
+	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => {}} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined}>
 		<span class="admin-section-label">{sectionLabel()}</span>
 	</AdminTopbar>
 

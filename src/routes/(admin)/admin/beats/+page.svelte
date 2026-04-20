@@ -46,6 +46,41 @@
 	let deleting = $state<string | null>(null);
 	let deleteTarget = $state<BeatWithId | null>(null);
 
+	// Bulk actions
+	let selected = $state<Set<string>>(new Set());
+	let allSelected = $derived(selected.size > 0 && selected.size === filteredBeats.length);
+	let someSelected = $derived(selected.size > 0 && selected.size < filteredBeats.length);
+
+	function toggleSelect(id: string) {
+		const next = new Set(selected);
+		if (next.has(id)) next.delete(id); else next.add(id);
+		selected = next;
+	}
+
+	function toggleSelectAll() {
+		if (allSelected) {
+			selected = new Set();
+		} else {
+			selected = new Set(filteredBeats.map(b => b.id));
+		}
+	}
+
+	async function bulkSetActive(active: boolean) {
+		const { updateBeat } = await import('$lib/stores');
+		for (const id of selected) {
+			await updateBeat(id, { active });
+		}
+		selected = new Set();
+	}
+
+	async function bulkDelete() {
+		if (!confirm(`¿Borrar ${selected.size} beats?`)) return;
+		for (const id of selected) {
+			await deleteBeat(id);
+		}
+		selected = new Set();
+	}
+
 	async function handleDelete(beat: BeatWithId) {
 		deleteTarget = beat;
 	}
@@ -137,11 +172,27 @@
 		<span class="filter-count">{filteredBeats.length} de {beats.length}</span>
 	</div>
 
+	<!-- Bulk actions -->
+	{#if selected.size > 0}
+		<div class="bulk-bar">
+			<span class="bulk-count">{selected.size} seleccionados</span>
+			<button class="bulk-btn" onclick={() => bulkSetActive(true)}>✅ Activar</button>
+			<button class="bulk-btn" onclick={() => bulkSetActive(false)}>⏸ Desactivar</button>
+			<button class="bulk-btn bulk-btn-del" onclick={bulkDelete}>🗑 Borrar</button>
+			<button class="bulk-btn" onclick={() => selected = new Set()}>✕ Limpiar</button>
+		</div>
+	{/if}
+
 	<!-- Beat list -->
 	{#if filteredBeats.length > 0}
 		<div class="beat-list">
 			{#each filteredBeats as beat (beat.id)}
 				<div class="beat-row" class:inactive={!beat.active}>
+					<!-- Select checkbox -->
+					<label class="beat-select">
+						<input type="checkbox" checked={selected.has(beat.id)} onchange={() => toggleSelect(beat.id)} />
+					</label>
+
 					<!-- Cover -->
 					<div class="beat-cover">
 						{#if beat.coverUrl}
@@ -237,6 +288,57 @@
 
 <style>
 	.beats-admin { max-width: 1000px; margin: 0 auto; }
+
+	/* Bulk actions */
+	.bulk-bar {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-4);
+		background: rgba(var(--accent-rgb), 0.08);
+		border: 1px solid rgba(var(--accent-rgb), 0.2);
+		border-radius: var(--radius-md);
+		margin-bottom: var(--space-4);
+		position: sticky;
+		top: 52px;
+		z-index: 10;
+	}
+
+	.bulk-count {
+		font-size: var(--text-sm);
+		font-weight: 600;
+		color: var(--accent);
+		margin-right: auto;
+	}
+
+	.bulk-btn {
+		padding: var(--space-1) var(--space-3);
+		min-height: var(--touch-min);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		font-size: var(--text-xs);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.bulk-btn:hover { background: var(--surface-hover); }
+	.bulk-btn-del:hover { color: var(--danger); border-color: var(--danger); }
+
+	/* Select checkbox */
+	.beat-select {
+		display: flex;
+		align-items: center;
+		padding: 0 var(--space-2);
+		flex-shrink: 0;
+	}
+
+	.beat-select input {
+		accent-color: var(--accent);
+		width: 16px;
+		height: 16px;
+		cursor: pointer;
+	}
 
 	.header {
 		display: flex;

@@ -45,7 +45,21 @@ export type CardAnimation =
 	| 'lightSpeed'
 	| 'blurIn'
 	| 'zoomPulse'
-	| 'gradientBorder';
+	| 'gradientBorder'
+	| 'drift'
+	| 'driftSlow'
+	| 'spin'
+	| 'spinReverse'
+	| 'tilt'
+	| 'sway'
+	| 'popIn'
+	| 'elastic'
+	| 'dropIn'
+	| 'riseUp'
+	| 'flipX'
+	| 'flipY'
+	| 'rubber'
+	| 'squeeze';
 
 export type CardStyleConfig = {
 	// Glow
@@ -347,6 +361,20 @@ export function cardStyleToCSS(style: CardStyleConfig, accentRgb: string): strin
 			blurIn: `cardBlurIn 0.6s ease-out ${delay}`,
 			zoomPulse: `cardZoomPulse ${duration} ease-in-out infinite ${delay}`,
 			gradientBorder: `cardGradientBorder 4s linear infinite ${delay}`,
+			drift: `cardDrift ${duration} ease-in-out infinite ${delay}`,
+			driftSlow: `cardDrift ${parseFloat(duration) * 2}s ease-in-out infinite ${delay}`,
+			spin: `cardSpin ${duration} linear infinite ${delay}`,
+			spinReverse: `cardSpin ${duration} linear infinite reverse ${delay}`,
+			tilt: `cardTilt ${duration} ease-in-out infinite ${delay}`,
+			sway: `cardSway ${duration} ease-in-out infinite ${delay}`,
+			popIn: `cardPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${delay}`,
+			elastic: `cardElastic 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) ${delay}`,
+			dropIn: `cardDropIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${delay}`,
+			riseUp: `cardRiseUp 0.5s var(--ease-out) ${delay}`,
+			flipX: `cardFlipX 0.8s ease-in-out ${delay}`,
+			flipY: `cardFlipY 0.8s ease-in-out ${delay}`,
+			rubber: `cardRubber 0.8s ease-in-out infinite ${delay}`,
+			squeeze: `cardSqueeze 0.6s ease-in-out infinite ${delay}`,
 		};
 		if (animMap[style.animation]) {
 			parts.push(`animation: ${animMap[style.animation]};`);

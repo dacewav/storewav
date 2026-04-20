@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Beat } from '$lib/stores/beats';
-	import { wishlist, settings } from '$lib/stores';
+	import { wishlist, settings, player } from '$lib/stores';
 	import { tilt } from '$lib/actions';
 	import Icon from './Icon.svelte';
 	import {
@@ -23,6 +23,7 @@
 
 	let inWishlist = $derived(wishlist.isIn(beat.id));
 	let playing = $state(false);
+	let isCurrentBeat = $derived($player.beatId === beat.id && $player.playing);
 
 	// Card style engine: merge global (from settings) + per-beat
 	let accentRgb = $state('220, 38, 38');
@@ -101,6 +102,15 @@
 		<!-- Cover overlay from style engine -->
 		{#if cardStyle.coverOverlay}
 			<div class="beat-cover-overlay" style="background: {cardStyle.coverOverlay};"></div>
+		{/if}
+
+		<!-- Waveform bars when playing -->
+		{#if isCurrentBeat}
+			<div class="card-waveform">
+				{#each Array(16) as _, i}
+					<div class="wave-bar" style="--delay: {i * 0.05}s; --h: {20 + Math.random() * 60}%"></div>
+				{/each}
+			</div>
 		{/if}
 	</div>
 
@@ -230,6 +240,34 @@
 		inset: 0;
 		pointer-events: none;
 		z-index: 1;
+	}
+
+	/* Card waveform bars */
+	.card-waveform {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 40px;
+		display: flex;
+		align-items: flex-end;
+		gap: 2px;
+		padding: 0 var(--space-2);
+		z-index: 3;
+		pointer-events: none;
+	}
+
+	.wave-bar {
+		flex: 1;
+		background: rgba(var(--accent-rgb), 0.7);
+		border-radius: 2px 2px 0 0;
+		height: 30%;
+		animation: waveAnim 0.8s ease-in-out var(--delay, 0s) infinite alternate;
+	}
+
+	@keyframes waveAnim {
+		0% { height: 15%; }
+		100% { height: var(--h, 60%); }
 	}
 
 	/* Play button */
