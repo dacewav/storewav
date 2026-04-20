@@ -196,6 +196,10 @@
 
 <svelte:head>
 	<meta name="description" content="{brandName} — {metaDesc}" />
+	<meta property="og:site_name" content={brandName} />
+	<meta property="og:image" content="/og-image.svg" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="/og-image.svg" />
 </svelte:head>
 
 <!-- Banner (admin-editable) -->

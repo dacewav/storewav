@@ -214,3 +214,47 @@ export const ripple: Action<HTMLElement> = (node) => {
 		}
 	};
 };
+
+/** Animates a number from 0 to target value when element enters viewport */
+export const countUp: Action<HTMLElement, number> = (node, target) => {
+	if (!target || target <= 0) return;
+
+	let animated = false;
+	const duration = 1200;
+
+	function animate() {
+		if (animated) return;
+		animated = true;
+
+		const start = performance.now();
+		function step(now: number) {
+			const elapsed = now - start;
+			const progress = Math.min(elapsed / duration, 1);
+			// Ease out cubic
+			const eased = 1 - Math.pow(1 - progress, 3);
+			node.textContent = String(Math.round(eased * target));
+			if (progress < 1) requestAnimationFrame(step);
+		}
+		requestAnimationFrame(step);
+	}
+
+	const observer = new IntersectionObserver(
+		(entries) => {
+			if (entries[0].isIntersecting) {
+				animate();
+				observer.disconnect();
+			}
+		},
+		{ threshold: 0.5 }
+	);
+	observer.observe(node);
+
+	return {
+		update(newTarget: number) {
+			target = newTarget;
+		},
+		destroy() {
+			observer.disconnect();
+		}
+	};
+};

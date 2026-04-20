@@ -4,7 +4,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { beatsList, genres, settings, player } from '$lib/stores';
 	import type { HeroVisualSettings, LabelSettings } from '$lib/stores/settings';
-	import { staggerReveal, reveal, siblingBlur } from '$lib/actions';
+	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
 
 	let beats = $derived($beatsList);
@@ -66,6 +66,9 @@
 	let sectionTitle = $derived(s?.section?.title ?? 'Catálogo');
 	let dividerTitle = $derived(s?.section?.dividerTitle ?? '');
 	let dividerSub = $derived(s?.section?.dividerSub ?? '');
+
+	// Hero links
+	let heroLinks = $derived((s?.links ?? []) as Array<{label: string; url: string; icon: string}>);
 
 	// CTA
 	let ctaTitle = $derived(s?.cta?.title ?? '');
@@ -188,17 +191,27 @@
 	{#if heroSub}
 	<p class="hero-sub">{heroSub}</p>
 	{/if}
+	{#if heroLinks.length > 0}
+	<div class="hero-links">
+		{#each heroLinks as link}
+			<a class="hero-link" href={link.url} target="_blank" rel="noopener">
+				{#if link.icon}<span class="hero-link-icon">{link.icon}</span>{/if}
+				{link.label}
+			</a>
+		{/each}
+	</div>
+	{/if}
 	<div class="hero-stats">
 		<div class="stat">
-			<div class="stat-num">{beats.length || '—'}</div>
+			<div class="stat-num" use:countUp={beats.length || 0}>0</div>
 			<div class="stat-label">{labels.statBeats ?? 'beats'}</div>
 		</div>
 		<div class="stat">
-			<div class="stat-num">{genreList.length || '—'}</div>
+			<div class="stat-num" use:countUp={genreList.length || 0}>0</div>
 			<div class="stat-label">{labels.statGenres ?? 'géneros'}</div>
 		</div>
 		<div class="stat">
-			<div class="stat-num">{licenseCount}</div>
+			<div class="stat-num" use:countUp={licenseCount}>0</div>
 			<div class="stat-label">{labels.statLicenses ?? 'licencias'}</div>
 		</div>
 	</div>
@@ -417,6 +430,43 @@
 		letter-spacing: 0.02em;
 		animation: fadeInUp 0.6s var(--ease-out) 1.7s both;
 	}
+
+	/* Hero links */
+	.hero-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		justify-content: center;
+		margin-top: var(--space-4);
+		margin-bottom: var(--space-2);
+		position: relative;
+		z-index: var(--z-content);
+		animation: fadeInUp 0.6s var(--ease-out) 1.8s both;
+	}
+
+	.hero-link {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-4);
+		min-height: var(--touch-min);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+		color: var(--text);
+		font-size: var(--text-sm);
+		text-decoration: none;
+		transition: all var(--duration-fast);
+	}
+
+	.hero-link:hover {
+		border-color: rgba(var(--accent-rgb), 0.5);
+		background: rgba(var(--accent-rgb), 0.08);
+		color: var(--accent);
+		transform: translateY(-1px);
+	}
+
+	.hero-link-icon { font-size: var(--text-base); }
 
 	.hero-stats {
 		display: flex;

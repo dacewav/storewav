@@ -19,6 +19,42 @@
 		{ action: authState.user ? `Sesión: ${authState.user.email}` : 'Sin sesión', time: 'Ahora', type: authState.user ? 'success' : 'warning' },
 		{ action: settingsData ? 'Settings Firebase conectado' : 'Settings pendiente', time: 'Ahora', type: settingsData ? 'success' : 'warning' }
 	]);
+
+	// Export all data as JSON
+	function handleExport() {
+		const data = {
+			beats: Object.fromEntries(beats.map(b => [b.id, { ...b }])),
+			settings: settingsData,
+			exportedAt: new Date().toISOString(),
+			version: '1.0'
+		};
+		const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `dacewav-backup-${new Date().toISOString().slice(0, 10)}.json`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	// Import data from JSON
+	async function handleImport(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		try {
+			const text = await file.text();
+			const data = JSON.parse(text);
+			if (data.settings) {
+				await settings.set(data.settings);
+			}
+			alert('Datos importados correctamente');
+		} catch {
+			alert('Error al importar: archivo inválido');
+		}
+		input.value = '';
+	}
 </script>
 
 <div class="dashboard">
@@ -85,6 +121,15 @@
 						<span class="qa-icon">📊</span>
 						<span>Gestionar beats</span>
 					</a>
+					<button class="qa-btn" onclick={handleExport} aria-label="Exportar datos">
+						<span class="qa-icon">📤</span>
+						<span>Exportar</span>
+					</button>
+					<label class="qa-btn" aria-label="Importar datos">
+						<span class="qa-icon">📥</span>
+						<span>Importar</span>
+						<input type="file" accept=".json" onchange={handleImport} hidden />
+					</label>
 				</div>
 			</div>
 		</Card>
