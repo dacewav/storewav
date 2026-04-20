@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { beatsList, genres, player, wishlist, settings } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
-	import { Skeleton, Badge, BeatCard, BeatModal, EmptyState } from '$lib/components';
+	import { Skeleton, Badge, BeatCard, EmptyState } from '$lib/components';
 	import Waveform from '$lib/components/Waveform.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { staggerReveal } from '$lib/actions';
@@ -38,6 +38,8 @@
 	let labelBuy = $derived(labels.buy ?? 'Comprar');
 	let labelFrom = $derived(labels.priceFrom ?? 'Desde');
 	let labelBack = $derived(labels.backToCatalog ?? 'Volver al catálogo');
+	let labelRelated = $derived(labels.relatedBeats ?? 'Beats relacionados');
+	let labelLicenses = $derived(labels.licenses ?? 'Licencias');
 
 	// Related beats: same genre, exclude current, max 4
 	let relatedBeats = $derived(
@@ -116,7 +118,7 @@
 <div class="beat-page">
 	<!-- Back link -->
 	<a href="/" class="back-link">
-		<Icon name="chevronDown" size={14} />
+		<Icon name="chevronLeft" size={14} />
 		<span>{labelBack}</span>
 	</a>
 
@@ -227,7 +229,7 @@
 				{#if beat.licenses}
 					<div class="licenses">
 						<div class="licenses-header">
-							<h3 class="licenses-title">Licencias</h3>
+							<h3 class="licenses-title">{labelLicenses}</h3>
 							{#if selectedLicense}
 								<span class="selected-badge">
 									{licenseLabels[selectedLicense as keyof typeof licenseLabels]} · ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
@@ -267,13 +269,13 @@
 		<!-- ── Related Beats ── -->
 		{#if displayRelated.length > 0}
 			<section class="related-section">
-				<h2 class="related-title">Beats relacionados</h2>
+				<h2 class="related-title">{labelRelated}</h2>
 				<div class="related-grid" use:staggerReveal={{ delay: 80 }}>
 					{#each displayRelated as rb (rb.id)}
 						<BeatCard
 							beat={rb}
 							onplay={() => handleRelatedPlay(rb)}
-							onclick={() => {}}
+							onclick={() => goto(`/beat/${rb.id}`)}
 							labelFrom={labelFrom}
 						/>
 					{/each}

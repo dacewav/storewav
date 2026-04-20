@@ -2,11 +2,20 @@
 	import { Button, Card, Icon } from '$lib/components';
 	import { auth, loginWithGoogle, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
+	import type { LabelSettings } from '$lib/stores/settings';
 
 	let loading = $state(false);
 	let error = $state('');
 	let authState = $derived($auth);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
+	let labels = $derived(($settings.data?.labels ?? {}) as LabelSettings);
+
+	// Login labels (from settings or defaults)
+	let loginTitle = $derived(labels.loginTitle ?? 'Admin');
+	let loginSub = $derived(labels.loginSub ?? 'Inicia sesión para acceder al panel');
+	let loginBtn = $derived(labels.loginBtn ?? 'Continuar con Google');
+	let loginBack = $derived(labels.loginBack ?? '← Volver a la tienda');
+	let loginNote = $derived(labels.loginNote ?? 'Solo administradores autorizados');
 
 	// Si ya está logueado, redirigir al admin
 	$effect(() => {
@@ -44,8 +53,8 @@
 		</div>
 
 		<div class="login-header">
-			<h1 class="login-title">Admin</h1>
-			<p class="login-sub">Inicia sesión para acceder al panel</p>
+			<h1 class="login-title">{loginTitle}</h1>
+			<p class="login-sub">{loginSub}</p>
 		</div>
 
 		{#if error}
@@ -67,17 +76,17 @@
 						<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
 					</svg>
 				{/if}
-				<span>Continuar con Google</span>
+				<span>{loginBtn}</span>
 			</button>
 		</form>
 
 		<div class="login-footer">
-			<a href="/" class="back-link">← Volver a la tienda</a>
+			<a href="/" class="back-link">{loginBack}</a>
 		</div>
 
 		<div class="login-note">
 			<span class="note-dot"></span>
-			Solo administradores autorizados
+			{loginNote}
 		</div>
 	</div>
 </div>

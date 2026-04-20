@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Testimonial } from '$lib/stores/settings';
+	import { reveal } from '$lib/actions';
 
 	let {
 		items = [],
@@ -15,7 +16,7 @@
 </script>
 
 {#if items.length > 0}
-<section class="testimonials reveal">
+<section class="testimonials" use:reveal>
 	{#if title}
 		<div class="test-header">
 			<h3 class="test-title">{title}</h3>
@@ -58,7 +59,7 @@
 
 	.test-title {
 		font-family: var(--font-display);
-		font-size: 1.4rem;
+		font-size: var(--text-xl);
 		font-weight: 800;
 		letter-spacing: -0.02em;
 		color: var(--text);

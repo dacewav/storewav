@@ -152,19 +152,7 @@
 		window.addEventListener('mousemove', onMouseMove, { passive: true });
 		window.addEventListener('keydown', onKeydown);
 
-		// Reveal on scroll
-		const observer = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						entry.target.classList.add('vis');
-						observer.unobserve(entry.target);
-					}
-				});
-			},
-			{ threshold: 0.15 }
-		);
-		document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+		// Reveal handled by use:reveal action per-element
 
 		return () => {
 			clearTimeout(timer);
@@ -173,7 +161,6 @@
 			window.removeEventListener('scroll', onScroll);
 			window.removeEventListener('mousemove', onMouseMove);
 			window.removeEventListener('keydown', onKeydown);
-			observer.disconnect();
 		};
 	});
 </script>

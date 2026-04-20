@@ -2,6 +2,8 @@
 	import { wishlist, beatsList, player } from '$lib/stores';
 	import { EmptyState } from '$lib/components';
 	import Icon from './Icon.svelte';
+	import { fly, fade } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 
 	let {
 		open = $bindable(false),
@@ -33,8 +35,8 @@
 
 {#if open}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="panel-backdrop" onclick={() => open = false} onkeydown={(e) => { if (e.key === 'Escape') open = false; }} role="presentation" aria-hidden="true"></div>
-	<aside class="wishlist-panel">
+	<div class="panel-backdrop" onclick={() => open = false} onkeydown={(e) => { if (e.key === 'Escape') open = false; }} role="presentation" aria-hidden="true" transition:fade={{ duration: 200 }}></div>
+	<aside class="wishlist-panel" transition:fly={{ x: 360, duration: 300, easing: quintOut }}>
 		<div class="panel-header">
 			<h3 class="panel-title">
 				Favoritos
@@ -94,7 +96,6 @@
 		border-left: 1px solid var(--border);
 		display: flex;
 		flex-direction: column;
-		animation: slideInRight 0.3s var(--ease-out);
 	}
 
 	.panel-header {
@@ -223,10 +224,5 @@
 	.wish-remove:hover {
 		background: var(--danger-glow);
 		color: var(--danger);
-	}
-
-	@keyframes slideInRight {
-		from { transform: translateX(100%); }
-		to { transform: translateX(0); }
 	}
 </style>

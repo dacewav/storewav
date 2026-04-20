@@ -4,7 +4,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { beatsList, genres, settings, player } from '$lib/stores';
 	import type { HeroVisualSettings, LabelSettings } from '$lib/stores/settings';
-	import { staggerReveal } from '$lib/actions';
+	import { staggerReveal, reveal } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
 
 	let beats = $derived($beatsList);
@@ -200,7 +200,7 @@
 
 <!-- Section divider -->
 {#if dividerTitle}
-<div class="section-divider reveal">
+<div class="section-divider" use:reveal>
 	<div class="section-divider-text">
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html dividerTitle}
@@ -214,7 +214,7 @@
 {/if}
 
 <!-- Beats section -->
-<section class="section reveal" id="beats">
+<section class="section" use:reveal id="beats">
 	<div class="section-header">
 		<h2 class="section-title">{sectionTitle}</h2>
 		<div class="section-line"></div>
@@ -264,7 +264,7 @@
 
 <!-- CTA Section -->
 {#if ctaTitle}
-<div class="cta-section reveal">
+<div class="cta-section" use:reveal>
 	<div class="cta-title">{ctaTitle}</div>
 	{#if ctaSub}
 	<div class="cta-sub">{ctaSub}</div>

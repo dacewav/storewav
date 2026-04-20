@@ -2,8 +2,12 @@
 	import { Button } from '$lib/components';
 	import { settings } from '$lib/stores';
 	import { page } from '$app/state';
+	import type { LabelSettings } from '$lib/stores/settings';
 
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
+	let labels = $derived(($settings.data?.labels ?? {}) as LabelSettings);
+	let errorTitle = $derived(labels.errorTitle ?? 'Página no encontrada');
+	let errorBtn = $derived(labels.errorBtn ?? 'Volver al inicio');
 </script>
 
 <svelte:head>
@@ -12,12 +16,12 @@
 
 <div class="error-page">
 	<div class="error-code">404</div>
-	<div class="error-title">Página no encontrada</div>
+	<div class="error-title">{errorTitle}</div>
 	<p class="error-sub">
 		La ruta <code>{page.url.pathname}</code> no existe.
 	</p>
 	<Button variant="primary" onclick={() => window.location.href = '/'}>
-		Volver al inicio
+		{errorBtn}
 	</Button>
 </div>
 

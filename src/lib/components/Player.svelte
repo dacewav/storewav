@@ -263,16 +263,37 @@
 
 	/* ── Responsive ── */
 	@media (max-width: 768px) {
-		.player-right {
-			display: none;
-		}
-
 		.player-time {
 			display: none;
 		}
 
 		.player-inner {
 			padding: var(--space-2) var(--space-3);
+			gap: var(--space-2);
+		}
+
+		.player-right .ctrl-btn:first-child {
+			/* Volume visible on mobile */
+		}
+
+		.player-right .ctrl-btn:last-child {
+			/* Close visible on mobile */
+		}
+	}
+
+	@media (max-width: 480px) {
+		.player-right {
+			gap: 0;
+		}
+
+		.player-right .ctrl-btn {
+			min-width: 36px;
+			min-height: 36px;
+		}
+
+		.ctrl-play {
+			width: 38px;
+			height: 38px;
 		}
 	}
 

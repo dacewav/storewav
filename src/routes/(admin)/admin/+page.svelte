@@ -98,15 +98,11 @@
 		</div>
 		<div class="info-row">
 			<span class="info-label">Firebase</span>
-			<span class="info-value">dacewav-store-3b0f5</span>
+			<span class="info-value">Conectado</span>
 		</div>
 		<div class="info-row">
-			<span class="info-label">Bloque actual</span>
-			<span class="info-value">5 — Tienda (Beat Page) 🚧</span>
-		</div>
-		<div class="info-row">
-			<span class="info-label">Próximo</span>
-			<span class="info-value">Bloque 6 — Checkout / Carrito</span>
+			<span class="info-label">Versión</span>
+			<span class="info-value">v0.5.0</span>
 		</div>
 	</div>
 </div>

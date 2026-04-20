@@ -234,7 +234,15 @@ export type LabelSettings = {
 	preview: string;
 	buy: string;
 	backToCatalog: string;
+	relatedBeats: string;
 	testimonialsTitle: string;
+	loginTitle: string;
+	loginSub: string;
+	loginBtn: string;
+	loginBack: string;
+	loginNote: string;
+	errorTitle: string;
+	errorBtn: string;
 };
 
 export type SettingsData = {
@@ -416,7 +424,15 @@ const DEFAULT: SettingsData = {
 		preview: 'Escuchar preview',
 		buy: 'Comprar',
 		backToCatalog: 'Volver al catálogo',
-		testimonialsTitle: 'Lo que dicen'
+		relatedBeats: 'Beats relacionados',
+		testimonialsTitle: 'Lo que dicen',
+		loginTitle: 'Admin',
+		loginSub: 'Inicia sesión para acceder al panel',
+		loginBtn: 'Continuar con Google',
+		loginBack: '← Volver a la tienda',
+		loginNote: 'Solo administradores autorizados',
+		errorTitle: 'Página no encontrada',
+		errorBtn: 'Volver al inicio'
 	}
 };
 
