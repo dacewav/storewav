@@ -88,7 +88,7 @@
 
 		// Hero layout
 		const ly = s?.layout;
-		if (ly?.heroPadTop > 0) r.style.setProperty('--hero-pad-top', `${ly.heroPadTop}rem`);
+		if (ly?.heroPadTop != null && ly.heroPadTop > 0) r.style.setProperty('--hero-pad-top', `${ly.heroPadTop}rem`);
 		if (ly?.logoScale) r.style.setProperty('--logo-scale', String(ly.logoScale));
 	});
 

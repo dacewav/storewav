@@ -5,7 +5,7 @@
 	import { goto } from '$app/navigation';
 	import type { Beat } from '$lib/stores/beats';
 
-	let beatId = $derived(page.params.id);
+	let beatId = $derived(page.params.id ?? '');
 	let beatsData = $derived($beats.data);
 
 	let beat = $derived.by(() => {
@@ -64,7 +64,9 @@
 		</div>
 	{:else}
 		<EmptyState icon="❌" title="Beat no encontrado" subtitle="El beat que buscas no existe o fue eliminado">
-			<a href="/admin/beats" class="back-btn">Volver a beats</a>
+			{#snippet action()}
+				<a href="/admin/beats" class="back-btn">Volver a beats</a>
+			{/snippet}
 		</EmptyState>
 	{/if}
 </div>

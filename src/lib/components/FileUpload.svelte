@@ -12,7 +12,7 @@
 		onUploadComplete,
 		onRemove
 	}: {
-		value: string;
+		value?: string;
 		folder?: string;
 		beatId?: string;
 		accept?: string;

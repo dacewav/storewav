@@ -20,7 +20,7 @@
 	}
 
 	function removeSegment(i: number) {
-		const segs = segments.filter((_, idx) => idx !== i);
+		const segs = segments.filter((_: unknown, idx: number) => idx !== i);
 		update('heroVisual.segments', segs);
 	}
 

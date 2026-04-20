@@ -17,7 +17,8 @@
 	let loading = $derived(beats.length === 0 && !beat);
 
 	// Wishlist
-	let inWishlist = $derived(beat ? wishlist.isIn(beat.id) : false);
+	let wishStore = $derived(beat ? wishlist.isIn(beat.id) : null);
+	let inWishlist = $derived($wishStore ?? false);
 
 	// Labels from settings
 	let labels = $derived((s?.labels ?? {}) as LabelSettings);

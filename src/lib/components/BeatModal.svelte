@@ -79,7 +79,7 @@
 					<p class="beat-artist">{beat.artist}</p>
 				</div>
 				<button class="beat-wish-btn" class:active={$inWishlist} onclick={() => beat && wishlist.toggle(beat.id)} aria-label="Favoritos">
-					<Icon name="heart" size={18} filled={$inWishlist} />
+					<Icon name="heart" size={18} filled={!!$inWishlist} />
 				</button>
 			</div>
 

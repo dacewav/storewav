@@ -209,9 +209,11 @@
 			title={search || filterGenre ? 'Sin resultados' : 'Sin beats'}
 			subtitle={search || filterGenre ? 'Prueba con otros filtros' : 'Crea tu primer beat para empezar'}
 		>
-			{#if !search && !filterGenre}
-				<a href="/admin/beats/new" class="btn-new-inline">+ Crear primer beat</a>
-			{/if}
+			{#snippet action()}
+				{#if !search && !filterGenre}
+					<a href="/admin/beats/new" class="btn-new-inline">+ Crear primer beat</a>
+				{/if}
+			{/snippet}
 		</EmptyState>
 	{/if}
 </div>
