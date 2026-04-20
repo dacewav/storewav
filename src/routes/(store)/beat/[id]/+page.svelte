@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { beatsList, genres, player, wishlist, settings } from '$lib/stores';
+	import type { LabelSettings } from '$lib/stores/settings';
 	import { Skeleton, Badge, BeatCard, BeatModal, EmptyState } from '$lib/components';
 	import Waveform from '$lib/components/Waveform.svelte';
 	import Icon from '$lib/components/Icon.svelte';
@@ -19,7 +20,7 @@
 	let inWishlist = $derived(beat ? wishlist.isIn(beat.id) : false);
 
 	// Labels from settings
-	let labels = $derived(s?.labels ?? {});
+	let labels = $derived((s?.labels ?? {}) as LabelSettings);
 	let licenseLabels = $derived({
 		basic: labels.licenseBasic ?? 'Basic',
 		premium: labels.licensePremium ?? 'Premium',
@@ -228,7 +229,7 @@
 							<h3 class="licenses-title">Licencias</h3>
 							{#if selectedLicense}
 								<span class="selected-badge">
-									{licenseLabels[selectedLicense]} · ${beat.licenses[selectedLicense]}
+									{licenseLabels[selectedLicense as keyof typeof licenseLabels]} · ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
 								</span>
 							{/if}
 						</div>
@@ -239,10 +240,10 @@
 									class:selected={selectedLicense === key}
 									onclick={() => selectLicense(key)}
 								>
-									<div class="license-name">{licenseLabels[key] ?? key}</div>
+									<div class="license-name">{licenseLabels[key as keyof typeof licenseLabels] ?? key}</div>
 									<div class="license-price">${price}</div>
-									{#if licenseDescs[key]}
-										<div class="license-desc">{licenseDescs[key]}</div>
+									{#if licenseDescs[key as keyof typeof licenseDescs]}
+										<div class="license-desc">{licenseDescs[key as keyof typeof licenseDescs]}</div>
 									{/if}
 								</button>
 							{/each}
@@ -250,11 +251,11 @@
 						{#if selectedLicense}
 							<a
 								class="buy-btn"
-								href="https://wa.me?text={encodeURIComponent(`Quiero la licencia ${licenseLabels[selectedLicense]} de ${beat.title}`)}"
+								href="https://wa.me?text={encodeURIComponent(`Quiero la licencia ${licenseLabels[selectedLicense as keyof typeof licenseLabels]} de ${beat.title}`)}"
 								target="_blank"
 								rel="noopener"
 							>
-								{labelBuy} {licenseLabels[selectedLicense]} — ${beat.licenses[selectedLicense]}
+								{labelBuy} {licenseLabels[selectedLicense as keyof typeof licenseLabels]} — ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
 							</a>
 						{/if}
 					</div>

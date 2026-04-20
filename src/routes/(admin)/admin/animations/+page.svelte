@@ -3,7 +3,7 @@
 	import { Card } from '$lib/components';
 
 	let s = $derived($settings.data);
-	let anim = $derived(s?.animations ?? {});
+	let anim = $derived((s?.animations ?? {}) as Record<string, any>);
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);

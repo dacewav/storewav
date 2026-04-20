@@ -3,9 +3,9 @@
 	import { Card } from '$lib/components';
 
 	let s = $derived($settings.data);
-	let section = $derived(s?.section ?? {});
-	let cta = $derived(s?.cta ?? {});
-	let labels = $derived(s?.labels ?? {});
+	let section = $derived((s?.section ?? {}) as Record<string, any>);
+	let cta = $derived((s?.cta ?? {}) as Record<string, any>);
+	let labels = $derived((s?.labels ?? {}) as Record<string, any>);
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);

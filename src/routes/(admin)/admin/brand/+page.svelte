@@ -3,8 +3,8 @@
 	import { Card } from '$lib/components';
 
 	let s = $derived($settings.data);
-	let brand = $derived(s?.brand ?? {});
-	let loader = $derived(s?.loader ?? {});
+	let brand = $derived((s?.brand ?? {}) as Record<string, any>);
+	let loader = $derived((s?.loader ?? {}) as Record<string, any>);
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);

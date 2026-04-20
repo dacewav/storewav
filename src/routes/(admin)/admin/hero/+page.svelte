@@ -3,9 +3,9 @@
 	import { Card } from '$lib/components';
 
 	let s = $derived($settings.data);
-	let hv = $derived(s?.heroVisual ?? {});
-	let hero = $derived(s?.hero ?? {});
-	let theme = $derived(s?.theme ?? {});
+	let hv = $derived((s?.heroVisual ?? {}) as Record<string, any>);
+	let hero = $derived((s?.hero ?? {}) as Record<string, any>);
+	let theme = $derived((s?.theme ?? {}) as Record<string, any>);
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);

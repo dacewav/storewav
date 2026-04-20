@@ -3,6 +3,7 @@
 	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { beatsList, genres, settings, player } from '$lib/stores';
+	import type { HeroVisualSettings, LabelSettings } from '$lib/stores/settings';
 	import { staggerReveal } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
 
@@ -17,7 +18,7 @@
 	let heroGlow = $derived(s?.hero?.glowWord ?? 'rompen.');
 
 	// Hero Visual
-	let hv = $derived(s?.heroVisual ?? {});
+	let hv = $derived((s?.heroVisual ?? {}) as HeroVisualSettings);
 	let accent = $derived(s?.theme?.accent ?? '#dc2626');
 
 	// Resolve colors (empty = use accent)
@@ -73,7 +74,7 @@
 	let ctaUrl = $derived(s?.cta?.buttonUrl ?? 'https://wa.me');
 
 	// Labels
-	let labels = $derived(s?.labels ?? {});
+	let labels = $derived((s?.labels ?? {}) as LabelSettings);
 
 	// License count from first beat (or default 4)
 	let licenseCount = $derived(beats.length > 0 && beats[0].licenses ? Object.keys(beats[0].licenses).length : 4);

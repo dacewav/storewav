@@ -231,6 +231,10 @@ export type LabelSettings = {
 	licensePremiumDesc: string;
 	licenseUnlimitedDesc: string;
 	licenseExclusiveDesc: string;
+	preview: string;
+	buy: string;
+	backToCatalog: string;
+	testimonialsTitle: string;
 };
 
 export type SettingsData = {
@@ -408,7 +412,11 @@ const DEFAULT: SettingsData = {
 		licenseBasicDesc: 'MP3 · 1 uso',
 		licensePremiumDesc: 'WAV · Sin tag',
 		licenseUnlimitedDesc: 'WAV + Stems',
-		licenseExclusiveDesc: 'Exclusivo total'
+		licenseExclusiveDesc: 'Exclusivo total',
+		preview: 'Escuchar preview',
+		buy: 'Comprar',
+		backToCatalog: 'Volver al catálogo',
+		testimonialsTitle: 'Lo que dicen'
 	}
 };
 

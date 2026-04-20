@@ -10,17 +10,18 @@
 
 	let s = $derived($settings.data);
 	let faviconUrl = $derived(s?.brand?.favicon || favicon);
-	let t = $derived(s?.theme ?? {});
+	let t = $derived(s?.theme);
 
 	// Apply theme as CSS vars on <html>
 	$effect(() => {
 		if (typeof document === 'undefined' || !t) return;
 		const r = document.documentElement;
+		const theme = t as Record<string, any>;
 
 		// Accent
-		if (t.accent) {
-			r.style.setProperty('--accent', t.accent);
-			const h = t.accent.replace('#', '');
+		if (theme.accent) {
+			r.style.setProperty('--accent', theme.accent);
+			const h = theme.accent.replace('#', '');
 			const rr = parseInt(h.substring(0, 2), 16) || 0;
 			const gg = parseInt(h.substring(2, 4), 16) || 0;
 			const bb = parseInt(h.substring(4, 6), 16) || 0;
@@ -30,9 +31,9 @@
 		}
 
 		// Glow
-		const gc = t.glowColor || t.accent || '#dc2626';
-		const gi = t.glowIntensity ?? 1;
-		const gb = t.glowBlur ?? 20;
+		const gc = theme.glowColor || theme.accent || '#dc2626';
+		const gi = theme.glowIntensity ?? 1;
+		const gb = theme.glowBlur ?? 20;
 		const gh = gc.replace('#', '');
 		const gr = parseInt(gh.substring(0, 2), 16) || 0;
 		const gG = parseInt(gh.substring(2, 4), 16) || 0;
@@ -43,47 +44,47 @@
 		}
 
 		// Spacing
-		if (t.radiusGlobal != null) {
-			r.style.setProperty('--radius-md', `${t.radiusGlobal}px`);
-			r.style.setProperty('--radius-lg', `${Math.round(t.radiusGlobal * 1.6)}px`);
+		if (theme.radiusGlobal != null) {
+			r.style.setProperty('--radius-md', `${theme.radiusGlobal}px`);
+			r.style.setProperty('--radius-lg', `${Math.round(theme.radiusGlobal * 1.6)}px`);
 		}
-		if (t.sectionPadding != null) r.style.setProperty('--section-padding', `${t.sectionPadding}rem`);
-		if (t.beatGap != null) r.style.setProperty('--beat-gap', `${t.beatGap}px`);
+		if (theme.sectionPadding != null) r.style.setProperty('--section-padding', `${theme.sectionPadding}rem`);
+		if (theme.beatGap != null) r.style.setProperty('--beat-gap', `${theme.beatGap}px`);
 
 		// Fonts
-		if (t.fontDisplay) {
-			r.style.setProperty('--font-display', `'${t.fontDisplay}', sans-serif`);
+		if (theme.fontDisplay) {
+			r.style.setProperty('--font-display', `'${theme.fontDisplay}', sans-serif`);
 			// Load font
 			const id = 'gf-display-dyn';
 			if (!document.getElementById(id)) {
 				const link = document.createElement('link');
 				link.id = id;
 				link.rel = 'stylesheet';
-				link.href = `https://fonts.googleapis.com/css2?family=${t.fontDisplay.replace(/ /g, '+')}:wght@400;700;800&display=swap`;
+				link.href = `https://fonts.googleapis.com/css2?family=${theme.fontDisplay.replace(/ /g, '+')}:wght@400;700;800&display=swap`;
 				document.head.appendChild(link);
 			}
 		}
-		if (t.fontBody) {
-			r.style.setProperty('--font-body', `'${t.fontBody}', monospace`);
+		if (theme.fontBody) {
+			r.style.setProperty('--font-body', `'${theme.fontBody}', monospace`);
 			const id = 'gf-body-dyn';
 			if (!document.getElementById(id)) {
 				const link = document.createElement('link');
 				link.id = id;
 				link.rel = 'stylesheet';
-				link.href = `https://fonts.googleapis.com/css2?family=${t.fontBody.replace(/ /g, '+')}:wght@400;500&display=swap`;
+				link.href = `https://fonts.googleapis.com/css2?family=${theme.fontBody.replace(/ /g, '+')}:wght@400;500&display=swap`;
 				document.head.appendChild(link);
 			}
 		}
-		if (t.fontSize) r.style.fontSize = `${t.fontSize}px`;
-		if (t.fontWeight) r.style.setProperty('--font-w', String(t.fontWeight));
+		if (theme.fontSize) r.style.fontSize = `${theme.fontSize}px`;
+		if (theme.fontWeight) r.style.setProperty('--font-w', String(theme.fontWeight));
 
 		// Card effects
-		if (t.blurBg != null) r.style.setProperty('--blur-bg', `${t.blurBg}px`);
-		if (t.grainOpacity != null) r.style.setProperty('--grain-opacity', String(t.grainOpacity));
+		if (theme.blurBg != null) r.style.setProperty('--blur-bg', `${theme.blurBg}px`);
+		if (theme.grainOpacity != null) r.style.setProperty('--grain-opacity', String(theme.grainOpacity));
 
 		// Player bar
-		if (t.wbarHeight != null) r.style.setProperty('--wbar-h', `${t.wbarHeight}px`);
-		if (t.wbarRadius != null) r.style.setProperty('--wbar-r', `${t.wbarRadius}px`);
+		if (theme.wbarHeight != null) r.style.setProperty('--wbar-h', `${theme.wbarHeight}px`);
+		if (theme.wbarRadius != null) r.style.setProperty('--wbar-r', `${theme.wbarRadius}px`);
 
 		// Hero layout
 		const ly = s?.layout;
@@ -98,7 +99,7 @@
 
 <svelte:head>
 	<link rel="icon" href={faviconUrl} />
-	<meta name="theme-color" content={t?.accent || '#060404'} />
+	<meta name="theme-color" content={s?.theme?.accent || '#060404'} />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 
