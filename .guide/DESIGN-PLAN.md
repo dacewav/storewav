@@ -209,3 +209,224 @@ Resultado: PASS / FIX-NEEDED (items)
 ---
 
 *Plan creado: 2026-04-20 — v1.0*
+
+---
+
+# 🏗️ MEGA PLAN DE CONSTRUCCIÓN — Store Completo
+
+> Audit profundo de TODO el proyecto (2026-04-20 23:11).
+> 69 archivos, 9613 líneas, 29 componentes, 10 stores, 11 rutas.
+> Este plan cubre lo que FALTA para que la tienda esté 100% lista.
+
+---
+
+## Estado Actual (post-audits)
+
+```
+TIENDA (público)                    ADMIN (privado)
+━━━━━━━━━━━━━━━━━━━━━━━━           ━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Store page (hero, grid, filtros) ✅ Dashboard
+✅ Beat Page (/beat/[id])           ✅ Beats CRUD (list + editor 5 tabs)
+✅ Player bar                       ✅ Hero Editor (385 líneas)
+✅ Filters (search, genre, key)     ✅ Content Editor (section, CTA, labels)
+✅ Wishlist panel                   ✅ Theme Editor (colores, glow, fonts)
+✅ Testimonials                     ✅ Banner Editor
+✅ Login page                       ✅ Brand Editor
+✅ Error page (404)                 ✅ Layout Editor
+✅ Beat Modal (legacy)              ✅ Animations Editor
+                                    ✅ Route guards (auth + admin check)
+```
+
+**Build:** ✅ 0 errores | **TypeScript:** ✅ 0 `any` | **Firebase Rules:** ✅ Validadas
+
+---
+
+## GAP ANALYSIS: Catalog → Store (features que faltan)
+
+| # | Feature Catalog | Store Status | Prioridad | Esfuerzo |
+|---|----------------|-------------|-----------|----------|
+| 1 | Featured beats section ("Destacados") | ❌ No tiene | 🟠 Alto | 30 min |
+| 2 | Custom links en hero (debajo del título) | ❌ No tiene | 🟡 Medio | 20 min |
+| 3 | Animated stat counters (count-up) | ❌ Estático | 🟡 Medio | 15 min |
+| 4 | Waveform bars en cards al reproducir | ❌ No tiene | 🟡 Medio | 45 min |
+| 5 | Floating elements (admin-configurable) | ❌ No tiene | 🟢 Bajo | 1h |
+| 6 | SoundCloud waveform real (Web Audio) | ❌ Solo visual | 🟢 Bajo | 1h |
+| 7 | 40+ animation presets (store solo 10) | ❌ Solo 10 | 🟢 Bajo | 30 min |
+| 8 | Play pulse non-disruptivo en card anim | ✅ Fixeado | ✅ | — |
+
+---
+
+## GAP ANALYSIS: Admin (funcionalidad que falta)
+
+| # | Feature | Status | Prioridad | Esfuerzo |
+|---|---------|--------|-----------|----------|
+| 1 | Save status wired a Firebase | ⚠️ Dummy | 🟠 Alto | 20 min |
+| 2 | Auto-save con debounce | ❌ No tiene | 🟠 Alto | 30 min |
+| 3 | Undo/redo en admin | ❌ No tiene | 🟡 Medio | 1h |
+| 4 | Export/import data (JSON) | ❌ No tiene | 🟡 Medio | 30 min |
+| 5 | Storage rules (Firebase) | ❌ No tiene | 🟠 Alto | 10 min |
+| 6 | Bulk actions (activate/deactivate) | ❌ No tiene | 🟡 Medio | 30 min |
+| 7 | Keyboard shortcuts globales admin | ⚠️ Solo Ctrl+S | 🟢 Bajo | 15 min |
+| 8 | Changelog de cambios | ❌ No tiene | 🟢 Bajo | 20 min |
+
+---
+
+## GAP ANALYSIS: Quality & Deploy
+
+| # | Feature | Status | Prioridad | Esfuerzo |
+|---|---------|--------|-----------|----------|
+| 1 | Cloudflare Pages config | ⚠️ wrangler.jsonc existe, sin deploy | 🟠 Alto | 15 min |
+| 2 | OG image por defecto | ❌ No tiene | 🟡 Medio | 10 min |
+| 3 | Sitemap.xml | ❌ No tiene | 🟡 Medio | 10 min |
+| 4 | robots.txt | ❌ No tiene | 🟢 Bajo | 5 min |
+| 5 | Lazy load imágenes (beat cards) | ✅ Ya tiene | ✅ | — |
+| 6 | Code splitting (admin routes) | ⚠️ SvelteKit default | 🟢 Bajo | 0 min |
+| 7 | Performance audit (Lighthouse) | ❌ No hecho | 🟡 Medio | 20 min |
+| 8 | favicons (og:image, apple-touch) | ❌ Solo SVG | 🟢 Bajo | 10 min |
+
+---
+
+## MEGA PLAN — Ejecución por Orden
+
+### 🟠 PRIORIDAD 1: Crítico para funcionalidad (hoy)
+
+```
+1.1  Save status → Firebase (admin layout)
+1.2  Auto-save debounce (BeatEditor)
+1.3  Firebase Storage rules
+1.4  Featured beats section (store page)
+1.5  Cloudflare deploy config check
+```
+
+### 🟡 PRIORIDAD 2: Features importantes (esta semana)
+
+```
+2.1  Animated stat counters
+2.2  Custom links en hero
+2.3  Undo/redo admin
+2.4  Export/import data
+2.5  OG image por defecto
+2.6  Sitemap + robots.txt
+2.7  Bulk actions (admin beats)
+2.8  Waveform bars en cards
+```
+
+### 🟢 PRIORIDAD 3: Polish & extras (cuando haya tiempo)
+
+```
+3.1  Floating elements (admin)
+3.2  40+ animation presets
+3.3  Keyboard shortcuts admin
+3.4  Changelog de cambios
+3.5  Performance audit (Lighthouse)
+3.6  Apple-touch icon + favicon PNG
+3.7  SoundCloud waveform real
+3.8  WebGL hero background (futuro)
+```
+
+---
+
+## Detalle por Item
+
+### 1.1 Save status → Firebase
+**Qué:** El `saveStatus` en admin layout es un state dummy. Conectarlo al `settings.update()` real.
+**Dónde:** `(admin)/+layout.svelte` + cada admin page
+**Cómo:** Cada page pasa `saveStatus` que refleja el estado real del write a Firebase.
+
+### 1.2 Auto-save con debounce
+**Qué:** BeatEditor guarda automáticamente 1s después del último cambio.
+**Dónde:** `BeatEditor.svelte`
+**Cómo:** `$effect` + `setTimeout` → `updateBeat()` + toast de confirmación.
+
+### 1.3 Firebase Storage rules
+**Qué:** Reglas para que solo admin pueda subir/borrar archivos.
+**Dónde:** `storage.rules` (ya existe pero necesita validación)
+**Cómo:** Verificar que la regla actual es correcta.
+
+### 1.4 Featured beats section
+**Qué:** Sección "Destacados" entre el hero y el catálogo, muestra beats con `featured: true`.
+**Dónde:** `+page.svelte` (store)
+**Cómo:** Nuevo bloque con grid de BeatCards, máximo 4, solo si hay featured.
+
+### 1.5 Cloudflare deploy config
+**Qué:** Verificar que `wrangler.jsonc` tiene la config correcta para deploy.
+**Dónde:** `wrangler.jsonc`
+**Cómo:** Check + fix si necesario.
+
+### 2.1 Animated stat counters
+**Qué:** Los números del hero (beats, géneros, licencias) animan de 0 al valor real.
+**Dónde:** `+page.svelte` (store)
+**Cómo:** Svelte action `animateCounter` o simple CSS counter + IntersectionObserver.
+
+### 2.2 Custom links en hero
+**Qué:** Botones de links (WhatsApp, Instagram, etc.) debajo del título hero.
+**Dónde:** `+page.svelte` (store)
+**Cómo:** Render `settings.links` como botones con estilos de marca.
+
+### 2.3 Undo/redo admin
+**Qué:** Botones undo/redo que deshacen/rehacen cambios en settings.
+**Dónde:** `settings.ts` store + `AdminTopbar.svelte`
+**Cómo:** Stack de cambios (max 20), pop/push al hacer undo/redo.
+
+### 2.4 Export/import data
+**Qué:** Botón para descargar todos los settings+beats como JSON, y subir para restaurar.
+**Dónde:** Admin dashboard o topbar
+**Cómo:** `JSON.stringify` + `Blob` + download. Import: `FileReader` + `settings.set()`.
+
+### 2.5 OG image
+**Qué:** Imagen por defecto para social sharing (og:image).
+**Dónde:** `static/og-image.png` + `+layout.svelte`
+**Cómo:** Crear imagen 1200x630, referenciar en `<meta>`.
+
+### 2.6 Sitemap + robots
+**Qué:** Archivos SEO básicos.
+**Dónde:** `static/sitemap.xml`, `static/robots.txt`
+**Cómo:** Archivos estáticos simples.
+
+### 2.7 Bulk actions
+**Qué:** Seleccionar múltiples beats y activar/desactivar/borrar de golpe.
+**Dónde:** `admin/beats/+page.svelte`
+**Cómo:** Checkboxes + action bar when selected.
+
+### 2.8 Waveform bars en cards
+**Qué:** Barras animadas en el BeatCard cuando el beat está reproduciéndose.
+**Dónde:** `BeatCard.svelte`
+**Cómo:** 15-20 divs con height random, animados cuando `$player.beatId === beat.id`.
+
+---
+
+## Execution Order (próxima sesión)
+
+```
+SESIÓN A (hoy, si queda tiempo):
+  1.1 → 1.2 → 1.3 → 1.4 → 1.5
+  Commit: "admin: save status + auto-save + featured section + deploy config"
+
+SESIÓN B (siguiente):
+  2.1 → 2.2 → 2.5 → 2.6 → 2.4
+  Commit: "features: animated counters, hero links, OG, sitemap, export"
+
+SESIÓN C:
+  2.3 → 2.7 → 2.8 → 3.1 → 3.2
+  Commit: "admin: undo/redo, bulk actions, waveform cards, animations"
+
+SESIÓN D (polish final):
+  3.3 → 3.4 → 3.5 → 3.6 → Lighthouse audit
+  Commit: "polish: shortcuts, changelog, perf audit, favicons"
+```
+
+---
+
+## Reglas del Mega Plan
+
+1. **Cada item se testea antes de marcar ✅**
+2. **Build debe pasar después de cada item**
+3. **Commit por sesión (no por item individual)**
+4. **Si un item bloquea otro, se hace primero**
+5. **No inventar features que no están en el plan**
+6. **Audit al final de cada sesión**
+
+---
+
+*Mega plan: 2026-04-20 23:11 — v1.0*
+*Basado en audit de 69 archivos, 9613 líneas de código*
