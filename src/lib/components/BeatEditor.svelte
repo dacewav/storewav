@@ -87,6 +87,21 @@
 	function handleDelete() { deleteConfirm = true; }
 	function confirmDelete() { deleteConfirm = false; onDelete?.(); }
 	function cancelDelete() { deleteConfirm = false; }
+
+	// Auto-save with debounce (1s after last change)
+	let autoSaveTimer: ReturnType<typeof setTimeout> | null = $state(null);
+	let lastSaved = $state(Date.now());
+
+	$effect(() => {
+		// Track beat changes to trigger auto-save
+		const _ = JSON.stringify(beat);
+		if (saveStatus === 'unsaved' && onSave) {
+			if (autoSaveTimer) clearTimeout(autoSaveTimer);
+			autoSaveTimer = setTimeout(() => {
+				onSave?.();
+			}, 1000);
+		}
+	});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />

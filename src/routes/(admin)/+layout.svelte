@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AdminTopbar } from '$lib/components';
-	import { auth, settings } from '$lib/stores';
+	import { auth, settings, saveStatus as saveStatusStore } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import type { Snippet } from 'svelte';
@@ -19,7 +19,7 @@
 		}
 	});
 
-	let saveStatus = $state<'saved' | 'saving' | 'unsaved' | 'error'>('saved');
+	let currentSaveStatus = $derived($saveStatusStore);
 
 	// Detect active from URL
 	let currentPath = $derived(page.url.pathname);
@@ -62,7 +62,7 @@
 </svelte:head>
 
 <div class="admin-layout">
-	<AdminTopbar {brandName} {saveStatus} onSave={() => {}}>
+	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => {}}>
 		<span class="admin-section-label">{sectionLabel()}</span>
 	</AdminTopbar>
 

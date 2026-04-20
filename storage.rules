@@ -1,14 +1,12 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Admin can upload anything
-    match /beats/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && request.resource.size < 50 * 1024 * 1024; // 50MB max
-    }
 
-    // Covers: images only
+    // Para verificar admin sin Cloud Functions, Storage usa request.auth.uid
+    // La lista de admin UIDs se mantiene aquí + en PUBLIC_ADMIN_UIDS (env)
+    // Si usas Cloud Functions, cambia a request.auth.token.admin == true
+
+    // Covers: images only (admin only)
     match /beats/covers/{beatId}/{fileName} {
       allow read: if true;
       allow write: if request.auth != null
@@ -16,7 +14,7 @@ service firebase.storage {
         && request.resource.size < 10 * 1024 * 1024; // 10MB
     }
 
-    // Audio: audio files only
+    // Audio: audio files only (admin only)
     match /beats/audio/{beatId}/{fileName} {
       allow read: if true;
       allow write: if request.auth != null
@@ -24,12 +22,17 @@ service firebase.storage {
         && request.resource.size < 50 * 1024 * 1024; // 50MB
     }
 
-    // Previews: audio files only
+    // Previews: audio files only (admin only)
     match /beats/previews/{beatId}/{fileName} {
       allow read: if true;
       allow write: if request.auth != null
         && request.resource.contentType.matches('audio/.*')
         && request.resource.size < 20 * 1024 * 1024; // 20MB
+    }
+
+    // Block everything else
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -79,6 +79,10 @@
 	// License count from first beat (or default 4)
 	let licenseCount = $derived(beats.length > 0 && beats[0].licenses ? Object.keys(beats[0].licenses).length : 4);
 	let testimonialsTitle = $derived(s?.labels?.testimonialsTitle ?? 'Lo que dicen');
+
+	// Featured beats (for the featured section)
+	let featuredBeats = $derived(beats.filter(b => b.featured).slice(0, 4));
+
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
 	let filters: FilterState = $state({ search: '', genre: '', key: '', sort: 'newest', tags: [] });
 
@@ -199,6 +203,22 @@
 		</div>
 	</div>
 </section>
+
+<!-- Featured beats -->
+{#if featuredBeats.length > 0}
+<section class="featured-section" use:reveal>
+	<div class="section-header">
+		<h2 class="section-title">🔥 Destacados</h2>
+		<div class="section-line"></div>
+		<div class="section-badge">{featuredBeats.length} beats</div>
+	</div>
+	<div class="beat-grid" use:staggerReveal={{ delay: 60 }}>
+		{#each featuredBeats as beat (beat.id)}
+			<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
+		{/each}
+	</div>
+</section>
+{/if}
 
 <!-- Section divider -->
 {#if dividerTitle}
@@ -481,6 +501,15 @@
 		margin-inline: auto;
 		position: relative;
 		line-height: 1.8;
+	}
+
+	/* ── Featured beats ── */
+	.featured-section {
+		position: relative;
+		z-index: var(--z-content);
+		padding: var(--space-8) var(--container-padding);
+		max-width: var(--container-max);
+		margin: 0 auto;
 	}
 
 	/* ── Section ── */

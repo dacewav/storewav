@@ -20,6 +20,7 @@
 
 import { createFirebaseStore } from './_firebaseStore';
 import type { CardStyleConfig } from '$lib/cardStyleEngine';
+import { writable, type Writable } from 'svelte/store';
 
 export type HeroSettings = {
 	title: string;
@@ -438,10 +439,20 @@ const DEFAULT: SettingsData = {
 
 const base = createFirebaseStore<SettingsData>('settings', DEFAULT);
 
+/** Save status store — admin pages set this, layout reads it */
+export type SaveStatus = 'saved' | 'saving' | 'unsaved' | 'error';
+export const saveStatus: Writable<SaveStatus> = writable('saved');
+
 /** Helper para actualizar un campo por dot-path (ej: 'heroVisual.glowOn') */
 async function updateField(dotPath: string, value: unknown) {
-	// Firebase update acepta claves con dot-notation directamente
-	await base.update({ [dotPath]: value } as Partial<SettingsData>);
+	saveStatus.set('saving');
+	try {
+		// Firebase update acepta claves con dot-notation directamente
+		await base.update({ [dotPath]: value } as Partial<SettingsData>);
+		saveStatus.set('saved');
+	} catch {
+		saveStatus.set('error');
+	}
 }
 
 export const settings = {
