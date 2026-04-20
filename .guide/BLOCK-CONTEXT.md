@@ -2,40 +2,57 @@
 
 > **Este archivo se REESCRIBE cada vez que cambiamos de bloque.**
 
-## Bloque Actual: Post-Bloque 9 — MEGA PLAN COMPLETO ✅
+## Bloque Actual: Post-Bloque 10 — Pulido Profundo
 
 ```yaml
-bloque: "post-9"
-nombre: "Mega Plan completado — Sesión A+B+C+D"
-estado: "COMPLETO"
-sesiones_hoy: 2 (22:29 - 23:14, 23:32 - 23:59)
-commits_hoy: 14
-ultimo_commit: "6069f57"
+bloque: "post-10"
+nombre: "Audit profundo por bloques + fix bugs visuales admin"
+estado: "en progreso — siguiente sesión"
+sesión_anterior: "2026-04-20 23:32-00:06 (A+B+C+D mega plan + audit profundo)"
+commits_totales: 17
+ultimo_commit: "97528e2"
 ```
 
-## Estado
+## Estado del Proyecto
 
 - ✅ Bloques 0-5: Store frontend completa
-- ✅ Admin: Completo + undo/redo + bulk actions + keyboard shortcuts
-- ✅ Mega Plan: 26/26 items completados (4 sesiones)
+- ✅ Bloque 6: Admin Auth + Layout
+- ✅ Bloque 7: Admin Beats CRUD (falta: preview audio inline)
+- ✅ Bloque 8: Admin Theme Editor (falta: toggle light/dark UI, reset defaults)
+- ✅ Bloque 9: Admin Content Editor
+- ⚠️ Bloque 10: Polish & Deploy (falta: Lighthouse, domain, analytics)
+- ✅ Mega Plan: 26/26 items completados
 - ✅ Audit por secciones: 6/6 PASS
-- ✅ Build: 0 errores
+- ✅ svelte-check: 0 errores, 6 warnings
 
-## Mega Plan — COMPLETADO ✅
+## Qué Hacer en Esta Sesión
 
-### Sesión A (P1) ✅
-Save status real, auto-save, storage rules, featured beats, deploy check
+### Protocolo: Audit bloque por bloque
+1. Leer `.guide/AUDIT-MASTER.md` — checklist completo
+2. Ir bloque por bloque (0→10)
+3. Para cada bloque:
+   - Revisar código fuente
+   - Comparar con catalog v5.2 (si aplica)
+   - Marcar ✅ o documentar bugs
+   - Fixear lo que se pueda
+4. Al final: commit + push + actualizar PROJECT_STATE.md
 
-### Sesión B (P2) ✅
-Animated counters, hero links, OG image, sitemap, export/import
+### Prioridad de fixes
+1. Bugs visuales en admin (cosas que no se muestran bien)
+2. Features incompletas de bloques 7-8-10
+3. Catalog vs store gaps (cursor glow, scroll progress, orbs, etc.)
+4. Limpieza de código (dead code, warnings)
 
-### Sesión C (P2-3) ✅
-Undo/redo, bulk actions, waveform cards, 44 anim presets
+## Referencia
 
-### Sesión D (P3) ✅
-Keyboard shortcuts, changelog, favicon, perf audit
+| Archivo | Qué contiene |
+|---------|-------------|
+| `.guide/AUDIT-MASTER.md` | **CHECKLIST MAESTRO** — guía para esta sesión |
+| `.guide/DESIGN-PLAN.md` | Plan de diseño catalog→store + mega plan |
+| `.guide/PROJECT_STATE.md` | Estado completo del proyecto |
+| `.guide/BLOCK-CONTEXT.md` | Este archivo |
+| `CHANGELOG.md` | Historial de cambios |
 
 ---
 
-**Mega plan: 26/26 ✅ | Commits hoy: 14 | Líneas: ~9600+**
-**Última actualización: 2026-04-20 23:59**
+**Última actualización: 2026-04-21 00:06**
