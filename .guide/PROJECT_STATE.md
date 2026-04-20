@@ -14,10 +14,11 @@ repo: https://github.com/dacewav/store.git
 version: 1.0.0
 framework: SvelteKit + Cloudflare
 firebase_project: dacewav-store-3b0f5
-ultimo_chat: "2026-04-20 23:14"
-bloque_actual: "Post-Bloque 5 — Audits, Diseño, Mega Plan"
-ultima_tarea: "Audit profundo + catalog design upgrades + mega plan de construcción (26 items)"
-proxima_tarea: "Sesión A del mega plan: save status, auto-save, storage rules, featured section, deploy config"
+ultimo_chat: "2026-04-20 23:42"
+bloque_actual: "Post-Bloque 6 — Sesión A Mega Plan ✅ + Audit por secciones"
+ultima_tarea: "Sesión A: save status real, auto-save, featured beats, storage rules, deploy check"
+proxima_tarea: "Audit por secciones (stores, components, routes, design, a11y, security)"
+commit_actual: "d4361e4"
 ```
 
 ## Progreso de Bloques
