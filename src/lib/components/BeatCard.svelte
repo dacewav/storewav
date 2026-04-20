@@ -22,9 +22,9 @@
 	} = $props();
 
 	let inWishlist = $derived(wishlist.isIn(beat.id));
+	let playing = $state(false);
 
 	// Card style engine: merge global (from settings) + per-beat
-	// Read accent-rgb from CSS var (set by theme engine from Firebase)
 	let accentRgb = $state('220, 38, 38');
 	$effect(() => {
 		if (typeof document !== 'undefined') {
@@ -46,6 +46,9 @@
 
 	function handlePlay(e: MouseEvent) {
 		e.stopPropagation();
+		// Play pulse effect
+		playing = true;
+		setTimeout(() => { playing = false; }, 600);
 		onplay?.(beat);
 	}
 </script>
@@ -54,6 +57,7 @@
 <article
 	class="beat-card"
 	class:has-shimmer={hasShimmer}
+	class:play-pulse={playing}
 	use:tilt={{ max: 6 }}
 	onclick={() => onclick?.(beat)}
 	onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onclick?.(beat); } }}
@@ -64,6 +68,11 @@
 	<!-- Shimmer overlay -->
 	{#if hasShimmer}
 		<div class="shimmer-overlay"></div>
+	{/if}
+
+	<!-- Featured badge -->
+	{#if beat.featured}
+		<span class="featured-badge">TOP</span>
 	{/if}
 
 	<!-- Cover -->
@@ -126,12 +135,40 @@
 		overflow: hidden;
 		cursor: pointer;
 		transition: all var(--duration-normal) var(--ease-out);
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 	}
 
 	.beat-card:hover {
 		border-color: var(--border-hover-accent);
-		box-shadow: var(--shadow-lg), 0 0 30px rgba(var(--accent-rgb), 0.08);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 30px rgba(var(--accent-rgb), 0.08);
 		transform: translateY(-3px);
+	}
+
+	/* ── Play Pulse Ring ── */
+	.beat-card.play-pulse {
+		animation: playPulseRing 0.6s ease-out;
+	}
+
+	@keyframes playPulseRing {
+		0% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
+		70% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 12px rgba(var(--accent-rgb), 0); }
+		100% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 0 rgba(var(--accent-rgb), 0); }
+	}
+
+	/* ── Featured Badge ── */
+	.featured-badge {
+		position: absolute;
+		top: var(--space-3);
+		left: var(--space-3);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		padding: 2px 8px;
+		border-radius: var(--radius-full);
+		background: rgba(var(--accent-rgb), 0.9);
+		color: var(--bg);
+		letter-spacing: 0.14em;
+		z-index: 3;
+		font-weight: 600;
 	}
 
 	/* ── Shimmer overlay ── */

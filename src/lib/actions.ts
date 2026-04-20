@@ -126,6 +126,64 @@ export const reveal: Action<HTMLElement, { threshold?: number }> = (node, params
 	};
 };
 
+/** Sibling blur — blur all sibling cards on hover (like catalog) */
+export const siblingBlur: Action<HTMLElement, { blur?: number; opacity?: number }> = (node, params = {}) => {
+	const blurPx = params.blur ?? 3;
+	const opacity = params.opacity ?? 0.6;
+
+	function onMouseEnter() {
+		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
+		cards.forEach((card) => {
+			card.style.filter = `blur(${blurPx}px)`;
+			card.style.opacity = String(opacity);
+			card.style.transition = 'filter 0.3s, opacity 0.3s';
+		});
+	}
+
+	function onMouseLeave() {
+		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
+		cards.forEach((card) => {
+			card.style.filter = '';
+			card.style.opacity = '';
+		});
+	}
+
+	// Only on devices with hover
+	const mq = window.matchMedia('(hover: hover)');
+	if (!mq.matches) return { destroy() {} };
+
+	// Delegate: listen for mouseenter/mouseleave on cards within the grid
+	node.addEventListener('mouseenter', (e) => {
+		const card = (e.target as HTMLElement)?.closest('.beat-card');
+		if (!card) return;
+		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
+		cards.forEach((c) => {
+			if (c !== card) {
+				c.style.filter = `blur(${blurPx}px)`;
+				c.style.opacity = String(opacity);
+				c.style.transition = 'filter 0.3s, opacity 0.3s';
+			} else {
+				c.style.filter = '';
+				c.style.opacity = '';
+			}
+		});
+	}, true);
+
+	node.addEventListener('mouseleave', (e) => {
+		const card = (e.target as HTMLElement)?.closest('.beat-card');
+		if (!card) return;
+		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
+		cards.forEach((c) => {
+			c.style.filter = '';
+			c.style.opacity = '';
+		});
+	}, true);
+
+	return {
+		destroy() {}
+	};
+};
+
 /** Click ripple effect */
 export const ripple: Action<HTMLElement> = (node) => {
 	let rippleTimer: ReturnType<typeof setTimeout> | null = null;

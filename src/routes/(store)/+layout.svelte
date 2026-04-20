@@ -14,6 +14,8 @@
 	let loaderFading = $state(false);
 	let cursorX = $state(-500);
 	let cursorY = $state(-500);
+	let cursorLerpX = $state(-500);
+	let cursorLerpY = $state(-500);
 	let menuOpen = $state(false);
 	let isDark = $state(true);
 	let mobileMenuEl: HTMLElement | undefined = $state();
@@ -135,6 +137,19 @@
 			navScrolled = y > 50;
 			lastScrollY = y;
 
+			// Hero parallax — translateY + opacity fade
+			const hero = document.querySelector('.hero') as HTMLElement | null;
+			if (hero) {
+				const heroH = hero.offsetHeight;
+				if (y < heroH * 1.5) {
+					hero.style.transform = `translateY(${y * 0.15}px)`;
+					const title = hero.querySelector('.hero-title') as HTMLElement | null;
+					if (title) title.style.transform = `translateY(${y * 0.08}px)`;
+					const op = 1 - y / (heroH * 1.2);
+					hero.style.opacity = String(Math.max(0.3, op));
+				}
+			}
+
 			if (menuOpen) closeMenu();
 		}
 
@@ -142,6 +157,19 @@
 			cursorX = e.clientX;
 			cursorY = e.clientY;
 		}
+
+		// Cursor glow lerp — smooth follow (0.08 factor)
+		let cursorRaf: number;
+		function lerpCursor() {
+			cursorLerpX += (cursorX - cursorLerpX) * 0.08;
+			cursorLerpY += (cursorY - cursorLerpY) * 0.08;
+			const glow = document.getElementById('cursor-glow');
+			if (glow) {
+				glow.style.transform = `translate(${cursorLerpX - 200}px, ${cursorLerpY - 200}px)`;
+			}
+			cursorRaf = requestAnimationFrame(lerpCursor);
+		}
+		lerpCursor();
 
 		function onKeydown(e: KeyboardEvent) {
 			if (e.key === 'Escape' && menuOpen) closeMenu();
@@ -161,6 +189,7 @@
 			window.removeEventListener('scroll', onScroll);
 			window.removeEventListener('mousemove', onMouseMove);
 			window.removeEventListener('keydown', onKeydown);
+			cancelAnimationFrame(cursorRaf);
 		};
 	});
 </script>
@@ -206,11 +235,11 @@
 </div>
 {/if}
 
-<!-- Scroll progress -->
+<!-- Scroll progress (gradient) -->
 <div id="scroll-progress" style="width: {scrollProgress}%"></div>
 
-<!-- Cursor glow -->
-<div id="cursor-glow" style="left: {cursorX}px; top: {cursorY}px"></div>
+<!-- Cursor glow (position set by lerp in JS) -->
+<div id="cursor-glow"></div>
 
 <!-- Floating orbs -->
 <div class="orb orb1"></div>

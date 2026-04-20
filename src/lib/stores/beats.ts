@@ -46,6 +46,7 @@ export type Beat = {
 	createdAt: number;
 	order?: number;
 	active: boolean;
+	featured?: boolean;
 	cardStyle?: Record<string, unknown>;
 };
 

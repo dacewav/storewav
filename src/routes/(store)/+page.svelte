@@ -4,7 +4,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { beatsList, genres, settings, player } from '$lib/stores';
 	import type { HeroVisualSettings, LabelSettings } from '$lib/stores/settings';
-	import { staggerReveal, reveal } from '$lib/actions';
+	import { staggerReveal, reveal, siblingBlur } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
 
 	let beats = $derived($beatsList);
@@ -240,7 +240,7 @@
 	<!-- Beat grid -->
 	{#if beats.length > 0}
 		{#if filteredBeats.length > 0}
-			<div class="beat-grid" use:staggerReveal={{ delay: 60 }}>
+			<div class="beat-grid" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ blur: 3, opacity: 0.5 }}>
 				{#each filteredBeats as beat (beat.id)}
 					<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 				{/each}
