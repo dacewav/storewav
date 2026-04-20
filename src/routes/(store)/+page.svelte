@@ -169,11 +169,13 @@
 			{#if hv.strokeOn}
 				<span
 					class="glow-word stroke-mode"
-					style="color: transparent; -webkit-text-stroke: {hv.strokeW ?? 1}px {strokeClr}; --hw-blur: {hv.wordBlur ?? 10}px; --hw-op: {hv.wordOp ?? 0.35}"
+					data-t={heroGlow}
+					style="-webkit-text-stroke: {hv.strokeW ?? 1}px {strokeClr}; --hw-blur: {hv.wordBlur ?? 10}px; --hw-op: {hv.wordOp ?? 0.35}"
 				>{heroGlow}</span>
 			{:else}
 				<span
 					class="glow-word"
+					data-t={heroGlow}
 					style="color: {glowClr}; --hw-blur: {hv.wordBlur ?? 10}px; --hw-op: {hv.wordOp ?? 0.35}"
 				>{heroGlow}</span>
 			{/if}
@@ -292,6 +294,7 @@
 		inset: 0;
 		background: var(--hero-grad, radial-gradient(ellipse 80% 60% at 50% 0%, var(--accent-glow), transparent));
 		pointer-events: none;
+		transition: background 0.6s ease;
 	}
 
 	.hero::after {
@@ -299,10 +302,11 @@
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
-		opacity: 0.03;
+		opacity: 0.04;
 		background:
 			radial-gradient(at 20% 80%, var(--accent) 0, transparent 50%),
-			radial-gradient(at 80% 20%, var(--accent-glow-strong) 0, transparent 50%);
+			radial-gradient(at 80% 20%, var(--accent-glow-strong) 0, transparent 50%),
+			radial-gradient(at 50% 50%, var(--red) 0, transparent 60%);
 		background-size: 200% 200%;
 		animation: gradientShift 12s ease infinite;
 	}
@@ -355,18 +359,31 @@
 		z-index: var(--z-content);
 		color: var(--text);
 		animation: fadeInUp 0.7s var(--ease-out) 1.55s both;
+		overflow-wrap: break-word;
 	}
 
 	.glow-word {
 		display: inline-block;
 		position: relative;
-		text-shadow: 0 0 calc(var(--hw-blur, 10) * 1px) currentColor;
+	}
+
+	.glow-word::after {
+		content: attr(data-t);
+		position: absolute;
+		inset: 0;
+		color: inherit;
+		filter: blur(calc(var(--hw-blur, 10) * 1px));
 		opacity: var(--hw-op, 0.35);
+		pointer-events: none;
 	}
 
 	.glow-word.stroke-mode {
-		opacity: 1;
-		text-shadow: none;
+		color: transparent;
+		-webkit-text-stroke: var(--hero-stroke-w, 1px) currentColor;
+	}
+
+	.glow-word.stroke-mode::after {
+		display: none;
 	}
 
 	.hero-sub {
@@ -400,6 +417,7 @@
 		font-size: clamp(1.5rem, 4vw, 2rem);
 		font-weight: 800;
 		color: var(--text);
+		transition: all 0.3s var(--ease-out);
 	}
 
 	.stat-label {

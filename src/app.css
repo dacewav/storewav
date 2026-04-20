@@ -795,8 +795,8 @@ body:hover #cursor-glow {
   scrollbar-color: rgba(var(--accent-rgb), 0.12) transparent;
 }
 
-[data-theme="light"] .glow-word {
-  text-shadow: none;
+[data-theme="light"] .glow-word::after {
+  display: none;
 }
 
 [data-theme="light"] .beat-cover-placeholder {
