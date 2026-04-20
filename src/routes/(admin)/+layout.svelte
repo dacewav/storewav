@@ -25,12 +25,34 @@
 
 	// Keyboard shortcuts: Ctrl+Z / Ctrl+Shift+Z
 	function handleKeydown(e: KeyboardEvent) {
+		// Skip if user is typing in an input
+		const tag = (e.target as HTMLElement)?.tagName;
+		const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+
 		if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
 			e.preventDefault();
 			if (undoEnabled) undoField();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
 			e.preventDefault();
 			if (redoEnabled) redoField();
+		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'b') {
+			e.preventDefault();
+			goto('/admin/beats');
+		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'h') {
+			e.preventDefault();
+			goto('/admin/hero');
+		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 't') {
+			e.preventDefault();
+			goto('/admin/theme');
+		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'd') {
+			e.preventDefault();
+			goto('/admin');
+		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'g') {
+			e.preventDefault();
+			goto('/');
+		} else if (!isInput && e.key === '/') {
+			e.preventDefault();
+			document.querySelector<HTMLInputElement>('.search-input')?.focus();
 		}
 	}
 
