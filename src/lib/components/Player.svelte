@@ -169,7 +169,7 @@
 		border-radius: var(--radius-md);
 		object-fit: cover;
 		flex-shrink: 0;
-		transition: transform 0.3s var(--ease-out);
+		transition: transform var(--duration-normal) var(--ease-out);
 	}
 
 	.player-bar.playing .player-cover {

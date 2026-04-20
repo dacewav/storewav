@@ -116,7 +116,7 @@
 <div class="beat-page">
 	<!-- Back link -->
 	<a href="/" class="back-link">
-		<Icon name="chevronUp" size={14} />
+		<Icon name="chevronDown" size={14} />
 		<span>{labelBack}</span>
 	</a>
 
@@ -310,7 +310,7 @@
 	}
 
 	.back-link :global(.icon) {
-		transform: rotate(-90deg);
+		transform: rotate(90deg);
 	}
 
 	.back-cta {

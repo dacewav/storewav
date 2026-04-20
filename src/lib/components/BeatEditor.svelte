@@ -566,7 +566,7 @@
 	/* Buttons */
 	.btn-ghost {
 		padding: var(--space-1) var(--space-3);
-		min-height: 32px;
+		min-height: var(--touch-min);
 		background: transparent;
 		border: 1px solid var(--border);
 		border-radius: var(--radius-md);

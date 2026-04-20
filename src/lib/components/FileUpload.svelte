@@ -365,8 +365,8 @@
 	}
 
 	.play-btn {
-		min-width: 36px;
-		min-height: 36px;
+		min-width: var(--touch-min);
+		min-height: var(--touch-min);
 		border-radius: 50%;
 		border: 1px solid var(--border);
 		background: transparent;

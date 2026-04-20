@@ -10,10 +10,12 @@
 	let authState = $derived($auth);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
-	// Redirect a login si no está autenticado
+	// Redirect a login si no está autenticado, o a / si no es admin
 	$effect(() => {
 		if (!authState.loading && !authState.user) {
 			goto('/login');
+		} else if (!authState.loading && authState.user && !authState.isAdmin) {
+			goto('/');
 		}
 	});
 
@@ -40,12 +42,6 @@
 				{ href: '/admin/banner', label: 'Banner', icon: '📢' },
 				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
 				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
-			]
-		},
-		{
-			label: 'Sistema',
-			items: [
-				{ href: '/admin', label: 'Ajustes', icon: '⚙️' },
 			]
 		}
 	];

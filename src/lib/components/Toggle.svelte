@@ -56,7 +56,7 @@
 		background: var(--surface2);
 		border: 1px solid var(--border2);
 		border-radius: var(--radius-full);
-		transition: all 0.2s var(--ease-out);
+		transition: all var(--duration-fast) var(--ease-out);
 		position: relative;
 	}
 
@@ -68,7 +68,7 @@
 		height: 16px;
 		background: var(--text-secondary);
 		border-radius: 50%;
-		transition: all 0.2s var(--ease-out);
+		transition: all var(--duration-fast) var(--ease-out);
 	}
 
 	input:checked + .track {

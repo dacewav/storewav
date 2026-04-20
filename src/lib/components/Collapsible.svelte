@@ -60,7 +60,7 @@
 
 	.chevron {
 		color: var(--text-muted);
-		transition: transform 0.2s var(--ease-out);
+		transition: transform var(--duration-fast) var(--ease-out);
 		flex-shrink: 0;
 	}
 
@@ -71,7 +71,7 @@
 	.body-wrap {
 		display: grid;
 		grid-template-rows: 0fr;
-		transition: grid-template-rows 0.25s var(--ease-out);
+		transition: grid-template-rows var(--duration-normal) var(--ease-out);
 	}
 
 	.body-wrap.open {

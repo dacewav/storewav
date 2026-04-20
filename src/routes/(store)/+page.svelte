@@ -502,7 +502,7 @@
 		background: rgba(var(--accent-rgb), 0.08);
 		color: var(--accent);
 		letter-spacing: 0.06em;
-		transition: all 0.2s var(--ease-out);
+		transition: all var(--duration-fast) var(--ease-out);
 	}
 
 	.section-badge:hover {
@@ -572,7 +572,7 @@
 		color: var(--accent);
 		text-decoration: none;
 		letter-spacing: 0.04em;
-		transition: all 0.25s var(--ease-out);
+		transition: all var(--duration-normal) var(--ease-out);
 		min-height: var(--touch-min);
 		opacity: var(--btn-opacity);
 		position: relative;

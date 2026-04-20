@@ -240,7 +240,7 @@
 		transition: all var(--duration-fast);
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
-		min-height: 36px;
+		min-height: var(--touch-min);
 	}
 
 	.pill:hover {
@@ -273,7 +273,7 @@
 		color: var(--text);
 		font-family: var(--font-body);
 		font-size: var(--text-sm);
-		min-height: 40px;
+		min-height: var(--touch-min);
 		appearance: none;
 		cursor: pointer;
 		outline: none;
@@ -298,7 +298,7 @@
 		cursor: pointer;
 		transition: all var(--duration-fast);
 		white-space: nowrap;
-		min-height: 40px;
+		min-height: var(--touch-min);
 	}
 
 	.tags-toggle:hover {

@@ -370,21 +370,7 @@
 		color: var(--bg);
 	}
 
-	.banner-scroll {
-		animation: banner-scroll 12s linear infinite;
-	}
 
-	.banner-fade-pulse {
-		animation: banner-fade-pulse 3s ease-in-out infinite;
-	}
-
-	.banner-bounce {
-		animation: banner-bounce 2s ease-in-out infinite;
-	}
-
-	.banner-glow-pulse {
-		animation: banner-glow-pulse 2.5s ease-in-out infinite;
-	}
 
 	/* ── Nav ── */
 	.nav {
@@ -431,7 +417,7 @@
 		display: flex;
 		align-items: baseline;
 		cursor: pointer;
-		transition: transform 0.2s var(--ease-out);
+		transition: transform var(--duration-fast) var(--ease-out);
 	}
 
 	.nav-brand:hover {
@@ -553,7 +539,7 @@
 		height: 2px;
 		background: var(--text);
 		border-radius: 1px;
-		transition: all 0.3s var(--ease-out);
+		transition: all var(--duration-normal) var(--ease-out);
 		transform-origin: center;
 	}
 
@@ -605,7 +591,7 @@
 		text-decoration: none;
 		padding: var(--space-3) var(--space-4);
 		border-radius: var(--radius-md);
-		transition: all 0.2s var(--ease-out);
+		transition: all var(--duration-fast) var(--ease-out);
 		min-height: var(--touch-min);
 		display: flex;
 		align-items: center;
@@ -715,7 +701,7 @@
 		font-size: var(--text-2xs);
 		color: var(--text-secondary);
 		text-decoration: none;
-		transition: all 0.2s var(--ease-out);
+		transition: all var(--duration-fast) var(--ease-out);
 		cursor: pointer;
 		min-height: var(--touch-min);
 		display: flex;
@@ -732,7 +718,7 @@
 		width: 0;
 		height: 1px;
 		background: var(--accent);
-		transition: width 0.25s var(--ease-out);
+		transition: width var(--duration-normal) var(--ease-out);
 	}
 
 	.footer-link:hover {

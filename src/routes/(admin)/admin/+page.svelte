@@ -27,7 +27,7 @@
 			<h1 class="dash-title">Dashboard</h1>
 			<p class="dash-sub">Panel de control {brandName}</p>
 		</div>
-		<Badge variant="accent">v0.9.0</Badge>
+		<Badge variant="accent">v0.5.0</Badge>
 	</div>
 
 	<!-- Stats grid -->
@@ -69,22 +69,22 @@
 			<div class="card-section">
 				<h3 class="section-label">Acciones rápidas</h3>
 				<div class="quick-actions">
-					<button class="qa-btn">
+					<a href="/admin/beats/new" class="qa-btn" aria-label="Nuevo beat">
 						<span class="qa-icon">🎵</span>
 						<span>Nuevo beat</span>
-					</button>
-					<button class="qa-btn">
+					</a>
+					<a href="/admin/theme" class="qa-btn" aria-label="Editar tema">
 						<span class="qa-icon">🎨</span>
 						<span>Editar tema</span>
-					</button>
-					<button class="qa-btn">
+					</a>
+					<a href="/admin/content" class="qa-btn" aria-label="Editar contenido">
 						<span class="qa-icon">✏️</span>
 						<span>Editar contenido</span>
-					</button>
-					<button class="qa-btn">
+					</a>
+					<a href="/admin/beats" class="qa-btn" aria-label="Gestionar beats">
 						<span class="qa-icon">📊</span>
-						<span>Ver analytics</span>
-					</button>
+						<span>Gestionar beats</span>
+					</a>
 				</div>
 			</div>
 		</Card>
@@ -102,11 +102,11 @@
 		</div>
 		<div class="info-row">
 			<span class="info-label">Bloque actual</span>
-			<span class="info-value">4 — Tienda (Página) ✅</span>
+			<span class="info-value">5 — Tienda (Beat Page) 🚧</span>
 		</div>
 		<div class="info-row">
 			<span class="info-label">Próximo</span>
-			<span class="info-value">Bloque 5 — Tienda (Beat Page)</span>
+			<span class="info-value">Bloque 6 — Checkout / Carrito</span>
 		</div>
 	</div>
 </div>
@@ -232,12 +232,17 @@
 		cursor: pointer;
 		transition: all var(--duration-fast);
 		text-align: left;
+		text-decoration: none;
 	}
 
 	.qa-btn:hover {
 		background: rgba(var(--accent-rgb), 0.08);
 		border-color: rgba(var(--accent-rgb), 0.3);
 		color: var(--text);
+	}
+
+	.qa-btn:visited {
+		color: inherit;
 	}
 
 	.qa-icon {

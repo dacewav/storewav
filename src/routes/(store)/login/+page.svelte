@@ -145,11 +145,6 @@
 		margin-bottom: var(--space-8);
 	}
 
-	.login-brand em {
-		color: var(--accent);
-		font-style: normal;
-	}
-
 	.brand-dot {
 		color: var(--accent);
 	}

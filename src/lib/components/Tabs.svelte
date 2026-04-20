@@ -78,7 +78,7 @@
 		height: 2px;
 		background: var(--accent);
 		transform: scaleX(0);
-		transition: transform 0.2s var(--ease-out);
+		transition: transform var(--duration-fast) var(--ease-out);
 	}
 
 	.tab.active {

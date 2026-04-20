@@ -520,8 +520,8 @@
 	}
 
 	.btn-action {
-		min-width: 36px;
-		min-height: 36px;
+		min-width: var(--touch-min);
+		min-height: var(--touch-min);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
 		background: transparent;
