@@ -478,11 +478,13 @@ function getNestedValue(dotPath: string): unknown {
 	let data: unknown;
 	const unsub = base.subscribe((s) => { data = s.data; });
 	unsub();
-	if (!data) return undefined;
-	return dotPath.split('.').reduce((obj: Record<string, unknown>, key) => {
-		if (obj == null || typeof obj !== 'object') return undefined;
-		return (obj as Record<string, unknown>)[key];
-	}, data as Record<string, unknown>);
+	if (!data || typeof data !== 'object') return undefined;
+	let current: unknown = data;
+	for (const key of dotPath.split('.')) {
+		if (current == null || typeof current !== 'object') return undefined;
+		current = (current as Record<string, unknown>)[key];
+	}
+	return current;
 }
 
 /** Undo last change */

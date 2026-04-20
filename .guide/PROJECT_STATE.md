@@ -182,42 +182,56 @@ lang="es", preconnect Google Fonts, non-blocking font loading, noscript fallback
 - [x] Todos los textos editables desde settings
 - [ ] Testing visual en browser real
 
-### BLOQUE 6: Admin Auth + Layout ⬜
-- [ ] Login page con Google Auth UI
-- [ ] Route guard (redirect a /login si no auth)
-- [ ] Admin layout con sidebar + content split
-- [ ] Save status indicator
-- [ ] Mobile admin layout
+### BLOQUE 6: Admin Auth + Layout ✅
+- [x] Login page con Google Auth UI
+- [x] Route guard (redirect a /login si no auth, isAdmin check)
+- [x] Admin layout con sidebar + content split
+- [x] Save status indicator (wired a Firebase real)
+- [x] Mobile admin layout (sidebar colapsa a iconos)
+- [x] Keyboard shortcuts (Ctrl+Z undo, Ctrl+B/H/T/D/G nav)
 
-### BLOQUE 7: Admin Beats CRUD ⬜
-- [ ] Lista de beats con búsqueda/filtros
-- [ ] Crear/editar beat (form completo)
-- [ ] Upload cover + audio (Firebase Storage o R2)
-- [ ] Delete con confirmación
-- [ ] Bulk actions
-- [ ] Preview de audio inline
+### BLOQUE 7: Admin Beats CRUD ✅
+- [x] Lista de beats con búsqueda/filtros (8 sort options)
+- [x] Crear/editar beat (form 5 tabs: info, lics, media, platforms, style)
+- [x] Upload cover + audio (Firebase Storage via FileUpload)
+- [x] Delete con confirmación (modal)
+- [x] Bulk actions (select, activate/deactivate, delete)
+- [x] Auto-save con debounce (1s)
+- [ ] Preview de audio inline en lista (solo en BeatEditor)
 
-### BLOQUE 8: Admin Theme Editor ⬜
-- [ ] Color pickers para accent, bg, surface
-- [ ] Font selector
-- [ ] Radius, glow intensity sliders
-- [ ] Light/dark toggle
-- [ ] Preview en vivo
+### BLOQUE 8: Admin Theme Editor ✅
+- [x] Color pickers para accent, glow
+- [x] Font selector (display + body)
+- [x] Radius, glow intensity, blur sliders
+- [x] Glow animation selector
+- [x] Section padding, beat gap controls
+- [ ] Light/dark toggle (solo en theme store, no en UI admin)
+- [ ] Preview en vivo (requiere ver store en otra pestaña)
 - [ ] Reset a defaults
 
-### BLOQUE 9: Admin Content Editor ⬜
-- [ ] Hero title/subtitle editor
-- [ ] Links manager (add/remove/reorder)
-- [ ] Banner text editor
-- [ ] Brand settings (logo upload)
+### BLOQUE 9: Admin Content Editor ✅
+- [x] Hero title/subtitle/eyebrow/glowWord editor
+- [x] Hero visual settings (size, glow, stroke, gradient)
+- [x] Section title/divider editor
+- [x] CTA editor (title, subtitle, button, url)
+- [x] Labels editor (24 labels editables)
+- [x] Brand settings (name, logo, favicon, footer)
+- [x] Banner editor (text, url, animation, colors)
+- [x] Links manager (en settings, render en store)
+- [x] Animations editor (6 animation slots)
 
-### BLOQUE 10: Polish & Deploy ⬜
-- [ ] SEO audit
-- [ ] Performance audit (Lighthouse)
-- [ ] Final responsive testing
-- [ ] Cloudflare Pages deploy config
-- [ ] Custom domain setup
-- [ ] Monitoring/analytics setup
+### BLOQUE 10: Polish & Deploy ⚠️
+- [x] Cloudflare Pages deploy config (wrangler.jsonc)
+- [x] robots.txt
+- [x] sitemap.xml
+- [x] Favicon SVG
+- [x] OG image SVG
+- [x] Twitter card meta
+- [x] CHANGELOG.md
+- [x] Performance audit (bundles verificados)
+- [ ] Lighthouse audit formal (necesita browser)
+- [ ] Custom domain setup (Cloudflare dashboard)
+- [ ] Monitoring/analytics (Google Analytics, Cloudflare analytics)
 
 ---
 

@@ -16,7 +16,7 @@
 </script>
 
 {#if items.length > 0}
-<section class="testimonials" use:reveal>
+<section class="testimonials" use:reveal={{}}>
 	{#if title}
 		<div class="test-header">
 			<h3 class="test-title">{title}</h3>

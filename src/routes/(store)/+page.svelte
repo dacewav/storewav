@@ -219,7 +219,7 @@
 
 <!-- Featured beats -->
 {#if featuredBeats.length > 0}
-<section class="featured-section" use:reveal>
+<section class="featured-section" use:reveal={{}}>
 	<div class="section-header">
 		<h2 class="section-title">🔥 Destacados</h2>
 		<div class="section-line"></div>
@@ -235,7 +235,7 @@
 
 <!-- Section divider -->
 {#if dividerTitle}
-<div class="section-divider" use:reveal>
+<div class="section-divider" use:reveal={{}}>
 	<div class="section-divider-text">
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html dividerTitle}
@@ -249,7 +249,7 @@
 {/if}
 
 <!-- Beats section -->
-<section class="section" use:reveal id="beats">
+<section class="section" use:reveal={{}} id="beats">
 	<div class="section-header">
 		<h2 class="section-title">{sectionTitle}</h2>
 		<div class="section-line"></div>
@@ -299,7 +299,7 @@
 
 <!-- CTA Section -->
 {#if ctaTitle}
-<div class="cta-section" use:reveal>
+<div class="cta-section" use:reveal={{}}>
 	<div class="cta-title">{ctaTitle}</div>
 	{#if ctaSub}
 	<div class="cta-sub">{ctaSub}</div>
