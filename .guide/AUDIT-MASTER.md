@@ -237,12 +237,45 @@ src/app.css                      Design tokens
 ## Instrucciones para Chat Nuevo
 
 1. Clonar: `git clone https://github.com/dacewav/storewav.git`
-2. Leer `.guide/AUDIT-MASTER.md` (este archivo)
-3. Leer `.guide/BLOCK-CONTEXT.md` → qué sesión toca
-4. Verificar Firebase: `curl -s "URL/settings.json"`
-5. Hacer SOLO lo de la sesión actual
-6. Commit + push
-7. Actualizar BLOCK-CONTEXT.md
+2. `cd storewav && npm install && cp .env.example .env`
+3. Leer `.guide/INDEX.md` (30s)
+4. Leer este archivo (AUDIT-MASTER.md)
+5. Leer `.guide/BLOCK-CONTEXT.md` → qué sesión toca
+6. Verificar Firebase: `curl -s "URL/settings.json"`
+7. Hacer SOLO lo de la sesión actual
+8. Build + svelte-check → 0 errores
+9. Commit + push
+10. Actualizar BLOCK-CONTEXT.md
+11. Decirle al usuario qué se hizo y qué testear
+
+### Para hacer push
+
+El usuario tiene que darte el token de GitHub. Pedíselo al inicio de la sesión si vas a commitear. Formato:
+```
+git remote set-url origin https://dacewav:TOKEN@github.com/dacewav/storewav.git
+git push origin main
+git remote set-url origin https://github.com/dacewav/storewav.git
+```
+Limpiar el remote después del push (no dejar el token en la URL).
+
+### Para deploy
+
+Cloudflare Pages deploya automáticamente al push a `main`. Esperar 1-2 min después del push. El usuario testea en el browser.
+
+### Cuándo pedir confirmación al usuario
+
+- **Antes de push** → si el cambio es grande o riesgoso
+- **Después de push** → pedirle que teste en el browser
+- **Antes de cambiar Firebase rules** → SIEMPRE pedir confirmación
+- **Antes de borrar archivos** → pedir confirmación
+- **Después de cada sesión** → resumir qué se hizo, qué falta
+
+### Qué NO necesita confirmación
+
+- Fixear bugs obvios (build roto, typo)
+- Commitear fixes pequeños
+- Actualizar .guide/ docs
+- Leer archivos / investigar
 
 ---
 

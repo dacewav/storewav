@@ -1,36 +1,46 @@
-# 🧠 PROJECT_STATE.md — Estado del Proyecto
+# 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-22 04:11**
-
-## Estado
+> Referencia rápida. Para detalle, leer AUDIT-MASTER.md.
 
 ```yaml
-proyecto: dacewav/store (storewav)
-repo: https://github.com/dacewav/storewav.git
-framework: SvelteKit + Cloudflare Pages
-firebase: dacewav-store-3b0f5
-bloque_actual: "1 — Store Visual Fix"
-commit_actual: "4f8452a"
-problema_principal: "Firebase tiene estructura flat (vieja), código lee nested (nueva)"
+proyecto:      dacewav/store (storewav)
+repo:          https://github.com/dacewav/storewav.git
+framework:     SvelteKit 2 + Cloudflare Pages
+firebase:      dacewav-store-3b0f5
+firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
+sesiones:      11 planificadas (~50 min c/u)
+sesión_actual: 2 (Bloque 1A — Hero)
+commits:       26
 ```
 
-## Lo que SÍ funciona
+## Quick Status
 
-- ✅ Auth: Google login + adminWhitelist check
-- ✅ Theme engine: accent, glow, fonts desde Firebase theme/
-- ✅ Build: 0 errores, svelte-check: 0 errores
-- ✅ Firebase rules: validación estricta
-- ✅ Design system: 1191 líneas CSS, 65 keyframes, 28 icons
-- ✅ 29 componentes, 10 stores, 7 actions
-- ✅ Migration layer: flat→nested transform (no testeado en deploy)
+| Área | Status |
+|------|--------|
+| Build | ✅ 0 errores |
+| svelte-check | ✅ 0/0 |
+| Auth | ✅ adminWhitelist |
+| Theme engine | ✅ |
+| Settings migration | ⚠️ commiteado, sin test |
+| Beats | ❌ vacío en Firebase |
+| Store visual | ❌ no muestra datos reales |
+| Admin | ⚠️ abre, no funciona bien |
 
-## Lo que NO funciona
+## Commands útiles
 
-- ❌ Store visual: no muestra datos reales de Firebase
-- ❌ Beats: vacío en Firebase
-- ❌ Admin editors: no muestran valores actuales
-- ❌ Cambios en admin no se reflejan (paths no matchean)
+```bash
+# Build
+npm run build
 
-## Próximos pasos
+# Type check
+npx svelte-check
 
-Ver `AUDIT-MASTER.md` → Plan de Reconstrucción por bloques.
+# Verificar Firebase settings
+curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/settings.json" | python3 -m json.tool
+
+# Verificar Firebase theme
+curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/theme.json" | python3 -m json.tool
+
+# Verificar Firebase beats
+curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/beats.json"
+```
