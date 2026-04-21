@@ -1,43 +1,48 @@
-# 🎯 BLOCK-CONTEXT.md — Bloque Actual
+# 🎯 BLOCK-CONTEXT.md — Sesión Actual
 
-> **Se REESCRIBE cada vez que cambiamos de bloque.**
+> **Se REESCRIBE cada vez que cambiamos de sesión.**
+> **Límite: 50 min por chat.**
 
-## Bloque Actual: 1 — Store Visual Fix
+## Sesión Actual: 2 — Bloque 1A: Hero
 
 ```yaml
-bloque: "1"
-nombre: "Que la tienda se vea con datos reales"
+sesión: "2"
+bloque: "1A"
+objetivo: "Hero muestra datos reales de Firebase"
+tiempo: "50 min"
 estado: "pendiente"
-tiempo_estimado: "4-6 horas"
-sesión: "2026-04-22"
-commits: 23
-commit_actual: "d78bd9b"
 ```
 
-## Estado de Bloques
+## Qué hacer en esta sesión
 
-| Bloque | Estado | Tiempo |
+1. Testear Bloque 0 en deploy — ¿hero muestra datos? (5 min)
+2. Si no: fixear migration layer (15 min)
+3. Hero título de `siteName`/`heroTitle` (5 min)
+4. Hero eyebrow de `theme.heroEyebrow` (5 min)
+5. Hero glow word de `theme.heroTitleCustom` (5 min)
+6. Hero subtitle (5 min)
+7. Hero stats animados (5 min)
+8. Hero links (Instagram, WhatsApp) (5 min)
+9. Build + test + commit + push (5 min)
+
+## Estado de Sesiones
+
+| Sesión | Bloque | Estado |
 |--------|--------|--------|
-| 0 — Data Layer | ✅ hecho (sin test) | 3-4h |
-| 1 — Store Visual | ⬜ pendiente | 4-6h |
-| 2 — Beats | ❌ sin beats en DB | 4-6h |
-| 3 — Admin Panel | ⚠️ abre, no funciona | 5-7h |
-| 4 — Effects | ⬜ pendiente | 3-4h |
-| 5 — Content/Labels | ⬜ pendiente | 2-3h |
-| 6 — Final Audit | ⬜ pendiente | 2-3h |
-| **TOTAL** | | **23-33h** |
+| 1 | 0 — Data Layer | ✅ hecho (sin test) |
+| 2 | 1A — Hero | ⬜ esta sesión |
+| 3 | 1B — Banner + Divider + Nav | ⬜ |
+| 4 | 2A — Beats Seed | ⬜ |
+| 5 | 2B — Beat Interactions | ⬜ |
+| 6 | 3A — Admin Dashboard | ⬜ |
+| 7 | 3B — Beat Editor | ⬜ |
+| 8 | 3C — Content Editors | ⬜ |
+| 9 | 4 — Effects | ⬜ |
+| 10 | 5 — Labels + Polish | ⬜ |
+| 11 | 6 — Final Audit | ⬜ |
 
-## Qué hacer en Bloque 1
-
-Primero testear que Bloque 0 funciona en deploy real. Si no, fixear primero.
-
-Luego, sub-bloques:
-- **1A: Hero** (1-2h) — título, eyebrow, glow, subtitle, stats, links
-- **1B: Banner + Divider + Footer** (1-2h)
-- **1C: Nav** (1h) — logo, links, mobile menu
-- **1D: Test** (1h) — deploy, browser test, fix bugs
+**Total: 11 sesiones de 50 min = ~9h reales de chat**
 
 ## Referencia
 
-Lee `AUDIT-MASTER.md` para el plan completo y protocolo.
-Lee `REAL-AUDIT.md` para el mapeo de datos Firebase.
+Lee `AUDIT-MASTER.md` para el plan completo, datos de Firebase, y protocolo.
