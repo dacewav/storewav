@@ -538,11 +538,6 @@
 		color: var(--text);
 	}
 
-	.section-divider-text em {
-		color: var(--accent);
-		font-style: normal;
-	}
-
 	.section-divider-sub {
 		font-size: var(--text-sm);
 		color: var(--text-secondary);

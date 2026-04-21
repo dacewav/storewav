@@ -272,13 +272,7 @@
 			gap: var(--space-2);
 		}
 
-		.player-right .ctrl-btn:first-child {
-			/* Volume visible on mobile */
-		}
-
-		.player-right .ctrl-btn:last-child {
-			/* Close visible on mobile */
-		}
+		/* Volume & Close already visible on mobile — no overrides needed */
 	}
 
 	@media (max-width: 480px) {

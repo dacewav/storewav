@@ -104,11 +104,11 @@
 			<div class="beat-cover-overlay" style="background: {cardStyle.coverOverlay};"></div>
 		{/if}
 
-		<!-- Waveform bars when playing -->
+		<!-- Waveform bars when playing (stable seed per beat) -->
 		{#if isCurrentBeat}
 			<div class="card-waveform">
 				{#each Array(16) as _, i}
-					<div class="wave-bar" style="--delay: {i * 0.05}s; --h: {20 + Math.random() * 60}%"></div>
+					<div class="wave-bar" style="--delay: {i * 0.05}s; --h: {20 + (((beat.title?.charCodeAt(i % (beat.title.length || 1)) ?? 0) * (i + 1) * 7) % 60)}%"></div>
 				{/each}
 			</div>
 		{/if}
