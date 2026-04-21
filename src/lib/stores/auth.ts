@@ -34,19 +34,29 @@ const ADMIN_UIDS: string[] = [
 const store = writable<AuthState>({ user: null, isAdmin: false, loading: true, error: null });
 let unsub: (() => void) | null = null;
 
-/** Verifica si el UID es admin (local UIDs + Firebase DB) */
-async function checkAdmin(uid: string): Promise<boolean> {
+/** Verifica si el UID o email es admin */
+async function checkAdmin(uid: string, email?: string | null): Promise<boolean> {
 	// Fast path: local UIDs
 	if (ADMIN_UIDS.includes(uid)) return true;
 
-	// Remote check: Firebase admins/{uid}
 	try {
 		const db = await (await import('$lib/firebase')).getDb();
 		if (!db) return false;
 
 		const { ref, get } = await import('firebase/database');
-		const snap = await get(ref(db, `admins/${uid}`));
-		return snap.val() === true;
+
+		// Check admins/{uid}
+		const adminSnap = await get(ref(db, `admins/${uid}`));
+		if (adminSnap.val() === true) return true;
+
+		// Check adminWhitelist/{email} (dots → commas in keys)
+		if (email) {
+			const emailKey = email.replace(/\./g, ',');
+			const wlSnap = await get(ref(db, `adminWhitelist/${emailKey}`));
+			if (wlSnap.val() === true) return true;
+		}
+
+		return false;
 	} catch {
 		return false;
 	}
@@ -75,7 +85,7 @@ export async function initAuth() {
 				};
 				// Set user immediately, check admin async
 				store.set({ user, isAdmin: false, loading: false, error: null });
-				const isAdmin = await checkAdmin(fbUser.uid);
+				const isAdmin = await checkAdmin(fbUser.uid, fbUser.email);
 				store.update((s) => ({ ...s, isAdmin }));
 			} else {
 				store.set({ user: null, isAdmin: false, loading: false, error: null });
