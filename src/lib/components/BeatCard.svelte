@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Beat } from '$lib/stores/beats';
-	import { wishlist, settings, player } from '$lib/stores';
+	import { wishlist, settings, player, analytics } from '$lib/stores';
 	import { tilt } from '$lib/actions';
 	import Icon from './Icon.svelte';
 	import {
@@ -42,7 +42,9 @@
 
 	function handleWishlist(e: MouseEvent) {
 		e.stopPropagation();
+		const wasIn = wishlist.isIn(beat.id);
 		wishlist.toggle(beat.id);
+		analytics.track('wishlist_toggle', { beatId: beat.id, title: beat.title, added: !wasIn });
 	}
 
 	function handlePlay(e: MouseEvent) {

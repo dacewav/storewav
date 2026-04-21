@@ -29,6 +29,10 @@
 			<label for="b-fav">URL favicon (SVG/PNG, vacío = default)</label>
 			<input id="b-fav" type="text" value={brand.favicon ?? ''} oninput={(e) => update('brand.favicon', e.currentTarget.value)} placeholder="https://..." />
 		</div>
+		<div class="field">
+			<label for="b-wa">WhatsApp (número con código de país, ej: 5215512345678)</label>
+			<input id="b-wa" type="text" value={brand.whatsapp ?? ''} oninput={(e) => update('brand.whatsapp', e.currentTarget.value)} placeholder="5215512345678" />
+		</div>
 	</Card>
 
 	<Card>

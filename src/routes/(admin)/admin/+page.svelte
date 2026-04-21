@@ -63,7 +63,7 @@
 			<h1 class="dash-title">Dashboard</h1>
 			<p class="dash-sub">Panel de control {brandName}</p>
 		</div>
-		<Badge variant="accent">v0.5.0</Badge>
+		<Badge variant="accent">v0.6.0</Badge>
 	</div>
 
 	<!-- Stats grid -->
@@ -147,7 +147,7 @@
 		</div>
 		<div class="info-row">
 			<span class="info-label">Versión</span>
-			<span class="info-value">v0.5.0</span>
+			<span class="info-value">v0.6.0</span>
 		</div>
 	</div>
 </div>

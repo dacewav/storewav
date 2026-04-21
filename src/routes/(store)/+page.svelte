@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
-	import { beatsList, genres, settings, player } from '$lib/stores';
+	import { beatsList, genres, settings, player, analytics } from '$lib/stores';
 	import type { HeroVisualSettings, LabelSettings } from '$lib/stores/settings';
 	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
@@ -141,9 +141,11 @@
 			coverUrl: beat.coverUrl,
 			audioUrl: beat.audioUrl
 		});
+		analytics.track('beat_play', { beatId: beat.id, title: beat.title });
 	}
 
 	function handleBeatClick(beat: Beat & { id: string }) {
+		analytics.track('beat_click', { beatId: beat.id, title: beat.title });
 		goto(`/beat/${beat.id}`);
 	}
 </script>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { beatsList, player, wishlist, settings } from '$lib/stores';
+	import { beatsList, player, wishlist, settings, analytics } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
 	import { Skeleton, Badge, BeatCard, EmptyState } from '$lib/components';
 	import Waveform from '$lib/components/Waveform.svelte';
@@ -39,6 +39,7 @@
 	let labelBuy = $derived(labels.buy ?? 'Comprar');
 	let labelFrom = $derived(labels.priceFrom ?? 'Desde');
 	let labelBack = $derived(labels.backToCatalog ?? 'Volver al catálogo');
+	let whatsappNum = $derived(s?.brand?.whatsapp ?? '');
 	let labelRelated = $derived(labels.relatedBeats ?? 'Beats relacionados');
 	let labelLicenses = $derived(labels.licenses ?? 'Licencias');
 
@@ -61,9 +62,12 @@
 	// Selected license
 	let selectedLicense = $state('');
 
-	// Reset on beat change
+	// Reset on beat change + track page view
 	$effect(() => {
-		if (beatId) selectedLicense = '';
+		if (beatId) {
+			selectedLicense = '';
+			analytics.track('beat_page_view', { beatId });
+		}
 	});
 
 	function handlePlay() {
@@ -75,10 +79,14 @@
 			coverUrl: beat.coverUrl,
 			audioUrl: beat.audioUrl
 		});
+		analytics.track('beat_play', { beatId: beat.id, title: beat.title, source: 'beat_page' });
 	}
 
 	function selectLicense(key: string) {
 		selectedLicense = selectedLicense === key ? '' : key;
+		if (selectedLicense) {
+			analytics.track('license_select', { beatId: beat?.id, license: key });
+		}
 	}
 
 	function handleRelatedPlay(b: Beat & { id: string }) {
@@ -255,9 +263,10 @@
 						{#if selectedLicense}
 							<a
 								class="buy-btn"
-								href="https://wa.me?text={encodeURIComponent(`Quiero la licencia ${licenseLabels[selectedLicense as keyof typeof licenseLabels]} de ${beat.title}`)}"
+								href="https://wa.me/{whatsappNum}?text={encodeURIComponent(`Quiero la licencia ${licenseLabels[selectedLicense as keyof typeof licenseLabels]} de ${beat.title}`)}"
 								target="_blank"
 								rel="noopener"
+								onclick={() => analytics.track('buy_click', { beatId: beat?.id, license: selectedLicense, price: beat?.licenses?.[selectedLicense as keyof typeof beat.licenses] })}
 							>
 								{labelBuy} {licenseLabels[selectedLicense as keyof typeof licenseLabels]} — ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
 							</a>

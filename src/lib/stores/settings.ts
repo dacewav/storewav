@@ -54,6 +54,7 @@ export type BrandSettings = {
 	favicon: string;
 	footerText: string;
 	metaDescription: string;
+	whatsapp: string;
 };
 
 export type LoaderSettings = {
@@ -369,7 +370,8 @@ const DEFAULT: SettingsData = {
 		logo: '',
 		favicon: '',
 		footerText: 'Todos los derechos reservados · 2026',
-		metaDescription: 'Beats que rompen'
+		metaDescription: 'Beats que rompen',
+		whatsapp: ''
 	},
 	loader: {
 		enabled: true,
