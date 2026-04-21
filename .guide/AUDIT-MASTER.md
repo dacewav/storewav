@@ -1,193 +1,300 @@
-# 📋 AUDIT-MASTER.md — Guía Maestra de Reconstrucción
+# 📋 AUDIT-MASTER.md — Guía Maestra
 
-> **Última actualización: 2026-04-22 04:11**
-> **Este archivo es la fuente de verdad para cualquier sesión nueva.**
+> **Última actualización: 2026-04-22 04:13**
+> **Lee este archivo primero en cualquier sesión nueva.**
 
 ---
 
-## Estado Real del Proyecto (Post-Deploy)
+## ⚠️ REGLA DE ORO
 
-**Código:** SvelteKit + Cloudflare + Firebase RTDB
-**Repo:** `dacewav/storewav`
-**Líneas:** ~13,500 | **Archivos:** 68 | **Commits:** 22
+**NO hacer las cosas por hacer. Cada bloque se construye BIEN.**
+
+- No fixear rápido → investigar, entender, fixear correcto
+- No asumir que funciona → testear en browser real después de deploy
+- No marcar ✅ sin test manual confirmado por el usuario
+- No saltar bloques → uno a la vez, en orden
+- No commitear basura → cada commit debe ser limpio
+
+**Una tienda no se fixea en 5 minutos.** Si un bloque dice "2-3h", es 2-3h de trabajo real. No intentes hacer 3 bloques en un chat corto.
+
+---
+
+## Estado del Proyecto
+
+```
+Código:    SvelteKit + Cloudflare Pages + Firebase RTDB
+Repo:      dacewav/storewav
+Firebase:  dacewav-store-3b0f5
+Líneas:    ~13,500 | Archivos: 68 | Commits: 23
+```
+
+### ¿Qué funciona?
+
+| Área | Status | Detalle |
+|------|--------|---------|
+| Auth | ✅ | Google login + adminWhitelist check |
+| Theme engine | ✅ | Lee accent, glow, fonts desde Firebase theme/ |
+| Build | ✅ | 0 errores, svelte-check 0/0 |
+| Firebase rules | ✅ | Validación estricta |
+| Design system | ✅ | 1191 líneas CSS, 65 keyframes, 28 icons |
+| Componentes | ✅ | 29 componentes, 10 stores, 7 actions |
 
 ### ¿Qué está roto?
 
-| Problema | Impacto | Detalle |
-|---|---|---|
-| Settings path mismatch | 🔴 CRÍTICO | Código lee `settings.hero.title`, Firebase tiene `settings.heroTitle` |
-| No beats en DB | 🔴 CRÍTICO | `beats/` = null → tienda vacía |
-| AdminWhitelist vs admins | ✅ FIXEADO | Auth ya chequea `adminWhitelist/{email}` |
-| Migration layer | ⚠️ PARCIAL | Agregado pero no testeado en deploy real |
+| Área | Status | Detalle |
+|------|--------|---------|
+| Store visual | ❌ | No muestra datos reales de Firebase |
+| Settings | ❌ | Código lee paths nested, Firebase tiene flat |
+| Beats | ❌ | Vacío en Firebase |
+| Admin editors | ❌ | No muestran valores actuales |
+| Banner/CTA/Divider | ❌ | No se muestran (paths no matchean) |
 
-### Estructura de Firebase (datos reales)
+---
 
-```
-settings/          (flat, old structure)
-  ├── heroTitle: ''
-  ├── heroSubtitle: ''
-  ├── siteName: 'YUGEN'
-  ├── bannerActive: true
-  ├── bannerText: 'saca un toque . <3 !'
-  ├── whatsapp: '+527551492054'
-  ├── instagram: 'dace.wav'
-  ├── dividerTitle: '<em>CALIDAD</em> AEGURADA'
-  ├── dividerSub: '...'
-  ├── globalCardStyle: { glow, hover, shadow, filter, border, style, transform }
-  ├── testimonials: [{ name, text, role }]
-  └── sections: { featured: true, testimonials: true }
-
-theme/             (flat, all visual config)
-  ├── accent: '#dc2626'
-  ├── fontBody: 'JetBrains Mono'
-  ├── fontDisplay: 'Manrope'
-  ├── logoUrl: 'https://...BLANCO_Dace.wav_PNG_Logo.png'
-  ├── heroEyebrow: 'En vivo · Puebla, MX'
-  ├── heroGlowBlur: 83, heroGlowInt: 3.4, heroGlowClr: '#dd2c35'
-  ├── heroTitleCustom: 'S', heroSubCustom: ':/'
-  ├── heroTitleSize: 3.8, heroLetterSpacing: -0.01, heroLineHeight: 0.9
-  ├── radiusGlobal: 12, padSection: 4.5, beatGap: 19
-  ├── glowColor: '#ff0026', glowAnim: 'flicker', glowBlur: 67
-  ├── particles*: (configuración de partículas)
-  ├── animLogo/Cards/Buttons/Player/Title/Waveform: { type, dur, del }
-  └── ... 95+ keys
-
-beats/             → NULL (vacío)
-adminWhitelist/    → { email1: true, email2: true, email3: true }
-```
-
-### Lo que el código lee vs lo que hay
+## Estructura de Firebase (Datos Reales)
 
 ```
-CÓDIGO                          FIREBASE                    MATCH?
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-settings.hero.title              settings.heroTitle (EMPTY)   ❌
-settings.hero.subtitle           settings.heroSubtitle        ❌
-settings.hero.eyebrow            theme.heroEyebrow            ❌ path
-settings.hero.glowWord           theme.heroTitleCustom        ❌ path
-settings.heroVisual.glowBlur     theme.heroGlowBlur           ❌ path
-settings.section.dividerTitle    settings.dividerTitle        ❌ nested
-settings.cta.title               —                            ❌ empty
-settings.brand.name              settings.siteName            ❌ key
-settings.brand.logo              theme.logoUrl                ❌ path
-settings.brand.whatsapp          settings.whatsapp            ❌ key
-settings.banner.enabled          settings.bannerActive        ❌ key
-settings.banner.text             settings.bannerText          ❌ key
-settings.links                   —                            ❌ empty
-settings.cardStyle               settings.globalCardStyle     ❌ key
-settings.animations              theme.animLogo etc.          ❌ path
-settings.labels                  —                            ❌ empty
-theme.accent                     theme.accent                 ✅
-theme.fontBody                   theme.fontBody               ✅
-theme.fontDisplay                theme.fontDisplay            ✅
-beats/*                          NULL                         ❌
+settings/              (estructura VIEJA — flat)
+├── heroTitle: ''
+├── heroSubtitle: ''
+├── siteName: 'YUGEN'
+├── bannerActive: true
+├── bannerText: 'saca un toque . <3 !'
+├── whatsapp: '+527551492054'
+├── instagram: 'dace.wav'
+├── dividerTitle: '<em>CALIDAD</em> AEGURADA'
+├── dividerSub: '...'
+├── globalCardStyle: { glow, hover, shadow, filter, border, style, transform }
+├── testimonials: [{ name, text, role }]
+└── sections: { featured: true, testimonials: true }
+
+theme/                 (estructura FLAT — toda la config visual)
+├── accent: '#dc2626'
+├── fontBody: 'JetBrains Mono'
+├── fontDisplay: 'Manrope'
+├── logoUrl: '...BLANCO_Dace.wav_PNG_Logo.png'
+├── heroEyebrow: 'En vivo · Puebla, MX'
+├── heroGlowBlur: 83, heroGlowInt: 3.4
+├── heroTitleCustom: 'S', heroSubCustom: ':/'
+├── radiusGlobal: 12, padSection: 4.5
+├── glowColor: '#ff0026', glowAnim: 'flicker'
+├── particles*: (partículas configuradas)
+├── animLogo/Cards/Buttons/Player/Title/Waveform: { type, dur, del }
+└── ... 95+ keys
+
+beats/                 → NULL
+adminWhitelist/        → { 'daceidk@gmail,com': true, 'prodxce@gmail,com': true, 'xiligamesz@gmail,com': true }
+```
+
+### Verificar datos en Firebase
+
+```bash
+curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/settings.json" | python3 -m json.tool
+curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/theme.json" | python3 -m json.tool
+curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/beats.json"
 ```
 
 ---
 
-## Plan de Reconstrucción — Bloque por Bloque
+## Plan de Reconstrucción
 
-### BLOQUE 0: Data Layer ✅ (hecho, necesita test)
-**Objetivo:** Que el código lea los datos reales de Firebase.
-**Acción:** Migration layer en settings.ts que transforma flat→nested.
-**Test:** Deploy → verificar que hero muestra `siteName`, eyebrow, glow word.
-**Status:** Committed `4f8452a`, necesita verificación en deploy.
+### BLOQUE 0: Data Layer — Migration (3-4h) ✅ HECHO
+**Objetivo:** Que el código lea datos reales de Firebase sin importar la estructura.
+- [x] Migration layer en settings.ts (flat→nested)
+- [x] Auth lee adminWhitelist/{email}
+- [x] Build + svelte-check limpios
+- [ ] **TEST PENDIENTE** — verificar en deploy real que hero/banner/divider se muestran
 
-### BLOQUE 1: Store Visual — Hero + Banner + Footer
-**Objetivo:** Que la tienda se vea viva al entrar.
-- [ ] Hero muestra título real (de `siteName` o `heroTitle`)
-- [ ] Hero muestra eyebrow ("En vivo · Puebla, MX")
-- [ ] Hero muestra glow word (de `heroTitleCustom`)
-- [ ] Hero muestra subtitle
-- [ ] Hero stats animados (beats count, géneros, licencias)
-- [ ] Hero links (Instagram, WhatsApp) desde settings
-- [ ] Banner se muestra si `bannerActive` es true
-- [ ] Divider se muestra con `dividerTitle` y `dividerSub`
-- [ ] Footer muestra nombre de marca
-- [ ] Nav muestra logo (de `theme.logoUrl`)
-- [ ] Nav links funcionan
+**Nota:** Commiteado pero no verificado en browser. El siguiente chat debe testear esto primero.
 
-**Test manual:** Abrir tienda → ¿se ve el hero con datos reales? ¿Banner visible? ¿Links funcionan?
+---
 
-### BLOQUE 2: Beats — Seed + Grid
-**Objetivo:** Que haya beats en la tienda.
-- [ ] Seed de 6-8 beats de ejemplo en Firebase
-- [ ] Beat grid renderiza cards
-- [ ] BeatCard muestra cover, título, precio, tags
-- [ ] Play button reproduce audio (con URL vacía o placeholder)
+### BLOQUE 1: Store Visual — Que se vea (4-6h)
+**Objetivo:** Que la tienda se vea viva con datos reales al entrar.
+
+**Sub-bloque 1A: Hero (1-2h)**
+- [ ] Título se lee de `siteName` o `heroTitle`
+- [ ] Eyebrow se lee de `theme.heroEyebrow`
+- [ ] Glow word se lee de `theme.heroTitleCustom`
+- [ ] Subtitle se muestra
+- [ ] Stats animados (beats count, géneros, licencias)
+- [ ] Hero links desde settings (Instagram, WhatsApp)
+- [ ] Gradiente de fondo funciona
+
+**Sub-bloque 1B: Banner + Divider + Footer (1-2h)**
+- [ ] Banner visible si `bannerActive` = true
+- [ ] Banner text, color, animación correctos
+- [ ] Divider con título y subtítulo
+- [ ] Footer con nombre de marca y links
+
+**Sub-bloque 1C: Nav (1h)**
+- [ ] Logo carga desde `theme.logoUrl`
+- [ ] Links del nav (sección, Instagram, WhatsApp)
+- [ ] Wishlist button
+- [ ] Theme toggle (dark/light)
+- [ ] Mobile hamburger menu
+
+**Sub-bloque 1D: Test manual (1h)**
+- [ ] Deploy → abrir tienda en browser
+- [ ] Verificar cada elemento visual
+- [ ] Verificar mobile (480px, 768px)
+- [ ] Fixear lo que no se vea bien
+- [ ] Commit + push
+
+---
+
+### BLOQUE 2: Beats — Seed + Grid (4-6h)
+**Objetivo:** Que la tienda tenga beats y el catálogo funcione.
+
+**Sub-bloque 2A: Seed (1h)**
+- [ ] Crear 6-8 beats de ejemplo en Firebase
+- [ ] Cada beat: title, artist, bpm, key, genre, tags, licenses, active, featured
+- [ ] Usar el seed.html o escribir via REST API
+
+**Sub-bloque 2B: Beat Grid (2h)**
+- [ ] Cards renderizan con datos reales
+- [ ] Cover image (placeholder si no hay)
+- [ ] Título, artista, precio, BPM, key
+- [ ] Tags visibles
+- [ ] Genre badge
+- [ ] Featured badge "TOP"
+
+**Sub-bloque 2C: Interacciones (1-2h)**
+- [ ] Play button reproduce audio
 - [ ] Wishlist toggle funciona
-- [ ] Filters (search, genre, key, sort) funcionan
-- [ ] Featured section muestra beats marcados como featured
-- [ ] Click en beat → navega a `/beat/[id]`
-- [ ] Beat page muestra cover, waveform, licenses, platform links
+- [ ] Filters (search, genre, key, sort, tags) filtran
+- [ ] Counter "X de Y beats"
+- [ ] Empty state cuando no hay resultados
+- [ ] Skeleton loading mientras carga
 
-**Test manual:** ¿Se ven beats en el grid? ¿Filtros filtran? ¿Click navega?
+**Sub-bloque 2D: Test (1h)**
+- [ ] Deploy → verificar beats en tienda
+- [ ] Probar cada filtro
+- [ ] Probar play/wishlist
+- [ ] Probar click → beat page
+- [ ] Fixear bugs
+- [ ] Commit + push
 
-### BLOQUE 3: Admin — Que funcione
-**Objetivo:** Panel admin usable.
-- [ ] Login funciona (Google Auth)
-- [ ] Admin detecta `adminWhitelist/{email}`
+---
+
+### BLOQUE 3: Admin Panel (5-7h)
+**Objetivo:** Panel admin completamente funcional.
+
+**Sub-bloque 3A: Auth + Dashboard (1h)**
+- [ ] Login funciona
 - [ ] Dashboard muestra stats reales
-- [ ] Beats list muestra beats existentes
-- [ ] BeatEditor carga datos actuales al editar
-- [ ] BeatEditor guarda cambios a Firebase
-- [ ] Theme editor muestra valores actuales de `theme/`
-- [ ] Content editor muestra valores actuales de `settings/`
-- [ ] Cambios se reflejan en la tienda inmediatamente
+- [ ] Quick actions funcionan
+- [ ] Export/import funciona
 
-**Test manual:** Entrar al admin → ¿se ven datos? ¿Editar y guardar funciona?
+**Sub-bloque 3B: Beats CRUD (2-3h)**
+- [ ] Lista muestra beats existentes
+- [ ] Búsqueda/filtros/sort funcionan
+- [ ] Editar beat → carga datos actuales
+- [ ] Guardar → escribe a Firebase
+- [ ] Crear nuevo beat funciona
+- [ ] Borrar beat funciona
+- [ ] Bulk actions (activate/deactivate/delete)
+- [ ] Move up/down reordena
+- [ ] Auto-save funciona
 
-### BLOQUE 4: Effects & Polish
+**Sub-bloque 3C: Content Editors (2h)**
+- [ ] Hero editor: muestra valores actuales, guarda cambios
+- [ ] Content editor: section, CTA, labels
+- [ ] Theme editor: colores, glow, fonts
+- [ ] Brand editor: nombre, logo, whatsapp
+- [ ] Banner editor: toggle, text, animation
+- [ ] Layout editor: cards per row, spacing
+- [ ] Animations editor: slots
+
+**Sub-bloque 3D: Test (1h)**
+- [ ] Cada editor: cambiar valor → guardar → verificar en tienda
+- [ ] Undo/redo funciona
+- [ ] Keyboard shortcuts funcionan
+- [ ] Commit + push
+
+---
+
+### BLOQUE 4: Effects & Polish (3-4h)
 **Objetivo:** Que la tienda se sienta premium.
-- [ ] Cursor glow (lerp suave)
+
+- [ ] Cursor glow lerp suave
 - [ ] Scroll progress bar (gradiente 3 colores)
-- [ ] Floating orbs (3 orbs animados)
-- [ ] Card glow/animation/shimmer desde `globalCardStyle`
+- [ ] Floating orbs (3 orbs)
+- [ ] Card glow desde `globalCardStyle`
+- [ ] Card animation/hover effects
+- [ ] Card shimmer overlay
 - [ ] Hero parallax on scroll
-- [ ] Sibling blur en beat grid
+- [ ] Sibling blur en grid
 - [ ] Stagger reveal animations
-- [ ] Loader con nombre de marca
+- [ ] Loader con brand name
 - [ ] Grain overlay
+- [ ] Play pulse ring en cards
+- [ ] Waveform bars cuando reproduce
 
-**Test manual:** ¿Efectos visibles? ¿60fps? ¿Mobile se ve bien?
+---
 
-### BLOQUE 5: Content & Labels
+### BLOQUE 5: Content & Labels (2-3h)
 **Objetivo:** Todo editable desde admin.
-- [ ] Labels editables (search, empty states, license names, etc.)
+
+- [ ] 24 labels editables funcionan
 - [ ] CTA section configurable
 - [ ] Testimonials editables
-- [ ] Banner animation types funcionan
+- [ ] Banner animation types
 - [ ] Animation slots aplican en tienda
 
-### BLOQUE 6: Final Audit & Deploy
-**Objetico:** Tienda lista para producción.
+---
+
+### BLOQUE 6: Final Audit (2-3h)
+**Objetivo:** Tienda lista para producción.
+
 - [ ] Build: 0 errores
 - [ ] svelte-check: 0 errores
 - [ ] Todos los links funcionan
-- [ ] Mobile responsive (480px, 768px)
-- [ ] SEO meta tags presentes
+- [ ] Mobile responsive (480px, 768px, 1024px)
+- [ ] SEO meta tags en todas las páginas
 - [ ] robots.txt + sitemap.xml
 - [ ] 0 console.log debug
-- [ ] Performance OK (no jank, lazy loading)
+- [ ] 0 TODOs/FIXMEs
+- [ ] No hardcoded colors/sizes
+- [ ] prefers-reduced-motion funciona
+- [ ] focus-visible funciona
+- [ ] ARIA labels presentes
+- [ ] Performance OK (sin jank)
+- [ ] Lighthouse audit (si es posible)
 
 ---
 
 ## Protocolo por Bloque
 
 ```
-BLOQUE X — PROTOCOLO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. LEER:     Revisar qué hay en Firebase (curl)
-2. MAPEAR:   Qué paths necesita el código vs qué hay
-3. CODEAR:   Fix/add en el código
-4. BUILD:    npm run build → 0 errores
-5. TYPES:    npx svelte-check → 0 errores
-6. COMMIT:   git commit con descripción clara
-7. PUSH:     git push origin main
-8. TEST:     Deploy → verificar en browser real
-9. ITERAR:   Si no funciona → volver al paso 3
-10. PASS:    Marcar bloque como ✅ solo después de test real
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANTES DE EMPEZAR:
+1. Leer este archivo completo
+2. Leer BLOCK-CONTEXT.md → qué bloque toca
+3. Leer REAL-AUDIT.md → datos reales de Firebase
+4. curl a Firebase → ver qué hay
+
+DURANTE EL BLOQUE:
+5. Entender el problema (no asumir)
+6. Planear la solución (no codear a ciegas)
+7. Implementar bien (no parches)
+8. npm run build → 0 errores
+9. npx svelte-check → 0 errores
+10. Commit con mensaje claro
+
+DESPUÉS DEL BLOQUE:
+11. git push origin main
+12. Esperar deploy (1-2 min)
+13. TESTEAR EN BROWSER REAL
+14. Si algo no funciona → volver al paso 5
+15. Cuando TODO funcione → marcar ✅ en BLOCK-CONTEXT.md
+16. Actualizar BLOCK-CONTEXT.md con siguiente bloque
+
+NO HACER:
+- Commitear sin build limpio
+- Marcar ✅ sin test real
+- Hacer 2 bloques a la vez
+- Fixear rápido sin entender
+- Saltar el protocolo
 ```
 
 ---
@@ -195,37 +302,37 @@ BLOQUE X — PROTOCOLO
 ## Archivos Clave
 
 ```
-src/lib/stores/settings.ts       — Settings + migration layer (MÁS IMPORTANTE)
-src/lib/stores/auth.ts           — Auth + adminWhitelist check
+src/lib/stores/settings.ts       — Settings + migration layer ★
+src/lib/stores/auth.ts           — Auth + adminWhitelist
 src/lib/stores/beats.ts          — Beats CRUD
 src/lib/stores/player.ts         — Audio player
 src/lib/stores/theme.ts          — Theme → CSS vars
 src/lib/theme.ts                 — Theme engine
-src/routes/(store)/+page.svelte  — Store index (hero, grid, CTA)
-src/routes/(store)/+layout.svelte— Store layout (nav, footer, banner)
-src/routes/(store)/beat/[id]/+page.svelte — Beat detail page
-src/routes/(admin)/+layout.svelte— Admin layout + auth guard
-src/routes/(admin)/admin/+page.svelte — Admin dashboard
+src/routes/(store)/+page.svelte  — Store index ★
+src/routes/(store)/+layout.svelte— Store layout ★
+src/routes/(store)/beat/[id]/+page.svelte — Beat page
+src/routes/(admin)/+layout.svelte— Admin auth guard
+src/routes/(admin)/admin/+page.svelte — Dashboard
 src/routes/(admin)/admin/beats/+page.svelte — Beats list
-src/lib/components/BeatCard.svelte — Beat card component
-src/lib/components/BeatEditor.svelte — Beat editor (5 tabs)
-src/lib/components/Filters.svelte — Search/filter component
-src/lib/components/Player.svelte — Audio player bar
-src/app.css                      — Design tokens + keyframes
-firebase.rules.json              — DB security rules
+src/lib/components/BeatCard.svelte — Beat card
+src/lib/components/BeatEditor.svelte — Beat editor (643 líneas)
+src/lib/components/Filters.svelte — Filters
+src/lib/components/Player.svelte — Player bar
+src/app.css                      — Design tokens (1191 líneas)
+firebase.rules.json              — DB rules
 ```
 
 ---
 
-## Instrucciones para Nueva Sesión
+## Instrucciones para Chat Nuevo
 
-Si empezás un chat nuevo:
-
-1. **Leer** `.guide/AUDIT-MASTER.md` (este archivo) — estado completo
-2. **Leer** `.guide/BLOCK-CONTEXT.md` — qué bloque estamos
-3. **Leer** `.guide/REAL-AUDIT.md` — datos reales de Firebase
-4. **Verificar** qué hay en Firebase: `curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/settings.json"`
-5. **Empezar** por el bloque marcado como "en progreso" en BLOCK-CONTEXT.md
-6. **Seguir** el protocolo por bloque (arriba)
-7. **Actualizar** BLOCK-CONTEXT.md al terminar cada bloque
-8. **Actualizar** este archivo si descubrís cosas nuevas
+1. **Clonar repo:** `git clone https://github.com/dacewav/storewav.git`
+2. **Leer** `.guide/AUDIT-MASTER.md` (este archivo)
+3. **Leer** `.guide/BLOCK-CONTEXT.md` — qué bloque estamos
+4. **Leer** `.guide/REAL-AUDIT.md` — mapeo paths código vs Firebase
+5. **Verificar Firebase:** `curl -s "URL/settings.json"`
+6. **Empezar** por el bloque "pendiente" en BLOCK-CONTEXT.md
+7. **Seguir** el protocolo de arriba
+8. **No hacer 2 bloques en un chat** — uno bien hecho > tres hechos rápido
+9. **Actualizar** BLOCK-CONTEXT.md al terminar
+10. **Actualizar** este archivo si descubrís cosas nuevas
