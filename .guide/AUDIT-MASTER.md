@@ -183,6 +183,8 @@ curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/beats.json"
 
 ## Protocolo por Sesión
 
+**Tenés 50 min. No empezar algo que no puedas terminar.**
+
 ```
 INICIO — AUDIT (10-15 min):
 1. Leer este archivo
@@ -200,9 +202,15 @@ TRABAJO — FIXEAR (25-30 min):
 11. Commit
 
 CIERRE — PUSH (5-10 min):
-12. git push
+12. Pedir token → push → limpiar remote
 13. Actualizar BLOCK-CONTEXT.md
-14. Decir qué se hizo, qué falta, qué quedó pendiente
+14. Resumir qué se hizo, qué falta, qué testear
+
+REGLA DE TIEMPO:
+- Si quedan 15 min y falta mucho → commitear lo que hay, cerrar bien
+- Si quedan 5 min y no commiteaste → commitear YA, push, cerrar
+- NUNCA dejar la sesión sin commit + push
+- NUNCA empezar un bloque nuevo si no cerraste el actual
 
 NO HACER:
 - Codear sin audit primero
@@ -276,6 +284,51 @@ Cloudflare Pages deploya automáticamente al push a `main`. Esperar 1-2 min desp
 - Commitear fixes pequeños
 - Actualizar .guide/ docs
 - Leer archivos / investigar
+
+### Qué NO hacer nunca
+
+- Cambiar Firebase Security Rules sin confirmación explícita
+- Configurar Cloudflare (eso lo hace el usuario en el dashboard)
+- Cambiar la estructura de archivos del proyecto
+- Borrar datos de Firebase
+- Agregar dependencias sin preguntar
+
+---
+
+## Cierre de Cada Sesión
+
+Al final de CADA sesión (últimos 5 min), hacer esto:
+
+### 1. Resumen para el usuario
+```
+✅ Esta sesión:
+- [qué se hizo]
+- [qué se fixeó]
+- commit: [hash]
+
+⚠️ Pendiente:
+- [qué queda para la siguiente sesión]
+
+🧪 Para testear:
+- [qué verificar en el browser]
+```
+
+### 2. Actualizar BLOCK-CONTEXT.md
+- Marcar la sesión actual como ✅
+- Poner la siguiente sesión como "pendiente"
+- Actualizar `commit_actual`
+- Si se descubrieron cosas nuevas → actualizar AUDIT-MASTER.md también
+
+### 3. Si la sesión no alcanzó a terminar
+- Commitear lo que esté (aunque sea parcial)
+- Actualizar BLOCK-CONTEXT.md con lo que falta
+- Decirle al usuario qué falta para completar la sesión
+- La siguiente sesión arranca donde quedó
+
+### 4. Si se descubre un problema nuevo
+- Agregarlo a AUDIT-MASTER.md → sección "¿Qué está roto?"
+- Agregarlo a la planificación de sesiones si afecta el plan
+- No ignorarlo — escribirlo
 
 ---
 
