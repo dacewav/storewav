@@ -5,9 +5,24 @@
 
 ---
 
-## ⚠️ REGLA DE ORO
+## ⚠️ REGLAS DE ORO
 
-**No hacer las cosas por hacer. Cada bloque se construye BIEN.**
+### 1. Siempre auditar antes de codear
+
+**NUNCA fixear sin entender.** Antes de tocar cualquier código:
+
+1. **Leer** el código relevante completo (no solo el diff)
+2. **Leer** los datos reales de Firebase (curl)
+3. **Entender** qué espera el código vs qué hay
+4. **Identificar** TODOS los puntos de fallo
+5. **Recién ahí** codear
+
+Si un audit de 10 minutos te ahorra 30 minutos de fixes incorrectos, el audit gana.
+
+**Ejemplo malo:** "El hero no se ve, voy a cambiar el template del hero"
+**Ejemplo bueno:** "El hero no se ve. Primero: ¿qué lee el código? ¿Qué tiene Firebase? ¿El migration layer está transformando bien? Ah, el problema es X. Ahora fixeo."
+
+### 2. Construir bien, no rápido
 
 - No fixear rápido → investigar, entender, fixear correcto
 - No asumir que funciona → testear después de deploy
@@ -169,27 +184,33 @@ curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/beats.json"
 ## Protocolo por Sesión
 
 ```
-INICIO (5 min):
+INICIO — AUDIT (10-15 min):
 1. Leer este archivo
 2. Leer BLOCK-CONTEXT.md → qué sesión toca
-3. Verificar Firebase → qué hay
+3. Verificar Firebase → qué hay realmente
+4. Leer el código relevante COMPLETO
+5. Entender qué espera vs qué hay
+6. Identificar TODOS los puntos de fallo
+7. Planear la fix (no codear todavía)
 
-TRABAJO (40 min):
-4. Hacer SOLO lo que dice la sesión
-5. npm run build → 0 errores
-6. npx svelte-check → 0 errores
-7. Commit
+TRABAJO — FIXEAR (25-30 min):
+8. Fixear UN problema a la vez
+9. npm run build → 0 errores después de CADA cambio
+10. npx svelte-check → 0 errores
+11. Commit
 
-CIERRE (5 min):
-8. git push
-9. Actualizar BLOCK-CONTEXT.md
-10. Decirle al usuario qué se hizo y qué falta
+CIERRE — PUSH (5-10 min):
+12. git push
+13. Actualizar BLOCK-CONTEXT.md
+14. Decir qué se hizo, qué falta, qué quedó pendiente
 
 NO HACER:
+- Codear sin audit primero
 - Más de lo que dice la sesión
 - Commitear sin build limpio
 - Marcar ✅ sin test
 - Saltar sesiones
+- Fixear "por si acaso" sin confirmar el problema
 ```
 
 ---
