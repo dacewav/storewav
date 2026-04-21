@@ -35,7 +35,7 @@
 	}
 
 	.empty-icon {
-		font-size: 2.5rem;
+		font-size: var(--text-4xl);
 		margin-bottom: var(--space-4);
 		opacity: 0.3;
 	}

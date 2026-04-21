@@ -280,7 +280,7 @@
 		text-align: center;
 	}
 
-	.empty-icon { font-size: 2rem; opacity: 0.5; }
+	.empty-icon { font-size: var(--text-3xl); opacity: 0.5; }
 	.empty-main { font-size: var(--text-sm); color: var(--text-secondary); }
 	.empty-sub { font-size: var(--text-xs); color: var(--text-muted); }
 	.empty-hint { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-hint); margin-top: var(--space-1); }

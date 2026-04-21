@@ -429,7 +429,7 @@
 
 	.nav-brand {
 		font-family: var(--font-display);
-		font-size: 1.4rem;
+		font-size: var(--text-xl);
 		font-weight: 800;
 		letter-spacing: -0.02em;
 		color: var(--text);
@@ -688,7 +688,7 @@
 
 	.footer-brand {
 		font-family: var(--font-display);
-		font-size: 1.2rem;
+		font-size: var(--text-lg);
 		font-weight: 800;
 		color: var(--text);
 		transition: color var(--duration-fast);

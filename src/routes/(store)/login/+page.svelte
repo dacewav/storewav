@@ -147,7 +147,7 @@
 
 	.login-brand {
 		font-family: var(--font-display);
-		font-size: 1.6rem;
+		font-size: var(--text-2xl);
 		font-weight: 800;
 		letter-spacing: -0.02em;
 		color: var(--text);

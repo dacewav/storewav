@@ -667,7 +667,7 @@
 		animation: scaleIn 0.25s var(--ease-out);
 	}
 
-	.modal-icon { font-size: 2.5rem; margin-bottom: var(--space-3); }
+	.modal-icon { font-size: var(--text-4xl); margin-bottom: var(--space-3); }
 	.modal-title { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: var(--text); margin-bottom: var(--space-2); }
 	.modal-text { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-5); }
 	.modal-actions { display: flex; gap: var(--space-3); justify-content: center; }

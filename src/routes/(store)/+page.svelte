@@ -573,7 +573,7 @@
 
 	.section-title {
 		font-family: var(--font-display);
-		font-size: 1.4rem;
+		font-size: var(--text-xl);
 		font-weight: 800;
 		letter-spacing: -0.02em;
 		color: var(--text);
