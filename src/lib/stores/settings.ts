@@ -19,8 +19,10 @@
  */
 
 import { createFirebaseStore } from './_firebaseStore';
+import type { StoreState } from './_firebaseStore';
 import type { CardStyleConfig } from '$lib/cardStyleEngine';
 import { writable, type Writable } from 'svelte/store';
+import { getDb } from '$lib/firebase';
 
 export type HeroSettings = {
 	title: string;
@@ -509,10 +511,183 @@ export async function redoField() {
 	await base.update({ [entry.dotPath]: entry.newValue } as Partial<SettingsData>);
 }
 
+	// ── Data Migration: flat (old) → nested (new) ──
+	// Firebase may have data in old flat format (heroTitle, bannerText, siteName, etc.)
+	// or new nested format (hero.title, banner.text, brand.name, etc.)
+	// This function normalizes both into the nested format the code expects.
+
+function migrateOldData(raw: Record<string, unknown>): SettingsData {
+	const d = { ...raw } as Record<string, unknown>;
+
+	// Merge hero from flat keys if nested doesn't exist
+	if (!d.hero || typeof d.hero !== 'object') d.hero = {};
+	const hero = d.hero as Record<string, unknown>;
+	const t = (d._theme ?? {}) as Record<string, unknown>;
+	if (!hero.title && d.heroTitle) hero.title = d.heroTitle;
+	if (!hero.subtitle && d.heroSubtitle) hero.subtitle = d.heroSubtitle;
+	if (!hero.eyebrow) {
+		const hEyebrow = t.heroEyebrow ?? d.heroEyebrow;
+		if (hEyebrow) hero.eyebrow = hEyebrow;
+	}
+	if (!hero.glowWord && t.heroTitleCustom) hero.glowWord = t.heroTitleCustom;
+	else if (!hero.glowWord) hero.glowWord = 'rompen.';
+
+	// Merge heroVisual from theme flat keys
+	if (!d.heroVisual || typeof d.heroVisual !== 'object') d.heroVisual = {};
+	const hv = d.heroVisual as Record<string, unknown>;
+	if (hv.glowOn === undefined && t.heroGlowOn !== undefined) hv.glowOn = t.heroGlowOn;
+	if (!hv.glowInt && t.heroGlowInt) hv.glowInt = t.heroGlowInt;
+	if (!hv.glowBlur && t.heroGlowBlur) hv.glowBlur = t.heroGlowBlur;
+	if (!hv.glowClr && t.heroGlowClr) hv.glowClr = t.heroGlowClr;
+	if (hv.strokeOn === undefined && t.heroStrokeOn !== undefined) hv.strokeOn = t.heroStrokeOn;
+	if (!hv.strokeW && t.heroStrokeW) hv.strokeW = t.heroStrokeW;
+	if (!hv.strokeClr && t.heroStrokeClr) hv.strokeClr = t.heroStrokeClr;
+	if (!hv.wordBlur && t.heroWordBlur) hv.wordBlur = t.heroWordBlur;
+	if (!hv.wordOp && t.heroWordOp) hv.wordOp = t.heroWordOp;
+	if (!hv.titleSize && t.heroTitleSize) hv.titleSize = t.heroTitleSize;
+	if (!hv.letterSpacing && t.heroLetterSpacing) hv.letterSpacing = t.heroLetterSpacing;
+	if (!hv.lineHeight && t.heroLineHeight) hv.lineHeight = t.heroLineHeight;
+	if (hv.eyebrowOn === undefined && t.heroEyebrowOn !== undefined) hv.eyebrowOn = t.heroEyebrowOn;
+	if (!hv.eyebrowClr && t.heroEyebrowClr) hv.eyebrowClr = t.heroEyebrowClr;
+	if (!hv.eyebrowSize && t.heroEyebrowSize) hv.eyebrowSize = t.heroEyebrowSize;
+	if (hv.gradOn === undefined && t.heroGradOn !== undefined) hv.gradOn = t.heroGradOn;
+	if (!hv.gradClr && t.heroGradClr) hv.gradClr = t.heroGradClr;
+	if (!hv.gradOp && t.heroGradOp) hv.gradOp = t.heroGradOp;
+	if (!hv.gradW && t.heroGradW) hv.gradW = t.heroGradW;
+	if (!hv.gradH && t.heroGradH) hv.gradH = t.heroGradH;
+	if (hv.eyebrowOn === undefined) hv.eyebrowOn = true;
+	if (hv.glowOn === undefined) hv.glowOn = true;
+
+	// Merge section from flat keys
+	if (!d.section || typeof d.section !== 'object') d.section = {};
+	const sec = d.section as Record<string, unknown>;
+	if (!sec.title) sec.title = 'Catálogo';
+	if (!sec.dividerTitle && d.dividerTitle) sec.dividerTitle = d.dividerTitle;
+	if (!sec.dividerSub && d.dividerSub) sec.dividerSub = d.dividerSub;
+
+	// Merge brand from flat keys
+	if (!d.brand || typeof d.brand !== 'object') d.brand = {};
+	const brand = d.brand as Record<string, unknown>;
+	if (!brand.name && d.siteName) brand.name = d.siteName;
+	if (!brand.name) brand.name = 'DACEWAV';
+	if (!brand.logo && t.logoUrl) brand.logo = t.logoUrl;
+	if (!brand.whatsapp && d.whatsapp) brand.whatsapp = d.whatsapp;
+	if (!brand.footerText) brand.footerText = 'Todos los derechos reservados · 2026';
+	if (!brand.metaDescription) brand.metaDescription = 'Beats que rompen';
+
+	// Merge banner from flat keys
+	if (!d.banner || typeof d.banner !== 'object') d.banner = {};
+	const banner = d.banner as Record<string, unknown>;
+	if (banner.enabled === undefined && d.bannerActive !== undefined) banner.enabled = d.bannerActive;
+	if (!banner.text && d.bannerText) banner.text = d.bannerText;
+	if (!banner.animation && d.bannerAnim) banner.animation = d.bannerAnim;
+	if (!banner.bgColor && d.bannerBg) banner.bgColor = d.bannerBg;
+	if (!banner.textColor && d.bannerTxtClr) banner.textColor = d.bannerTxtClr;
+	if (!banner.speed && d.bannerSpeed) banner.speed = d.bannerSpeed;
+	if (!banner.easing && d.bannerEasing) banner.easing = d.bannerEasing;
+	if (!banner.direction && d.bannerDir) banner.direction = d.bannerDir;
+	if (!banner.delay && d.bannerDelay) banner.delay = d.bannerDelay;
+
+	// Merge loader
+	if (!d.loader || typeof d.loader !== 'object') d.loader = { enabled: true, brandText: brand.name || 'DACEWAV' };
+
+	// Merge cardStyle from flat keys
+	if (!d.cardStyle || typeof d.cardStyle !== 'object') {
+		if (d.globalCardStyle && typeof d.globalCardStyle === 'object') {
+			d.cardStyle = d.globalCardStyle;
+		} else {
+			d.cardStyle = {};
+		}
+	}
+
+	// Merge links from settings flat keys
+	if (!d.links) {
+		const links = [];
+		if (d.instagram) links.push({ label: 'Instagram', url: `https://instagram.com/${d.instagram}`, icon: '📸' });
+		if (d.whatsapp) links.push({ label: 'WhatsApp', url: `https://wa.me/${String(d.whatsapp).replace('+', '')}`, icon: '💬' });
+		d.links = links;
+	}
+
+	// Merge animations from theme flat keys
+	if (!d.animations || typeof d.animations !== 'object') d.animations = {};
+	const anim = d.animations as Record<string, unknown>;
+	if (!anim.animLogo && t.animLogo) anim.animLogo = (t.animLogo as Record<string, unknown>)?.type ?? 'none';
+	if (!anim.animCards && t.animCards) anim.animCards = (t.animCards as Record<string, unknown>)?.type ?? 'none';
+	if (!anim.animButtons && t.animButtons) anim.animButtons = (t.animButtons as Record<string, unknown>)?.type ?? 'none';
+	if (!anim.animPlayer && t.animPlayer) anim.animPlayer = (t.animPlayer as Record<string, unknown>)?.type ?? 'none';
+	if (!anim.animTitle && t.animTitle) anim.animTitle = (t.animTitle as Record<string, unknown>)?.type ?? 'none';
+	if (!anim.animWaveform && t.animWaveform) anim.animWaveform = (t.animWaveform as Record<string, unknown>)?.type ?? 'none';
+
+	// Merge labels
+	if (!d.labels || typeof d.labels !== 'object') d.labels = {};
+
+	// Merge CTA
+	if (!d.cta || typeof d.cta !== 'object') d.cta = {};
+
+	// Merge layout
+	if (!d.layout || typeof d.layout !== 'object') d.layout = {};
+	const layout = d.layout as Record<string, unknown>;
+	if (!layout.cardsPerRow) layout.cardsPerRow = 3;
+	if (layout.showWishlist === undefined) layout.showWishlist = true;
+	if (!layout.logoScale && t.logoScale) layout.logoScale = t.logoScale;
+	if (!layout.logoWidth && t.logoWidth) layout.logoWidth = t.logoWidth;
+	if (!layout.heroPadTop && t.heroPadTop) layout.heroPadTop = t.heroPadTop;
+
+	// Merge testimonials
+	if (!d.testimonials) d.testimonials = [];
+
+	return d as unknown as SettingsData;
+}
+
+// Settings store with migration layer
+let _rawData: Record<string, unknown> | null = null;
+let _themeData: Record<string, unknown> | null = null;
+const settingsStore = writable<StoreState<SettingsData>>({
+	data: null,
+	loading: true,
+	error: null
+});
+
+// Listen to base settings store
+base.subscribe((state) => {
+	_rawData = state.data as Record<string, unknown> | null;
+	if (_rawData && typeof _rawData === 'object') {
+		const merged = { ..._rawData, _theme: _themeData };
+		settingsStore.set({ data: migrateOldData(merged), loading: false, error: null });
+	} else if (!state.loading) {
+		settingsStore.set({ data: DEFAULT, loading: false, error: state.error });
+	} else {
+		settingsStore.set({ data: null, loading: true, error: null });
+	}
+});
+
+// Also listen to theme store for hero data
+let _themeUnsub: (() => void) | null = null;
+async function subscribeThemeForMigration() {
+	try {
+		const db = await getDb();
+		if (!db) return;
+		const { ref, onValue } = await import('firebase/database');
+		_themeUnsub = onValue(ref(db, 'theme'), (snap) => {
+			_themeData = snap.val();
+			if (_rawData && typeof _rawData === 'object') {
+				const merged = { ..._rawData, _theme: _themeData };
+				settingsStore.set({ data: migrateOldData(merged), loading: false, error: null });
+			}
+		});
+	} catch { /* silent */ }
+}
+
 export const settings = {
-	subscribe: base.subscribe,
-	subscribeFirebase: base.subscribeFirebase,
-	unsubscribe: base.unsubscribe,
+	subscribe: settingsStore.subscribe,
+	subscribeFirebase: () => {
+		base.subscribeFirebase();
+		subscribeThemeForMigration();
+	},
+	unsubscribe: () => {
+		base.unsubscribe();
+		if (_themeUnsub) { _themeUnsub(); _themeUnsub = null; }
+	},
 	set: base.set,
 	update: base.update,
 	updateField
