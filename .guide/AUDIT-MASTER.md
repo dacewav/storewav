@@ -7,6 +7,20 @@
 
 ## ⚠️ REGLAS DE ORO
 
+### 0. Esta guía es viva — se reescribe en cada sesión
+
+**NO es un documento estático.** Cada chat nuevo DEBE:
+
+1. **Leer** esta guía al inicio
+2. **Actualizar** si descubre cosas nuevas (errores, paths, datos)
+3. **Reescribir** secciones si la realidad cambió
+4. **Agregar** lecciones aprendidas al cierre
+5. **Corregir** si algo de la guía estaba mal
+
+Si al auditar descubrís que "esto ya no aplica" o "esto falta" → cambiá el archivo. No lo dejes para después. La siguiente sesión depende de lo que vos escribiste.
+
+La guía mejora con cada sesión. Si no la actualizás, la siguiente sesión arranca con info vieja.
+
 ### 1. Siempre auditar antes de codear
 
 **NUNCA fixear sin entender.** Antes de tocar cualquier código:
@@ -314,6 +328,13 @@ Si durante la sesión aprendiste algo nuevo sobre el usuario (preferencias, cóm
 - `memory/YYYY-MM-DD.md` — log del día (crear carpeta `memory/` si no existe)
 
 Estos archivos están en el workspace, NO en el repo del proyecto.
+
+### 4. Reescribir .guide/ si es necesario
+Si descubriste algo nuevo (datos de Firebase cambiaron, error nuevo, path incorrecto, feature que no existía):
+- Actualizar `AUDIT-MASTER.md` → agregar/corregir lo que sea necesario
+- Actualizar `REAL-AUDIT.md` → si el mapeo de datos cambió
+- Actualizar `PROJECT_STATE.md` → si el estado del proyecto cambió
+- **NO dejar info vieja** — la siguiente sesión depende de lo que escribiste
 
 ### 3. Resumen para el usuario
 ```
