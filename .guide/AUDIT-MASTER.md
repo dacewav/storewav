@@ -307,6 +307,14 @@ Al detectar ese trigger, hacer en orden:
 - Poner siguiente sesión como "pendiente"
 - Actualizar `commit_actual`
 
+### 3. Actualizar memoria del usuario
+Si durante la sesión aprendiste algo nuevo sobre el usuario (preferencias, cómo trabaja, frustraciones, etc.), escribirlo en:
+- `MEMORY.md` — si es algo importante/recordable
+- `USER.md` — si es un dato sobre el usuario
+- `memory/YYYY-MM-DD.md` — log del día (crear carpeta `memory/` si no existe)
+
+Estos archivos están en el workspace, NO en el repo del proyecto.
+
 ### 3. Resumen para el usuario
 ```
 ✅ Sesión [X] completa:
