@@ -243,3 +243,68 @@ src/app.css                      Design tokens
 5. Hacer SOLO lo de la sesión actual
 6. Commit + push
 7. Actualizar BLOCK-CONTEXT.md
+
+---
+
+## 🚫 Lo que NO hacer
+
+| ❌ No hacer | Por qué |
+|-------------|---------|
+| Agregar dependencias sin preguntar | Puede romper el build |
+| Refactorizar código que no se pidió tocar | "Si funciona, no lo toques" |
+| Crear abstracciones prematuras | Over-engineering |
+| Optimizar sin que haya problema real | YAGNI |
+| Cambiar estructura de archivos | Rompe imports |
+| Agregar logging en producción | Quitar antes de commit |
+| Codear sin audit primero | Perdés más tiempo fixeando |
+
+---
+
+## ❌ Errores Comunes
+
+### Firebase
+- **"Permission denied"** → Las rules bloquean. Verificar `firebase.rules.json`
+- **"Firebase config error"** → `.env` falta o mal configurado. Prefijo `PUBLIC_` obligatorio
+- **"onValue no actualiza la UI"** → Usar `$store` syntax en Svelte
+
+### SvelteKit
+- **"500 Internal Server Error"** → Firebase en SSR. Usar `browser` check
+- **"Cannot find module"** → `npm install` faltante
+- **"Hydration mismatch"** → Datos del server ≠ client. Usar `{#if browser}`
+- **Layout no aplica** → Verificar jerarquía de `+layout.svelte`
+
+### Build
+- **`npm run build` falla** → Leer el error (dice archivo + línea)
+- **Cloudflare deploy falla** → Verificar `@sveltejs/adapter-cloudflare` en `svelte.config.js`
+
+### Audio
+- **No reproduce** → CORS o autoplay bloqueado. Verificar URL en nueva pestaña
+- **Waveform no se muestra** → Audio no carga o canvas no listo
+
+### Admin
+- **Login no funciona** → Google Auth no habilitado en Firebase Console
+- **Cambios no se reflejan** → Admin escribe en path diferente al que lee la tienda
+
+---
+
+## 🚨 Emergencia
+
+### Build roto
+```bash
+npm run build 2>&1 | tail -20      # Ver error
+rm -rf node_modules package-lock.json && npm install  # Reinstalar si es necesario
+```
+
+### Git descompuesto
+```bash
+git stash                            # Guardar cambios rotos
+git reset --soft HEAD~1              # Deshacer último commit
+git pull origin main --rebase        # Sincronizar con remote
+```
+
+### Firebase corrupto
+```bash
+# Ver datos actuales
+curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/.json" | python3 -m json.tool
+# Firebase Console → Realtime Database → Import/Export JSON
+```
