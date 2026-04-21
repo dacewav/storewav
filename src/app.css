@@ -162,6 +162,9 @@
   /* ── Touch ── */
   --touch-min: 44px;
 
+  /* ── Animation intensity (catalog v5.2 compat) ── */
+  --anim-int: 1;
+
   /* ── Waveform bar ── */
   --wbar-h: 12px;
   --wbar-r: 2px;

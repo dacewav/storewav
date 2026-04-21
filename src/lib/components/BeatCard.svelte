@@ -55,7 +55,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<article
+<div
 	class="beat-card"
 	class:has-shimmer={hasShimmer}
 	class:play-pulse={playing}
@@ -134,7 +134,7 @@
 			<span class="price-amount">${beat.licenses?.basic ?? 29.99}</span>
 		</div>
 	</div>
-</article>
+</div>
 
 <style>
 	.beat-card {

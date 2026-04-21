@@ -80,7 +80,7 @@ function detachAudioListeners() {
 	audioListenersAttached = false;
 }
 
-function play(beat: { id: string; title: string; artist: string; coverUrl: string; audioUrl: string }) {
+function play(beat: { id: string; title: string; artist: string; coverUrl: string; audioUrl: string }, retries = 2) {
 	const a = getAudio();
 	if (!a) return; // SSR guard
 
@@ -96,7 +96,46 @@ function play(beat: { id: string; title: string; artist: string; coverUrl: strin
 
 	// Nuevo beat
 	a.src = beat.audioUrl;
-	a.play();
+
+	let attempt = 0;
+	function tryPlay() {
+		if (!a) return;
+		const playPromise = a.play();
+		if (playPromise !== undefined) {
+			playPromise.catch((err) => {
+				if (attempt < retries) {
+					attempt++;
+					// Retry after short delay
+					setTimeout(() => tryPlay(), 500 * attempt);
+				} else {
+					console.error('[Player] Error al reproducir:', err.message);
+					store.update((s) => ({ ...s, playing: false }));
+				}
+			});
+		}
+	}
+
+	// Timeout: if metadata doesn't load in 10s, abort
+	const timeoutId = setTimeout(() => {
+		if (a.readyState < 2) { // HAVE_CURRENT_DATA
+			a.pause();
+			a.src = '';
+			store.update((s) => ({ ...s, playing: false }));
+			console.error('[Player] Timeout al cargar audio');
+		}
+	}, 10_000);
+
+	// Clear timeout once metadata loads
+	const origLoaded = onLoadedMetadata;
+	const onMetaWithTimeout = () => {
+		clearTimeout(timeoutId);
+		origLoaded();
+	};
+	a.removeEventListener('loadedmetadata', onLoadedMetadata);
+	a.addEventListener('loadedmetadata', onMetaWithTimeout);
+
+	tryPlay();
+
 	store.update((s) => ({
 		...s,
 		playing: true,

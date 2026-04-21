@@ -19,6 +19,81 @@
 	<h2 class="editor-title">🎨 Tema Global</h2>
 	<p class="editor-desc">Colores, glow, tipografía y efectos visuales de toda la tienda.</p>
 
+	<!-- Quick Actions -->
+	<Card>
+		<div class="quick-actions">
+			<button
+				class="mode-toggle"
+				onclick={() => {
+					const isLight = t.lightMode === true;
+					update('theme.lightMode', !isLight);
+					if (typeof document !== 'undefined') {
+						document.documentElement.setAttribute('data-theme', isLight ? 'dark' : 'light');
+						document.documentElement.style.colorScheme = isLight ? 'dark' : 'light';
+					}
+				}}
+			>
+				<span class="mode-icon">{t.lightMode === true ? '☀️' : '🌙'}</span>
+				<span class="mode-label">{t.lightMode === true ? 'Modo Claro activo' : 'Modo Oscuro activo'}</span>
+			</button>
+			<button
+				class="reset-btn"
+				onclick={() => {
+					if (!confirm('¿Restaurar todos los valores del tema a los defaults?')) return;
+					const defaults: [string, unknown][] = [
+						['theme.accent', '#dc2626'],
+						['theme.glowColor', ''],
+						['theme.glowIntensity', 1],
+						['theme.glowBlur', 20],
+						['theme.glowAnim', 'none'],
+						['theme.glowAnimSpeed', 2],
+						['theme.fontDisplay', 'Syne'],
+						['theme.fontBody', 'Space Grotesk'],
+						['theme.fontWeight', 400],
+						['theme.fontSize', 14],
+						['theme.lineHeight', 1.6],
+						['theme.radiusGlobal', 12],
+						['theme.sectionPadding', 4],
+						['theme.beatGap', 16],
+						['theme.cardOpacity', 0.85],
+						['theme.blurBg', 20],
+						['theme.grainOpacity', 0.03],
+						['theme.cardShadowIntensity', 0.3],
+						['theme.cardShadowColor', '#000000'],
+						['theme.navOpacity', 0.95],
+						['theme.heroBgOpacity', 1],
+						['theme.sectionOpacity', 1],
+						['theme.beatImgOpacity', 1],
+						['theme.textOpacity', 1],
+						['theme.btnOpacityNormal', 1],
+						['theme.wbarColor', ''],
+						['theme.wbarActive', ''],
+						['theme.wbarHeight', 64],
+						['theme.orbBlendMode', 'screen'],
+						['theme.grainBlendMode', 'overlay'],
+						['theme.particlesOn', false],
+						['theme.particlesCount', 50],
+						['theme.particlesSpeed', 1],
+						['theme.particlesType', 'circle'],
+						['theme.particlesColor', ''],
+						['theme.particlesOpacity', 0.3],
+						['theme.lightMode', false],
+					];
+					for (const [path, val] of defaults) {
+						settings.updateField(path, val);
+					}
+					if (typeof document !== 'undefined') {
+						document.documentElement.setAttribute('data-theme', 'dark');
+						document.documentElement.style.colorScheme = 'dark';
+					}
+				}}
+			>
+				<span>↺</span>
+				<span>Restaurar defaults</span>
+			</button>
+		</div>
+	</Card>
+
 	<!-- Colors -->
 	<Card>
 		<h3 class="section-title">Colores</h3>
@@ -293,4 +368,11 @@
 	.color-row { display: flex; gap: var(--space-2); align-items: center; }
 	.color-row input[type="color"] { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); cursor: pointer; padding: 2px; }
 	.color-row input[type="text"] { flex: 1; }
+	.quick-actions { display: flex; gap: var(--space-3); padding: var(--space-4); flex-wrap: wrap; }
+	.mode-toggle { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-5); background: var(--surface-hover); border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text); font-size: var(--text-sm); cursor: pointer; transition: all var(--duration-fast); min-height: var(--touch-min); flex: 1; }
+	.mode-toggle:hover { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.08); }
+	.mode-icon { font-size: var(--text-lg); }
+	.mode-label { font-weight: 500; }
+	.reset-btn { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-5); background: transparent; border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text-muted); font-size: var(--text-sm); cursor: pointer; transition: all var(--duration-fast); min-height: var(--touch-min); }
+	.reset-btn:hover { color: var(--danger); border-color: var(--danger-dim); background: var(--danger-glow); }
 </style>

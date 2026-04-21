@@ -193,13 +193,18 @@
 			</div>
 		{:else if hasFile && type === 'audio'}
 			<!-- Audio with player -->
-			<div class="audio-state" onclick={(e) => e.stopPropagation()}>
-				<button class="play-btn" onclick={toggleAudio}>
+			<div class="audio-state" role="presentation" onclick={(e) => e.stopPropagation()}>
+				<button class="play-btn" onclick={toggleAudio} aria-label={audioPlaying ? 'Pausar' : 'Reproducir'}>
 					{audioPlaying ? '⏸' : '▶'}
 				</button>
-				<!-- svelte-ignore a11y_click_events_have_key_events -->
-				<!-- svelte-ignore a11y_no_static_element_interactions -->
-				<div class="progress-bar" onclick={seekAudio}>
+				<div class="progress-bar" role="slider" aria-label="Progreso del audio" aria-valuenow={audioDuration > 0 ? Math.round((audioTime / audioDuration) * 100) : 0} aria-valuemin={0} aria-valuemax={100} tabindex="0"
+					onclick={seekAudio}
+					onkeydown={(e) => {
+						if (!audioEl) return;
+						if (e.key === 'ArrowRight') { audioEl.currentTime = Math.min(audioEl.duration, audioEl.currentTime + 5); }
+						if (e.key === 'ArrowLeft') { audioEl.currentTime = Math.max(0, audioEl.currentTime - 5); }
+					}}
+				>
 					<div class="progress-fill" style="width: {audioDuration > 0 ? (audioTime / audioDuration) * 100 : 0}%"></div>
 				</div>
 				<span class="time">{formatTime(audioTime)} / {formatTime(audioDuration)}</span>

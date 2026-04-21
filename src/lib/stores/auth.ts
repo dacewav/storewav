@@ -27,7 +27,7 @@ export type AuthState = {
 
 const ADMIN_UIDS: string[] = PUBLIC_ADMIN_UIDS
 	.split(',')
-	.map(s => s.trim())
+	.map((s: string) => s.trim())
 	.filter(Boolean);
 
 const store = writable<AuthState>({ user: null, isAdmin: false, loading: true, error: null });

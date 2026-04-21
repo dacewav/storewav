@@ -178,10 +178,8 @@
 
 			<!-- Tags -->
 			<div class="field">
-				<label>Tags</label>
-				<!-- svelte-ignore a11y_click_events_have_key_events -->
-				<!-- svelte-ignore a11y_no_static_element_interactions -->
-				<div class="tags-wrap" onclick={() => tagInputEl?.focus()}>
+				<label for="tag-input">Tags</label>
+				<div class="tags-wrap" role="group" aria-label="Tags">
 					{#each beat.tags ?? [] as tag}
 						<span class="tag-chip">
 							{tag}
@@ -189,6 +187,7 @@
 						</span>
 					{/each}
 					<input
+						id="tag-input"
 						class="tag-input"
 						bind:this={tagInputEl}
 						bind:value={tagInput}

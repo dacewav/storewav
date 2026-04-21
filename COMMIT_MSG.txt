@@ -1,0 +1,7 @@
+audit: 0 errors 0 warnings, light/dark toggle, reset defaults, audio error recovery, --anim-int, a11y fixes
+
+- B8: light/dark toggle + reset defaults button
+- B1: 0 a11y warnings (BeatCard div, FileUpload slider, BeatEditor label)
+- B4: --anim-int CSS variable
+- B3: audio error recovery (retry 2x + 10s timeout)
+- B2: implicit any fix in auth.ts
