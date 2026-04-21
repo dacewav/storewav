@@ -297,38 +297,30 @@ Cloudflare Pages deploya automáticamente al push a `main`. Esperar 1-2 min desp
 
 ## Cierre de Cada Sesión
 
-Al final de CADA sesión (últimos 5 min), hacer esto:
+**Trigger:** El usuario dice "cerrar sesión", "go otro chat", "terminamos", "nos vemos", o similar.
 
-### 1. Resumen para el usuario
+Al detectar ese trigger, hacer en orden:
+
+### 1. Commit + Push todo lo pendiente
+### 2. Actualizar BLOCK-CONTEXT.md
+- Marcar sesión actual como ✅
+- Poner siguiente sesión como "pendiente"
+- Actualizar `commit_actual`
+
+### 3. Resumen para el usuario
 ```
-✅ Esta sesión:
+✅ Sesión [X] completa:
 - [qué se hizo]
-- [qué se fixeó]
 - commit: [hash]
 
-⚠️ Pendiente:
-- [qué queda para la siguiente sesión]
-
-🧪 Para testear:
-- [qué verificar en el browser]
+📋 Siguiente: Sesión [X+1] — [nombre del bloque]
+🧪 Test pendiente: [qué verificar en browser]
 ```
 
-### 2. Actualizar BLOCK-CONTEXT.md
-- Marcar la sesión actual como ✅
-- Poner la siguiente sesión como "pendiente"
-- Actualizar `commit_actual`
-- Si se descubrieron cosas nuevas → actualizar AUDIT-MASTER.md también
-
-### 3. Si la sesión no alcanzó a terminar
+### 4. Si la sesión no alcanzó a terminar
 - Commitear lo que esté (aunque sea parcial)
 - Actualizar BLOCK-CONTEXT.md con lo que falta
-- Decirle al usuario qué falta para completar la sesión
-- La siguiente sesión arranca donde quedó
-
-### 4. Si se descubre un problema nuevo
-- Agregarlo a AUDIT-MASTER.md → sección "¿Qué está roto?"
-- Agregarlo a la planificación de sesiones si afecta el plan
-- No ignorarlo — escribirlo
+- Resumen: qué falta completar en la siguiente sesión
 
 ---
 
