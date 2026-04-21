@@ -25,10 +25,11 @@ export type AuthState = {
 	error: string | null;
 };
 
-const ADMIN_UIDS: string[] = PUBLIC_ADMIN_UIDS
-	.split(',')
-	.map((s: string) => s.trim())
-	.filter(Boolean);
+const ADMIN_UIDS: string[] = [
+	...PUBLIC_ADMIN_UIDS.split(',').map((s: string) => s.trim()).filter(Boolean),
+	// Fallback — owner UID (remove once env var is set in Cloudflare)
+	'Uks9YGSd6rS40zqlRujoe6pE6N22'
+];
 
 const store = writable<AuthState>({ user: null, isAdmin: false, loading: true, error: null });
 let unsub: (() => void) | null = null;
