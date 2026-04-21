@@ -30,7 +30,7 @@ Si un audit de 10 minutos te ahorra 30 minutos de fixes incorrectos, el audit ga
 - No saltar bloques → uno a la vez
 - No commitear basura
 
-**Límite real: 50 minutos por chat.** Los bloques se estiman en chats, no en "horas de trabajo humano" (eso no existe).
+**Límite real: 50 minutos por sesión de chat.** Ese es el tiempo que tenemos los dos — vos preguntás, yo codeo, deployeamos, testeamos. Todo dentro de esos 50 min. Los bloques están diseñados para completarse en 1 o 2 sesiones.
 
 ---
 
