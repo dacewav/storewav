@@ -197,7 +197,7 @@
 	<div class="hero-links">
 		{#each heroLinks as link}
 			<a class="hero-link" href={link.url} target="_blank" rel="noopener">
-				{#if link.icon}<span class="hero-link-icon">{link.icon}</span>{/if}
+				<Icon name={link.icon as any} size={16} />
 				{link.label}
 			</a>
 		{/each}

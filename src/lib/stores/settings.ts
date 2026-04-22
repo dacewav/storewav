@@ -524,6 +524,7 @@ function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	const hero = d.hero as Record<string, unknown>;
 	const t = (d._theme ?? {}) as Record<string, unknown>;
 	if (!hero.title && d.heroTitle) hero.title = d.heroTitle;
+	if (!hero.title && d.siteName) hero.title = d.siteName;
 	if (!hero.subtitle && d.heroSubtitle) hero.subtitle = d.heroSubtitle;
 	if (!hero.eyebrow) {
 		const hEyebrow = t.heroEyebrow ?? d.heroEyebrow;
@@ -603,8 +604,8 @@ function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	// Merge links from settings flat keys
 	if (!d.links) {
 		const links = [];
-		if (d.instagram) links.push({ label: 'Instagram', url: `https://instagram.com/${d.instagram}`, icon: '📸' });
-		if (d.whatsapp) links.push({ label: 'WhatsApp', url: `https://wa.me/${String(d.whatsapp).replace('+', '')}`, icon: '💬' });
+		if (d.instagram) links.push({ label: 'Instagram', url: `https://instagram.com/${d.instagram}`, icon: 'instagram' });
+		if (d.whatsapp) links.push({ label: 'WhatsApp', url: `https://wa.me/${String(d.whatsapp).replace('+', '')}`, icon: 'whatsapp' });
 		d.links = links;
 	}
 
