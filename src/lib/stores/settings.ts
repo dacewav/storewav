@@ -526,6 +526,10 @@ function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	if (!hero.title && d.heroTitle) hero.title = d.heroTitle;
 	if (!hero.title && d.siteName) hero.title = d.siteName;
 	if (!hero.subtitle && d.heroSubtitle) hero.subtitle = d.heroSubtitle;
+	if (!hero.subtitle && d.tagline) hero.subtitle = d.tagline;
+	// Clean empty strings so DEFAULT fallback kicks in via ?? in templates
+	if (hero.title === '') delete hero.title;
+	if (hero.subtitle === '') delete hero.subtitle;
 	if (!hero.eyebrow) {
 		const hEyebrow = t.heroEyebrow ?? d.heroEyebrow;
 		if (hEyebrow) hero.eyebrow = hEyebrow;
