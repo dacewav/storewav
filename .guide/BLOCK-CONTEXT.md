@@ -3,14 +3,14 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 2 — Bloque 1A: Hero
+## Sesión Actual: 3 — Bloque 1B: Banner + Divider + Nav
 
 ```yaml
-sesión: "2"
-bloque: "1A"
-objetivo: "Hero muestra datos reales de Firebase"
+sesión: "3"
+bloque: "1B"
+objetivo: "Banner, Divider, Nav, Footer con datos reales de Firebase"
 tiempo: "50 min"
-estado: "pendiente"
+estado: "en progreso"
 ```
 
 ## Qué hacer en esta sesión
@@ -30,8 +30,8 @@ estado: "pendiente"
 | Sesión | Bloque | Estado |
 |--------|--------|--------|
 | 1 | 0 — Data Layer | ✅ hecho (sin test) |
-| 2 | 1A — Hero | ⬜ esta sesión |
-| 3 | 1B — Banner + Divider + Nav | ⬜ |
+| 2 | 1A — Hero | ✅ hecho (2 commits: 4896c1d, e1f8ae4) |
+| 3 | 1B — Banner + Divider + Nav | ⬜ esta sesión |
 | 4 | 2A — Beats Seed | ⬜ |
 | 5 | 2B — Beat Interactions | ⬜ |
 | 6 | 3A — Admin Dashboard | ⬜ |
