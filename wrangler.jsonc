@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "storewav",
+  "name": "dacewav-store",
   "compatibility_date": "2026-04-19",
   "main": ".svelte-kit/cloudflare/_worker.js",
   "assets": {
