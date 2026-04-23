@@ -468,8 +468,6 @@
 		transform: translateY(-1px);
 	}
 
-	.hero-link-icon { font-size: var(--text-base); }
-
 	.hero-stats {
 		display: flex;
 		align-items: center;

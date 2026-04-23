@@ -90,17 +90,27 @@
 
 	// Auto-save with debounce (1s after last change)
 	let autoSaveTimer: ReturnType<typeof setTimeout> | null = $state(null);
-	let lastSaved = $state(Date.now());
+	let hasUserChanged = $state(false);
 
+	// Track if user actually changed something (skip initial load)
 	$effect(() => {
-		// Track beat changes to trigger auto-save
 		const _ = JSON.stringify(beat);
-		if (saveStatus === 'unsaved' && onSave) {
+		// Only mark as changed after first render
+		if (hasUserChanged) {
 			if (autoSaveTimer) clearTimeout(autoSaveTimer);
-			autoSaveTimer = setTimeout(() => {
-				onSave?.();
-			}, 1000);
+			if (saveStatus !== 'saving' && onSave) {
+				autoSaveTimer = setTimeout(() => {
+					onSave?.();
+				}, 1000);
+			}
 		}
+	});
+
+	// Mark user changes after mount (skip initial load)
+	$effect(() => {
+		// Small delay to skip initial reactive chain
+		const timer = setTimeout(() => { hasUserChanged = true; }, 500);
+		return () => clearTimeout(timer);
 	});
 </script>
 
