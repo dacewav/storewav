@@ -190,8 +190,12 @@ export function applyTheme(config: ThemeConfig) {
 		if (value !== undefined && value !== null) {
 			// Values that need 'rem' suffix
 			const needsRem = ['sectionPadding', 'heroPadTop', 'padSection'];
+			// Values that need 'px' suffix
+			const needsPx = ['beatGap', 'wbarHeight', 'wbarRadius', 'blurBg', 'cardShadowIntensity'];
 			if (needsRem.includes(key) && typeof value === 'number') {
 				vars[cssVar] = `${value}rem`;
+			} else if (needsPx.includes(key) && typeof value === 'number') {
+				vars[cssVar] = `${value}px`;
 			} else {
 				vars[cssVar] = String(value);
 			}
