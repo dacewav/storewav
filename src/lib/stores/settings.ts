@@ -80,8 +80,9 @@ export type BannerSettings = {
 export type Testimonial = {
 	name: string;
 	text: string;
-	stars: number;
-	avatar: string;
+	stars?: number;
+	avatar?: string;
+	role?: string; // Firebase uses role instead of stars
 };
 
 // ── Hero Visual Settings ──
@@ -599,7 +600,71 @@ function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	// Merge cardStyle from flat keys
 	if (!d.cardStyle || typeof d.cardStyle !== 'object') {
 		if (d.globalCardStyle && typeof d.globalCardStyle === 'object') {
-			d.cardStyle = d.globalCardStyle;
+			// Migrate nested Firebase structure → flat CardStyleConfig
+			const gcs = d.globalCardStyle as Record<string, unknown>;
+			const flat: Record<string, unknown> = {};
+
+			// Glow
+			const glow = gcs.glow as Record<string, unknown> | undefined;
+			if (glow) {
+				flat.glow = glow.enabled ? (glow.type ?? 'active') : 'none';
+				flat.glowColor = glow.color ?? '';
+				flat.glowIntensity = glow.intensity ?? 1;
+			}
+
+			// Filter
+			const filter = gcs.filter as Record<string, unknown> | undefined;
+			if (filter) {
+				flat.brightness = filter.brightness ?? 1;
+				flat.contrast = filter.contrast ?? 1;
+				flat.saturate = filter.saturate ?? 1;
+				flat.grayscale = filter.grayscale ?? 0;
+				flat.sepia = filter.sepia ?? 0;
+				flat.hueRotate = filter.hueRotate ?? 0;
+				flat.invert = filter.invert ?? 0;
+			}
+
+			// Border
+			const border = gcs.border as Record<string, unknown> | undefined;
+			if (border && border.enabled) {
+				flat.borderWidth = `${border.width ?? 1}px`;
+				flat.borderStyle = border.style ?? 'solid';
+				flat.borderColor = border.color ?? '';
+			}
+
+			// Shadow
+			const shadow = gcs.shadow as Record<string, unknown> | undefined;
+			if (shadow && shadow.enabled) {
+				flat.boxShadow = `${shadow.x ?? 0}px ${shadow.y ?? 4}px ${shadow.blur ?? 12}px ${shadow.spread ?? 0}px rgba(0,0,0,${shadow.opacity ?? 0.35})${shadow.inset ? ' inset' : ''}`;
+			}
+
+			// Hover
+			const hover = gcs.hover as Record<string, unknown> | undefined;
+			if (hover) {
+				flat.hoverScale = hover.scale ?? 1.02;
+				flat.hoverBrightness = hover.brightness ?? 1;
+				flat.hoverBlur = hover.blur ?? 0;
+				flat.hoverSaturate = hover.saturate ?? 1;
+			}
+
+			// Style (shimmer, borderRadius, opacity)
+			const style = gcs.style as Record<string, unknown> | undefined;
+			if (style) {
+				flat.shimmer = style.shimmer ?? false;
+				if (style.borderRadius) flat.borderRadius = `${style.borderRadius}px`;
+			}
+
+			// Transform
+			const transform = gcs.transform as Record<string, unknown> | undefined;
+			if (transform) {
+				if (transform.rotate) flat.rotate = transform.rotate;
+				if (transform.scale && transform.scale !== 1) flat.scale = transform.scale;
+				if (transform.skewX || transform.skewY) {
+					flat.skew = `${transform.skewX ?? 0}deg, ${transform.skewY ?? 0}deg`;
+				}
+			}
+
+			d.cardStyle = flat;
 		} else {
 			d.cardStyle = {};
 		}

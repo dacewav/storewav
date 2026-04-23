@@ -26,7 +26,11 @@
 	<div class="test-grid">
 		{#each items as t, i (i)}
 			<div class="test-card">
-				<div class="test-stars">{renderStars(t.stars)}</div>
+				{#if t.stars}
+					<div class="test-stars">{renderStars(t.stars)}</div>
+				{:else if t.role}
+					<div class="test-role">{t.role}</div>
+				{/if}
 				<p class="test-text">"{t.text}"</p>
 				<div class="test-author">
 					{#if t.avatar}
@@ -94,6 +98,15 @@
 		font-size: var(--text-sm);
 		color: var(--accent);
 		letter-spacing: 2px;
+		margin-bottom: var(--space-3);
+	}
+
+	.test-role {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--accent);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
 		margin-bottom: var(--space-3);
 	}
 
