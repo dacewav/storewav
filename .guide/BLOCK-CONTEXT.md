@@ -10,7 +10,8 @@ sesión: "4"
 bloque: "2A"
 objetivo: "Seed de 6-8 beats en Firebase + verificar grid renderiza"
 tiempo: "50 min"
-estado: "pendiente"
+estado: "en progreso"
+último_commit: "59227bd"
 ```
 
 ## Sesión 3 (Bloque 1B) — ✅ COMPLETA
