@@ -3,55 +3,64 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 3 — Bloque 1B: Banner + Divider + Nav
+## Sesión Actual: 4 — Bloque 2A: Beats Seed
 
 ```yaml
-sesión: "3"
-bloque: "1B"
-objetivo: "Banner, Divider, Nav, Footer con datos reales de Firebase"
+sesión: "4"
+bloque: "2A"
+objetivo: "Seed de 6-8 beats en Firebase + verificar grid renderiza"
 tiempo: "50 min"
-estado: "en progreso"
-commit: "9088849"
+estado: "pendiente"
 ```
 
-## Qué se hizo esta sesión
+## Sesión 3 (Bloque 1B) — ✅ COMPLETA
 
-1. ✅ Clonado repo + npm install + .env configurado
-2. ✅ Audit profundo: Firebase real vs código (settings flat → nested migration)
-3. ✅ Theme engine: mapeadas 15+ keys faltantes a CSS vars
-   - `fontBody` → `--font-body` (crítico — no estaba mapeado!)
-   - `grainBlendMode` → `--grain-blend`
-   - `wbarColor/Active/Height/Radius` → `--wbar-*`
-   - Opacities: `textOpacity`, `heroBgOpacity`, `sectionOpacity`, `beatImgOpacity`, `navOpacity`
-   - `surface`, `surface2`, `border`, `border2`
-   - `cardShadowIntensity`, `cardShadowColor`, `blurBg`, `orbBlendMode`
-   - `logoHeight`, `logoWidth`, `logoScale`
-   - `fontSize` → `--text-base` (con conversión rem)
-   - `padSection` → `--section-padding` (alias)
-4. ✅ Testimonials: adaptados para Firebase format `{name,role,text}` (antes solo soportaba `{name,text,stars,avatar}`)
-5. ✅ globalCardStyle: migration de estructura nested de Firebase → flat CardStyleConfig (glow, filter, border, shadow, hover, style, transform)
-6. ✅ Build: 0 errores, svelte-check: 0 errores / 1 warning menor
-7. ✅ Commits: 9088849, 2390a8c, 6f8d484 — pushed a main
+### Commits (5)
+- `9088849` fix: theme engine — 15+ missing CSS var mappings
+- `2390a8c` docs: update BLOCK-CONTEXT + AUDIT-MASTER
+- `6f8d484` fix: testimonials + globalCardStyle migration
+- `909493d` docs: BLOCK-CONTEXT progress
+- `f6489d2` fix: migration defaults — CTA, labels, section, banner
 
-## Qué falta para cerrar sesión 3
+### Qué se hizo
+1. Theme engine: `fontBody`, `grainBlendMode`, `wbar*`, opacities, surfaces, borders, logo → CSS vars
+2. Testimonials: adaptados para `{name,role,text}` de Firebase
+3. globalCardStyle: nested → flat migration (glow, filter, border, shadow, hover, transform)
+4. Migration defaults: CTA, labels, section, banner obtienen fallbacks de DEFAULT
+5. Build: 0 errores en todos los commits
 
-- [ ] Hero glow word: Firebase tiene `heroTitleCustom: 'S'` — ¿es correcto o debería ser frase completa?
-- [ ] Hero subtitle: vacío en Firebase — ¿agregar contenido de ejemplo?
-- [ ] Deploy + test visual en browser (Cloudflare Pages auto-deploya al push)
-- [ ] Verificar que font-body aplica JetBrains Mono en browser
-- [ ] Verificar banner animado scroll funciona
-- [ ] Verificar eyebrow con color #ceff1f (neon) se ve correcto
-- [ ] CTA section: no hay datos en Firebase — ¿configurar?
-- [ ] Actualizar AUDIT-MASTER.md con findings finales
+### Qué mostrar al usuario
+- Hero: título "YUGEN", eyebrow "En vivo · Puebla, MX", glow word "S"
+- Banner: "saca un toque . <3 !" con scroll animation
+- Divider: "CALIDAD AEGURADA"
+- Nav: brand "YUGEN", logo, Instagram + WhatsApp links
+- CTA: "¿Listo para tu próximo hit?" con botón WhatsApp
+- Testimonials: "Raven.c1x — Costa rica, Artista ."
+- Font: JetBrains Mono (no Space Grotesk)
+
+## Qué hacer en Sesión 4
+
+1. Seed beats en Firebase (usar seed.html en browser O escribir vía REST API)
+2. Verificar grid renderiza con datos reales
+3. Fixear lo que no funcione del grid/cards
+4. Test + commit
+
+### Beats de ejemplo (de seed.html)
+- NOCTURNO (Trap, 140 BPM, Am) — featured
+- MEDUSAS (Drill, 128 BPM, Cm) — featured
+- ATARDECER (R&B, 90 BPM, F)
+- FUEGO CRUZADO (Trap, 145 BPM, Gm)
+- NEBLINA (Drill, 132 BPM, Dm)
+- CREPÚSCULO (R&B, 85 BPM, Em)
 
 ## Estado de Sesiones
 
 | Sesión | Bloque | Estado |
 |--------|--------|--------|
-| 1 | 0 — Data Layer | ✅ hecho (sin test) |
-| 2 | 1A — Hero | ✅ hecho (2 commits: 4896c1d, e1f8ae4) |
-| 3 | 1B — Banner + Divider + Nav | ⬜ en progreso (commit 9088849) |
-| 4 | 2A — Beats Seed | ⬜ |
+| 1 | 0 — Data Layer | ✅ hecho |
+| 2 | 1A — Hero | ✅ hecho |
+| 3 | 1B — Banner + Divider + Nav | ✅ completo (5 commits) |
+| 4 | 2A — Beats Seed | ⬜ esta sesión |
 | 5 | 2B — Beat Interactions | ⬜ |
 | 6 | 3A — Admin Dashboard | ⬜ |
 | 7 | 3B — Beat Editor | ⬜ |
@@ -59,8 +68,6 @@ commit: "9088849"
 | 9 | 4 — Effects | ⬜ |
 | 10 | 5 — Labels + Polish | ⬜ |
 | 11 | 6 — Final Audit | ⬜ |
-
-**Total: 11 sesiones de 50 min = ~9h reales de chat**
 
 ## Referencia
 
