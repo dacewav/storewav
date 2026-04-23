@@ -28,18 +28,21 @@ commit: "9088849"
    - `logoHeight`, `logoWidth`, `logoScale`
    - `fontSize` → `--text-base` (con conversión rem)
    - `padSection` → `--section-padding` (alias)
-4. ✅ Build: 0 errores, svelte-check: 0 errores / 1 warning menor
-5. ✅ Commit: 9088849
+4. ✅ Testimonials: adaptados para Firebase format `{name,role,text}` (antes solo soportaba `{name,text,stars,avatar}`)
+5. ✅ globalCardStyle: migration de estructura nested de Firebase → flat CardStyleConfig (glow, filter, border, shadow, hover, style, transform)
+6. ✅ Build: 0 errores, svelte-check: 0 errores / 1 warning menor
+7. ✅ Commits: 9088849, 2390a8c, 6f8d484 — pushed a main
 
 ## Qué falta para cerrar sesión 3
 
-- [ ] Hero glow word: Firebase tiene `heroTitleCustom: 'S'` — revisar si es correcto o debería ser frase completa
+- [ ] Hero glow word: Firebase tiene `heroTitleCustom: 'S'` — ¿es correcto o debería ser frase completa?
 - [ ] Hero subtitle: vacío en Firebase — ¿agregar contenido de ejemplo?
-- [ ] Testimonials: Firebase tiene `{name, role, text}` pero código espera `{name, text, stars, avatar}` — adaptar migration
+- [ ] Deploy + test visual en browser (Cloudflare Pages auto-deploya al push)
+- [ ] Verificar que font-body aplica JetBrains Mono en browser
+- [ ] Verificar banner animado scroll funciona
+- [ ] Verificar eyebrow con color #ceff1f (neon) se ve correcto
 - [ ] CTA section: no hay datos en Firebase — ¿configurar?
-- [ ] globalCardStyle: Firebase tiene estructura anidada diferente a CardStyleConfig — adaptar migration
-- [ ] Deploy + test visual en browser
-- [ ] Actualizar AUDIT-MASTER.md con findings
+- [ ] Actualizar AUDIT-MASTER.md con findings finales
 
 ## Estado de Sesiones
 
