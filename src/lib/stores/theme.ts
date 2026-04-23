@@ -1,22 +1,19 @@
 /**
- * Theme store — lee theme/ de Firebase y aplica CSS vars
+ * Theme store — aplica tema como CSS vars
  *
- * Usa el theme.ts existente (applyTheme) como engine.
- * Firebase escribe → onValue → applyTheme() → CSS vars en DOM
+ * FUENTE ÚNICA: settings.data.theme (viene de Firebase settings/ + migration)
+ * NO lee de Firebase theme/ directamente — eso causaba desync con admin editor.
  *
- * Estructura Firebase:
- *   theme/accent → "#dc2626"
- *   theme/bg → "#060404"
- *   theme/surface → "#0f0808"
- *   theme/radiusGlobal → "16px"
- *   theme/cardOpacity → 1
- *   theme/lightMode → false
- *   ... (ver ThemeConfig en theme.ts)
+ * Flujo:
+ *   Admin edita theme → settings.updateField('theme.accent', '#ff0000')
+ *   → Firebase settings/theme.accent cambia
+ *   → settings store detecta cambio
+ *   → theme store re-aplica CSS vars
  */
 
 import { writable } from 'svelte/store';
 import { applyTheme, resetTheme, type ThemeConfig } from '$lib/theme';
-import { getDb } from '$lib/firebase';
+import { settings } from './settings';
 
 export type ThemeState = {
 	config: ThemeConfig | null;
@@ -27,37 +24,20 @@ export type ThemeState = {
 const store = writable<ThemeState>({ config: null, loading: true, error: null });
 let unsub: (() => void) | null = null;
 
-/** Suscribirse a Firebase theme/ y aplicar al DOM */
+/** Suscribirse a settings.data.theme y aplicar CSS vars */
 export async function initTheme() {
 	if (unsub) return;
 
-	try {
-		const db = await getDb();
-		if (!db) {
-			store.set({ config: null, loading: false, error: 'Firebase no inicializado' });
-			return;
+	// Listen to settings store — when theme changes, apply CSS vars
+	unsub = settings.subscribe((settingsState) => {
+		const themeConfig = settingsState.data?.theme as unknown as ThemeConfig | null;
+		if (themeConfig) {
+			applyTheme(themeConfig);
+			store.set({ config: themeConfig, loading: false, error: null });
+		} else if (!settingsState.loading) {
+			store.set({ config: null, loading: false, error: null });
 		}
-
-		const { ref, onValue } = await import('firebase/database');
-
-		unsub = onValue(
-			ref(db, 'theme'),
-			(snap) => {
-				const config = snap.val() as ThemeConfig | null;
-				if (config) {
-					applyTheme(config);
-				}
-				store.set({ config, loading: false, error: null });
-			},
-			(err) => {
-				console.error('[Theme]', err.message);
-				store.set({ config: null, loading: false, error: err.message });
-			}
-		);
-	} catch (err) {
-		const msg = err instanceof Error ? err.message : String(err);
-		store.set({ config: null, loading: false, error: msg });
-	}
+	});
 }
 
 /** Desuscribirse y resetear CSS vars */
@@ -70,18 +50,9 @@ export function destroyTheme() {
 	store.set({ config: null, loading: true, error: null });
 }
 
-/** Actualizar un campo del tema en Firebase */
+/** Actualizar un campo del tema en Firebase settings/ */
 export async function updateThemeField(key: string, value: unknown) {
-	try {
-		const db = await getDb();
-		if (!db) throw new Error('Firebase no inicializado');
-
-		const { ref, update } = await import('firebase/database');
-		await update(ref(db, 'theme'), { [key]: value });
-	} catch (err) {
-		const msg = err instanceof Error ? err.message : String(err);
-		store.update((s) => ({ ...s, error: msg }));
-	}
+	settings.updateField(`theme.${key}`, value);
 }
 
 export const theme = { subscribe: store.subscribe };
