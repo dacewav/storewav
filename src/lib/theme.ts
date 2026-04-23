@@ -51,6 +51,7 @@ export interface ThemeConfig {
 
 /** Map de Firebase theme/ keys → CSS custom properties */
 const THEME_MAP: Record<string, string> = {
+	// Colors
 	bg: '--bg',
 	bgSecondary: '--bg-secondary',
 	surface: '--surface',
@@ -58,17 +59,48 @@ const THEME_MAP: Record<string, string> = {
 	accent: '--accent',
 	text: '--text',
 	textSecondary: '--text-secondary',
+	textOpacity: '--text-opacity',
+	// Typography
 	fontDisplay: '--font-display',
 	fontBody: '--font-body',
+	fontSize: '--text-base',
+	// Radius
 	radiusGlobal: '--radius-lg',
+	// Card
 	cardOpacity: '--card-opacity',
+	cardShadowIntensity: '--card-shadow-intensity',
+	cardShadowColor: '--card-shadow-color',
+	// Effects
 	grainOpacity: '--grain-opacity',
+	grainBlendMode: '--grain-blend',
+	blurBg: '--blur-bg',
+	// Layout
 	beatGap: '--beat-gap',
 	sectionPadding: '--section-padding',
 	heroPadTop: '--hero-pad-top',
-	btnOpacity: '--btn-opacity',
+	padSection: '--section-padding',
+	// Opacity
+	btnOpacityNormal: '--btn-opacity',
 	btnOpacityHover: '--btn-opacity-hover',
 	bgOpacity: '--bg-opacity',
+	heroBgOpacity: '--hero-bg-opacity',
+	sectionOpacity: '--section-opacity',
+	beatImgOpacity: '--beat-img-opacity',
+	navOpacity: '--nav-opacity',
+	// Waveform bar
+	wbarColor: '--wbar-color',
+	wbarActive: '--wbar-active',
+	wbarHeight: '--wbar-h',
+	wbarRadius: '--wbar-r',
+	// Orb / blend
+	orbBlendMode: '--orb-blend',
+	// Borders
+	border: '--border',
+	border2: '--border2',
+	// Logo
+	logoHeight: '--logo-height',
+	logoWidth: '--logo-width',
+	logoScale: '--logo-scale',
 };
 
 /**
@@ -157,7 +189,7 @@ export function applyTheme(config: ThemeConfig) {
 		const value = config[key as keyof ThemeConfig];
 		if (value !== undefined && value !== null) {
 			// Values that need 'rem' suffix
-			const needsRem = ['sectionPadding', 'heroPadTop'];
+			const needsRem = ['sectionPadding', 'heroPadTop', 'padSection', 'fontSize'];
 			if (needsRem.includes(key) && typeof value === 'number') {
 				vars[cssVar] = `${value}rem`;
 			} else {
