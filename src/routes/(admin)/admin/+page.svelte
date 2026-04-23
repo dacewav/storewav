@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Card, Badge } from '$lib/components';
-	import { beatsList, wishlist, settings, auth } from '$lib/stores';
+	import { allBeatsList, wishlist, settings, auth } from '$lib/stores';
 
-	let beats = $derived($beatsList);
+	let beats = $derived($allBeatsList);
 	let wl = $derived($wishlist);
 	let settingsData = $derived($settings.data);
 	let authState = $derived($auth);
