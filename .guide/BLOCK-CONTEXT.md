@@ -11,48 +11,38 @@ bloque: "2A"
 objetivo: "Seed de 6-8 beats en Firebase + verificar grid renderiza"
 tiempo: "50 min"
 estado: "en progreso"
-último_commit: "59227bd"
+último_commit: "8e99717"
 ```
 
-## Sesión 3 (Bloque 1B) — ✅ COMPLETA
+## Qué se hizo esta sesión (audit + fixes)
 
-### Commits (5)
-- `9088849` fix: theme engine — 15+ missing CSS var mappings
-- `2390a8c` docs: update BLOCK-CONTEXT + AUDIT-MASTER
-- `6f8d484` fix: testimonials + globalCardStyle migration
-- `909493d` docs: BLOCK-CONTEXT progress
-- `f6489d2` fix: migration defaults — CTA, labels, section, banner
+1. ✅ Audit profundo del codebase completo
+2. ✅ Theme store: reescrito para leer de settings (single source of truth)
+3. ✅ Root layout: eliminadas 50+ líneas de CSS vars duplicadas
+4. ✅ fontSize: fixeado — era 16rem en vez de 16px
+5. ✅ CSS vars: beatGap/wbarHeight/wbarRadius/blurBg necesitan px
+6. ✅ BeatEditor: auto-save reactivamente trackea saveStatus
+7. ✅ Dashboard: usa allBeatsList (incluye inactivos en stats/export)
+8. ✅ CSS: eliminado selector sin usar (0 warnings)
+9. ✅ Guide docs: añadidos PLAN-MASTER, GUIDE-SYSTEM, SETUP-DESDE-CERO
 
-### Qué se hizo
-1. Theme engine: `fontBody`, `grainBlendMode`, `wbar*`, opacities, surfaces, borders, logo → CSS vars
-2. Testimonials: adaptados para `{name,role,text}` de Firebase
-3. globalCardStyle: nested → flat migration (glow, filter, border, shadow, hover, transform)
-4. Migration defaults: CTA, labels, section, banner obtienen fallbacks de DEFAULT
-5. Build: 0 errores en todos los commits
+### Commits (8)
+```
+8f4c17e fix: theme store reads from settings
+59227bd fix: remove duplicate theme, fix auto-save, clean CSS
+e93c6f1 fix: fontSize — 16rem → 16px
+ff547a7 fix: CSS vars need px suffix
+f89d692 fix: admin dashboard uses allBeatsList
+a2a8bd8 fix: BeatEditor auto-save tracks saveStatus
+8e99717 docs: add master plan + guide system + setup guide
+```
 
-### Qué mostrar al usuario
-- Hero: título "YUGEN", eyebrow "En vivo · Puebla, MX", glow word "S"
-- Banner: "saca un toque . <3 !" con scroll animation
-- Divider: "CALIDAD AEGURADA"
-- Nav: brand "YUGEN", logo, Instagram + WhatsApp links
-- CTA: "¿Listo para tu próximo hit?" con botón WhatsApp
-- Testimonials: "Raven.c1x — Costa rica, Artista ."
-- Font: JetBrains Mono (no Space Grotesk)
+## Qué falta para cerrar sesión 4
 
-## Qué hacer en Sesión 4
-
-1. Seed beats en Firebase (usar seed.html en browser O escribir vía REST API)
-2. Verificar grid renderiza con datos reales
-3. Fixear lo que no funcione del grid/cards
-4. Test + commit
-
-### Beats de ejemplo (de seed.html)
-- NOCTURNO (Trap, 140 BPM, Am) — featured
-- MEDUSAS (Drill, 128 BPM, Cm) — featured
-- ATARDECER (R&B, 90 BPM, F)
-- FUEGO CRUZADO (Trap, 145 BPM, Gm)
-- NEBLINA (Drill, 132 BPM, Dm)
-- CREPÚSCULO (R&B, 85 BPM, Em)
+- [ ] Usuario crea beats via admin panel
+- [ ] Verificar grid renderiza con datos reales
+- [ ] Fixear lo que no funcione
+- [ ] Test + commit
 
 ## Estado de Sesiones
 
@@ -60,8 +50,8 @@ estado: "en progreso"
 |--------|--------|--------|
 | 1 | 0 — Data Layer | ✅ hecho |
 | 2 | 1A — Hero | ✅ hecho |
-| 3 | 1B — Banner + Divider + Nav | ✅ completo (5 commits) |
-| 4 | 2A — Beats Seed | ⬜ esta sesión |
+| 3 | 1B — Banner + Divider + Nav | ✅ completo |
+| 4 | 2A — Beats Seed | ⬜ en progreso |
 | 5 | 2B — Beat Interactions | ⬜ |
 | 6 | 3A — Admin Dashboard | ⬜ |
 | 7 | 3B — Beat Editor | ⬜ |
@@ -72,4 +62,6 @@ estado: "en progreso"
 
 ## Referencia
 
-Lee `AUDIT-MASTER.md` para el plan completo, datos de Firebase, y protocolo.
+- `AUDIT-MASTER.md` — plan completo, datos Firebase, protocolo
+- `docs/PLAN-MASTER.html` — roadmap visual interactivo
+- `docs/SETUP-DESDE-CERO.html` — setup para no-devs
