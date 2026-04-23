@@ -34,6 +34,7 @@ export interface ThemeConfig {
 	// Typography
 	fontDisplay?: string;     // CSS font-family
 	fontBody?: string;
+	fontSize?: number;        // px base (applied directly to <html>)
 
 	// Logo
 	logoUrl?: string;
@@ -63,7 +64,6 @@ const THEME_MAP: Record<string, string> = {
 	// Typography
 	fontDisplay: '--font-display',
 	fontBody: '--font-body',
-	fontSize: '--text-base',
 	// Radius
 	radiusGlobal: '--radius-lg',
 	// Card
@@ -189,13 +189,18 @@ export function applyTheme(config: ThemeConfig) {
 		const value = config[key as keyof ThemeConfig];
 		if (value !== undefined && value !== null) {
 			// Values that need 'rem' suffix
-			const needsRem = ['sectionPadding', 'heroPadTop', 'padSection', 'fontSize'];
+			const needsRem = ['sectionPadding', 'heroPadTop', 'padSection'];
 			if (needsRem.includes(key) && typeof value === 'number') {
 				vars[cssVar] = `${value}rem`;
 			} else {
 				vars[cssVar] = String(value);
 			}
 		}
+	}
+
+	// 2b. Font size — set directly on <html> (not as CSS var)
+	if (config.fontSize && typeof config.fontSize === 'number') {
+		root.style.fontSize = `${config.fontSize}px`;
 	}
 
 	// 3. Accent variants (auto-genera)
@@ -243,4 +248,7 @@ export function resetTheme() {
 	for (const v of allVars) {
 		root.style.removeProperty(v);
 	}
+
+	// Reset font size
+	root.style.fontSize = '';
 }
