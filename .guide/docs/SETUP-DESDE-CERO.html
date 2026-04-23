@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DACEWAV — Setup desde Cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080a;
+    --surface: #111114;
+    --surface-2: #19191e;
+    --surface-3: #222228;
+    --accent: #00ff87;
+    --accent-dim: #00cc6a;
+    --accent-glow: rgba(0,255,135,0.12);
+    --violet: #a78bfa;
+    --violet-glow: rgba(167,139,250,0.12);
+    --amber: #fbbf24;
+    --amber-glow: rgba(251,191,36,0.12);
+    --rose: #fb7185;
+    --rose-glow: rgba(251,113,133,0.12);
+    --sky: #38bdf8;
+    --sky-glow: rgba(56,189,248,0.12);
+    --text: #e4e4e8;
+    --text-muted: #7a7a86;
+    --text-dim: #48484f;
+    --border: #26262e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 10% 5%, rgba(0,255,135,0.025) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 90%, rgba(167,139,250,0.02) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; padding: 0 20px; }
+
+  /* HERO */
+  .hero {
+    padding: 60px 0 40px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: p 2s ease infinite; }
+  @keyframes p { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 5vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 14px;
+  }
+  .hero h1 .g { color: var(--accent); }
+  .hero p {
+    font-family: 'Crimson Pro', serif;
+    font-size: 17px;
+    color: var(--text-muted);
+    max-width: 580px;
+    margin: 0 auto;
+  }
+
+  /* OS SELECTOR */
+  .os-select {
+    display: flex; gap: 10px;
+    justify-content: center;
+    margin: 30px 0 10px;
+  }
+  .os-btn {
+    padding: 10px 24px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .os-btn:hover { border-color: var(--text-dim); color: var(--text); }
+  .os-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .os-hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 30px;
+  }
+
+  /* PROGRESS BAR */
+  .setup-progress {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 30px;
+    position: sticky;
+    top: 10px;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .sp-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .sp-top h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 14px;
+  }
+  .sp-pct {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 18px;
+    color: var(--accent);
+  }
+  .sp-track {
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .sp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--violet));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .sp-steps {
+    display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap;
+  }
+  .sp-step {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .sp-step.done {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .sp-step.current {
+    border-color: var(--violet);
+    color: var(--violet);
+    background: var(--violet-glow);
+    animation: glow 2s ease infinite;
+  }
+  @keyframes glow {
+    0%,100% { box-shadow: none; }
+    50% { box-shadow: 0 0 10px var(--violet-glow); }
+  }
+
+  /* STEP BLOCKS */
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .step:hover { border-color: var(--surface-3); }
+  .step.completed { border-color: rgba(0,255,135,0.2); }
+
+  .step-head {
+    padding: 20px 24px;
+    cursor: pointer;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .step-num {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 16px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    transition: all 0.3s;
+  }
+  .step.completed .step-num {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .step.open .step-num {
+    background: var(--violet-glow);
+    border-color: var(--violet);
+    color: var(--violet);
+  }
+  .step-info { flex: 1; }
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 2px;
+  }
+  .step-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .step-time {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .step-body {
+    display: none;
+    padding: 0 24px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .step.open .step-body { display: block; padding-top: 20px; }
+
+  /* INSTRUCTION BLOCKS */
+  .inst {
+    margin-bottom: 20px;
+  }
+  .inst-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .inst p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .inst a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .inst a:hover { border-bottom-color: var(--accent); }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    margin: 10px 0;
+    position: relative;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+  .code-block .comment { color: var(--text-dim); }
+  .code-block .highlight { color: var(--accent); }
+  .code-copy {
+    position: absolute;
+    top: 8px; right: 8px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-dim);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Mono', monospace;
+  }
+  .code-copy:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* TIP BOXES */
+  .tip {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin: 12px 0;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .tip-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+  .tip.info { background: var(--sky-glow); border: 1px solid rgba(56,189,248,0.2); color: var(--sky); }
+  .tip.warn { background: var(--amber-glow); border: 1px solid rgba(251,191,36,0.2); color: var(--amber); }
+  .tip.success { background: var(--accent-glow); border: 1px solid rgba(0,255,135,0.2); color: var(--accent); }
+  .tip.important { background: var(--rose-glow); border: 1px solid rgba(251,113,133,0.2); color: var(--rose); }
+
+  /* VISUAL: WHAT YOU'LL SEE */
+  .visual {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .visual .screen {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 8px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .visual .screen .dim { color: var(--text-dim); }
+  .visual .screen .bright { color: var(--accent); }
+  .visual .screen .violet { color: var(--violet); }
+
+  /* OPTIONS */
+  .opt-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .opt-chip {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface-2);
+    color: var(--text-muted);
+  }
+  .opt-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .opt-chip.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+  /* COMPLETE BUTTON */
+  .complete-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+  .complete-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .complete-btn.done {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* SCREENSHOT PLACEHOLDER */
+  .screenshot {
+    background: var(--surface-2);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    margin: 12px 0;
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+  .screenshot .icon { font-size: 24px; margin-bottom: 6px; opacity: 0.4; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--text-dim);
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+
+  .fade-in { opacity: 0; transform: translateY(12px); transition: opacity 0.5s, transform 0.5s; }
+  .fade-in.vis { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 600px) {
+    .step-head { padding: 16px; }
+    .step-body { padding: 0 16px 16px; }
+    .step.open .step-body { padding-top: 16px; }
+    .sp-steps { gap: 3px; }
+    .sp-step { font-size: 9px; padding: 2px 7px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">
+      <div class="dot"></div>
+      SETUP DESDE CERO — DACEWAV.STORE
+    </div>
+    <h1>No necesitás saber <span class="g">código</span>. Solo seguir <span class="g">pasos</span>.</h1>
+    <p>Esta guía te lleva de tener una computadora a tener tu tienda de beats funcionando. Cada paso tiene explicación de qué estás haciendo y por qué.</p>
+  </div>
+
+  <!-- OS SELECTOR -->
+  <div class="os-select">
+    <button class="os-btn active" data-os="mac" onclick="setOS(this)">🍎 Mac</button>
+    <button class="os-btn" data-os="win" onclick="setOS(this)">🪟 Windows</button>
+  </div>
+  <div class="os-hint">Elegí tu sistema — los comandos cambian según lo que uses</div>
+
+  <!-- PROGRESS -->
+  <div class="setup-progress">
+    <div class="sp-top">
+      <h3>Tu progreso</h3>
+      <div class="sp-pct" id="spPct">0%</div>
+    </div>
+    <div class="sp-track">
+      <div class="sp-fill" id="spFill" style="width:0%"></div>
+    </div>
+    <div class="sp-steps" id="spSteps"></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step fade-in" data-step="1">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">1</div>
+      <div class="step-info">
+        <div class="step-title">Instalar Visual Studio Code</div>
+        <div class="step-desc">El programa donde vas a escribir y editar código. Es gratis y es lo que usan los profesionales.</div>
+        <div class="step-time">~5 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">¿Qué es esto?</div>
+        <p>VS Code es como un Bloc de Notas, pero hecho para programar. Te muestra los colores del código, te avisa si hay errores, y tiene una terminal integrada (la consola donde escribís comandos).</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 1.1 — Descargar</div>
+        <p>Andá a <a href="https://code.visualstudio.com" target="_blank">code.visualstudio.com</a> y bajá la versión para tu sistema.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 1.2 — Instalar</div>
+        <div class="os-mac">
+          <p>Abrí el archivo .zip descargado, arrastrá <strong>Visual Studio Code</strong> a tu carpeta <strong>Aplicaciones</strong>. Listo.</p>
+        </div>
+        <div class="os-win">
+          <p>Abrí el .exe descargado, seguí el instalador. En una de las pantallas te pregunta "Add to PATH" — <strong>marcalo</strong>. Todo lo demás dejalo por defecto.</p>
+          <div class="tip warn">
+            <span class="tip-icon">⚠</span>
+            <span>"Add to PATH" es importante. Si no lo marcás, después la terminal no va a encontrar los comandos. Si ya lo instalaste sin esto, reinstalá.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 1.3 — Abrir VS Code por primera vez</div>
+        <p>Abrite VS Code. Vas a ver una pantalla con un menú a la izquierda y un área de "Bienvenida".</p>
+        <p>Cerrá la pestaña de bienvenida si querés. Ya está.</p>
+      </div>
+
+      <div class="tip success">
+        <span class="tip-icon">✓</span>
+        <span>Si VS Code se abrió bien, este paso está completo.</span>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(1, this)">
+        <span>✓</span> Ya instalé VS Code
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step fade-in" data-step="2">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">2</div>
+      <div class="step-info">
+        <div class="step-title">Instalar Node.js</div>
+        <div class="step-desc">El motor que hace funcionar todo por detrás. Sin esto no podés crear ni correr el proyecto.</div>
+        <div class="step-time">~5 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">¿Qué es esto?</div>
+        <p>Node.js es un programa que permite que tu computadora entienda JavaScript (el lenguaje en el que está hecho tu proyecto). Cuando alguien dice "corré npm install", necesita Node.js instalado.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 2.1 — Descargar</div>
+        <p>Andá a <a href="https://nodejs.org" target="_blank">nodejs.org</a>. Te va a mostrar dos versiones:</p>
+        <p>Elegí la que dice <strong>"LTS"</strong> (Long Term Support) — es la versión estable. La otra dice "Current" y es para experimentar.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 2.2 — Instalar</div>
+        <div class="os-mac">
+          <p>Abrí el archivo .pkg descargado y seguí los pasos. Todo por defecto, siguiente-siguiente-siguiente.</p>
+        </div>
+        <div class="os-win">
+          <p>Abrí el .exe y seguí el instalador. De nuevo: si te pregunta por <strong>PATH</strong>, asegurate de que esté marcado. Todo lo demás por defecto.</p>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 2.3 — Verificar que funciona</div>
+        <p>Ahora necesitamos abrir la <strong>terminal</strong> (la consola de comandos). Es como una chat con tu computadora donde le escribís instrucciones.</p>
+
+        <div class="os-mac">
+          <p><strong>Cómo abrir la terminal en Mac:</strong></p>
+          <p>Presioná <strong>⌘ + Espacio</strong>, escribí <strong>"Terminal"</strong>, y dale Enter. Se abre una ventanita negra (o blanca) con un cursor parpadeante.</p>
+        </div>
+        <div class="os-win">
+          <p><strong>Cómo abrir la terminal en Windows:</strong></p>
+          <p>Click derecho en el botón de Windows (abajo a la izquierda) → elegí <strong>"Terminal"</strong> o <strong>"PowerShell"</strong>. También podés buscar "terminal" en el menú de inicio.</p>
+        </div>
+
+        <p>En la terminal, escribí esto y dale Enter:</p>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+node --version
+        </div>
+        <p>Si te muestra algo como <strong>v22.x.x</strong> o <strong>v20.x.x</strong>, Node.js está instalado correctamente.</p>
+      </div>
+
+      <div class="tip info">
+        <span class="tip-icon">💡</span>
+        <span>La terminal se va a volver tu mejor amiga. Es donde vas a correr comandos como "npm run dev" para ver tu proyecto andando. No tengas miedo — no se va a romper nada.</span>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(2, this)">
+        <span>✓</span> Node.js instalado y verificado
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step fade-in" data-step="3">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">3</div>
+      <div class="step-info">
+        <div class="step-title">Instalar Git + crear cuenta GitHub</div>
+        <div class="step-desc">Git guarda el historial de tu código. GitHub es donde vive tu proyecto en la nube.</div>
+        <div class="step-time">~10 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">¿Qué es Git?</div>
+        <p>Imaginá que cada vez que guardás tu proyecto, Git saca una "foto" de cómo está todo. Si algo se rompe, podés volver a cualquier foto anterior. Es como tener Ctrl+Z infinito para todo tu proyecto.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">¿Qué es GitHub?</div>
+        <p>GitHub es como Google Drive pero para código. Ahí se guarda tu proyecto, y cuando lo conectás a Cloudflare, cada vez que subís un cambio, tu tienda se actualiza automáticamente.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 3.1 — Instalar Git</div>
+        <div class="os-mac">
+          <p>Mac ya trae Git instalado (o te pide instalarlo al abrir la terminal por primera vez). Abrí la terminal y escribí:</p>
+          <div class="code-block">
+            <button class="code-copy" onclick="copyCode(this)">copiar</button>
+git --version
+          </div>
+          <p>Si te muestra una versión, ya lo tenés. Si te pide instalar "Command Line Tools", aceptá.</p>
+        </div>
+        <div class="os-win">
+          <p>Andá a <a href="https://git-scm.com" target="_blank">git-scm.com</a> y bajá el instalador. Todo por defecto.</p>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 3.2 — Crear cuenta en GitHub</div>
+        <p>Andá a <a href="https://github.com" target="_blank">github.com</a> y creá una cuenta (si ya tenés una, usala).</p>
+        <p>Nombre de usuario sugerido: <strong>dacewav</strong></p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 3.3 — Crear el repositorio "store"</div>
+        <p>En GitHub, click en el <strong>+</strong> arriba a la derecha → <strong>"New repository"</strong></p>
+        <div class="visual">
+          Configurá así:
+          <div class="screen">
+            <span class="dim">Repository name:</span> <span class="bright">store</span><br>
+            <span class="dim">Description:</span> Professional beat store<br>
+            <span class="dim">Visibility:</span> <span class="bright">Private</span><br>
+            <span class="dim">Initialize with:</span> <span class="violet">NO marcar nada</span><br>
+            <br>
+            <span class="dim">→ Click</span> <span class="bright">"Create repository"</span>
+          </div>
+        </div>
+        <div class="tip warn">
+          <span class="tip-icon">⚠</span>
+          <span>NO marques "Add a README file", ".gitignore", ni "license". Tiene que estar vacío. Lo vamos a llenar desde tu computadora.</span>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(3, this)">
+        <span>✓</span> Git instalado + repo "store" creado en GitHub
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step fade-in" data-step="4">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">4</div>
+      <div class="step-info">
+        <div class="step-title">Crear el proyecto SvelteKit</div>
+        <div class="step-desc">Acá nace tu tienda. Un comando crea toda la estructura base del proyecto.</div>
+        <div class="step-time">~5 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">Paso 4.1 — Abrir la terminal en VS Code</div>
+        <p>Abrí VS Code. Andá al menú de arriba: <strong>Terminal → New Terminal</strong>. Se abre una terminal dentro de VS Code (abajo).</p>
+        <div class="os-mac">
+          <p>Atajo: <strong>⌘ + `</strong> (la tecla de acento, arriba del Tab)</p>
+        </div>
+        <div class="os-win">
+          <p>Atajo: <strong>Ctrl + `</strong> (la tecla de acento, arriba del Tab)</p>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 4.2 — Navegar a donde querés tu proyecto</div>
+        <p>Escribí esto para ir a tu Escritorio (o donde quieras):</p>
+        <div class="code-block os-mac">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+cd ~/Desktop
+        </div>
+        <div class="code-block os-win">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+cd $HOME\Desktop
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 4.3 — Crear el proyecto</div>
+        <p>Escribí este comando (copia y pega):</p>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+npm create svelte@latest store
+        </div>
+        <p>Te va a hacer unas preguntas. Elegí así:</p>
+        <div class="visual">
+          <div class="screen">
+            <span class="dim">Which Svelte app template?</span><br>
+            → <span class="bright">Skeleton project</span> <span class="dim">(Enter)</span><br><br>
+
+            <span class="dim">Add type checking with TypeScript?</span><br>
+            → <span class="bright">Yes, using TypeScript syntax</span> <span class="dim">(Enter)</span><br><br>
+
+            <span class="dim">Select additional options:</span><br>
+            → <span class="bright">ESLint</span> <span class="dim">(Enter para marcar)</span><br>
+            → <span class="bright">Prettier</span> <span class="dim">(Enter para marcar)</span><br>
+            → <span class="dim">Enter para confirmar</span><br>
+          </div>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 4.4 — Instalar las dependencias</div>
+        <p>Entrá a la carpeta del proyecto e instalá todo lo que necesita:</p>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+cd store<br>npm install
+        </div>
+        <p>Esperá a que termine (puede tardar 1-2 minutos la primera vez).</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 4.5 — Verificar que funciona</div>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+npm run dev
+        </div>
+        <p>Te va a mostrar algo como:</p>
+        <div class="visual">
+          <div class="screen">
+            <span class="dim">  VITE v5.x.x  ready in xxx ms</span><br><br>
+            <span class="bright">  ➜  Local:   http://localhost:5173/</span><br>
+            <span class="dim">  ➜  Network: ...</span>
+          </div>
+        </div>
+        <p>Abrí tu navegador y andá a <a href="http://localhost:5173" target="_blank">http://localhost:5173</a>. Si ves una página con "SvelteKit", ¡funciona!</p>
+      </div>
+
+      <div class="tip success">
+        <span class="tip-icon">🎉</span>
+        <span>¡Tu proyecto ya existe! Es una página en blanco por ahora, pero es TU página en blanco. Todo lo que construyamos va a vivir acá.</span>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(4, this)">
+        <span>✓</span> Proyecto creado y corriendo en localhost
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step fade-in" data-step="5">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">5</div>
+      <div class="step-info">
+        <div class="step-title">Subir el proyecto a GitHub</div>
+        <div class="step-desc">Conectar tu computadora con GitHub para que tu código esté respaldado en la nube.</div>
+        <div class="step-time">~5 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">¿Qué estamos haciendo?</div>
+        <p>Ahora el proyecto vive solo en tu computadora. Lo vamos a "subir" a GitHub para que:</p>
+        <p>1. Tengas un respaldo en la nube<br>2. Cloudflare pueda leer tu código y publicar tu tienda<br>3. Puedas trabajar desde cualquier computadora</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 5.1 — Inicializar Git en tu proyecto</div>
+        <p>En la terminal de VS Code (que ya debería estar en la carpeta <strong>store</strong>), escribí:</p>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+git init<br>git add .<br>git commit -m "initial sveltekit setup"
+        </div>
+        <p>Esto significa: "Git, empezá a vigilar esta carpeta. Agregá todos los archivos. Y guardá esta foto como 'setup inicial'."</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 5.2 — Conectar con tu repo de GitHub</div>
+        <p>Andá a tu repo en GitHub (<strong>github.com/dacewav/store</strong>). Te va a mostrar unos comandos. Copiá los que dicen "...or push an existing repository".</p>
+        <p>Van a ser algo así (copiá los de TU pantalla, los míos son ejemplo):</p>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+git remote add origin https://github.com/dacewav/store.git<br>git branch -M main<br>git push -u origin main
+        </div>
+        <p>Si te pide autenticación, GitHub te va a abrir el navegador para que te loguees.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 5.3 — Verificar</div>
+        <p>Refrescá tu repo en GitHub. Si ves una lista de archivos como <strong>package.json</strong>, <strong>src/</strong>, <strong>svelte.config.js</strong>... ¡todo bien!</p>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(5, this)">
+        <span>✓</span> Proyecto subido a GitHub
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step fade-in" data-step="6">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">6</div>
+      <div class="step-info">
+        <div class="step-title">Instalar extensiones de VS Code</div>
+        <div class="step-desc">Plugins que hacen tu vida más fácil: colores, autocompletado, y conexión con Svelte.</div>
+        <div class="step-time">~3 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">Paso 6.1 — Abrir extensiones</div>
+        <p>En VS Code, mirá el menú de la izquierda. Hay un ícono de piezas de rompecabezas (🧩). Hacé click ahí.</p>
+        <p>En la barra de búsqueda, escribí cada nombre e instalá:</p>
+      </div>
+
+      <div class="visual">
+        Extensiones a instalar (buscá e instalá una por una):
+        <div class="screen">
+          <span class="bright">1. Svelte for VS Code</span><br>
+          <span class="dim">   → Colores y autocompletado para archivos .svelte</span><br><br>
+          <span class="bright">2. ESLint</span><br>
+          <span class="dim">   → Te avisa si hay errores en tu código</span><br><br>
+          <span class="bright">3. Prettier</span><br>
+          <span class="dim">   → Formatea tu código automáticamente</span><br><br>
+          <span class="bright">4. GitLens</span><br>
+          <span class="dim">   → Muestra quién cambió qué y cuándo</span>
+        </div>
+      </div>
+
+      <div class="tip info">
+        <span class="tip-icon">💡</span>
+        <span>Después de instalar las extensiones, VS Code te puede pedir que lo reinicies. Hacelo.</span>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(6, this)">
+        <span>✓</span> Extensiones instaladas
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="step fade-in" data-step="7">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">7</div>
+      <div class="step-info">
+        <div class="step-title">Crear proyecto en Firebase</div>
+        <div class="step-desc">Firebase es donde se guarda todo: los beats, los usuarios, las órdenes. Es gratis para empezar.</div>
+        <div class="step-time">~10 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">¿Qué es Firebase?</div>
+        <p>Firebase es un servicio de Google que te da base de datos, autenticación (login), y hosting. Para tu tienda:</p>
+        <p>• <strong>RTDB</strong> = donde se guardan los beats (títulos, BPM, precios, links de audio)<br>• <strong>Firestore</strong> = donde se guardan las órdenes de compra y datos de usuarios<br>• <strong>Auth</strong> = el sistema de login con Google</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 7.1 — Crear cuenta</div>
+        <p>Andá a <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> con tu cuenta de Google (<strong>daceidk@gmail.com</strong>).</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 7.2 — Crear proyecto</div>
+        <p>Click en <strong>"Create a project"</strong> (Crear un proyecto).</p>
+        <div class="visual">
+          <div class="screen">
+            <span class="dim">Project name:</span> <span class="bright">dacewav-store</span><br><br>
+            <span class="dim">Google Analytics:</span> <span class="violet">Podés desactivarlo por ahora</span><br><br>
+            <span class="dim">→ Click</span> <span class="bright">"Create project"</span><br>
+            <span class="dim">→ Esperá unos segundos →</span> <span class="bright">"Continue"</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 7.3 — Activar Realtime Database</div>
+        <p>En el menú de la izquierda: <strong>Build → Realtime Database → Create Database</strong></p>
+        <div class="visual">
+          <div class="screen">
+            <span class="dim">Elegí la región más cercana</span><br>
+            <span class="dim">Para las rules, elegí:</span> <span class="bright">"Start in test mode"</span><br>
+            <span class="dim">(después lo protegemos con las reglas de seguridad)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 7.4 — Activar Firestore</div>
+        <p><strong>Build → Firestore Database → Create Database</strong></p>
+        <div class="visual">
+          <div class="screen">
+            <span class="dim">Región:</span> la misma que elegiste antes<br>
+            <span class="dim">Rules:</span> <span class="bright">"Start in test mode"</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 7.5 — Activar Authentication</div>
+        <p><strong>Build → Authentication → Get started</strong></p>
+        <p>En la pestaña <strong>"Sign-in method"</strong>, habilitá:</p>
+        <div class="visual">
+          <div class="screen">
+            <span class="bright">Google</span> → Enable → Email: daceidk@gmail.com → Save<br>
+            <span class="dim">(También te va a pedir un "support email" — poné el mismo)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 7.6 — Obtener las credenciales</p>
+        <p>Andá a <strong>Project Settings</strong> (el ícono de engranaje arriba a la izquierda).</p>
+        <p>Bajá hasta <strong>"Your apps"</strong> → click en el ícono de web (<strong>&lt;/&gt;</strong>) para agregar una app web.</p>
+        <div class="visual">
+          <div class="screen">
+            <span class="dim">App nickname:</span> <span class="bright">store-web</span><br>
+            <span class="dim">Firebase Hosting:</span> <span class="violet">NO marcar por ahora</span><br>
+            <span class="dim">→ Click</span> <span class="bright">"Register app"</span>
+          </div>
+        </div>
+        <p>Te va a mostrar un bloque de código con tus credenciales. <strong>Copiá ese bloque entero</strong> y guardalo en un archivo de texto. Se ve así:</p>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+const firebaseConfig = {<br>  apiKey: <span class="highlight">"AIza..."</span>,<br>  authDomain: <span class="highlight">"dacewav-store..."</span>,<br>  databaseURL: <span class="highlight">"https://dacewav-store..."</span>,<br>  projectId: <span class="highlight">"dacewav-store"</span>,<br>  storageBucket: <span class="highlight">"dacewav-store..."</span>,<br>  messagingSenderId: <span class="highlight">"123456..."</span>,<br>  appId: <span class="highlight">"1:123456..."</span><br>};
+        </div>
+        <div class="tip important">
+          <span class="tip-icon">🔑</span>
+          <span>Estos datos son las "llaves" de tu proyecto Firebase. Guardalos en un lugar seguro. Los vamos a usar en el siguiente bloque cuando configuremos el proyecto.</span>
+        </div>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(7, this)">
+        <span>✓</span> Firebase configurado + credenciales guardadas
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 8 -->
+  <div class="step fade-in" data-step="8">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">8</div>
+      <div class="step-info">
+        <div class="step-title">Crear cuenta en Cloudflare</div>
+        <div class="step-desc">Cloudflare es donde se publica tu tienda en internet. Gratis y rápido.</div>
+        <div class="step-time">~5 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">¿Qué es Cloudflare?</div>
+        <p>Cloudflare es el servicio que publica tu tienda en internet. Cuando alguien escribe <strong>dacewav.store</strong> en su navegador, Cloudflare les muestra tu página. Es gratis para empezar.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 8.1 — Crear cuenta</div>
+        <p>Andá a <a href="https://dash.cloudflare.com/sign-up" target="_blank">dash.cloudflare.com/sign-up</a> y creá una cuenta con tu email.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 8.2 — Crear proyecto en Pages</div>
+        <p>En el menú de la izquierda: <strong>Workers & Pages → Create → Pages → Connect to Git</strong></p>
+        <div class="visual">
+          <div class="screen">
+            <span class="dim">Conectá tu cuenta de GitHub</span><br>
+            <span class="dim">Seleccioná el repo:</span> <span class="bright">dacewav/store</span><br><br>
+            <span class="dim">Build settings:</span><br>
+            <span class="dim">Framework preset:</span> <span class="bright">SvelteKit</span><br>
+            <span class="dim">Build command:</span> <span class="bright">npm run build</span><br>
+            <span class="dim">Build output directory:</span> <span class="bright">.svelte-kit/cloudflare</span><br><br>
+            <span class="dim">→ Click</span> <span class="bright">"Save and Deploy"</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip info">
+        <span class="tip-icon">💡</span>
+        <span>El primer deploy va a fallar porque todavía no configuramos el adapter de Cloudflare. No te preocupes, lo arreglamos en el siguiente bloque.</span>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(8, this)">
+        <span>✓</span> Cuenta Cloudflare creada + proyecto Pages conectado
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 9 -->
+  <div class="step fade-in" data-step="9">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">9</div>
+      <div class="step-info">
+        <div class="step-title">Crear cuenta en Stripe</div>
+        <div class="step-desc">Stripe es el sistema de pagos. Cuando alguien compre un beat, Stripe procesa el dinero.</div>
+        <div class="step-time">~10 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">¿Qué es Stripe?</div>
+        <p>Stripe es el servicio que procesa pagos con tarjeta de crédito/débito. Cuando un artista quiera comprar tu beat, Stripe se encarga de cobrarle y depositarte el dinero.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 9.1 — Crear cuenta</div>
+        <p>Andá a <a href="https://stripe.com" target="_blank">stripe.com</a> → <strong>"Start now"</strong></p>
+        <p>Creá tu cuenta con tu email. Te van a pedir datos personales y bancarios para cuando quieras cobrar.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 9.2 — Obtener las API keys</div>
+        <p>En el dashboard de Stripe: <strong>Developers → API keys</strong></p>
+        <p>Vas a ver dos claves:</p>
+        <div class="visual">
+          <div class="screen">
+            <span class="dim">Publishable key:</span> <span class="bright">pk_test_...</span><br>
+            <span class="dim">Secret key:</span> <span class="violet">sk_test_...</span> <span class="dim">(click "Reveal")</span><br><br>
+            <span class="dim">Guardá las dos. La "secret key" es secreta — nunca la compartas.</span>
+          </div>
+        </div>
+        <p>Por ahora estamos en <strong>"test mode"</strong> (modo de prueba). Cuando estés listo para cobrar de verdad, activás "live mode".</p>
+      </div>
+
+      <div class="tip info">
+        <span class="tip-icon">💡</span>
+        <span>Las claves de test empiezan con pk_test_ y sk_test_. Las de producción empiezan con pk_live_ y sk_live_. Por ahora usamos las de test.</span>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(9, this)">
+        <span>✓</span> Stripe configurado + API keys guardadas
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 10 -->
+  <div class="step fade-in" data-step="10">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">10</div>
+      <div class="step-info">
+        <div class="step-title">Instalar .guide/ en tu proyecto</div>
+        <div class="step-desc">El sistema de documentación que nos mantiene organizados. Ya lo tenemos armado, solo hay meterlo en el repo.</div>
+        <div class="step-time">~3 minutos</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">¿Qué es esto?</div>
+        <p>El sistema <strong>.guide/</strong> son 11 archivos de documentación que le dan contexto completo a cualquier persona (o IA) que trabaje en tu proyecto. Sin esto, cada vez que arrancás una sesión nueva, hay que explicar todo de vuelta.</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 10.1 — Crear la carpeta</div>
+        <p>En VS Code, en el panel de la izquierda (explorador de archivos), hacé click derecho en la raíz del proyecto → <strong>"New Folder"</strong> → escribí <strong>.guide</strong></p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 10.2 — Crear los archivos</div>
+        <p>Dentro de <strong>.guide/</strong>, creá estos archivos (click derecho → New File):</p>
+        <div class="visual">
+          <div class="screen">
+            <span class="bright">00-OVERVIEW.md</span><br>
+            <span class="bright">01-ARCHITECTURE.md</span><br>
+            <span class="bright">02-DATA-MODELS.md</span><br>
+            <span class="bright">03-AUTH-ADMIN.md</span><br>
+            <span class="bright">04-LICENSING.md</span><br>
+            <span class="bright">05-ROADMAP.md</span><br>
+            <span class="bright">06-CONVENTIONS.md</span><br>
+            <span class="bright">07-DEPLOYMENT.md</span><br>
+            <span class="bright">08-DECISIONS-LOG.md</span><br>
+            <span class="bright">09-CONTEXT-BRIEF.md</span><br>
+            <span class="bright">10-CHANGELOG.md</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Paso 10.3 — Pegar el contenido</div>
+        <p>Cada archivo lo generamos en la sesión anterior. Para no hacer esto de a uno, te voy a dar un solo comando que crea todo.</p>
+        <p>En la terminal de VS Code, escribí:</p>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+mkdir -p .guide
+        </div>
+        <p>Después, abrí cada archivo en VS Code y pegá el contenido del generador .guide que hicimos antes. O si preferís, cuando arranquemos a construir yo te los voy generando directamente.</p>
+      </div>
+
+      <div class="tip info">
+        <span class="tip-icon">💡</span>
+        <span>El contenido de cada archivo ya lo tenemos. En la próxima sesión, yo te los voy a ir generando directamente en tu proyecto. No tenés que copiarlos manualmente.</span>
+      </div>
+
+      <button class="complete-btn" onclick="completeStep(10, this)">
+        <span>✓</span> Carpeta .guide creada
+      </button>
+    </div>
+  </div>
+
+  <!-- DONE -->
+  <div class="step fade-in" data-step="done">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num" style="background:var(--accent-glow);border-color:var(--accent);color:var(--accent)">✓</div>
+      <div class="step-info">
+        <div class="step-title" style="color:var(--accent)">¡Setup completo!</div>
+        <div class="step-desc">Todo lo que necesitás para empezar a construir ya está instalado y configurado.</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="inst">
+        <div class="inst-label">Lo que tenés ahora</div>
+        <p>✅ <strong>VS Code</strong> — tu editor de código<br>
+        ✅ <strong>Node.js</strong> — el motor que corre tu proyecto<br>
+        ✅ <strong>Git + GitHub</strong> — respaldo y versionado<br>
+        ✅ <strong>SvelteKit</strong> — el framework de tu tienda<br>
+        ✅ <strong>Firebase</strong> — base de datos + auth<br>
+        ✅ <strong>Cloudflare</strong> — hosting + CDN<br>
+        ✅ <strong>Stripe</strong> — sistema de pagos<br>
+        ✅ <strong>.guide/</strong> — documentación del proyecto</p>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Resumen de credenciales</div>
+        <p>Guardá esto en un lugar seguro (un archivo de texto, un note, lo que sea):</p>
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copiar</button>
+# DACEWAV.STORE — CREDENCIALES<br><br>
+## Admin Email<br>
+daceidk@gmail.com<br><br>
+## Firebase<br>
+Project ID: dacewav-store<br>
+<span class="comment">(las credenciales las copiaste en el paso 7)</span><br><br>
+## Stripe<br>
+<span class="comment">Publishable key: pk_test_...</span><br>
+<span class="comment">Secret key: sk_test_...</span><br><br>
+## GitHub<br>
+Repo: github.com/dacewav/store<br><br>
+## Cloudflare<br>
+Dashboard: dash.cloudflare.com
+        </div>
+      </div>
+
+      <div class="inst">
+        <div class="inst-label">Próximo paso</div>
+        <p>Ahora que todo está instalado, lo que sigue es <strong>empezar a construir la tienda</strong>. Eso lo hacemos juntos, bloque a bloque.</p>
+        <p>En la próxima sesión, arrancamos con:</p>
+        <p>1. Configurar Firebase en el proyecto (conectar las credenciales)<br>
+        2. Configurar el adapter de Cloudflare<br>
+        3. Crear el diseño base (colores, fuentes, layout)<br>
+        4. Tu primer componente: la BeatCard</p>
+        <p>Cuando estés listo, mandame un mensaje y arrancamos.</p>
+      </div>
+
+      <div class="tip success">
+        <span class="tip-icon">🚀</span>
+        <span>Todo lo técnico ya está. Lo que viene es construir tu tienda. Paso a paso, bloque a bloque.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    DACEWAV.STORE · Setup Guide v1.0 · Abril 2026
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+
+const LS = 'dacewav_setup';
+let state = JSON.parse(localStorage.getItem(LS) || '{}');
+if (!state.completed) state.completed = {};
+if (!state.os) state.os = 'mac';
+
+function save() { localStorage.setItem(LS, JSON.stringify(state)); }
+
+// ═══════════════════════════════════════════
+// OS SELECTOR
+// ═══════════════════════════════════════════
+
+function setOS(btn) {
+  document.querySelectorAll('.os-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.os = btn.dataset.os;
+  save();
+  applyOS();
+}
+
+function applyOS() {
+  document.querySelectorAll('.os-mac').forEach(el => {
+    el.style.display = state.os === 'mac' ? 'block' : 'none';
+  });
+  document.querySelectorAll('.os-win').forEach(el => {
+    el.style.display = state.os === 'win' ? 'block' : 'none';
+  });
+}
+
+// Restore OS
+document.querySelector(`.os-btn[data-os="${state.os}"]`)?.classList.add('active');
+document.querySelectorAll('.os-btn').forEach(b => {
+  if (b.dataset.os !== state.os) b.classList.remove('active');
+});
+applyOS();
+
+// ═══════════════════════════════════════════
+// STEPS
+// ═══════════════════════════════════════════
+
+const TOTAL_STEPS = 10;
+
+function toggleStep(head) {
+  const step = head.closest('.step');
+  step.classList.toggle('open');
+}
+
+function completeStep(num, btn) {
+  state.completed[num] = true;
+  save();
+  btn.classList.add('done');
+  btn.innerHTML = '<span>✓</span> Completado';
+  const step = document.querySelector(`.step[data-step="${num}"]`);
+  if (step) step.classList.add('completed');
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = Object.keys(state.completed).length;
+  const pct = Math.round((done / TOTAL_STEPS) * 100);
+
+  document.getElementById('spPct').textContent = pct + '%';
+  document.getElementById('spFill').style.width = pct + '%';
+
+  // Step chips
+  const stepsEl = document.getElementById('spSteps');
+  stepsEl.innerHTML = '';
+  for (let i = 1; i <= TOTAL_STEPS; i++) {
+    const chip = document.createElement('span');
+    chip.className = 'sp-step';
+    if (state.completed[i]) {
+      chip.classList.add('done');
+      chip.textContent = '✓ ' + i;
+    } else if (i === getNextStep()) {
+      chip.classList.add('current');
+      chip.textContent = '→ ' + i;
+    } else {
+      chip.textContent = i;
+    }
+    chip.addEventListener('click', () => {
+      const step = document.querySelector(`.step[data-step="${i}"]`);
+      if (step) {
+        step.classList.add('open');
+        step.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+    stepsEl.appendChild(chip);
+  }
+}
+
+function getNextStep() {
+  for (let i = 1; i <= TOTAL_STEPS; i++) {
+    if (!state.completed[i]) return i;
+  }
+  return null;
+}
+
+// Restore completed state
+Object.keys(state.completed).forEach(num => {
+  const step = document.querySelector(`.step[data-step="${num}"]`);
+  if (step) {
+    step.classList.add('completed');
+    const btn = step.querySelector('.complete-btn');
+    if (btn) {
+      btn.classList.add('done');
+      btn.innerHTML = '<span>✓</span> Completado';
+    }
+  }
+});
+
+updateProgress();
+
+// ═══════════════════════════════════════════
+// COPY CODE
+// ═══════════════════════════════════════════
+
+function copyCode(btn) {
+  const block = btn.parentElement;
+  const text = block.textContent.replace('copiar', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '¡copiado!';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+    setTimeout(() => {
+      btn.textContent = 'copiar';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 1500);
+  });
+}
+
+// ═══════════════════════════════════════════
+// SCROLL ANIMATIONS
+// ═══════════════════════════════════════════
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.05 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

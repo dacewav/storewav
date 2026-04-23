@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DACEWAV — Plan Maestro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080a;
+    --surface: #111114;
+    --surface-2: #19191e;
+    --surface-3: #222228;
+    --accent: #00ff87;
+    --accent-dim: #00cc6a;
+    --accent-glow: rgba(0,255,135,0.12);
+    --violet: #a78bfa;
+    --violet-glow: rgba(167,139,250,0.12);
+    --amber: #fbbf24;
+    --amber-glow: rgba(251,191,36,0.12);
+    --rose: #fb7185;
+    --rose-glow: rgba(251,113,133,0.12);
+    --sky: #38bdf8;
+    --sky-glow: rgba(56,189,248,0.12);
+    --text: #e4e4e8;
+    --text-muted: #7a7a86;
+    --text-dim: #48484f;
+    --border: #26262e;
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 10%, rgba(0,255,135,0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 80%, rgba(167,139,250,0.025) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 80px 40px 60px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    letter-spacing: 0.5px;
+  }
+  .hero-badge .pulse {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(36px, 6vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero h1 .violet { color: var(--violet); }
+  .hero p {
+    font-family: 'Crimson Pro', serif;
+    font-size: 18px;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* ─── AUDIT ─── */
+  .section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+  .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .section-sub {
+    font-family: 'Crimson Pro', serif;
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    max-width: 700px;
+  }
+
+  /* ─── COMPARISON TABLE ─── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .compare-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .compare-col::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .compare-col.old::before { background: var(--text-dim); }
+  .compare-col.new::before { background: var(--accent); }
+  .compare-col h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .compare-col .tech {
+    font-size: 11px; color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .compare-col.old .tech { color: var(--text-dim); }
+  .compare-col.new .tech { color: var(--accent-dim); }
+  .compare-list { list-style: none; }
+  .compare-list li {
+    padding: 6px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex; align-items: flex-start; gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-list li:last-child { border: none; }
+  .compare-list .icon { flex-shrink: 0; font-size: 11px; margin-top: 1px; }
+  .compare-list .has { color: var(--accent); }
+  .compare-list .missing { color: var(--rose); }
+  .compare-list .partial { color: var(--amber); }
+
+  /* ─── ARCHITECTURE DIAGRAM ─── */
+  .arch-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 40px;
+    overflow-x: auto;
+  }
+  .arch-row {
+    display: flex; gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .arch-row::after {
+    content: attr(data-label);
+    position: absolute;
+    left: -4px; top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    transform-origin: center;
+  }
+  .arch-box {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    min-width: 100px;
+    border: 1px solid;
+    transition: transform 0.2s;
+  }
+  .arch-box:hover { transform: scale(1.05); }
+  .arch-box.green { border-color: rgba(0,255,135,0.3); background: rgba(0,255,135,0.06); color: var(--accent); }
+  .arch-box.violet { border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); color: var(--violet); }
+  .arch-box.amber { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.06); color: var(--amber); }
+  .arch-box.rose { border-color: rgba(251,113,133,0.3); background: rgba(251,113,133,0.06); color: var(--rose); }
+  .arch-box.sky { border-color: rgba(56,189,248,0.3); background: rgba(56,189,248,0.06); color: var(--sky); }
+  .arch-connector {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 16px;
+    margin: 4px 0;
+  }
+  .arch-label {
+    text-align: center;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin: 16px 0 8px;
+  }
+
+  /* ─── ROADMAP ─── */
+  .roadmap {
+    position: relative;
+    padding-left: 32px;
+  }
+  .roadmap::before {
+    content: '';
+    position: absolute;
+    left: 11px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--violet), var(--amber), var(--rose));
+    opacity: 0.3;
+  }
+  .block {
+    position: relative;
+    margin-bottom: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.3s;
+    cursor: pointer;
+  }
+  .block:hover { border-color: var(--surface-3); }
+  .block::before {
+    content: '';
+    position: absolute;
+    left: -27px; top: 28px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: var(--bg);
+  }
+  .block.phase-0::before { border-color: var(--accent); }
+  .block.phase-1::before { border-color: var(--violet); }
+  .block.phase-2::before { border-color: var(--amber); }
+  .block.phase-3::before { border-color: var(--rose); }
+  .block.phase-4::before { border-color: var(--sky); }
+
+  .block-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+  }
+  .block-phase {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .phase-0 .block-phase { background: var(--accent-glow); color: var(--accent); }
+  .phase-1 .block-phase { background: var(--violet-glow); color: var(--violet); }
+  .phase-2 .block-phase { background: var(--amber-glow); color: var(--amber); }
+  .phase-3 .block-phase { background: var(--rose-glow); color: var(--rose); }
+  .phase-4 .block-phase { background: var(--sky-glow); color: var(--sky); }
+
+  .block-eta {
+    font-size: 11px; color: var(--text-dim);
+  }
+  .block-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .block-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .block-details {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    margin-top: 4px;
+  }
+  .block.open .block-details { display: block; }
+
+  .task-group {
+    margin-bottom: 16px;
+  }
+  .task-group-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .task-list { list-style: none; }
+  .task-list li {
+    padding: 5px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .task-list li:hover { color: var(--text); }
+  .task-check {
+    width: 16px; height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    transition: all 0.2s;
+  }
+  .task-list li.done .task-check {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .task-list li.done { color: var(--text-dim); text-decoration: line-through; }
+
+  .tech-stack {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .tech-tag {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  /* ─── DECISION CARDS ─── */
+  .decision-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    margin-bottom: 40px;
+  }
+  .decision-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .decision-card:hover { border-color: var(--surface-3); }
+  .decision-card .q {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .decision-card .options { display: flex; flex-direction: column; gap: 6px; }
+  .decision-card .opt {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .decision-card .opt:hover { border-color: var(--accent); color: var(--accent); }
+  .decision-card .opt.selected {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    color: var(--accent);
+  }
+  .decision-card .opt .why {
+    font-size: 10px; color: var(--text-dim);
+    font-style: italic;
+  }
+  .decision-card .opt.selected .why { color: var(--accent-dim); }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 40px;
+  }
+  .progress-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .progress-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 16px;
+  }
+  .progress-pct {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 24px;
+    color: var(--accent);
+  }
+  .progress-bar {
+    height: 8px;
+    background: var(--surface-3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--violet));
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .progress-phases {
+    display: flex; gap: 4px;
+  }
+  .progress-phase {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    opacity: 0.3;
+  }
+  .progress-phase.done { opacity: 1; }
+  .progress-phase.p0 { background: var(--accent); }
+  .progress-phase.p1 { background: var(--violet); }
+  .progress-phase.p2 { background: var(--amber); }
+  .progress-phase.p3 { background: var(--rose); }
+  .progress-phase.p4 { background: var(--sky); }
+
+  /* ─── FILE TREE ─── */
+  .file-tree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    font-size: 12px;
+    overflow-x: auto;
+    margin-bottom: 40px;
+  }
+  .file-tree .dir { color: var(--violet); font-weight: 500; }
+  .file-tree .file { color: var(--text-muted); }
+  .file-tree .comment { color: var(--text-dim); font-style: italic; }
+  .file-tree .new { color: var(--accent); }
+  .file-tree .line { padding: 2px 0; white-space: pre; }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    text-align: center;
+    padding: 60px 24px 40px;
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 700px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .hero { padding: 60px 20px 40px; }
+    .arch-row::after { display: none; }
+    .decision-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ─── ANIMATIONS ─── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">
+      <div class="pulse"></div>
+      DACEWAV.STORE — ROADMAP v6.0
+    </div>
+    <h1>De catálogo a <span class="accent">plataforma</span> de beats <span class="violet">profesional</span></h1>
+    <p>Análisis de lo que tenés, lo que falta, y el camino paso a paso para construir algo que realmente compita. Cada decisión documentada.</p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="section fade-in">
+    <div class="progress-section">
+      <div class="progress-header">
+        <h3>Progreso General</h3>
+        <div class="progress-pct" id="globalPct">12%</div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 12%"></div>
+      </div>
+      <div class="progress-phases">
+        <div class="progress-phase p0 done" title="Fase 0: Fundación"></div>
+        <div class="progress-phase p1" title="Fase 1: Core"></div>
+        <div class="progress-phase p2" title="Fase 2: Commerce"></div>
+        <div class="progress-phase p3" title="Fase 3: Growth"></div>
+        <div class="progress-phase p4" title="Fase 4: Polish"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUDIT -->
+  <div class="section fade-in">
+    <div class="section-label">01 — Auditoría</div>
+    <div class="section-title">Lo que tenés vs lo que necesitás</div>
+    <div class="section-sub">Analicé ambos repos a fondo. El catalog v5.2 tiene una base sólida pero es vanilla JS monolítico. El store tiene la dirección correcta (SvelteKit) pero está en blanco.</div>
+
+    <div class="compare-grid">
+      <div class="compare-col old">
+        <h3>Catalog v5.2</h3>
+        <div class="tech">Vanilla JS · Firebase · esbuild</div>
+        <ul class="compare-list">
+          <li><span class="icon has">✓</span> Reproductor de audio con waveform SVG</li>
+          <li><span class="icon has">✓</span> Filtros, búsqueda, tag cloud</li>
+          <li><span class="icon has">✓</span> Wishlist + WhatsApp export</li>
+          <li><span class="icon has">✓</span> Tema light/dark con persistencia</li>
+          <li><span class="icon has">✓</span> Efectos: cursor glow, parallax, particles</li>
+          <li><span class="icon has">✓</span> Admin panel inline</li>
+          <li><span class="icon has">✓</span> Analytics tracking</li>
+          <li><span class="icon has">✓</span> Hash router para deep links</li>
+          <li><span class="icon partial">◐</span> Tests (solo utils y error-handler)</li>
+          <li><span class="icon missing">✗</span> Sistema de licensing / pagos</li>
+          <li><span class="icon missing">✗</span> Auth de usuarios</li>
+          <li><span class="icon missing">✗</span> SSR / SEO</li>
+          <li><span class="icon missing">✗</span> PWA / Offline</li>
+          <li><span class="icon missing">✗</span> CDN de audio optimizado</li>
+        </ul>
+      </div>
+      <div class="compare-col new">
+        <h3>Store v6.0 (objetivo)</h3>
+        <div class="tech">SvelteKit · Firebase · Cloudflare Pages</div>
+        <ul class="compare-list">
+          <li><span class="icon has">✓</span> Todo lo del catalog (migrado)</li>
+          <li><span class="icon has">✓</span> SSR + SSG para SEO (SvelteKit)</li>
+          <li><span class="icon has">✓</span> Auth: Google, Email, link mágico</li>
+          <li><span class="icon has">✓</span> Licensing con 3-4 tiers</li>
+          <li><span class="icon has">✓</span> Stripe Checkout + webhooks</li>
+          <li><span class="icon has">✓</span> Player mejorado con stems</li>
+          <li><span class="icon has">✓</span> Admin dashboard completo</li>
+          <li><span class="icon has">✓</span> PWA con service worker</li>
+          <li><span class="icon has">✓</span> Tests con Vitest + Playwright</li>
+          <li><span class="icon has">✓</span> Cloud Functions para lógica server</li>
+          <li><span class="icon has">✓</span> CDN con Cloudflare R2 / Stream</li>
+          <li><span class="icon has">✓</span> Email transaccional (resend)</li>
+          <li><span class="icon has">✓</span> Rate limiting + seguridad</li>
+          <li><span class="icon has">✓</span> i18n (ES / EN)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="section fade-in">
+    <div class="section-label">02 — Arquitectura</div>
+    <div class="section-title">Stack y estructura del sistema</div>
+    <div class="section-sub">Cada capa tiene una responsabilidad clara. El frontend habla con Firebase directamente para reads rápidos, y con Cloud Functions para writes protegidos (pagos, licensing).</div>
+
+    <div class="arch-diagram">
+      <div class="arch-label">Frontend — SvelteKit en Cloudflare Pages</div>
+      <div class="arch-row">
+        <div class="arch-box green">Tienda (SSR/SSG)</div>
+        <div class="arch-box green">Player</div>
+        <div class="arch-box green">Auth UI</div>
+        <div class="arch-box green">Checkout</div>
+        <div class="arch-box green">Admin Panel</div>
+      </div>
+
+      <div class="arch-connector">↕</div>
+      <div class="arch-label">API Layer — Firebase + Cloud Functions</div>
+      <div class="arch-row">
+        <div class="arch-box violet">RTDB (beats, data)</div>
+        <div class="arch-box violet">Firestore (orders, users)</div>
+        <div class="arch-box violet">Cloud Functions</div>
+        <div class="arch-box violet">Auth</div>
+      </div>
+
+      <div class="arch-connector">↕</div>
+      <div class="arch-label">Servicios Externos</div>
+      <div class="arch-row">
+        <div class="arch-box amber">Stripe</div>
+        <div class="arch-box sky">Cloudflare R2 (audio)</div>
+        <div class="arch-box rose">Resend (emails)</div>
+        <div class="arch-box amber">Analytics</div>
+      </div>
+    </div>
+
+    <!-- FILE TREE -->
+    <div class="file-tree">
+      <div class="line"><span class="dir">store/</span></div>
+      <div class="line">├── <span class="dir">src/</span></div>
+      <div class="line">│   ├── <span class="dir">routes/</span>                    <span class="comment">← File-based routing (SvelteKit)</span></div>
+      <div class="line">│   │   ├── <span class="file">+page.svelte</span>             <span class="comment">← Landing / tienda principal</span></div>
+      <div class="line">│   │   ├── <span class="file">+layout.svelte</span>            <span class="comment">← Layout global (nav, player, theme)</span></div>
+      <div class="line">│   │   ├── <span class="dir">beat/[id]/</span></div>
+      <div class="line">│   │   │   └── <span class="file">+page.svelte</span>         <span class="comment">← Página individual del beat (SEO)</span></div>
+      <div class="line">│   │   ├── <span class="dir">checkout/</span></div>
+      <div class="line">│   │   │   ├── <span class="file">+page.svelte</span>         <span class="comment">← Checkout flow</span></div>
+      <div class="line">│   │   │   └── <span class="file">success/+page.svelte</span> <span class="comment">← Post-pago</span></div>
+      <div class="line">│   │   ├── <span class="dir">admin/</span></div>
+      <div class="line">│   │   │   ├── <span class="file">+page.svelte</span>         <span class="comment">← Dashboard admin</span></div>
+      <div class="line">│   │   │   ├── <span class="file">beats/+page.svelte</span>   <span class="comment">← CRUD beats</span></div>
+      <div class="line">│   │   │   └── <span class="file">orders/+page.svelte</span>  <span class="comment">← Órdenes</span></div>
+      <div class="line">│   │   ├── <span class="file">wishlist/+page.svelte</span>     <span class="comment">← Wishlist page</span></div>
+      <div class="line">│   │   └── <span class="file">account/+page.svelte</span>     <span class="comment">← Perfil / mis compras</span></div>
+      <div class="line">│   │</div>
+      <div class="line">│   ├── <span class="dir">lib/</span>                       <span class="comment">← Código compartido</span></div>
+      <div class="line">│   │   ├── <span class="dir">components/</span>              <span class="comment">← Componentes Svelte</span></div>
+      <div class="line">│   │   │   ├── <span class="file">BeatCard.svelte</span></div>
+      <div class="line">│   │   │   ├── <span class="file">Player.svelte</span></div>
+      <div class="line">│   │   │   ├── <span class="file">Waveform.svelte</span></div>
+      <div class="line">│   │   │   ├── <span class="file">FilterBar.svelte</span></div>
+      <div class="line">│   │   │   ├── <span class="file">LicenseSelector.svelte</span></div>
+      <div class="line">│   │   │   ├── <span class="file">Modal.svelte</span></div>
+      <div class="line">│   │   │   ├── <span class="file">Toast.svelte</span></div>
+      <div class="line">│   │   │   └── <span class="file">ThemeToggle.svelte</span></div>
+      <div class="line">│   │   ├── <span class="dir">stores/</span>                  <span class="comment">← Svelte stores (estado)</span></div>
+      <div class="line">│   │   │   ├── <span class="file">beats.ts</span></div>
+      <div class="line">│   │   │   ├── <span class="file">player.ts</span></div>
+      <div class="line">│   │   │   ├── <span class="file">auth.ts</span></div>
+      <div class="line">│   │   │   ├── <span class="file">cart.ts</span></div>
+      <div class="line">│   │   │   └── <span class="file">ui.ts</span></div>
+      <div class="line">│   │   ├── <span class="dir">firebase/</span>                <span class="comment">← Firebase client init</span></div>
+      <div class="line">│   │   │   ├── <span class="file">client.ts</span></div>
+      <div class="line">│   │   │   └── <span class="file">admin.ts</span></div>
+      <div class="line">│   │   ├── <span class="dir">utils/</span>                   <span class="comment">← Migrar desde catalog</span></div>
+      <div class="line">│   │   │   ├── <span class="file">audio.ts</span></div>
+      <div class="line">│   │   │   ├── <span class="file">format.ts</span></div>
+      <div class="line">│   │   │   └── <span class="file">effects.ts</span></div>
+      <div class="line">│   │   └── <span class="dir">types/</span>                   <span class="comment">← TypeScript interfaces</span></div>
+      <div class="line">│   │       ├── <span class="file">beat.ts</span></div>
+      <div class="line">│   │       ├── <span class="file">license.ts</span></div>
+      <div class="line">│   │       └── <span class="file">order.ts</span></div>
+      <div class="line">│   │</div>
+      <div class="line">│   └── <span class="file">app.html</span></div>
+      <div class="line">├── <span class="dir">functions/</span>                     <span class="comment">← Cloud Functions (Node)</span></div>
+      <div class="line">│   ├── <span class="file">stripe-webhook.ts</span>            <span class="comment">← Procesar pagos</span></div>
+      <div class="line">│   ├── <span class="file">grant-license.ts</span>             <span class="comment">← Dar acceso post-pago</span></div>
+      <div class="line">│   └── <span class="file">send-email.ts</span>                <span class="comment">← Emails transaccionales</span></div>
+      <div class="line">├── <span class="dir">static/</span></div>
+      <div class="line">│   ├── <span class="file">favicon.svg</span></div>
+      <div class="line">│   └── <span class="dir">fonts/</span></div>
+      <div class="line">├── <span class="dir">tests/</span></div>
+      <div class="line">│   ├── <span class="file">utils.test.ts</span></div>
+      <div class="line">│   ├── <span class="file">stores.test.ts</span></div>
+      <div class="line">│   └── <span class="file">e2e/</span>                        <span class="comment">← Playwright</span></div>
+      <div class="line">├── <span class="file">svelte.config.js</span></div>
+      <div class="line">├── <span class="file">vite.config.ts</span></div>
+      <div class="line">├── <span class="file">firebase.json</span></div>
+      <div class="line">└── <span class="file">wrangler.toml</span>                  <span class="comment">← Cloudflare config</span></div>
+    </div>
+  </div>
+
+  <!-- LICENSING MODEL -->
+  <div class="section fade-in">
+    <div class="section-label">03 — Modelo de Licencias</div>
+    <div class="section-title">El corazón del negocio</div>
+    <div class="section-sub">Sin un modelo de licensing claro no hay negocio. Acá va una estructura estándar de la industria que podés ajustar a tus precios.</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:40px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:8px">Básica</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--text);margin-bottom:4px">$25</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:14px">MP3 lease</div>
+        <ul style="list-style:none;font-size:11px;color:var(--text-muted);text-align:left">
+          <li style="padding:3px 0">✓ MP3 tagged</li>
+          <li style="padding:3px 0">✓ Hasta 5K streams</li>
+          <li style="padding:3px 0">✓ Non-profit use</li>
+          <li style="padding:3px 0;color:var(--text-dim)">✗ No stems</li>
+          <li style="padding:3px 0;color:var(--text-dim)">✗ No radio/tv</li>
+        </ul>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:8px">Premium</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--violet);margin-bottom:4px">$75</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:14px">WAV lease</div>
+        <ul style="list-style:none;font-size:11px;color:var(--text-muted);text-align:left">
+          <li style="padding:3px 0">✓ WAV sin tag</li>
+          <li style="padding:3px 0">✓ Hasta 50K streams</li>
+          <li style="padding:3px 0">✓ Profit use</li>
+          <li style="padding:3px 0">✓ Stems incluidos</li>
+          <li style="padding:3px 0;color:var(--text-dim)">✗ No radio/tv</li>
+        </ul>
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:20px;text-align:center;position:relative">
+        <div style="position:absolute;top:-1px;left:0;right:0;height:2px;background:var(--amber)"></div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--amber);margin-bottom:8px">Unlimited</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--amber);margin-bottom:4px">$150</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:14px">WAV unlimited</div>
+        <ul style="list-style:none;font-size:11px;color:var(--text-muted);text-align:left">
+          <li style="padding:3px 0">✓ WAV + stems</li>
+          <li style="padding:3px 0">✓ Streams ilimitados</li>
+          <li style="padding:3px 0">✓ Profit + radio</li>
+          <li style="padding:3px 0">✓ Distribución digital</li>
+          <li style="padding:3px 0;color:var(--text-dim)">✗ No reventa</li>
+        </ul>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--rose);margin-bottom:8px">Exclusive</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--rose);margin-bottom:4px">$500+</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:14px">Full rights</div>
+        <ul style="list-style:none;font-size:11px;color:var(--text-muted);text-align:left">
+          <li style="padding:3px 0">✓ Todo incluido</li>
+          <li style="padding:3px 0">✓ Full ownership</li>
+          <li style="padding:3px 0">✓ Se retira de venta</li>
+          <li style="padding:3px 0">✓ Contract firmado</li>
+          <li style="padding:3px 0">✓ Precio negociable</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DECISIONS -->
+  <div class="section fade-in">
+    <div class="section-label">04 — Decisiones Clave</div>
+    <div class="section-title">Elegí tu camino</div>
+    <div class="section-sub">Hay varias decisiones que definen la dirección del proyecto. Clickeá la opción que preferís — se guarda automáticamente.</div>
+
+    <div class="decision-grid">
+      <div class="decision-card" data-decision="hosting">
+        <div class="q">¿Dónde hosteás el audio?</div>
+        <div class="options">
+          <div class="opt" data-value="r2" onclick="selectOpt(this)">
+            <span>Cloudflare R2 <span class="why">(gratis 10GB, CDN global)</span></span>
+          </div>
+          <div class="opt" data-value="firebase" onclick="selectOpt(this)">
+            <span>Firebase Storage <span class="why">(ya lo usás, fácil)</span></span>
+          </div>
+          <div class="opt" data-value="supabase" onclick="selectOpt(this)">
+            <span>Supabase Storage <span class="why">(gratis 1GB, PostgreSQL)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-card" data-decision="payments">
+        <div class="q">¿Procesador de pagos?</div>
+        <div class="options">
+          <div class="opt" data-value="stripe" onclick="selectOpt(this)">
+            <span>Stripe <span class="why">(estándar industria, webhooks)</span></span>
+          </div>
+          <div class="opt" data-value="mercadopago" onclick="selectOpt(this)">
+            <span>Mercado Pago <span class="why">(si vendés en LATAM)</span></span>
+          </div>
+          <div class="opt" data-value="both" onclick="selectOpt(this)">
+            <span>Ambos <span class="why">(máximo reach, más laburo)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-card" data-decision="auth">
+        <div class="q">¿Sistema de auth?</div>
+        <div class="options">
+          <div class="opt" data-value="firebase-auth" onclick="selectOpt(this)">
+            <span>Firebase Auth <span class="why">(integrado, Google/email)</span></span>
+          </div>
+          <div class="opt" data-value="clerk" onclick="selectOpt(this)">
+            <span>Clerk <span class="why">(UI prearmada, fácil)</span></span>
+          </div>
+          <div class="opt" data-value="lucia" onclick="selectOpt(this)">
+            <span>Lucia Auth <span class="why">(lightweight, self-hosted)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-card" data-decision="database">
+        <div class="q">¿Base de datos principal?</div>
+        <div class="options">
+          <div class="opt" data-value="rtdb" onclick="selectOpt(this)">
+            <span>Firebase RTDB <span class="why">(ya la tenés, realtime)</span></span>
+          </div>
+          <div class="opt" data-value="firestore" onclick="selectOpt(this)">
+            <span>Firestore <span class="why">(queries más potentes)</span></span>
+          </div>
+          <div class="opt" data-value="both-db" onclick="selectOpt(this)">
+            <span>Ambas <span class="why">(RTDB realtime + Firestore queries)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-card" data-decision="email">
+        <div class="q">¿Emails transaccionales?</div>
+        <div class="options">
+          <div class="opt" data-value="resend" onclick="selectOpt(this)">
+            <span>Resend <span class="why">(3K gratis/mes, simple)</span></span>
+          </div>
+          <div class="opt" data-value="postmark" onclick="selectOpt(this)">
+            <span>Postmark <span class="why>(delivery excelente)</span></span>
+          </div>
+          <div class="opt" data-value="none-email" onclick="selectOpt(this)">
+            <span>Ninguno por ahora <span class="why">(agregar después)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-card" data-decision="analytics">
+        <div class="q">¿Analytics?</div>
+        <div class="options">
+          <div class="opt" data-value="plausible" onclick="selectOpt(this)">
+            <span>Plausible <span class="why">(privado, lightweight)</span></span>
+          </div>
+          <div class="opt" data-value="umami" onclick="selectOpt(this)">
+            <span>Umami <span class="why">(self-hosted, gratis)</span></span>
+          </div>
+          <div class="opt" data-value="firebase-a" onclick="selectOpt(this)">
+            <span>Firebase Analytics <span class="why">(ya integrado)</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="section fade-in">
+    <div class="section-label">05 — Roadmap</div>
+    <div class="section-title">Fases de desarrollo</div>
+    <div class="section-sub">Cada fase es un deploy funcional. No pasás a la siguiente hasta que la anterior está sólida. Clickeá para expandir los detalles.</div>
+
+    <div class="roadmap">
+
+      <!-- PHASE 0 -->
+      <div class="block phase-0" onclick="toggleBlock(this)">
+        <div class="block-header">
+          <span class="block-phase">Fase 0 — Fundación</span>
+          <span class="block-eta">~1 semana</span>
+        </div>
+        <div class="block-title">Scaffold + migrar diseño existente</div>
+        <div class="block-desc">Levantar SvelteKit, replicar la estética del catalog actual (tema oscuro, Syne, DM Mono, efectos), y tener el player básico funcionando con tus beats actuales.</div>
+        <div class="block-details">
+          <div class="task-group">
+            <div class="task-group-title">Setup</div>
+            <ul class="task-list" data-phase="0">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Init SvelteKit + adapter-cloudflare</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Configurar Firebase client (migrar config.js)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Setup TypeScript + strict mode</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Wrangler config para Cloudflare Pages</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>CI/CD: push → deploy automático</li>
+            </ul>
+          </div>
+          <div class="task-group">
+            <div class="task-group-title">Diseño</div>
+            <ul class="task-list" data-phase="0">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Layout global con nav + player sticky</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Sistema de temas (dark/light) con stores</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Tipografía: Syne + DM Mono (migrar)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Paleta CSS variables (migrar desde catalog)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Componente BeatCard.svelte</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Grid responsive de beats</li>
+            </ul>
+          </div>
+          <div class="task-group">
+            <div class="task-group-title">Audio</div>
+            <ul class="task-list" data-phase="0">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Migrar player.js → stores/player.ts</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Waveform component (SVG reactivo)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Reproductor con controles: play/pause, seek, volume</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Preview con tag de audio (30s o loop)</li>
+            </ul>
+          </div>
+          <div class="tech-stack">
+            <span class="tech-tag">SvelteKit 2</span>
+            <span class="tech-tag">Svelte 5</span>
+            <span class="tech-tag">TypeScript</span>
+            <span class="tech-tag">Firebase SDK</span>
+            <span class="tech-tag">Cloudflare Pages</span>
+            <span class="tech-tag">Vite</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 1 -->
+      <div class="block phase-1" onclick="toggleBlock(this)">
+        <div class="block-header">
+          <span class="block-phase">Fase 1 — Core Features</span>
+          <span class="block-eta">~2 semanas</span>
+        </div>
+        <div class="block-title">Tienda completa + filtros + SEO</div>
+        <div class="block-desc">Migrar todas las features del catalog: filtros, búsqueda, tag cloud, wishlist, modal de beat. Agregar SSR para que cada beat sea indexable por Google.</div>
+        <div class="block-details">
+          <div class="task-group">
+            <div class="task-group-title">Tienda</div>
+            <ul class="task-list" data-phase="1">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Migrar filters.js → FilterBar.svelte</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Search con debounce (migrar utils)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Tag cloud interactivo</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Modal de beat con licensing info</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Wishlist con persistencia (localStorage + auth sync)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Export wishlist por WhatsApp (migrar)</li>
+            </ul>
+          </div>
+          <div class="task-group">
+            <div class="task-group-title">SEO & Performance</div>
+            <ul class="task-list" data-phase="1">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>SSR: página /beat/[id] con meta tags</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Open Graph tags (imagen + audio preview)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Sitemap.xml dinámico</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Structured data (JSON-LD para MusicRecording)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Lazy loading de audio y waveform</li>
+            </ul>
+          </div>
+          <div class="task-group">
+            <div class="task-group-title">Efectos (migrar con cuidado)</div>
+            <ul class="task-list" data-phase="1">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Cursor glow (solo desktop, respetar prefers-reduced-motion)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Card tilt effect</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Scroll-triggered animations (Intersection Observer)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Stagger reveal en grid</li>
+            </ul>
+          </div>
+          <div class="tech-stack">
+            <span class="tech-tag">SvelteKit SSR</span>
+            <span class="tech-tag">Framer Motion</span>
+            <span class="tech-tag">OG Image generation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="block phase-2" onclick="toggleBlock(this)">
+        <div class="block-header">
+          <span class="block-phase">Fase 2 — Commerce</span>
+          <span class="block-eta">~2-3 semanas</span>
+        </div>
+        <div class="block-title">Auth + pagos + licensing</div>
+        <div class="block-desc">La fase que convierte el catálogo en negocio. Auth para trackear compras, Stripe para cobrar, Cloud Functions para procesar pagos y generar links de descarga.</div>
+        <div class="block-details">
+          <div class="task-group">
+            <div class="task-group-title">Autenticación</div>
+            <ul class="task-list" data-phase="2">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Firebase Auth setup (Google + Email)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Login/Register UI components</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Auth store reactivo</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Route guards (admin protegido)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Página /account con historial de compras</li>
+            </ul>
+          </div>
+          <div class="task-group">
+            <div class="task-group-title">Stripe Integration</div>
+            <ul class="task-list" data-phase="2">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Stripe account + productos/precios configurados</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>LicenseSelector component (4 tiers)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Stripe Checkout Session (Cloud Function)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Webhook: checkout.session.completed</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Generar link de descarga temporal (signed URL)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Página /checkout/success con descarga</li>
+            </ul>
+          </div>
+          <div class="task-group">
+            <div class="task-group-title">Licensing</div>
+            <ul class="task-list" data-phase="2">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>License type definitions (TypeScript)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>PDF de licencia auto-generado (plantilla)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Guardar orden en Firestore</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Email de confirmación con licencia + link</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Protección: signed URLs expirables para audio</li>
+            </ul>
+          </div>
+          <div class="tech-stack">
+            <span class="tech-tag">Stripe API</span>
+            <span class="tech-tag">Cloud Functions v2</span>
+            <span class="tech-tag">Firebase Auth</span>
+            <span class="tech-tag">Firestore</span>
+            <span class="tech-tag">Resend</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div class="block phase-3" onclick="toggleBlock(this)">
+        <div class="block-header">
+          <span class="block-phase">Fase 3 — Admin + Growth</span>
+          <span class="block-eta">~2 semanas</span>
+        </div>
+        <div class="block-title">Dashboard de productor + herramientas de crecimiento</div>
+        <div class="block-desc">Un admin real donde puedas subir beats, ver ventas, trackear qué funciona. Más herramientas para que la gente comparta y vuelva.</div>
+        <div class="block-details">
+          <div class="task-group">
+            <div class="task-group-title">Admin Dashboard</div>
+            <ul class="task-list" data-phase="3">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Dashboard con stats: ventas, revenue, top beats</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>CRUD de beats con drag & drop para audio</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Upload de stems (archivos múltiples)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Gestión de precios por tier</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Lista de órdenes con estados</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Gráfico de ventas (chart.js o similar)</li>
+            </ul>
+          </div>
+          <div class="task-group">
+            <div class="task-group-title">Growth Tools</div>
+            <ul class="task-list" data-phase="3">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>PWA: service worker + manifest + install prompt</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Share cards: link preview con waveform</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Email list / newsletter signup</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>"Beats similares" recomendación</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Playlists temáticas (curated sets)</li>
+            </ul>
+          </div>
+          <div class="tech-stack">
+            <span class="tech-tag">Chart.js</span>
+            <span class="tech-tag">Service Worker</span>
+            <span class="tech-tag">Web Push API</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 4 -->
+      <div class="block phase-4" onclick="toggleBlock(this)">
+        <div class="block-header">
+          <span class="block-phase">Fase 4 — Polish & Scale</span>
+          <span class="block-eta">ongoing</span>
+        </div>
+        <div class="block-title">Detalles finos, testing, y escalar</div>
+        <div class="block-desc">Testing completo, performance tuning, i18n, y los detalles que separan algo bueno de algo profesional.</div>
+        <div class="block-details">
+          <div class="task-group">
+            <div class="task-group-title">Testing</div>
+            <ul class="task-list" data-phase="4">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Vitest: stores, utils, firebase functions</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Playwright: flujo de compra e2e</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Lighthouse audit → score 90+</li>
+            </ul>
+          </div>
+          <div class="task-group">
+            <div class="task-group-title">Polish</div>
+            <ul class="task-list" data-phase="4">
+              <li onclick="toggleTask(this)"><span class="task-check"></span>i18n: español + inglés</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Error boundaries + fallback UI</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Loading states con skeleton screens</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Accessibility audit (a11y)</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>OG image generation dinámica</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Rate limiting en Cloud Functions</li>
+              <li onclick="toggleTask(this)"><span class="task-check"></span>Security rules audit</li>
+            </ul>
+          </div>
+          <div class="tech-stack">
+            <span class="tech-tag">Vitest</span>
+            <span class="tech-tag">Playwright</span>
+            <span class="tech-tag">Paraglide.js</span>
+            <span class="tech-tag">Lighthouse CI</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FIRST STEPS -->
+  <div class="section fade-in">
+    <div class="section-label">06 — Primeros Pasos</div>
+    <div class="section-title">¿Qué hacemos hoy?</div>
+    <div class="section-sub">Si ya estás listo, arrancamos por acá. Esto es lo que necesita pasar para que la Fase 0 quede lista.</div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border)">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--accent-glow);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">1</div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:2px">Decidí el stack</div>
+            <div style="font-size:12px;color:var(--text-muted)">Arriba tenés las decisiones clave. Clickeá las opciones que preferís. Eso define todo lo que viene.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border)">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--violet-glow);color:var(--violet);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">2</div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:2px">Armá el repo store</div>
+            <div style="font-size:12px;color:var(--text-muted)">Init SvelteKit en el repo store, adapter-cloudflare, y deploy a Pages. En una tarde tenés el skeleton andando.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border)">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--amber-glow);color:var(--amber);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">3</div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:2px">Migrar el diseño</div>
+            <div style="font-size:12px;color:var(--text-muted)">Los colores, tipografía y estética del catalog ya están buenos. Los pasamos a componentes Svelte con CSS scoped. No reinventar — migrar.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border)">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--rose-glow);color:var(--rose);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">4</div>
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:2px">Player + BeatCard</div>
+            <div style="font-size:12px;color:var(--text-muted)">Los dos componentes más importantes. Si el player se siente bien y las cards se ven bien, todo lo demás es iteración.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p style="margin-bottom:8px">DACEWAV.STORE — Plan Maestro</p>
+    <p>Las decisiones se guardan en <a href="#">localStorage</a>. Los tasks se persisten localmente.</p>
+    <p style="margin-top:16px;color:var(--text-dim)">v1.0 · Abril 2026 · <a href="https://github.com/dacewav" target="_blank">@dacewav</a></p>
+  </div>
+
+</div>
+
+<script>
+  // ─── PERSISTENCE ───
+  const LS_KEY = 'dacewav_plan';
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch { return {}; }
+  }
+  function saveState(s) {
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+  }
+
+  let state = loadState();
+
+  // ─── DECISIONS ───
+  function selectOpt(el) {
+    const card = el.closest('.decision-card');
+    const decision = card.dataset.decision;
+    const value = el.dataset.value;
+    card.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    state.decisions = state.decisions || {};
+    state.decisions[decision] = value;
+    saveState(state);
+    updateProgress();
+  }
+
+  // Restore decisions
+  if (state.decisions) {
+    Object.entries(state.decisions).forEach(([key, val]) => {
+      const card = document.querySelector(`.decision-card[data-decision="${key}"]`);
+      if (card) {
+        const opt = card.querySelector(`.opt[data-value="${val}"]`);
+        if (opt) opt.classList.add('selected');
+      }
+    });
+  }
+
+  // ─── BLOCKS ───
+  function toggleBlock(el) {
+    el.classList.toggle('open');
+  }
+
+  // ─── TASKS ───
+  function toggleTask(li) {
+    li.classList.toggle('done');
+    const phase = li.closest('.task-list').dataset.phase;
+    const text = li.textContent.trim();
+    state.tasks = state.tasks || {};
+    state.tasks[text] = li.classList.contains('done');
+    saveState(state);
+    updateProgress();
+  }
+
+  // Restore tasks
+  if (state.tasks) {
+    document.querySelectorAll('.task-list li').forEach(li => {
+      const text = li.textContent.trim();
+      if (state.tasks[text]) {
+        li.classList.add('done');
+      }
+    });
+  }
+
+  // ─── PROGRESS ───
+  function updateProgress() {
+    const total = document.querySelectorAll('.task-list li').length;
+    const done = document.querySelectorAll('.task-list li.done').length;
+    const decisions = document.querySelectorAll('.decision-card .opt.selected').length;
+    const totalDecisions = document.querySelectorAll('.decision-card').length;
+
+    // Tasks = 80% weight, decisions = 20%
+    const taskPct = total > 0 ? (done / total) * 80 : 0;
+    const decPct = totalDecisions > 0 ? (decisions / totalDecisions) * 20 : 0;
+    const pct = Math.round(taskPct + decPct);
+
+    document.getElementById('globalPct').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    // Phase progress
+    ['0','1','2','3','4'].forEach((p, i) => {
+      const list = document.querySelector(`.task-list[data-phase="${p}"]`);
+      const phaseEl = document.querySelectorAll('.progress-phase')[i];
+      if (list) {
+        const total2 = list.querySelectorAll('li').length;
+        const done2 = list.querySelectorAll('li.done').length;
+        phaseEl.classList.toggle('done', total2 > 0 && done2 === total2);
+      }
+    });
+  }
+
+  // ─── SCROLL ANIMATIONS ───
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Initial progress
+  updateProgress();
+</script>
+
+</body>
+</html>

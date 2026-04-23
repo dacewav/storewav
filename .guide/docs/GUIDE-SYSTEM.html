@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DACEWAV — .guide System Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080a;
+    --surface: #111114;
+    --surface-2: #19191e;
+    --surface-3: #222228;
+    --accent: #00ff87;
+    --accent-dim: #00cc6a;
+    --accent-glow: rgba(0,255,135,0.12);
+    --violet: #a78bfa;
+    --violet-glow: rgba(167,139,250,0.12);
+    --amber: #fbbf24;
+    --amber-glow: rgba(251,191,36,0.12);
+    --rose: #fb7185;
+    --rose-glow: rgba(251,113,133,0.12);
+    --sky: #38bdf8;
+    --sky-glow: rgba(56,189,248,0.12);
+    --text: #e4e4e8;
+    --text-muted: #7a7a86;
+    --text-dim: #48484f;
+    --border: #26262e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 10% 5%, rgba(0,255,135,0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 90%, rgba(167,139,250,0.025) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  /* HERO */
+  .hero {
+    padding: 70px 0 50px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+  .pulse-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(32px, 5.5vw, 52px);
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+  .hero h1 .g { color: var(--accent); }
+  .hero h1 .v { color: var(--violet); }
+  .hero p {
+    font-family: 'Crimson Pro', serif;
+    font-size: 17px;
+    color: var(--text-muted);
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  /* SECTIONS */
+  .sec {
+    padding: 36px 0;
+  }
+  .sec-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .sec-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .sec-sub {
+    font-family: 'Crimson Pro', serif;
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    max-width: 680px;
+  }
+
+  /* FILE CARDS */
+  .file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+  .file-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .file-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-color, var(--accent));
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .file-card:hover {
+    border-color: var(--surface-3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .file-card:hover::before { opacity: 1; }
+  .file-card .fname {
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--card-color, var(--accent));
+    margin-bottom: 4px;
+  }
+  .file-card .fdesc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .file-card .fsize {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+
+  /* FILE VIEWER */
+  .viewer {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .viewer.show { display: block; }
+  .viewer-inner {
+    max-width: 800px;
+    margin: 20px auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .viewer-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .viewer-header .vname {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .viewer-actions {
+    display: flex; gap: 8px;
+  }
+  .viewer-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface-3);
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .viewer-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .viewer-btn.primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+  .viewer-btn.primary:hover {
+    background: var(--accent-dim);
+  }
+  .viewer-body {
+    padding: 20px;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text-muted);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .viewer-body::-webkit-scrollbar { width: 6px; }
+  .viewer-body::-webkit-scrollbar-track { background: transparent; }
+  .viewer-body::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 3px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface-2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 12px;
+    z-index: 2000;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ARCHITECTURE DIAGRAM */
+  .arch {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 32px;
+    overflow-x: auto;
+  }
+  .arch-label {
+    text-align: center;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin: 16px 0 8px;
+  }
+  .arch-row {
+    display: flex; gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .arch-box {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    border: 1px solid;
+    transition: transform 0.15s;
+  }
+  .arch-box:hover { transform: scale(1.05); }
+  .arch-box.g { border-color: rgba(0,255,135,0.3); background: rgba(0,255,135,0.06); color: var(--accent); }
+  .arch-box.v { border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); color: var(--violet); }
+  .arch-box.a { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.06); color: var(--amber); }
+  .arch-box.r { border-color: rgba(251,113,133,0.3); background: rgba(251,113,133,0.06); color: var(--rose); }
+  .arch-box.s { border-color: rgba(56,189,248,0.3); background: rgba(56,189,248,0.06); color: var(--sky); }
+  .arch-arrow {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 14px;
+    margin: 4px 0;
+  }
+
+  /* ROADMAP INLINE */
+  .rm-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .rm-block:hover { border-color: var(--surface-3); }
+  .rm-block .rm-head {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .rm-tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .rm-block.p0 .rm-tag { background: var(--accent-glow); color: var(--accent); }
+  .rm-block.p1 .rm-tag { background: var(--violet-glow); color: var(--violet); }
+  .rm-block.p2 .rm-tag { background: var(--amber-glow); color: var(--amber); }
+  .rm-block.p3 .rm-tag { background: var(--rose-glow); color: var(--rose); }
+  .rm-block.p4 .rm-tag { background: var(--sky-glow); color: var(--sky); }
+  .rm-eta { font-size: 11px; color: var(--text-dim); }
+  .rm-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 8px 0 4px;
+  }
+  .rm-desc {
+    font-family: 'Crimson Pro', serif;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .rm-details {
+    display: none;
+    border-top: 1px solid var(--border);
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+  .rm-block.open .rm-details { display: block; }
+  .rm-tasks {
+    list-style: none;
+  }
+  .rm-tasks li {
+    padding: 4px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+  }
+  .rm-tasks li:hover { color: var(--text); }
+  .rm-check {
+    width: 16px; height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    transition: all 0.15s;
+  }
+  .rm-tasks li.done .rm-check {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .rm-tasks li.done { color: var(--text-dim); text-decoration: line-through; }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .progress-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .progress-top h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 15px;
+  }
+  .progress-pct {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 22px;
+    color: var(--accent);
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--surface-3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--violet));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  /* DOWNLOAD ALL */
+  .download-section {
+    text-align: center;
+    padding: 40px 0 60px;
+  }
+  .dl-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 32px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dl-btn:hover {
+    background: var(--accent-dim);
+    box-shadow: 0 0 30px var(--accent-glow);
+    transform: translateY(-1px);
+  }
+  .dl-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 10px;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 30px 0;
+    color: var(--text-dim);
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ANIMATIONS */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .fade-in.vis { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 700px) {
+    .file-grid { grid-template-columns: 1fr; }
+    .hero h1 { letter-spacing: -1px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">
+      <div class="pulse-dot"></div>
+      DACEWAV.STORE — .GUIDE SYSTEM
+    </div>
+    <h1>Documentación viva para un <span class="g">proyecto</span> que <span class="v">crece</span></h1>
+    <p>Cada archivo es contexto puro. Pegalo en cualquier sesión de IA, conmigo o con otra, y arranca sabiendo todo. Click en cada archivo para verlo, o descargá todo junto.</p>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="sec fade-in">
+    <div class="sec-label">Visión General</div>
+    <div class="sec-title">Arquitectura del sistema</div>
+    <div class="sec-sub">Así se conecta todo. Frontend en Cloudflare, datos en Firebase, audio en R2, pagos en Stripe.</div>
+
+    <div class="arch">
+      <div class="arch-label">Frontend — SvelteKit 2 · Cloudflare Pages</div>
+      <div class="arch-row">
+        <div class="arch-box g">Tienda</div>
+        <div class="arch-box g">Player</div>
+        <div class="arch-box g">Auth</div>
+        <div class="arch-box g">Checkout</div>
+        <div class="arch-box g">Admin</div>
+      </div>
+      <div class="arch-arrow">↕</div>
+      <div class="arch-label">Backend — Firebase + Cloud Functions</div>
+      <div class="arch-row">
+        <div class="arch-box v">RTDB (beats)</div>
+        <div class="arch-box v">Firestore (orders)</div>
+        <div class="arch-box v">Cloud Functions</div>
+        <div class="arch-box v">Auth</div>
+      </div>
+      <div class="arch-arrow">↕</div>
+      <div class="arch-label">Servicios Externos</div>
+      <div class="arch-row">
+        <div class="arch-box a">Stripe</div>
+        <div class="arch-box s">R2 (audio)</div>
+        <div class="arch-box r">Resend (email)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILES -->
+  <div class="sec fade-in">
+    <div class="sec-label">Archivos .guide/</div>
+    <div class="sec-title">Click para ver, copiar o descargar</div>
+    <div class="sec-sub">11 archivos que le dan a cualquier persona (o IA) el contexto completo del proyecto en segundos.</div>
+
+    <div class="file-grid" id="fileGrid"></div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="sec fade-in">
+    <div class="sec-label">Roadmap</div>
+    <div class="sec-title">Fases de desarrollo</div>
+    <div class="sec-sub">Cada fase es un deploy funcional. Click para ver los tasks. Se guardan en localStorage.</div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-top">
+        <h3>Progreso total</h3>
+        <div class="progress-pct" id="pct">0%</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="pFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div id="roadmapContainer"></div>
+  </div>
+
+  <!-- DOWNLOAD -->
+  <div class="download-section fade-in">
+    <button class="dl-btn" onclick="downloadAll()">
+      ↓ Descargar todo .guide/
+    </button>
+    <div class="dl-sub">Genera un .zip con los 11 archivos listos para tu repo</div>
+  </div>
+
+  <div class="footer">
+    DACEWAV.STORE · .guide v1.0 · Abril 2026
+  </div>
+</div>
+
+<!-- VIEWER MODAL -->
+<div class="viewer" id="viewer">
+  <div class="viewer-inner">
+    <div class="viewer-header">
+      <span class="vname" id="vName"></span>
+      <div class="viewer-actions">
+        <button class="viewer-btn" onclick="copyFile()">Copiar</button>
+        <button class="viewer-btn" onclick="closeViewer()">Cerrar</button>
+      </div>
+    </div>
+    <div class="viewer-body" id="vBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// .guide/ FILE CONTENTS
+// ═══════════════════════════════════════════
+
+const FILES = [
+{
+  name: '00-OVERVIEW.md',
+  color: 'var(--accent)',
+  desc: 'Qué es el proyecto, estado actual, links importantes',
+  content: `# DACEWAV.STORE — Project Overview
+
+## What
+Professional beat store for producer **dacewav**. Customers browse, preview,
+and purchase beats with different license tiers. Producer manages everything
+from a protected admin dashboard.
+
+## Why
+The existing catalog (v5.2, vanilla JS) works but can't sell beats.
+The store repo has a SvelteKit skeleton but no code.
+This project merges both into one production platform.
+
+## Repos
+- \`dacewav/catalog\` → v5.2 (vanilla JS, Firebase RTDB) — design reference
+- \`dacewav/store\`   → v6.0 (SvelteKit, Firebase) — active repo
+
+## Current State
+- Phase: **0 — Foundation**
+- Last updated: 2026-04-24
+- Deployed: No
+- Auth: Not implemented
+- Payments: Not implemented
+
+## Key Links
+- Firebase console: [TBD]
+- Cloudflare Pages: [TBD]
+- Live URL: [TBD]
+- Stripe dashboard: [TBD]
+
+## Admin Access
+Authorized Google accounts (whitelist in Firestore \`config/admins\`):
+- \`dacewav@gmail.com\` ← PRIMARY (update with real email)`
+},
+
+{
+  name: '01-ARCHITECTURE.md',
+  color: 'var(--violet)',
+  desc: 'Stack, diagrama de sistema, routing, flujo de compra',
+  content: `# Architecture
+
+## Stack
+| Layer        | Technology               | Why                              |
+|-------------|--------------------------|----------------------------------|
+| Frontend    | SvelteKit 2 + Svelte 5   | SSR/SSG, reactive, fast          |
+| Language    | TypeScript (strict)       | Type safety                      |
+| Styling     | Scoped CSS (no framework) | Full control, matches catalog    |
+| Hosting     | Cloudflare Pages          | Free, fast, global CDN           |
+| Database    | Firebase RTDB + Firestore | RTDB beats, Firestore orders     |
+| Auth        | Firebase Auth             | Google + Email, integrated       |
+| Payments    | Stripe                    | Industry standard, webhooks      |
+| Audio       | Cloudflare R2             | Zero egress, CDN-native          |
+| Functions   | Firebase Cloud Fn v2      | Server logic (webhooks, license) |
+| Email       | Resend                    | Transactional (3K free/mes)      |
+| Testing     | Vitest + Playwright       | Unit + E2E                       |
+
+## Data Flow: Purchase
+1. User selects beat + license tier
+2. Frontend calls Cloud Function: createCheckoutSession
+3. Function creates Stripe Checkout Session
+4. User redirected to Stripe hosted checkout
+5. User pays → Stripe sends webhook
+6. Cloud Function processes webhook:
+   a. Validates signature
+   b. Creates order in Firestore
+   c. Generates signed download URL (R2)
+   d. Sends confirmation email (Resend)
+7. User redirected to /checkout/success
+8. Page shows download link + license PDF
+
+## Routing (SvelteKit file-based)
+/                        → Landing + beat grid (SSR)
+/beat/[id]               → Beat detail page (SSR, SEO)
+/checkout                → Cart + Stripe checkout
+/checkout/success        → Post-payment + download
+/login                   → Auth page
+/account                 → User profile + purchases
+/wishlist                → Saved beats
+/admin                   → Dashboard (protected)
+/admin/beats             → Beat CRUD (protected)
+/admin/orders            → Orders list (protected)`
+},
+
+{
+  name: '02-DATA-MODELS.md',
+  color: 'var(--amber)',
+  desc: 'Interfaces TypeScript: Beat, License, Order, User + schema DB',
+  content: `# Data Models
+
+## Beat
+\`\`\`typescript
+interface Beat {
+  id: string;
+  title: string;                 // "Midnight Haze"
+  slug: string;                  // "midnight-haze" (URL)
+  bpm: number;                   // 145
+  key: string;                   // "Cm"
+  genre: Genre;
+  tags: string[];                // ["dark", "melodic"]
+  mood: string;
+
+  previewUrl: string;            // R2 — 30s tagged preview
+  fullUrl: string;               // R2 — full beat (protected)
+  stemsUrl?: string;             // R2 — stems zip (premium+)
+  waveform: number[];            // Pre-computed amplitudes
+  duration: number;              // Seconds
+
+  prices: {
+    basic: number;               // cents
+    premium: number;
+    unlimited: number;
+    exclusive: number | null;
+  };
+
+  createdAt: string;
+  updatedAt: string;
+  featured: boolean;
+  active: boolean;
+  exclusiveSold: boolean;
+  plays: number;
+  purchases: number;
+}
+
+type Genre = 'trap' | 'drill' | 'boom-bap' | 'rnb' | 'lofi' | 'reggaeton' | 'other';
+\`\`\`
+
+## License
+\`\`\`typescript
+interface License {
+  type: LicenseType;
+  name: string;
+  price: number;
+  format: 'mp3' | 'wav';
+  streams: number | 'unlimited';
+  stems: boolean;
+  profit: boolean;
+  radio: boolean;
+  exclusive: boolean;
+  contractTemplate: string;
+}
+
+type LicenseType = 'basic' | 'premium' | 'unlimited' | 'exclusive';
+\`\`\`
+
+## Order
+\`\`\`typescript
+interface Order {
+  id: string;
+  stripeSessionId: string;
+  stripePaymentIntent: string;
+  userId: string;
+  userEmail: string;
+  beatId: string;
+  beatTitle: string;             // Denormalized
+  licenseType: LicenseType;
+  amount: number;                // Cents
+  currency: string;
+  status: OrderStatus;
+  downloadUrl?: string;          // Signed URL (expires)
+  downloadCount: number;
+  licensePdfUrl?: string;
+  createdAt: string;
+}
+
+type OrderStatus = 'pending' | 'completed' | 'refunded' | 'failed';
+\`\`\`
+
+## User
+\`\`\`typescript
+interface User {
+  uid: string;
+  email: string;
+  displayName: string;
+  photoURL?: string;
+  role: 'customer' | 'admin';
+  totalPurchases: number;
+  totalSpent: number;
+  wishlist: string[];            // Beat IDs
+  createdAt: string;
+  lastLoginAt: string;
+}
+\`\`\`
+
+## Firestore Structure
+\`\`\`
+/config/admins           → { authorizedEmails: [...] }
+/users/{uid}             → User
+/orders/{orderId}        → Order
+/licenses/{beatId}       → { sold: ['basic', 'premium'] }
+\`\`\``
+},
+
+{
+  name: '03-AUTH-ADMIN.md',
+  color: 'var(--rose)',
+  desc: 'Sistema de auth + whitelist de admin por email de Google',
+  content: `# Authentication & Admin Access
+
+## Auth Methods
+1. Google Sign-In — primary, one-click
+2. Email/Password — fallback
+
+## Admin Authorization
+Uses a **whitelist in Firestore** (NOT custom claims):
+
+### Firestore Document
+\`\`\`
+Collection: config
+Document: admins
+Fields: { authorizedEmails: ["dacewav@gmail.com"] }
+\`\`\`
+
+### Security Rules
+\`\`\`javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in
+           get(/databases/$(database)/documents/config/admins)
+           .data.authorizedEmails;
+    }
+
+    match /beats/{beatId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if false; // Cloud Functions only
+      allow update: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId || isAdmin();
+      allow write: if request.auth.uid == userId;
+    }
+
+    match /config/{docId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
+\`\`\`
+
+### Frontend Route Guard
+\`\`\`typescript
+export async function checkAdmin(user: User | null): Promise<boolean> {
+  if (!user?.email) return false;
+  const adminDoc = await getDoc(doc(db, 'config', 'admins'));
+  const emails: string[] = adminDoc.data()?.authorizedEmails || [];
+  return emails.includes(user.email);
+}
+\`\`\`
+
+### UI Behavior
+- Admin logged in → nav shows "Admin" link, beat cards show edit/delete
+- Non-admin logged in → normal customer view
+- Not logged in → public browsing only
+
+### Adding Admins
+1. Edit Firestore doc directly (console)
+2. Build admin settings page (Phase 3)`
+},
+
+{
+  name: '04-LICENSING.md',
+  color: 'var(--amber)',
+  desc: 'Tiers de licencia, precios, lógica de exclusive, protección de audio',
+  content: `# Licensing Model
+
+## Tiers
+
+### Basic — $25
+- MP3 with producer tag
+- Up to 5,000 streams
+- Non-profit use only
+- No stems, no radio/TV
+
+### Premium — $75
+- WAV untagged
+- Up to 50,000 streams
+- Profit use (Spotify, Apple Music)
+- Stems included
+- No radio/TV
+
+### Unlimited — $150
+- WAV + stems
+- Unlimited streams
+- Profit + radio/TV
+- Digital distribution
+- No resale
+
+### Exclusive — $500+ (negotiable)
+- Full ownership
+- Beat removed from store after sale
+- Custom contract
+- All stems + project files
+
+## Implementation Notes
+- Prices stored per-beat in RTDB (customizable per beat)
+- Default prices in config document
+- Exclusive sale → beat.active = false, beat.exclusiveSold = true
+- Downloads: signed URLs from R2 (24h expiry, max 3 per order)
+- License PDF auto-generated from template (Cloud Function)`
+},
+
+{
+  name: '05-ROADMAP.md',
+  color: 'var(--accent)',
+  desc: 'Fases, tasks, checklist — se actualiza a medida que avanzamos',
+  content: `# Roadmap
+
+Legend: [ ] todo  [~] in progress  [x] done
+
+## Phase 0 — Foundation (~1 week)
+**Goal:** SvelteKit scaffold, migrate design, basic player
+
+### Setup
+- [ ] Init SvelteKit + adapter-cloudflare
+- [ ] Firebase client config
+- [ ] TypeScript strict mode
+- [ ] Wrangler config
+- [ ] CI/CD: push → deploy
+
+### Design System
+- [ ] Global layout + nav + sticky player
+- [ ] Theme system (dark/light)
+- [ ] Typography: Syne + DM Mono
+- [ ] CSS custom properties
+- [ ] BeatCard.svelte
+- [ ] Responsive grid
+
+### Audio
+- [ ] Player store (Svelte)
+- [ ] Waveform component (SVG)
+- [ ] Controls: play/pause, seek, volume
+- [ ] Preview with tag (30s)
+
+## Phase 1 — Core Features (~2 weeks)
+**Goal:** Full store + filters + SEO
+
+### Store
+- [ ] FilterBar.svelte
+- [ ] Search with debounce
+- [ ] Tag cloud
+- [ ] Beat modal + license info
+- [ ] Wishlist (localStorage + auth sync)
+- [ ] WhatsApp export
+
+### SEO
+- [ ] SSR: /beat/[id] + meta tags
+- [ ] Open Graph tags
+- [ ] Dynamic sitemap.xml
+- [ ] JSON-LD (MusicRecording)
+- [ ] Lazy audio loading
+
+### Effects
+- [ ] Cursor glow (desktop, respect reduced-motion)
+- [ ] Card tilt
+- [ ] Scroll animations
+- [ ] Stagger reveal
+
+## Phase 2 — Commerce (~2-3 weeks)
+**Goal:** Auth + payments + licensing
+
+### Auth
+- [ ] Firebase Auth (Google + Email)
+- [ ] Login/Register UI
+- [ ] Auth store
+- [ ] Route guards
+- [ ] /account page
+
+### Stripe
+- [ ] Products/prices setup
+- [ ] LicenseSelector component
+- [ ] Cloud Fn: createCheckoutSession
+- [ ] Webhook: checkout.session.completed
+- [ ] Signed download URL
+- [ ] /checkout/success
+
+### Licensing
+- [ ] License type definitions
+- [ ] PDF generation (template)
+- [ ] Order → Firestore
+- [ ] Confirmation email
+- [ ] Signed URL protection
+
+## Phase 3 — Admin + Growth (~2 weeks)
+**Goal:** Dashboard + growth tools
+
+### Admin
+- [ ] Stats: sales, revenue, top beats
+- [ ] Beat CRUD + audio upload
+- [ ] Stems upload
+- [ ] Price management
+- [ ] Orders list
+- [ ] Sales chart
+
+### Growth
+- [ ] PWA (service worker + manifest)
+- [ ] Share cards
+- [ ] Newsletter signup
+- [ ] Similar beats
+- [ ] Playlists
+
+## Phase 4 — Polish (ongoing)
+- [ ] Vitest tests
+- [ ] Playwright E2E
+- [ ] Lighthouse 90+
+- [ ] i18n (ES/EN)
+- [ ] Error boundaries
+- [ ] Skeleton loading
+- [ ] Accessibility
+- [ ] Rate limiting
+- [ ] Security audit`
+},
+
+{
+  name: '06-CONVENTIONS.md',
+  color: 'var(--sky)',
+  desc: 'Naming, estilos, imports, git — las reglas del código',
+  content: `# Code Conventions
+
+## File Naming
+- Components: PascalCase.svelte → BeatCard.svelte
+- Stores: camelCase.ts → playerStore.ts
+- Utils: camelCase.ts → formatDate.ts
+- Types: camelCase.ts → beat.ts
+- Routes: kebab-case → beat/[id]/
+
+## TypeScript
+- Strict mode always
+- No 'any' — use 'unknown' and narrow
+- Interfaces for data shapes, types for unions
+- Export types from lib/types/
+
+## Svelte
+- $state, $derived, $effect (Svelte 5 runes)
+- Stores for shared state (player, auth, cart)
+- Props with interface Props {}
+- Callback props, not createEventDispatcher
+
+## CSS
+All colors as custom properties on :root.
+Font scale: 10, 11, 12, 13, 14, 16, 20, 28, 36, 56
+Spacing: 4px base (4, 8, 12, 16, 20, 24, 32, 40, 48, 64)
+Radius: 4, 6, 8, 10, 12, 16, 20, 40 (pill)
+Transitions: 0.15s micro, 0.2s default, 0.3s emphasis
+
+## Colors (Dark)
+--bg: #08080a;  --surface: #111114;  --accent: #00ff87;
+--text: #e4e4e8; --text-muted: #7a7a86; --border: #26262e;
+
+## Genre Colors
+trap: #ff3b5c  drill: #a855f7  boom-bap: #ff8c42
+rnb: #f472b6   lofi: #38bdf8  reggaeton: #fbbf24
+
+## Git
+Branches: feat/ fix/ chore/
+Commits: type(scope): desc
+  feat(player): add waveform seek
+  fix(auth): handle expired token
+
+## Import Order
+1. Types
+2. Libraries
+3. Stores
+4. Components
+5. Utils`
+},
+
+{
+  name: '07-DEPLOYMENT.md',
+  color: 'var(--sky)',
+  desc: 'Deploy, env vars, CI/CD, rollback',
+  content: `# Deployment
+
+## Environments
+| Env       | URL            | Branch     |
+|-----------|----------------|------------|
+| Local     | localhost:5173 | any        |
+| Preview   | *.pages.dev    | PR branches|
+| Production| dacewav.store  | main       |
+
+## Cloudflare Pages
+1. Connect GitHub repo dacewav/store
+2. Build: npm run build
+3. Output: .svelte-kit/cloudflare
+4. Node: 20+
+
+## Environment Variables (Cloudflare Pages)
+PUBLIC_FIREBASE_API_KEY=
+PUBLIC_FIREBASE_AUTH_DOMAIN=
+PUBLIC_FIREBASE_DATABASE_URL=
+PUBLIC_FIREBASE_PROJECT_ID=
+PUBLIC_FIREBASE_STORAGE_BUCKET=
+PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+PUBLIC_FIREBASE_APP_ID=
+PUBLIC_STRIPE_PUBLISHABLE_KEY=
+
+## Secrets (server-only)
+RESEND_API_KEY=              (CF Pages secret)
+STRIPE_SECRET_KEY=           (Cloud Functions)
+STRIPE_WEBHOOK_SECRET=       (Cloud Functions)
+
+## R2
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=dacewav-audio
+
+## Deploy Flow
+git push origin main  → production deploy
+git push origin feat/ → preview deploy
+
+## Firebase
+firebase deploy --only functions
+firebase deploy --only firestore:rules
+
+## Rollback
+Cloudflare Pages keeps deploy history.
+Rollback from dashboard.`
+},
+
+{
+  name: '08-DECISIONS-LOG.md',
+  color: 'var(--violet)',
+  desc: 'ADR — qué se decidió, por qué, y las alternativas',
+  content: `# Architecture Decision Records
+
+Format: Decision → Context → Options → Rationale
+
+## ADR-001: SvelteKit over Next/Nuxt
+**Date:** 2026-04-24
+**Decision:** SvelteKit 2 + Svelte 5
+**Context:** Need SSR for SEO, reactive UI for player
+**Options:** Next.js, Nuxt, SvelteKit, Astro
+**Rationale:** Store repo already had SvelteKit. Lighter, faster,
+better reactivity for real-time player. Smaller bundle.
+
+## ADR-002: Firebase RTDB + Firestore hybrid
+**Date:** 2026-04-24
+**Decision:** RTDB for beats, Firestore for orders/users
+**Context:** Catalog v5.2 uses RTDB. Need structured queries for orders.
+**Options:** All RTDB, All Firestore, Hybrid
+**Rationale:** RTDB already populated with beats + supports realtime
+listeners. Firestore better for complex queries. Keep both.
+
+## ADR-003: Admin via Firestore whitelist
+**Date:** 2026-04-24
+**Decision:** Admin emails in Firestore config document
+**Context:** Restrict admin to specific Google accounts
+**Options:** Custom claims, Firestore whitelist, env var
+**Rationale:** Custom claims need Admin SDK (can't update from client).
+Env var needs redeploy. Firestore whitelist: instant update + works
+with security rules.
+
+## ADR-004: Cloudflare R2 for audio
+**Date:** 2026-04-24
+**Decision:** Cloudflare R2 for audio storage
+**Context:** Fast, cheap audio delivery globally
+**Options:** Firebase Storage, R2, Supabase, S3
+**Rationale:** Zero egress fees (audio = large files). Integrates with
+Cloudflare CDN. Signed URLs for download protection.
+
+## ADR-005: Stripe for payments
+**Date:** 2026-04-24
+**Decision:** Stripe as payment processor
+**Context:** Sell beats with license tiers
+**Options:** Stripe, Mercado Pago, LemonSqueezy, Gumroad
+**Rationale:** Industry standard. Excellent webhooks. Hosted checkout
+(no PCI). International cards. Mercado Pago can be added later.
+
+---
+_Add new ADRs sequentially._`
+},
+
+{
+  name: '09-CONTEXT-BRIEF.md',
+  color: 'var(--accent)',
+  desc: '← PEGAR ESTO AL INICIO DE CUALQUIER SESIÓN DE IA',
+  content: `# Context Brief
+# ═══════════════════════════════════════════
+# PASTE THIS TO ANY NEW AI SESSION
+# ═══════════════════════════════════════════
+
+## Who
+I'm dacewav, a music producer building a professional beat store.
+
+## What We're Building
+SvelteKit web app: beat catalog (public) + store with license tiers.
+
+## Tech Stack
+- SvelteKit 2 + Svelte 5 (TypeScript, strict)
+- Firebase: RTDB (beats), Firestore (orders/users), Auth (Google), Cloud Functions
+- Cloudflare Pages (hosting) + R2 (audio)
+- Stripe (payments) + Resend (emails)
+- Vitest + Playwright (testing)
+
+## Current Phase
+Phase 0 — Foundation: scaffolding, design migration, basic player.
+
+## Key Decisions
+- Admin via Firestore whitelist (authorized Google emails)
+- RTDB for beats (realtime), Firestore for orders (queries)
+- Audio on Cloudflare R2 with signed download URLs
+- Stripe Checkout → webhook → Cloud Function → order + download
+- Licenses: Basic ($25), Premium ($75), Unlimited ($150), Exclusive ($500+)
+
+## Design
+Dark theme, studio aesthetic. Fonts: Syne + DM Mono.
+Accent: #00ff87. Genre colors. Effects: glow, tilt, scroll anims.
+Migrating visual identity from catalog v5.2.
+
+## Admin
+dacewav@gmail.com (primary)
+
+## Docs
+Full .guide/ folder with: overview, architecture, data models,
+auth, licensing, roadmap, conventions, deployment, decisions log,
+changelog, and this context brief.
+
+## Repos
+- github.com/dacewav/catalog → v5.2 reference
+- github.com/dacewav/store → v6.0 active
+
+## Rules
+- Respond in Spanish
+- Production-quality code
+- Ask before architecture decisions
+- Update roadmap when tasks complete
+- Log decisions in ADR`
+},
+
+{
+  name: '10-CHANGELOG.md',
+  color: 'var(--text-muted)',
+  desc: 'Historial de cambios — qué pasó y cuándo',
+  content: `# Changelog
+
+## [0.1.0] — 2026-04-24
+### Added
+- Initial .guide/ documentation system
+- Project architecture defined
+- Data models (Beat, License, Order, User)
+- Auth + admin whitelist system
+- Licensing model (4 tiers)
+- 5-phase roadmap
+- Code conventions
+- Deployment process
+- 5 Architecture Decision Records
+- Context brief for AI sessions
+
+### Decisions
+- SvelteKit 2 + Svelte 5
+- Firebase RTDB + Firestore hybrid
+- Admin via Firestore email whitelist
+- Cloudflare R2 for audio
+- Stripe for payments
+
+### Status
+- Phase 0: NOT STARTED (docs complete, ready to scaffold)`
+}
+];
+
+// ═══════════════════════════════════════════
+// ROADMAP DATA
+// ═══════════════════════════════════════════
+
+const PHASES = [
+  {
+    id: 'p0', cls: 'p0', tag: 'Fase 0', eta: '~1 semana',
+    title: 'Fundación',
+    desc: 'Scaffold SvelteKit, migrar diseño del catalog, player básico funcionando.',
+    tasks: [
+      'Init SvelteKit + adapter-cloudflare',
+      'Firebase client config',
+      'TypeScript strict mode',
+      'Wrangler config',
+      'CI/CD: push → deploy',
+      'Global layout + nav + sticky player',
+      'Theme system (dark/light)',
+      'Typography: Syne + DM Mono',
+      'CSS custom properties',
+      'BeatCard.svelte component',
+      'Responsive beat grid',
+      'Player store (Svelte)',
+      'Waveform component (SVG)',
+      'Controls: play/pause, seek, volume',
+      'Preview with tag (30s)',
+    ]
+  },
+  {
+    id: 'p1', cls: 'p1', tag: 'Fase 1', eta: '~2 semanas',
+    title: 'Core Features',
+    desc: 'Tienda completa con filtros, búsqueda, SEO. Migrar todo lo bueno del catalog.',
+    tasks: [
+      'FilterBar.svelte',
+      'Search with debounce',
+      'Interactive tag cloud',
+      'Beat modal + license info',
+      'Wishlist (localStorage + auth sync)',
+      'WhatsApp export',
+      'SSR: /beat/[id] + meta tags',
+      'Open Graph tags',
+      'Dynamic sitemap.xml',
+      'JSON-LD (MusicRecording)',
+      'Lazy audio loading',
+      'Cursor glow effect',
+      'Card tilt effect',
+      'Scroll animations',
+      'Stagger reveal on grid',
+    ]
+  },
+  {
+    id: 'p2', cls: 'p2', tag: 'Fase 2', eta: '~2-3 semanas',
+    title: 'Commerce',
+    desc: 'Auth, pagos, licensing — la capa que convierte catálogo en negocio.',
+    tasks: [
+      'Firebase Auth (Google + Email)',
+      'Login/Register UI',
+      'Auth store reactivo',
+      'Route guards (admin protegido)',
+      '/account page + purchase history',
+      'Stripe products/prices setup',
+      'LicenseSelector component',
+      'Cloud Fn: createCheckoutSession',
+      'Webhook: checkout.session.completed',
+      'Signed download URL generation',
+      '/checkout/success + download',
+      'License type definitions',
+      'PDF generation (template)',
+      'Order → Firestore',
+      'Confirmation email',
+      'Signed URL protection for audio',
+    ]
+  },
+  {
+    id: 'p3', cls: 'p3', tag: 'Fase 3', eta: '~2 semanas',
+    title: 'Admin + Growth',
+    desc: 'Dashboard real de productor + herramientas para crecer.',
+    tasks: [
+      'Dashboard: sales, revenue, top beats',
+      'Beat CRUD + audio upload',
+      'Stems upload (multi-file)',
+      'Price management per tier',
+      'Orders list with statuses',
+      'Sales chart',
+      'PWA: service worker + manifest',
+      'Share cards with waveform',
+      'Newsletter signup',
+      'Similar beats recommendations',
+      'Curated playlists',
+    ]
+  },
+  {
+    id: 'p4', cls: 'p4', tag: 'Fase 4', eta: 'ongoing',
+    title: 'Polish & Scale',
+    desc: 'Testing, performance, i18n, los detalles que separan bueno de profesional.',
+    tasks: [
+      'Vitest: stores, utils, functions',
+      'Playwright: purchase flow E2E',
+      'Lighthouse 90+',
+      'i18n: Spanish + English',
+      'Error boundaries + fallback UI',
+      'Skeleton loading states',
+      'Accessibility audit',
+      'Rate limiting',
+      'Security rules audit',
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+
+const LS = 'dacewav_guide';
+let state = JSON.parse(localStorage.getItem(LS) || '{}');
+if (!state.tasks) state.tasks = {};
+
+function save() { localStorage.setItem(LS, JSON.stringify(state)); }
+
+// ═══════════════════════════════════════════
+// RENDER FILE CARDS
+// ═══════════════════════════════════════════
+
+const grid = document.getElementById('fileGrid');
+FILES.forEach((f, i) => {
+  const card = document.createElement('div');
+  card.className = 'file-card';
+  card.style.setProperty('--card-color', f.color);
+  card.style.animationDelay = (i * 0.05) + 's';
+  card.innerHTML = `
+    <div class="fname">${f.name}</div>
+    <div class="fdesc">${f.desc}</div>
+    <div class="fsize">${f.content.split('\n').length} líneas</div>
+  `;
+  card.addEventListener('click', () => openViewer(f));
+  grid.appendChild(card);
+});
+
+// ═══════════════════════════════════════════
+// RENDER ROADMAP
+// ═══════════════════════════════════════════
+
+const rmContainer = document.getElementById('roadmapContainer');
+PHASES.forEach(p => {
+  const block = document.createElement('div');
+  block.className = `rm-block ${p.cls}`;
+
+  const tasksHtml = p.tasks.map(t => {
+    const done = state.tasks[t];
+    return `<li class="${done ? 'done' : ''}" data-task="${t}">
+      <span class="rm-check">${done ? '✓' : ''}</span>
+      ${t}
+    </li>`;
+  }).join('');
+
+  block.innerHTML = `
+    <div class="rm-head">
+      <span class="rm-tag">${p.tag}</span>
+      <span class="rm-eta">${p.eta}</span>
+    </div>
+    <div class="rm-title">${p.title}</div>
+    <div class="rm-desc">${p.desc}</div>
+    <div class="rm-details">
+      <ul class="rm-tasks">${tasksHtml}</ul>
+    </div>
+  `;
+
+  block.querySelector('.rm-head').addEventListener('click', e => {
+    e.stopPropagation();
+    block.classList.toggle('open');
+  });
+  block.querySelector('.rm-title').addEventListener('click', e => {
+    e.stopPropagation();
+    block.classList.toggle('open');
+  });
+
+  block.querySelectorAll('.rm-tasks li').forEach(li => {
+    li.addEventListener('click', e => {
+      e.stopPropagation();
+      const task = li.dataset.task;
+      li.classList.toggle('done');
+      const done = li.classList.contains('done');
+      li.querySelector('.rm-check').textContent = done ? '✓' : '';
+      state.tasks[task] = done;
+      save();
+      updateProgress();
+    });
+  });
+
+  rmContainer.appendChild(block);
+});
+
+function updateProgress() {
+  const all = document.querySelectorAll('.rm-tasks li');
+  const done = document.querySelectorAll('.rm-tasks li.done');
+  const pct = all.length > 0 ? Math.round((done.length / all.length) * 100) : 0;
+  document.getElementById('pct').textContent = pct + '%';
+  document.getElementById('pFill').style.width = pct + '%';
+}
+updateProgress();
+
+// ═══════════════════════════════════════════
+// VIEWER
+// ═══════════════════════════════════════════
+
+let currentFile = null;
+
+function openViewer(f) {
+  currentFile = f;
+  document.getElementById('vName').textContent = f.name;
+  document.getElementById('vBody').textContent = f.content;
+  document.getElementById('viewer').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeViewer() {
+  document.getElementById('viewer').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('viewer').addEventListener('click', e => {
+  if (e.target.id === 'viewer') closeViewer();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeViewer();
+});
+
+function copyFile() {
+  if (!currentFile) return;
+  navigator.clipboard.writeText(currentFile.content).then(() => {
+    showToast('Copiado: ' + currentFile.name);
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ═══════════════════════════════════════════
+// DOWNLOAD ALL AS ZIP
+// ═══════════════════════════════════════════
+
+function downloadAll() {
+  // Simple: download each file individually (no zip library needed)
+  FILES.forEach((f, i) => {
+    setTimeout(() => {
+      const blob = new Blob([f.content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = f.name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, i * 200);
+  });
+  showToast('Descargando ' + FILES.length + ' archivos...');
+}
+
+// ═══════════════════════════════════════════
+// SCROLL ANIMATIONS
+// ═══════════════════════════════════════════
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

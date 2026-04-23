@@ -12,6 +12,9 @@
 | **BLOCK-CONTEXT.md** | Qué sesión/bloque estamos, checklist actual | Después de AUDIT-MASTER — para saber qué hacer HOY |
 | **REAL-AUDIT.md** | Mapeo exacto: qué lee el código vs qué tiene Firebase | Cuando necesitás entender por qué algo no funciona |
 | **PROJECT_STATE.md** | Estado resumido del proyecto | Para contexto rápido |
+| `docs/PLAN-MASTER.html` | Roadmap visual interactivo — fases, tareas, arquitectura | Para ver el plan completo del proyecto |
+| `docs/GUIDE-SYSTEM.html` | Generador del sistema .guide — documentación viva | Para entender la filosofía del guide system |
+| `docs/SETUP-DESDE-CERO.html` | Setup paso a paso (VS Code, Node, Git) para no-devs | Para onboarding de personas sin experiencia técnica |
 | `_archive/` | Archivos viejos del proyecto anterior | No leer — es histórico |
 
 ---
