@@ -570,6 +570,8 @@ function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	if (!sec.title) sec.title = 'Catálogo';
 	if (!sec.dividerTitle && d.dividerTitle) sec.dividerTitle = d.dividerTitle;
 	if (!sec.dividerSub && d.dividerSub) sec.dividerSub = d.dividerSub;
+	if (!sec.dividerTitle) sec.dividerTitle = DEFAULT.section.dividerTitle;
+	if (!sec.dividerSub) sec.dividerSub = DEFAULT.section.dividerSub;
 
 	// Merge brand from flat keys
 	if (!d.brand || typeof d.brand !== 'object') d.brand = {};
@@ -593,6 +595,11 @@ function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	if (!banner.easing && d.bannerEasing) banner.easing = d.bannerEasing;
 	if (!banner.direction && d.bannerDir) banner.direction = d.bannerDir;
 	if (!banner.delay && d.bannerDelay) banner.delay = d.bannerDelay;
+	// Defaults for banner
+	if (!banner.animation) banner.animation = DEFAULT.banner.animation;
+	if (!banner.bgColor) banner.bgColor = DEFAULT.banner.bgColor;
+	if (!banner.textColor) banner.textColor = DEFAULT.banner.textColor;
+	if (!banner.speed) banner.speed = DEFAULT.banner.speed;
 
 	// Merge loader
 	if (!d.loader || typeof d.loader !== 'object') d.loader = { enabled: true, brandText: brand.name || 'DACEWAV' };
@@ -690,9 +697,19 @@ function migrateOldData(raw: Record<string, unknown>): SettingsData {
 
 	// Merge labels
 	if (!d.labels || typeof d.labels !== 'object') d.labels = {};
+	// Merge labels with defaults
+	const lbl = d.labels as Record<string, unknown>;
+	for (const [k, v] of Object.entries(DEFAULT.labels)) {
+		if (!lbl[k]) lbl[k] = v;
+	}
 
-	// Merge CTA
+	// Merge CTA with defaults
 	if (!d.cta || typeof d.cta !== 'object') d.cta = {};
+	const cta = d.cta as Record<string, unknown>;
+	if (!cta.title) cta.title = DEFAULT.cta.title;
+	if (!cta.subtitle) cta.subtitle = DEFAULT.cta.subtitle;
+	if (!cta.buttonText) cta.buttonText = DEFAULT.cta.buttonText;
+	if (!cta.buttonUrl) cta.buttonUrl = DEFAULT.cta.buttonUrl;
 
 	// Merge layout
 	if (!d.layout || typeof d.layout !== 'object') d.layout = {};
