@@ -1,6 +1,6 @@
 # 📋 AUDIT-MASTER.md — Guía Maestra
 
-> **Última actualización: 2026-04-22 04:16**
+> **Última actualización: 2026-04-24 04:38**
 > **Lee este archivo primero en cualquier sesión nueva.**
 
 ---
@@ -73,10 +73,13 @@ Límite:    50 min por sesión de chat
 
 | Área | Status |
 |------|--------|
-| Store visual | ❌ No muestra datos reales |
-| Settings paths | ❌ Firebase flat, código nested |
+| Store visual | ⚠️ Hero/Banner/Divider/Nav/Footer muestran datos reales, pero beats vacío |
+| Settings paths | ✅ Migration layer funciona (flat → nested verificado) |
 | Beats | ❌ Vacío en Firebase |
 | Admin editors | ❌ No muestran valores actuales |
+| Theme engine | ✅ 35+ keys mapeadas a CSS vars (sesión 3) |
+| globalCardStyle | ⚠️ Firebase usa estructura diferente a CardStyleConfig — migration incompleta |
+| Testimonials | ⚠️ Firebase tiene {name,role,text} — código espera {name,text,stars,avatar} |
 
 ---
 

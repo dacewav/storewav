@@ -11,19 +11,35 @@ bloque: "1B"
 objetivo: "Banner, Divider, Nav, Footer con datos reales de Firebase"
 tiempo: "50 min"
 estado: "en progreso"
+commit: "9088849"
 ```
 
-## Qué hacer en esta sesión
+## Qué se hizo esta sesión
 
-1. Testear Bloque 0 en deploy — ¿hero muestra datos? (5 min)
-2. Si no: fixear migration layer (15 min)
-3. Hero título de `siteName`/`heroTitle` (5 min)
-4. Hero eyebrow de `theme.heroEyebrow` (5 min)
-5. Hero glow word de `theme.heroTitleCustom` (5 min)
-6. Hero subtitle (5 min)
-7. Hero stats animados (5 min)
-8. Hero links (Instagram, WhatsApp) (5 min)
-9. Build + test + commit + push (5 min)
+1. ✅ Clonado repo + npm install + .env configurado
+2. ✅ Audit profundo: Firebase real vs código (settings flat → nested migration)
+3. ✅ Theme engine: mapeadas 15+ keys faltantes a CSS vars
+   - `fontBody` → `--font-body` (crítico — no estaba mapeado!)
+   - `grainBlendMode` → `--grain-blend`
+   - `wbarColor/Active/Height/Radius` → `--wbar-*`
+   - Opacities: `textOpacity`, `heroBgOpacity`, `sectionOpacity`, `beatImgOpacity`, `navOpacity`
+   - `surface`, `surface2`, `border`, `border2`
+   - `cardShadowIntensity`, `cardShadowColor`, `blurBg`, `orbBlendMode`
+   - `logoHeight`, `logoWidth`, `logoScale`
+   - `fontSize` → `--text-base` (con conversión rem)
+   - `padSection` → `--section-padding` (alias)
+4. ✅ Build: 0 errores, svelte-check: 0 errores / 1 warning menor
+5. ✅ Commit: 9088849
+
+## Qué falta para cerrar sesión 3
+
+- [ ] Hero glow word: Firebase tiene `heroTitleCustom: 'S'` — revisar si es correcto o debería ser frase completa
+- [ ] Hero subtitle: vacío en Firebase — ¿agregar contenido de ejemplo?
+- [ ] Testimonials: Firebase tiene `{name, role, text}` pero código espera `{name, text, stars, avatar}` — adaptar migration
+- [ ] CTA section: no hay datos en Firebase — ¿configurar?
+- [ ] globalCardStyle: Firebase tiene estructura anidada diferente a CardStyleConfig — adaptar migration
+- [ ] Deploy + test visual en browser
+- [ ] Actualizar AUDIT-MASTER.md con findings
 
 ## Estado de Sesiones
 
@@ -31,7 +47,7 @@ estado: "en progreso"
 |--------|--------|--------|
 | 1 | 0 — Data Layer | ✅ hecho (sin test) |
 | 2 | 1A — Hero | ✅ hecho (2 commits: 4896c1d, e1f8ae4) |
-| 3 | 1B — Banner + Divider + Nav | ⬜ esta sesión |
+| 3 | 1B — Banner + Divider + Nav | ⬜ en progreso (commit 9088849) |
 | 4 | 2A — Beats Seed | ⬜ |
 | 5 | 2B — Beat Interactions | ⬜ |
 | 6 | 3A — Admin Dashboard | ⬜ |
