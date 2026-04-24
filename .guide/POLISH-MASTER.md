@@ -16,11 +16,11 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que el build funcione sin trucos.
 
-- [ ] Verificar que `$env/static/public` funciona con `.env` real del usuario
-- [ ] Si el usuario no tiene `.env`, crear uno desde `.env.example` con datos reales de Firebase
-- [ ] `npm run build` limpio — 0 errores
-- [ ] `npm run dev` arranca y carga la tienda
-- [ ] Verificar que Firebase se conecta (ver consola del navegador)
+- [x] Verificar que `$env/static/public` funciona con `.env` real del usuario
+- [x] Si el usuario no tiene `.env`, crear uno desde `.env.example` con datos reales de Firebase
+- [x] `npm run build` limpio — 0 errores
+- [x] `npm run dev` arranca y carga la tienda
+- [ ] Verificar que Firebase se conecta (ver consola del navegador) — **requiere credenciales reales en .env**
 
 **Posible issue**: `firebase.ts` usa `$env/static/public` — esto requiere las env vars en build time. Si el deploy en Cloudflare Workers no las tiene, no funciona. Verificar `wrangler.jsonc` o dashboard de Cloudflare.
 
