@@ -9,7 +9,7 @@ framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
 sesiones:      15 planificadas (~50 min c/u)
-sesión_actual: 10 (Session 0 fixeado — listo para Bloque 3B Beat Editor)
+sesión_actual: 10 (Session 0 + 3B + Plays Analytics completado)
 commits:       36
 ```
 

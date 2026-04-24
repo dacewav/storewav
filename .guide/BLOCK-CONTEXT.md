@@ -3,15 +3,15 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 10 — Bloque 3B: Beat Editor
+## Sesión Actual: 10 — Multi-block: Session 0 + 3B + Plays Analytics
 
 ```yaml
 sesión: "10"
-bloque: "3B"
-objetivo: "Beat Editor enhancements"
+bloque: "0 + 3B + Plays Analytics"
+objetivo: "Fix bugs, beat editor UX, dashboard analytics"
 tiempo: "50 min"
-estado: "EN PROGRESO"
-último_commit: "700718f"
+estado: "COMPLETADO"
+último_commit: "89613aa"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
@@ -24,13 +24,16 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 4. ✅ `$app/stores` → `$app/state` — beat page migrado
 5. ✅ BeatEditor optimization — version counter
 
-### Bloque 3B — Beat Editor (commit `700718f`)
+### Bloque 3B — Beat Editor ✅ (commit `700718f`)
 1. ✅ **Inline audio preview** — Player en save bar (play/pause/seek/time)
 2. ✅ **Animated save indicator** — Dot pulsante (saving), verde (saved), rojo (error), amarillo (unsaved)
 3. ✅ **Field validation** — Errores inline en nombre, género, BPM
 4. ✅ **Save button disabled** — Cuando validación falla
-5. ⬜ Firebase Storage upload — FileUpload ya existe, verificar integración
-6. ⬜ Auto-save indicator en tiempo real — Ya implementado con dot animado
+
+### Plays Counter + Analytics ✅ (commit `89613aa`)
+1. ✅ **beatsStats** — totalPlays + topBeat derived values
+2. ✅ **Dashboard stats** — Plays totales + Top beat cards
+3. ✅ **Version fix** — Unificado a v1.0.0
 
 ## Estado de Sesiones
 
@@ -47,7 +50,8 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 9 | 3A — Connection State + Error Resilience | ✅ deployed |
 | 9 | 3A — Connection State + Error Resilience | ✅ |
 | 10 | 0-solidification — Critical Bugs | ✅ |
-| 10 | 3B — Beat Editor | ✅ (parcial) |
+| 10 | 3B — Beat Editor | ✅ |
+| 10 | Plays Counter + Analytics | ✅ |
 | 11 | 3B — Beat Editor | ⬜ |
 | 12 | 3C — Content Editors | ⬜ |
 | 13 | 4 — Effects | ⬜ |
