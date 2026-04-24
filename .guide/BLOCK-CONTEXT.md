@@ -3,27 +3,25 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 10 — Multi-block: Session 0 + 3B + Plays Analytics
+## Sesión Actual: 11 — Performance + Mobile Polish
 
 ```yaml
-sesión: "10"
-bloque: "0 + 3B + Plays + Session 4"
-objetivo: "Fix bugs, beat editor UX, dashboard analytics, cardstyle migration"
+sesión: "11"
+bloque: "Performance + Mobile Polish"
+objetivo: "Image optimization, touch targets, mobile responsive audit"
 tiempo: "50 min"
-estado: "COMPLETADO + PUSHED"
-último_commit: "e59a0d9"
-último_push: "2026-04-25 03:06"
+estado: "EN PROGRESO"
+último_commit: "77a9758"
+último_push: "pendiente"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
-## Próxima sesión (11)
-
-### Session 5 — Performance + Mobile Polish (50 min)
-1. ⬜ Image optimization — loading="lazy", decoding="async", placeholder blur
-2. ⬜ Animation performance — will-change, prefers-reduced-motion
-3. ⬜ Mobile responsive audit — admin, beat editor, store, player
-4. ⬜ Touch targets ≥ 44px
-5. ⬜ Build + commit
+### Session 11 — Performance + Mobile Polish (50 min)
+1. ✅ Image optimization — `decoding="async"` en 9 `<img>` tags
+2. ✅ Touch targets — btn-sm 40px→44px, Player mobile 36/38px→44px
+3. ⬜ Animation performance — will-change audit (ya tiene prefers-reduced-motion)
+4. ⬜ Mobile responsive audit — revisar flows completos en 375px/768px
+5. ⬜ Build + commit + push
 
 ### Session 6 — Accessibility + SEO (50 min)
 1. ⬜ aria-label en botones sin texto
@@ -73,7 +71,7 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 10 | 3B — Beat Editor | ✅ |
 | 10 | Plays Counter + Analytics | ✅ |
 | 10 | Session 4 — Testimonials + CardStyle | ✅ |
-| 11 | 3B — Beat Editor | ⬜ |
+| 11 | Performance + Mobile Polish | ⬜ en progreso |
 | 12 | 3C — Content Editors | ⬜ |
 | 13 | 4 — Effects | ⬜ |
 | 14 | 5 — Labels + Polish | ⬜ |
