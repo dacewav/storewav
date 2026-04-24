@@ -665,6 +665,7 @@ function migrateOldData(raw: Record<string, unknown>): SettingsData {
 				flat.hoverBrightness = hover.brightness ?? 1;
 				flat.hoverBlur = hover.blur ?? 0;
 				flat.hoverSaturate = hover.saturate ?? 1;
+				if (hover.transition) flat.hoverTransition = hover.transition;
 			}
 
 			// Style (shimmer, borderRadius, opacity)
@@ -672,6 +673,8 @@ function migrateOldData(raw: Record<string, unknown>): SettingsData {
 			if (style) {
 				flat.shimmer = style.shimmer ?? false;
 				if (style.borderRadius) flat.borderRadius = `${style.borderRadius}px`;
+				if (style.shimmerOp) flat.shimmerOpacity = style.shimmerOp;
+				if (style.shimmerSpeed) flat.shimmerDuration = `${style.shimmerSpeed}s`;
 			}
 
 			// Transform
