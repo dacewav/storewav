@@ -3,25 +3,27 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 11 — Performance + Mobile Polish
+## Sesión Actual: 12 — Accessibility + SEO
 
 ```yaml
-sesión: "11"
-bloque: "Performance + Mobile Polish"
-objetivo: "Image optimization, touch targets, mobile responsive audit"
+sesión: "12"
+bloque: "Accessibility + SEO"
+objetivo: "aria-labels, keyboard nav, JSON-LD, canonical, OG tags"
 tiempo: "50 min"
-estado: "EN PROGRESO"
-último_commit: "77a9758"
+estado: "COMPLETADO"
+último_commit: "e7f2af3"
 último_push: "pendiente"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
-### Session 11 — Performance + Mobile Polish (50 min)
-1. ✅ Image optimization — `decoding="async"` en 9 `<img>` tags
-2. ✅ Touch targets — btn-sm 40px→44px, Player mobile 36/38px→44px
-3. ✅ Animation performance — `prefers-reduced-motion` bien implementado, orbs hidden en mobile, will-change solo en cursor-glow
-4. ✅ Mobile responsive audit — breakpoints correctos en store/admin/player/editor
-5. ⬜ Build + commit + push
+### Session 12 — Accessibility + SEO (50 min)
+1. ✅ aria-label en 6 icon buttons (beats admin, file upload, hero)
+2. ✅ Keyboard nav — focus trap en mobile menu ya implementado, player slider con arrow keys
+3. ✅ SEO: canonical URL + og:url en store layout
+4. ✅ SEO: MusicRecording JSON-LD en beat detail
+5. ✅ SEO: og:title + og:description en homepage y login
+6. ✅ SEO: robots.txt + sitemap domain fix
+7. ⬜ Build + commit + push
 
 ### Session 6 — Accessibility + SEO (50 min)
 1. ⬜ aria-label en botones sin texto
@@ -71,11 +73,12 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 10 | 3B — Beat Editor | ✅ |
 | 10 | Plays Counter + Analytics | ✅ |
 | 10 | Session 4 — Testimonials + CardStyle | ✅ |
-| 11 | Performance + Mobile Polish | ⬜ en progreso |
-| 12 | 3C — Content Editors | ⬜ |
-| 13 | 4 — Effects | ⬜ |
-| 14 | 5 — Labels + Polish | ⬜ |
-| 15 | 6 — Final Audit | ⬜ |
+| 11 | Performance + Mobile Polish | ✅ |
+| 12 | Accessibility + SEO | ✅ |
+| 13 | 3C — Content Editors | ⬜ |
+| 14 | 4 — Effects | ⬜ |
+| 15 | 5 — Labels + Polish | ⬜ |
+| 16 | 6 — Final Audit | ⬜ |
 
 ## Referencia
 
