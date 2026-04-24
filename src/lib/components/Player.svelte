@@ -5,6 +5,7 @@
 	let state = $derived($player);
 	let progressVal = $derived(state.duration > 0 ? state.currentTime / state.duration : 0);
 	let showBar = $derived(state.beatId !== null);
+	let volumeVal = $derived(state.muted ? 0 : state.volume);
 
 	let currentTime = $derived(formatTime(state.currentTime));
 	let totalTime = $derived(formatTime(state.duration));
@@ -66,13 +67,25 @@
 
 			<!-- Volume + Close -->
 			<div class="player-right">
-				<button class="ctrl-btn" onclick={() => player.toggleMute()} aria-label={state.muted ? 'Activar sonido' : 'Silenciar'}>
-					{#if state.muted || state.volume === 0}
-						<Icon name="volumeOff" size={14} />
-					{:else}
-						<Icon name="volumeOn" size={14} />
-					{/if}
-				</button>
+				<div class="volume-group">
+					<button class="ctrl-btn" onclick={() => player.toggleMute()} aria-label={state.muted ? 'Activar sonido' : 'Silenciar'}>
+						{#if state.muted || state.volume === 0}
+							<Icon name="volumeOff" size={14} />
+						{:else}
+							<Icon name="volumeOn" size={14} />
+						{/if}
+					</button>
+					<input
+						class="volume-slider"
+						type="range"
+						min="0"
+						max="1"
+						step="0.05"
+						value={volumeVal}
+						aria-label="Volumen"
+						oninput={(e) => player.setVolume(+e.currentTarget.value)}
+					/>
+				</div>
 
 				<button class="ctrl-btn" onclick={() => player.stop()} aria-label="Cerrar">
 					<Icon name="close" size={14} />
@@ -258,7 +271,26 @@
 	.player-right {
 		display: flex;
 		align-items: center;
+		gap: var(--space-2);
+	}
+
+	.volume-group {
+		display: flex;
+		align-items: center;
 		gap: var(--space-1);
+	}
+
+	.volume-slider {
+		width: 80px;
+		height: 4px;
+		accent-color: var(--accent);
+		cursor: pointer;
+		opacity: 0.7;
+		transition: opacity var(--duration-fast);
+	}
+
+	.volume-slider:hover {
+		opacity: 1;
 	}
 
 	/* ── Responsive ── */
@@ -272,7 +304,9 @@
 			gap: var(--space-2);
 		}
 
-		/* Volume & Close already visible on mobile — no overrides needed */
+		.volume-slider {
+			display: none;
+		}
 	}
 
 	@media (max-width: 480px) {

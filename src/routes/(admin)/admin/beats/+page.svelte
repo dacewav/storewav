@@ -215,6 +215,15 @@
 							{#if !beat.active}
 								<Badge variant="muted">Inactivo</Badge>
 							{/if}
+							{#if beat.featured}
+								<Badge variant="accent">⭐ Featured</Badge>
+							{/if}
+							{#if beat.exclusive}
+								<Badge variant="default">💎 Exclusivo</Badge>
+							{/if}
+							{#if beat.available === false}
+								<Badge variant="muted">Agotado</Badge>
+							{/if}
 						</div>
 						<div class="beat-meta">
 							<span>{beat.artist || '—'}</span>

@@ -253,7 +253,7 @@
 						{#if selectedLicense >= 0 && beat.licenses[selectedLicense]}
 							<a
 								class="buy-btn"
-								href="https://wa.me/{whatsappNum}?text={encodeURIComponent(`Quiero la licencia ${beat.licenses[selectedLicense].name} de ${beat.name}`)}"
+								href="https://wa.me/{whatsappNum}?text={encodeURIComponent(`Quiero la licencia ${beat.licenses[selectedLicense].name} ($${beat.licenses[selectedLicense].priceMXN} MXN / $${beat.licenses[selectedLicense].priceUSD} USD) de ${beat.name}`)}"
 								target="_blank"
 								rel="noopener"
 								onclick={() => analytics.track('license', 'buy_click', { lbl: beat?.id, val: beat?.licenses?.[selectedLicense]?.priceMXN, meta: beat?.licenses?.[selectedLicense]?.name })}

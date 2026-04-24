@@ -118,8 +118,20 @@
 	});
 
 	onMount(() => {
-		const timer = setTimeout(() => { loaderFading = true; }, 800);
-		const removeTimer = setTimeout(() => { loaderVisible = false; }, 1300);
+		// Loader: wait for settings OR timeout at 3s
+		function startLoaderFade() {
+			if (loaderFading) return;
+			loaderFading = true;
+			setTimeout(() => { loaderVisible = false; }, 500);
+		}
+
+		// Fade when settings load
+		const unsubSettings = settings.subscribe((s) => {
+			if (s.data && !s.loading) startLoaderFade();
+		});
+
+		// Hard timeout: max 3s loader
+		const timeout = setTimeout(startLoaderFade, 3000);
 
 		// Detect system theme preference
 		const mq = window.matchMedia('(prefers-color-scheme: light)');
@@ -183,8 +195,8 @@
 		// Reveal handled by use:reveal action per-element
 
 		return () => {
-			clearTimeout(timer);
-			clearTimeout(removeTimer);
+			clearTimeout(timeout);
+			unsubSettings();
 			mq.removeEventListener('change', onThemeChange);
 			window.removeEventListener('scroll', onScroll);
 			window.removeEventListener('mousemove', onMouseMove);

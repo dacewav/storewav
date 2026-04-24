@@ -78,6 +78,22 @@
 						['theme.particlesColor', ''],
 						['theme.particlesOpacity', 0.3],
 						['theme.lightMode', false],
+						['theme.heroGlowOn', false],
+						['theme.heroGlowClr', ''],
+						['theme.heroGlowInt', 1],
+						['theme.heroGlowBlur', 20],
+						['theme.heroStrokeOn', false],
+						['theme.heroStrokeClr', ''],
+						['theme.heroStrokeW', 1],
+						['theme.glowActive', false],
+						['theme.glowAnim', 'none'],
+						['theme.glowAnimSpeed', 2],
+						['theme.btnOpacityHover', 1],
+						['theme.waveOpacityOff', 0.3],
+						['theme.waveOpacityOn', 0.8],
+						['theme.btnLicBg', ''],
+						['theme.btnLicClr', ''],
+						['theme.btnLicBdr', ''],
 					];
 					for (const [path, val] of defaults) {
 						settings.updateField(path, val);
