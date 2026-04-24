@@ -23,18 +23,6 @@
 
 	// Labels from settings
 	let labels = $derived((s?.labels ?? {}) as LabelSettings);
-	let licenseLabels = $derived({
-		basic: labels.licenseBasic ?? 'Basic',
-		premium: labels.licensePremium ?? 'Premium',
-		unlimited: labels.licenseUnlimited ?? 'Unlimited',
-		exclusive: labels.licenseExclusive ?? 'Exclusive'
-	});
-	let licenseDescs = $derived({
-		basic: labels.licenseBasicDesc ?? 'MP3 · 1 uso',
-		premium: labels.licensePremiumDesc ?? 'WAV · Sin tag',
-		unlimited: labels.licenseUnlimitedDesc ?? 'WAV + Stems',
-		exclusive: labels.licenseExclusiveDesc ?? 'Exclusivo total'
-	});
 	let labelPreview = $derived(labels.preview ?? 'Escuchar preview');
 	let labelBuy = $derived(labels.buy ?? 'Comprar');
 	let labelFrom = $derived(labels.priceFrom ?? 'Desde');
@@ -60,12 +48,12 @@
 	);
 
 	// Selected license
-	let selectedLicense = $state('');
+	let selectedLicense = $state(-1);
 
 	// Reset on beat change + track page view
 	$effect(() => {
 		if (beatId) {
-			selectedLicense = '';
+			selectedLicense = -1;
 			analytics.track('beat_page_view', { beatId });
 		}
 	});
@@ -74,28 +62,28 @@
 		if (!beat) return;
 		player.play({
 			id: beat.id,
-			title: beat.title,
-			artist: beat.artist,
-			coverUrl: beat.coverUrl,
-			audioUrl: beat.audioUrl
+			name: beat.name,
+			artist: beat.artist ?? '',
+			imageUrl: beat.imageUrl ?? '',
+			audioUrl: beat.audioUrl ?? ''
 		});
-		analytics.track('beat_play', { beatId: beat.id, title: beat.title, source: 'beat_page' });
+		analytics.track('beat_play', { beatId: beat.id, name: beat.name, source: 'beat_page' });
 	}
 
-	function selectLicense(key: string) {
-		selectedLicense = selectedLicense === key ? '' : key;
-		if (selectedLicense) {
-			analytics.track('license_select', { beatId: beat?.id, license: key });
+	function selectLicense(index: number) {
+		selectedLicense = selectedLicense === index ? -1 : index;
+		if (selectedLicense >= 0) {
+			analytics.track('license_select', { beatId: beat?.id, license: beat?.licenses?.[selectedLicense]?.name });
 		}
 	}
 
 	function handleRelatedPlay(b: Beat & { id: string }) {
 		player.play({
 			id: b.id,
-			title: b.title,
-			artist: b.artist,
-			coverUrl: b.coverUrl,
-			audioUrl: b.audioUrl
+			name: b.name,
+			artist: b.artist ?? '',
+			imageUrl: b.imageUrl ?? '',
+			audioUrl: b.audioUrl ?? ''
 		});
 	}
 
@@ -111,12 +99,12 @@
 
 <svelte:head>
 	{#if beat}
-		<title>{beat.title} — {beat.artist}</title>
-		<meta name="description" content={beat.description || `${beat.title} de ${beat.artist}. ${beat.bpm} BPM, ${beat.key}, ${beat.genre}.`} />
-		<meta property="og:title" content="{beat.title} — {beat.artist}" />
+		<title>{beat.name} — {beat.artist ?? ''}</title>
+		<meta name="description" content={beat.description || `${beat.name}${beat.artist ? ` de ${beat.artist}` : ''}. ${beat.bpm} BPM, ${beat.key}, ${beat.genre}.`} />
+		<meta property="og:title" content="{beat.name}{beat.artist ? ` — ${beat.artist}` : ''}" />
 		<meta property="og:description" content={beat.description || `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`} />
-		{#if beat.coverUrl}
-			<meta property="og:image" content={beat.coverUrl} />
+		{#if beat.imageUrl}
+			<meta property="og:image" content={beat.imageUrl} />
 		{/if}
 		<meta property="og:type" content="music.song" />
 	{:else}
@@ -156,8 +144,8 @@
 			<div class="beat-main">
 				<!-- Cover -->
 				<div class="beat-cover">
-					{#if beat.coverUrl}
-						<img src={beat.coverUrl} alt={beat.title} />
+					{#if beat.imageUrl}
+						<img src={beat.imageUrl} alt={beat.name} />
 					{:else}
 						<div class="beat-cover-placeholder">
 							<Icon name="music" size={64} />
@@ -183,7 +171,7 @@
 				<!-- Header -->
 				<div class="beat-header" use:staggerReveal={{ delay: 60 }}>
 					<div class="beat-title-row">
-						<h1 class="beat-title">{beat.title}</h1>
+						<h1 class="beat-title">{beat.name}</h1>
 						<button
 							class="beat-wish-btn"
 							class:active={inWishlist}
@@ -193,7 +181,9 @@
 							<Icon name="heart" size={18} filled={inWishlist} />
 						</button>
 					</div>
-					<p class="beat-artist">{beat.artist}</p>
+					{#if beat.artist}
+						<p class="beat-artist">{beat.artist}</p>
+					{/if}
 				</div>
 
 				<!-- Meta badges -->
@@ -211,22 +201,22 @@
 				{/if}
 
 				<!-- Platforms -->
-				{#if beat.platforms && (beat.platforms.spotify || beat.platforms.youtube || beat.platforms.soundCloud)}
+				{#if beat.spotify || beat.youtube || beat.soundcloud}
 					<div class="beat-platforms">
-						{#if beat.platforms.spotify}
-							<a class="plat-link plat-spotify" href={beat.platforms.spotify} target="_blank" rel="noopener" aria-label="Spotify">
+						{#if beat.spotify}
+							<a class="plat-link plat-spotify" href={beat.spotify} target="_blank" rel="noopener" aria-label="Spotify">
 								<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
 								<span>Spotify</span>
 							</a>
 						{/if}
-						{#if beat.platforms.youtube}
-							<a class="plat-link plat-youtube" href={beat.platforms.youtube} target="_blank" rel="noopener" aria-label="YouTube">
+						{#if beat.youtube}
+							<a class="plat-link plat-youtube" href={beat.youtube} target="_blank" rel="noopener" aria-label="YouTube">
 								<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
 								<span>YouTube</span>
 							</a>
 						{/if}
-						{#if beat.platforms.soundCloud}
-							<a class="plat-link plat-soundcloud" href={beat.platforms.soundCloud} target="_blank" rel="noopener" aria-label="SoundCloud">
+						{#if beat.soundcloud}
+							<a class="plat-link plat-soundcloud" href={beat.soundcloud} target="_blank" rel="noopener" aria-label="SoundCloud">
 								<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1.175 12.225c-.051 0-.094.046-.101.1l-.233 2.154.233 2.105c.007.058.05.098.101.098.05 0 .09-.04.099-.098l.255-2.105-.27-2.154c-.009-.06-.05-.1-.1-.1m-.899.828c-.06 0-.091.037-.104.094L0 14.479l.172 1.282c.013.06.045.094.104.094.059 0 .09-.037.104-.094l.199-1.282-.199-1.332c-.014-.057-.045-.094-.104-.094m1.79-.85c-.063 0-.109.048-.116.109l-.217 2.1.217 2.043c.007.064.053.109.116.109.063 0 .109-.045.116-.109l.248-2.043-.248-2.1c-.007-.061-.053-.109-.116-.109m.89-.556c-.074 0-.12.056-.127.124l-.2 2.656.2 2.554c.007.067.053.123.127.123.073 0 .12-.056.127-.123l.227-2.554-.227-2.656c-.007-.068-.054-.124-.127-.124m.896-.271c-.084 0-.134.065-.14.138l-.184 2.927.184 2.707c.006.076.056.138.14.138.083 0 .134-.062.14-.138l.209-2.707-.209-2.927c-.006-.073-.057-.138-.14-.138m.904-.184c-.094 0-.145.074-.152.152l-.168 3.111.168 2.786c.007.08.058.152.152.152.093 0 .145-.072.152-.152l.19-2.786-.19-3.111c-.007-.078-.059-.152-.152-.152m.9-.283c-.104 0-.156.083-.162.165l-.153 3.394.153 2.82c.006.086.058.165.162.165.103 0 .156-.079.163-.165l.172-2.82-.172-3.394c-.007-.082-.06-.165-.163-.165m.915-.163c-.114 0-.168.092-.173.178l-.138 3.557.138 2.836c.005.09.059.178.173.178.113 0 .168-.088.174-.178l.155-2.836-.155-3.557c-.006-.086-.061-.178-.174-.178m.916-.072c-.124 0-.18.101-.185.19l-.122 3.629.122 2.842c.005.094.061.19.185.19.123 0 .18-.096.186-.19l.138-2.842-.138-3.629c-.006-.089-.063-.19-.186-.19m.92.028c-.134 0-.192.11-.197.202l-.107 3.601.107 2.843c.005.098.063.202.197.202.133 0 .192-.104.198-.202l.12-2.843-.12-3.601c-.006-.092-.065-.202-.198-.202m2.783-1.069c-.196 0-.356.164-.367.374l-.075 4.67.075 2.807c.011.21.171.374.367.374.195 0 .356-.164.367-.374l.085-2.807-.085-4.67c-.011-.21-.172-.374-.367-.374m.937-.155c-.145 0-.208.118-.213.214l-.09 4.825.09 2.803c.005.102.068.214.213.214.144 0 .208-.112.214-.214l.101-2.803-.101-4.825c-.006-.096-.07-.214-.214-.214m2.901-.109c-.019-.006-.037-.006-.056-.006-.155 0-.223.127-.228.226l-.075 4.94.075 2.79c.005.105.073.226.228.226.019 0 .037 0 .056-.006.173-.035.265-.164.26-.32l-.086-2.69.086-4.94c.005-.156-.087-.286-.26-.32m-.945.176c-.165 0-.235.136-.24.243l-.082 4.764.082 2.792c.005.112.075.243.24.243.164 0 .235-.131.24-.243l.093-2.792-.093-4.764c-.005-.107-.076-.243-.24-.243m.942-.019c-.174 0-.244.145-.249.256l-.068 4.783.068 2.787c.005.117.075.256.249.256.173 0 .244-.139.25-.256l.076-2.787-.076-4.783c-.006-.111-.077-.256-.25-.256m5.855 1.371c-.424 0-.827.082-1.204.229-.196-2.205-2.07-3.924-4.359-3.924-.565 0-1.112.109-1.618.305-.193.075-.242.148-.244.293v7.521c.002.15.114.272.264.286h7.161c1.341 0 2.428-1.087 2.428-2.428 0-1.342-1.087-2.428-2.428-2.428"/></svg>
 								<span>SoundCloud</span>
 							</a>
@@ -235,40 +225,40 @@
 				{/if}
 
 				<!-- Licenses -->
-				{#if beat.licenses}
+				{#if beat.licenses?.length}
 					<div class="licenses">
 						<div class="licenses-header">
 							<h3 class="licenses-title">{labelLicenses}</h3>
-							{#if selectedLicense}
+							{#if selectedLicense >= 0 && beat.licenses[selectedLicense]}
 								<span class="selected-badge">
-									{licenseLabels[selectedLicense as keyof typeof licenseLabels]} · ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
+									{beat.licenses[selectedLicense].name} · ${beat.licenses[selectedLicense].priceMXN}
 								</span>
 							{/if}
 						</div>
 						<div class="licenses-grid">
-							{#each Object.entries(beat.licenses) as [key, price]}
+							{#each beat.licenses as lic, i}
 								<button
 									class="license-item"
-									class:selected={selectedLicense === key}
-									onclick={() => selectLicense(key)}
+									class:selected={selectedLicense === i}
+									onclick={() => selectLicense(i)}
 								>
-									<div class="license-name">{licenseLabels[key as keyof typeof licenseLabels] ?? key}</div>
-									<div class="license-price">${price}</div>
-									{#if licenseDescs[key as keyof typeof licenseDescs]}
-										<div class="license-desc">{licenseDescs[key as keyof typeof licenseDescs]}</div>
+									<div class="license-name">{lic.name}</div>
+									<div class="license-price">${lic.priceMXN}</div>
+									{#if lic.description}
+										<div class="license-desc">{lic.description}</div>
 									{/if}
 								</button>
 							{/each}
 						</div>
-						{#if selectedLicense}
+						{#if selectedLicense >= 0 && beat.licenses[selectedLicense]}
 							<a
 								class="buy-btn"
-								href="https://wa.me/{whatsappNum}?text={encodeURIComponent(`Quiero la licencia ${licenseLabels[selectedLicense as keyof typeof licenseLabels]} de ${beat.title}`)}"
+								href="https://wa.me/{whatsappNum}?text={encodeURIComponent(`Quiero la licencia ${beat.licenses[selectedLicense].name} de ${beat.name}`)}"
 								target="_blank"
 								rel="noopener"
-								onclick={() => analytics.track('buy_click', { beatId: beat?.id, license: selectedLicense, price: beat?.licenses?.[selectedLicense as keyof typeof beat.licenses] })}
+								onclick={() => analytics.track('buy_click', { beatId: beat?.id, license: beat?.licenses?.[selectedLicense]?.name, price: beat?.licenses?.[selectedLicense]?.priceMXN })}
 							>
-								{labelBuy} {licenseLabels[selectedLicense as keyof typeof licenseLabels]} — ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
+								{labelBuy} {beat.licenses[selectedLicense].name} — ${beat.licenses[selectedLicense].priceMXN}
 							</a>
 						{/if}
 					</div>

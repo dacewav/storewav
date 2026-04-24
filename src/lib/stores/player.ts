@@ -10,9 +10,9 @@ import { browser } from '$app/environment';
 export type PlayerState = {
 	playing: boolean;
 	beatId: string | null;
-	title: string;
+	name: string;
 	artist: string;
-	coverUrl: string;
+	imageUrl: string;
 	audioUrl: string;
 	currentTime: number;
 	duration: number;
@@ -23,9 +23,9 @@ export type PlayerState = {
 const DEFAULT: PlayerState = {
 	playing: false,
 	beatId: null,
-	title: '',
+	name: '',
 	artist: '',
-	coverUrl: '',
+	imageUrl: '',
 	audioUrl: '',
 	currentTime: 0,
 	duration: 0,
@@ -80,7 +80,7 @@ function detachAudioListeners() {
 	audioListenersAttached = false;
 }
 
-function play(beat: { id: string; title: string; artist: string; coverUrl: string; audioUrl: string }, retries = 2) {
+function play(beat: { id: string; name: string; artist: string; imageUrl: string; audioUrl: string }, retries = 2) {
 	const a = getAudio();
 	if (!a) return; // SSR guard
 
@@ -140,9 +140,9 @@ function play(beat: { id: string; title: string; artist: string; coverUrl: strin
 		...s,
 		playing: true,
 		beatId: beat.id,
-		title: beat.title,
+		name: beat.name,
 		artist: beat.artist,
-		coverUrl: beat.coverUrl,
+		imageUrl: beat.imageUrl,
 		audioUrl: beat.audioUrl
 	}));
 }

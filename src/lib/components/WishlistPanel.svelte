@@ -25,10 +25,10 @@
 	function playBeat(beat: typeof wishBeats[0]) {
 		player.play({
 			id: beat.id,
-			title: beat.title,
-			artist: beat.artist,
-			coverUrl: beat.coverUrl,
-			audioUrl: beat.audioUrl
+			name: beat.name,
+			artist: beat.artist ?? '',
+			imageUrl: beat.imageUrl ?? '',
+			audioUrl: beat.audioUrl ?? ''
 		});
 	}
 </script>
@@ -55,15 +55,15 @@
 			{:else}
 				{#each wishBeats as beat (beat.id)}
 					<div class="wish-item">
-						<button class="wish-cover" onclick={() => playBeat(beat)} aria-label="Reproducir {beat.title}">
-							{#if beat.coverUrl}
-								<img src={beat.coverUrl} alt="" loading="lazy" />
+						<button class="wish-cover" onclick={() => playBeat(beat)} aria-label="Reproducir {beat.name}">
+							{#if beat.imageUrl}
+								<img src={beat.imageUrl} alt="" loading="lazy" />
 							{:else}
 								<span>🎵</span>
 							{/if}
 						</button>
 						<div class="wish-info">
-							<div class="wish-title">{beat.title}</div>
+							<div class="wish-title">{beat.name}</div>
 							<div class="wish-meta">{beat.genre} · {beat.bpm} BPM</div>
 						</div>
 						<button class="wish-remove" onclick={() => wishlist.toggle(beat.id)} aria-label="Quitar">

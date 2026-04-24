@@ -17,7 +17,7 @@
 	let saveStatus = $state<'saved' | 'saving' | 'unsaved' | 'error'>('saved');
 
 	async function handleSave() {
-		if (!beat || !beat.title?.trim()) {
+		if (!beat || !beat.name?.trim()) {
 			saveStatus = 'error';
 			return;
 		}

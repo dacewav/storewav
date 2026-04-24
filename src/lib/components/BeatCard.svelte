@@ -40,11 +40,16 @@
 	let inlineCSS = $derived(cardStyleToCSS(cardStyle, accentRgb));
 	let hasShimmer = $derived(cardStyle.shimmer === true);
 
+	function lowestPrice(beat: Beat & { id: string }): number {
+		if (!beat.licenses?.length) return 0;
+		return Math.min(...beat.licenses.map(l => l.priceMXN));
+	}
+
 	function handleWishlist(e: MouseEvent) {
 		e.stopPropagation();
 		const wasIn = wishlist.isIn(beat.id);
 		wishlist.toggle(beat.id);
-		analytics.track('wishlist_toggle', { beatId: beat.id, title: beat.title, added: !wasIn });
+		analytics.track('wishlist_toggle', { beatId: beat.id, name: beat.name, added: !wasIn });
 	}
 
 	function handlePlay(e: MouseEvent) {
@@ -80,8 +85,8 @@
 
 	<!-- Cover -->
 	<div class="beat-cover">
-		{#if beat.coverUrl}
-			<img src={beat.coverUrl} alt={beat.title} loading="lazy" />
+		{#if beat.imageUrl}
+			<img src={beat.imageUrl} alt={beat.name} loading="lazy" />
 		{:else}
 			<div class="beat-cover-placeholder">
 				<Icon name="music" size={32} />
@@ -89,7 +94,7 @@
 		{/if}
 
 		<!-- Play overlay -->
-		<button class="beat-play" onclick={handlePlay} aria-label="Reproducir {beat.title}">
+		<button class="beat-play" onclick={handlePlay} aria-label="Reproducir {beat.name}">
 			<Icon name="play" size={20} />
 		</button>
 
@@ -110,7 +115,7 @@
 		{#if isCurrentBeat}
 			<div class="card-waveform">
 				{#each Array(16) as _, i}
-					<div class="wave-bar" style="--delay: {i * 0.05}s; --h: {20 + (((beat.title?.charCodeAt(i % (beat.title.length || 1)) ?? 0) * (i + 1) * 7) % 60)}%"></div>
+					<div class="wave-bar" style="--delay: {i * 0.05}s; --h: {20 + (((beat.name?.charCodeAt(i % (beat.name.length || 1)) ?? 0) * (i + 1) * 7) % 60)}%"></div>
 				{/each}
 			</div>
 		{/if}
@@ -118,7 +123,7 @@
 
 	<!-- Info -->
 	<div class="beat-info">
-		<div class="beat-title">{beat.title}</div>
+		<div class="beat-title">{beat.name}</div>
 		<div class="beat-meta">
 			<span>{beat.bpm} BPM</span>
 			<span class="meta-dot">·</span>
@@ -133,7 +138,7 @@
 		{/if}
 		<div class="beat-price">
 			<span class="price-from">{labelFrom}</span>
-			<span class="price-amount">${beat.licenses?.basic ?? 29.99}</span>
+			<span class="price-amount">${lowestPrice(beat)}</span>
 		</div>
 	</div>
 </div>

@@ -89,6 +89,11 @@
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
 	let filters: FilterState = $state({ search: '', genre: '', key: '', sort: 'newest', tags: [] });
 
+	function lowestPrice(beat: Beat & { id: string }): number {
+		if (!beat.licenses?.length) return 0;
+		return Math.min(...beat.licenses.map(l => l.priceMXN));
+	}
+
 	// Filtered + sorted beats
 	let filteredBeats = $derived.by(() => {
 		let list = [...beats];
@@ -97,7 +102,7 @@
 		if (filters.search?.trim()) {
 			const q = filters.search.trim().toLowerCase();
 			list = list.filter(b =>
-				b.title?.toLowerCase().includes(q) ||
+				b.name?.toLowerCase().includes(q) ||
 				b.artist?.toLowerCase().includes(q) ||
 				b.genre?.toLowerCase().includes(q)
 			);
@@ -120,14 +125,14 @@
 
 		// Sort
 		switch (filters.sort) {
-			case 'newest': list.sort((a, b) => b.createdAt - a.createdAt); break;
-			case 'oldest': list.sort((a, b) => a.createdAt - b.createdAt); break;
-			case 'name-az': list.sort((a, b) => a.title.localeCompare(b.title)); break;
-			case 'name-za': list.sort((a, b) => b.title.localeCompare(a.title)); break;
+			case 'newest': list.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '')); break;
+			case 'oldest': list.sort((a, b) => (a.date ?? '').localeCompare(b.date ?? '')); break;
+			case 'name-az': list.sort((a, b) => a.name.localeCompare(b.name)); break;
+			case 'name-za': list.sort((a, b) => b.name.localeCompare(a.name)); break;
 			case 'bpm-asc': list.sort((a, b) => a.bpm - b.bpm); break;
 			case 'bpm-desc': list.sort((a, b) => b.bpm - a.bpm); break;
-			case 'price-asc': list.sort((a, b) => (a.licenses?.basic ?? 0) - (b.licenses?.basic ?? 0)); break;
-			case 'price-desc': list.sort((a, b) => (b.licenses?.basic ?? 0) - (a.licenses?.basic ?? 0)); break;
+			case 'price-asc': list.sort((a, b) => lowestPrice(a) - lowestPrice(b)); break;
+			case 'price-desc': list.sort((a, b) => lowestPrice(b) - lowestPrice(a)); break;
 		}
 
 		return list;
@@ -136,16 +141,16 @@
 	function handlePlay(beat: Beat & { id: string }) {
 		player.play({
 			id: beat.id,
-			title: beat.title,
-			artist: beat.artist,
-			coverUrl: beat.coverUrl,
-			audioUrl: beat.audioUrl
+			name: beat.name,
+			artist: beat.artist ?? '',
+			imageUrl: beat.imageUrl ?? '',
+			audioUrl: beat.audioUrl ?? ''
 		});
-		analytics.track('beat_play', { beatId: beat.id, title: beat.title });
+		analytics.track('beat_play', { beatId: beat.id, name: beat.name });
 	}
 
 	function handleBeatClick(beat: Beat & { id: string }) {
-		analytics.track('beat_click', { beatId: beat.id, title: beat.title });
+		analytics.track('beat_click', { beatId: beat.id, name: beat.name });
 		goto(`/beat/${beat.id}`);
 	}
 </script>

@@ -38,13 +38,13 @@
 		<div class="player-inner">
 			<!-- Cover + Info -->
 			<div class="player-info">
-				{#if state.coverUrl}
-					<img class="player-cover" src={state.coverUrl} alt="" />
+				{#if state.imageUrl}
+					<img class="player-cover" src={state.imageUrl} alt="" />
 				{:else}
 					<div class="player-cover player-cover-placeholder">🎵</div>
 				{/if}
 				<div class="player-text">
-					<div class="player-title">{state.title}</div>
+					<div class="player-title">{state.name}</div>
 					<div class="player-artist">{state.artist}</div>
 				</div>
 			</div>

@@ -10,60 +10,46 @@
 		beat,
 		labelPreview = 'Escuchar preview',
 		labelLicenses = 'Licencias',
-		labelBuy = 'Comprar',
-		licenseLabels = {
-			basic: 'Basic',
-			premium: 'Premium',
-			unlimited: 'Unlimited',
-			exclusive: 'Exclusive'
-		},
-		licenseDescs = {
-			basic: 'MP3 · 1 uso',
-			premium: 'WAV · Sin tag',
-			unlimited: 'WAV + Stems',
-			exclusive: 'Exclusivo total'
-		}
+		labelBuy = 'Comprar'
 	}: {
 		open?: boolean;
 		beat: (Beat & { id: string }) | null;
 		labelPreview?: string;
 		labelLicenses?: string;
 		labelBuy?: string;
-		licenseLabels?: Record<string, string>;
-		licenseDescs?: Record<string, string>;
 	} = $props();
 
 	let inWishlist = $derived(beat ? wishlist.isIn(beat.id) : null);
-	let selectedLicense = $state('');
+	let selectedLicense = $state(-1);
 
 	function handlePlay() {
 		if (!beat) return;
 		player.play({
 			id: beat.id,
-			title: beat.title,
-			artist: beat.artist,
-			coverUrl: beat.coverUrl,
-			audioUrl: beat.audioUrl
+			name: beat.name,
+			artist: beat.artist ?? '',
+			imageUrl: beat.imageUrl ?? '',
+			audioUrl: beat.audioUrl ?? ''
 		});
 	}
 
-	function selectLicense(key: string) {
-		selectedLicense = selectedLicense === key ? '' : key;
+	function selectLicense(index: number) {
+		selectedLicense = selectedLicense === index ? -1 : index;
 	}
 
 	// Reset selected license when modal opens with new beat
 	$effect(() => {
-		if (beat) selectedLicense = '';
+		if (beat) selectedLicense = -1;
 	});
 </script>
 
 {#if beat}
-	<Modal bind:open title={beat.title} maxWidth="700px">
+	<Modal bind:open title={beat.name} maxWidth="700px">
 		<div class="modal-beat">
 			<!-- Cover -->
 			<div class="beat-cover">
-				{#if beat.coverUrl}
-					<img src={beat.coverUrl} alt={beat.title} />
+				{#if beat.imageUrl}
+					<img src={beat.imageUrl} alt={beat.name} />
 				{:else}
 					<div class="beat-cover-placeholder">
 						<Icon name="music" size={48} />
@@ -75,8 +61,10 @@
 			<!-- Info -->
 			<div class="beat-header">
 				<div>
-					<h2 class="beat-title">{beat.title}</h2>
-					<p class="beat-artist">{beat.artist}</p>
+					<h2 class="beat-title">{beat.name}</h2>
+					{#if beat.artist}
+						<p class="beat-artist">{beat.artist}</p>
+					{/if}
 				</div>
 				<button class="beat-wish-btn" class:active={$inWishlist} onclick={() => beat && wishlist.toggle(beat.id)} aria-label="Favoritos">
 					<Icon name="heart" size={18} filled={!!$inWishlist} />
@@ -104,39 +92,39 @@
 			</button>
 
 			<!-- Licenses -->
-			{#if beat.licenses}
+			{#if beat.licenses?.length}
 				<div class="licenses">
 					<div class="licenses-header">
 						<div class="licenses-title">{labelLicenses}</div>
-						{#if selectedLicense}
+						{#if selectedLicense >= 0 && beat.licenses[selectedLicense]}
 							<span class="selected-badge">
-								{licenseLabels[selectedLicense]} · ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
+								{beat.licenses[selectedLicense].name} · ${beat.licenses[selectedLicense].priceMXN}
 							</span>
 						{/if}
 					</div>
 					<div class="licenses-grid">
-						{#each Object.entries(beat.licenses) as [key, price]}
+						{#each beat.licenses as lic, i}
 							<button
 								class="license-item"
-								class:selected={selectedLicense === key}
-								onclick={() => selectLicense(key)}
+								class:selected={selectedLicense === i}
+								onclick={() => selectLicense(i)}
 							>
-								<div class="license-name">{licenseLabels[key] ?? key}</div>
-								<div class="license-price">${price}</div>
-								{#if licenseDescs[key]}
-									<div class="license-desc">{licenseDescs[key]}</div>
+								<div class="license-name">{lic.name}</div>
+								<div class="license-price">${lic.priceMXN}</div>
+								{#if lic.description}
+									<div class="license-desc">{lic.description}</div>
 								{/if}
 							</button>
 						{/each}
 					</div>
-					{#if selectedLicense}
+					{#if selectedLicense >= 0 && beat.licenses[selectedLicense]}
 						<a
 							class="buy-btn"
-							href="https://wa.me?text=Quiero%20la%20licencia%20{licenseLabels[selectedLicense]}%20de%20{encodeURIComponent(beat.title)}"
+							href="https://wa.me?text=Quiero%20la%20licencia%20{encodeURIComponent(beat.licenses[selectedLicense].name)}%20de%20{encodeURIComponent(beat.name)}"
 							target="_blank"
 							rel="noopener"
 						>
-							{labelBuy} {licenseLabels[selectedLicense]} — ${beat.licenses[selectedLicense as keyof typeof beat.licenses]}
+							{labelBuy} {beat.licenses[selectedLicense].name} — ${beat.licenses[selectedLicense].priceMXN}
 						</a>
 					{/if}
 				</div>

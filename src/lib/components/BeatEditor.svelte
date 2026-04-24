@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Card, Badge } from '$lib/components';
 	import FileUpload from './FileUpload.svelte';
-	import type { Beat, Platforms } from '$lib/stores/beats';
+	import type { Beat } from '$lib/stores/beats';
 
 	let {
 		beat = $bindable(),
@@ -25,7 +25,6 @@
 	const GENRES = ['Trap', 'R&B', 'Drill', 'Corrido', 'Ambient', 'Pop', 'Hip-Hop', 'Reggaeton', 'Otro'];
 	const KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
 		'Am', 'Bbm', 'Bm', 'Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m'];
-	const LICENSE_KEYS = ['basic', 'premium', 'unlimited', 'exclusive'] as const;
 
 	// Keyboard shortcuts
 	function handleKeydown(e: KeyboardEvent) {
@@ -56,31 +55,32 @@
 		}
 	}
 
-	// Platforms
-	function updatePlatform(key: keyof Platforms, val: string) {
-		if (!beat.platforms) beat.platforms = {};
-		beat.platforms[key] = val;
+	// Licenses — array format matching deployed rules
+	function updateLicensePrice(index: number, field: 'priceMXN' | 'priceUSD', val: number) {
+		if (!beat.licenses) beat.licenses = [];
+		beat.licenses = beat.licenses.map((l, i) => i === index ? { ...l, [field]: val } : l);
 	}
 
-	// Licenses
-	function updateLicense(key: string, val: number) {
-		if (!beat.licenses) beat.licenses = { basic: 0, premium: 0, unlimited: 0, exclusive: 0 };
-		(beat.licenses as Record<string, number>)[key] = val;
+	function updateLicenseField(index: number, field: 'name' | 'description', val: string) {
+		if (!beat.licenses) beat.licenses = [];
+		beat.licenses = beat.licenses.map((l, i) => i === index ? { ...l, [field]: val } : l);
 	}
 
-	function updateLicenseField(key: string, field: 'name' | 'desc', val: string) {
-		if (field === 'name') {
-			if (!beat.licenseNames) beat.licenseNames = {};
-			(beat.licenseNames as Record<string, string>)[key] = val;
-		} else {
-			if (!beat.licenseDescs) beat.licenseDescs = {};
-			(beat.licenseDescs as Record<string, string>)[key] = val;
-		}
+	function addLicense() {
+		beat.licenses = [...(beat.licenses ?? []), { name: '', description: '', priceMXN: 0, priceUSD: 0 }];
+	}
+
+	function removeLicense(index: number) {
+		beat.licenses = (beat.licenses ?? []).filter((_, i) => i !== index);
 	}
 
 	function loadDefaultLics() {
-		beat.licenseNames = { basic: 'Basic', premium: 'Premium', unlimited: 'Unlimited', exclusive: 'Exclusive' };
-		beat.licenseDescs = { basic: 'MP3 · 1 uso', premium: 'WAV · Sin tag', unlimited: 'WAV + Stems', exclusive: 'Exclusivo total' };
+		beat.licenses = [
+			{ name: 'Basic', description: 'MP3 · 1 uso', priceMXN: 350, priceUSD: 20 },
+			{ name: 'Premium', description: 'WAV · Sin tag', priceMXN: 750, priceUSD: 45 },
+			{ name: 'Unlimited', description: 'WAV + Stems', priceMXN: 1500, priceUSD: 90 },
+			{ name: 'Exclusive', description: 'Exclusivo total', priceMXN: 5000, priceUSD: 300 }
+		];
 	}
 
 	// Delete confirm
@@ -157,9 +157,9 @@
 		<Card>
 			<h3 class="section-title">Información básica</h3>
 			<div class="grid-2">
-				<div class="field" class:required-empty={!beat.title?.trim()}>
-					<label for="b-title">Título *</label>
-					<input id="b-title" type="text" bind:value={beat.title} placeholder="Nombre del beat" />
+				<div class="field" class:required-empty={!beat.name?.trim()}>
+					<label for="b-title">Nombre *</label>
+					<input id="b-title" type="text" bind:value={beat.name} placeholder="Nombre del beat" />
 				</div>
 				<div class="field">
 					<label for="b-artist">Artista</label>
@@ -224,30 +224,41 @@
 		<Card>
 			<div class="section-header">
 				<h3 class="section-title">Licencias y precios</h3>
-				<button class="btn-ghost" onclick={loadDefaultLics}>↓ Cargar defaults</button>
+				<div class="lic-actions">
+					<button class="btn-ghost" onclick={loadDefaultLics}>↓ Cargar defaults</button>
+					<button class="btn-ghost" onclick={addLicense}>+ Agregar</button>
+				</div>
 			</div>
 			<div class="lic-grid">
-				{#each LICENSE_KEYS as lk}
+				{#each (beat.licenses ?? []) as lic, i}
 					<div class="lic-row">
 						<div class="lic-header">
-							<span class="lic-key">{lk}</span>
+							<span class="lic-key">Licencia #{i + 1}</span>
+							<button class="btn-lic-remove" onclick={() => removeLicense(i)}>✕</button>
 						</div>
-						<div class="grid-3">
+						<div class="grid-2">
 							<div class="field">
-								<label for="lic-name-{lk}">Nombre</label>
-								<input id="lic-name-{lk}" type="text" value={beat.licenseNames?.[lk] ?? ''} oninput={(e) => updateLicenseField(lk, 'name', e.currentTarget.value)} placeholder={lk.charAt(0).toUpperCase() + lk.slice(1)} />
+								<label for="lic-name-{i}">Nombre</label>
+								<input id="lic-name-{i}" type="text" value={lic.name} oninput={(e) => updateLicenseField(i, 'name', e.currentTarget.value)} placeholder="Basic" />
 							</div>
 							<div class="field">
-								<label for="lic-price-{lk}">Precio (MXN)</label>
-								<input id="lic-price-{lk}" type="number" value={beat.licenses?.[lk] ?? 0} oninput={(e) => updateLicense(lk, +e.currentTarget.value)} min="0" />
+								<label for="lic-desc-{i}">Descripción</label>
+								<input id="lic-desc-{i}" type="text" value={lic.description ?? ''} oninput={(e) => updateLicenseField(i, 'description', e.currentTarget.value)} placeholder="MP3 · 1 uso" />
 							</div>
 							<div class="field">
-								<label for="lic-desc-{lk}">Descripción</label>
-								<input id="lic-desc-{lk}" type="text" value={beat.licenseDescs?.[lk] ?? ''} oninput={(e) => updateLicenseField(lk, 'desc', e.currentTarget.value)} placeholder="MP3 · 1 uso" />
+								<label for="lic-mxn-{i}">Precio MXN</label>
+								<input id="lic-mxn-{i}" type="number" value={lic.priceMXN} oninput={(e) => updateLicensePrice(i, 'priceMXN', +e.currentTarget.value)} min="0" />
+							</div>
+							<div class="field">
+								<label for="lic-usd-{i}">Precio USD</label>
+								<input id="lic-usd-{i}" type="number" value={lic.priceUSD} oninput={(e) => updateLicensePrice(i, 'priceUSD', +e.currentTarget.value)} min="0" />
 							</div>
 						</div>
 					</div>
 				{/each}
+				{#if (beat.licenses ?? []).length === 0}
+					<p class="empty-lics">Sin licencias. Carga defaults o agrega una.</p>
+				{/if}
 			</div>
 		</Card>
 	{/if}
@@ -262,7 +273,7 @@
 				<div class="media-item">
 					<div class="media-label">🖼️ Cover</div>
 					<FileUpload
-						bind:value={beat.coverUrl}
+						bind:value={beat.imageUrl}
 						folder="beats/covers"
 						{beatId}
 						accept="image/*"
@@ -302,7 +313,7 @@
 			<div class="grid-2">
 				<div class="field">
 					<label for="b-cover-url">Cover URL</label>
-					<input id="b-cover-url" type="url" bind:value={beat.coverUrl} placeholder="https://..." />
+					<input id="b-cover-url" type="url" bind:value={beat.imageUrl} placeholder="https://..." />
 				</div>
 				<div class="field">
 					<label for="b-audio-url">Audio URL</label>
@@ -318,15 +329,15 @@
 			<h3 class="section-title">Enlaces a plataformas</h3>
 			<div class="field">
 				<label for="b-spotify" class="plat-label" style="--plat-color: #1db954">🎵 Spotify</label>
-				<input id="b-spotify" type="url" value={beat.platforms?.spotify ?? ''} oninput={(e) => updatePlatform('spotify', e.currentTarget.value)} placeholder="https://open.spotify.com/..." />
+				<input id="b-spotify" type="url" bind:value={beat.spotify} placeholder="https://open.spotify.com/..." />
 			</div>
 			<div class="field">
 				<label for="b-youtube" class="plat-label" style="--plat-color: #ff0000">▶ YouTube</label>
-				<input id="b-youtube" type="url" value={beat.platforms?.youtube ?? ''} oninput={(e) => updatePlatform('youtube', e.currentTarget.value)} placeholder="https://youtube.com/..." />
+				<input id="b-youtube" type="url" bind:value={beat.youtube} placeholder="https://youtube.com/..." />
 			</div>
 			<div class="field">
 				<label for="b-soundcloud" class="plat-label" style="--plat-color: #ff5500">☁ SoundCloud</label>
-				<input id="b-soundcloud" type="url" value={beat.platforms?.soundCloud ?? ''} oninput={(e) => updatePlatform('soundCloud', e.currentTarget.value)} placeholder="https://soundcloud.com/..." />
+				<input id="b-soundcloud" type="url" bind:value={beat.soundcloud} placeholder="https://soundcloud.com/..." />
 			</div>
 		</Card>
 	{/if}
@@ -379,7 +390,7 @@
 		<div class="modal-box" onclick={(e) => e.stopPropagation()}>
 			<div class="modal-icon">🗑️</div>
 			<h3 class="modal-title">¿Borrar este beat?</h3>
-			<p class="modal-text">"{beat.title || 'Sin título'}" se eliminará permanentemente. Esta acción no se puede deshacer.</p>
+			<p class="modal-text">"{beat.name || 'Sin nombre'}" se eliminará permanentemente. Esta acción no se puede deshacer.</p>
 			<div class="modal-actions">
 				<button class="btn-cancel" onclick={cancelDelete}>Cancelar</button>
 				<button class="btn-confirm-delete" onclick={confirmDelete}>Sí, borrar</button>

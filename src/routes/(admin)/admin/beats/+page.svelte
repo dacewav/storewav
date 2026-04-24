@@ -12,13 +12,18 @@
 	let filterGenre = $state('');
 	let sortBy = $state('newest');
 
+	function lowestPrice(beat: BeatWithId): number {
+		if (!beat.licenses?.length) return 0;
+		return Math.min(...beat.licenses.map(l => l.priceMXN));
+	}
+
 	let filteredBeats = $derived.by(() => {
 		let list = [...beats];
 
 		if (search.trim()) {
 			const q = search.trim().toLowerCase();
 			list = list.filter(b =>
-				b.title?.toLowerCase().includes(q) ||
+				b.name?.toLowerCase().includes(q) ||
 				b.artist?.toLowerCase().includes(q) ||
 				b.genre?.toLowerCase().includes(q) ||
 				b.tags?.some(t => t.toLowerCase().includes(q))
@@ -30,14 +35,14 @@
 		}
 
 		switch (sortBy) {
-			case 'newest': list.sort((a, b) => b.createdAt - a.createdAt); break;
-			case 'oldest': list.sort((a, b) => a.createdAt - b.createdAt); break;
-			case 'name-az': list.sort((a, b) => a.title.localeCompare(b.title)); break;
-			case 'name-za': list.sort((a, b) => b.title.localeCompare(a.title)); break;
+			case 'newest': list.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '')); break;
+			case 'oldest': list.sort((a, b) => (a.date ?? '').localeCompare(b.date ?? '')); break;
+			case 'name-az': list.sort((a, b) => a.name.localeCompare(b.name)); break;
+			case 'name-za': list.sort((a, b) => b.name.localeCompare(a.name)); break;
 			case 'bpm-asc': list.sort((a, b) => a.bpm - b.bpm); break;
 			case 'bpm-desc': list.sort((a, b) => b.bpm - a.bpm); break;
-			case 'price-asc': list.sort((a, b) => (a.licenses?.basic ?? 0) - (b.licenses?.basic ?? 0)); break;
-			case 'price-desc': list.sort((a, b) => (b.licenses?.basic ?? 0) - (a.licenses?.basic ?? 0)); break;
+			case 'price-asc': list.sort((a, b) => lowestPrice(a) - lowestPrice(b)); break;
+			case 'price-desc': list.sort((a, b) => lowestPrice(b) - lowestPrice(a)); break;
 		}
 
 		return list;
@@ -112,8 +117,9 @@
 		return n > 0 ? `$${n.toLocaleString()}` : 'Gratis';
 	}
 
-	function formatDate(ts: number) {
-		return new Date(ts).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: '2-digit' });
+	function formatDate(d: string | undefined) {
+		if (!d) return '—';
+		return new Date(d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: '2-digit' });
 	}
 </script>
 
@@ -195,8 +201,8 @@
 
 					<!-- Cover -->
 					<div class="beat-cover">
-						{#if beat.coverUrl}
-							<img src={beat.coverUrl} alt={beat.title} loading="lazy" />
+						{#if beat.imageUrl}
+							<img src={beat.imageUrl} alt={beat.name} loading="lazy" />
 						{:else}
 							<div class="cover-ph">♦</div>
 						{/if}
@@ -205,7 +211,7 @@
 					<!-- Info -->
 					<div class="beat-info">
 						<div class="beat-name">
-							{beat.title || '(Sin título)'}
+							{beat.name || '(Sin nombre)'}
 							{#if !beat.active}
 								<Badge variant="muted">Inactivo</Badge>
 							{/if}
@@ -219,7 +225,7 @@
 							<span class="sep">·</span>
 							<span>{beat.key}</span>
 							<span class="sep">·</span>
-							<span>{formatDate(beat.createdAt)}</span>
+							<span>{formatDate(beat.date)}</span>
 						</div>
 						<div class="beat-tags">
 							{#if beat.tags?.length}
@@ -236,7 +242,7 @@
 					<!-- Price -->
 					<div class="beat-price">
 						<span class="price-from">Desde</span>
-						<span class="price-val">{formatPrice(beat.licenses?.basic ?? 0)}</span>
+						<span class="price-val">{formatPrice(lowestPrice(beat))}</span>
 					</div>
 
 					<!-- Actions -->
@@ -277,7 +283,7 @@
 		<div class="modal-box" onclick={(e) => e.stopPropagation()}>
 			<div class="modal-icon">🗑️</div>
 			<h3 class="modal-title">¿Borrar este beat?</h3>
-			<p class="modal-text">"{deleteTarget.title || 'Sin título'}" se eliminará permanentemente.</p>
+			<p class="modal-text">"{deleteTarget.name || 'Sin nombre'}" se eliminará permanentemente.</p>
 			<div class="modal-actions">
 				<button class="btn-cancel" onclick={cancelDelete}>Cancelar</button>
 				<button class="btn-confirm-delete" onclick={confirmDelete}>Sí, borrar</button>
