@@ -35,11 +35,11 @@
 
 **Objetivo**: Que el player no crashee y no haya 404s.
 
-- [ ] Player: si `audioUrl` está vacío/null, mostrar toast "Sin audio disponible" y no intentar reproducir
-- [ ] Player: manejar error de red gracefully (retry o skip)
-- [ ] Favicon: si `brand.favicon` está vacío, usar `/favicon.svg` como fallback
-- [ ] Crear `/static/favicon.svg` básico (ícono de música o logo)
-- [ ] Verificar en browser: sin 404, player no crashea con beats sin audio
+- [x] Player: si `audioUrl` está vacío/null, mostrar toast "Sin audio disponible" y no intentar reproducir
+- [x] Player: manejar error de red gracefully (retry o skip)
+- [x] Favicon: si `brand.favicon` está vacío, usar `/favicon.svg` como fallback
+- [x] Crear `/static/favicon.svg` básico (ícono de música o logo) — ya existía
+- [x] Verificar en browser: sin 404, player no crashea con beats sin audio ✅
 
 **Archivos a tocar**:
 - `src/lib/stores/player.ts`
