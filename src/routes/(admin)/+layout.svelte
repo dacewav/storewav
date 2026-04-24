@@ -32,6 +32,11 @@
 	let undoEnabled = $derived($canUndo);
 	let redoEnabled = $derived($canRedo);
 
+	// Sidebar toggle (mobile)
+	let sidebarOpen = $state(false);
+	function toggleSidebar() { sidebarOpen = !sidebarOpen; }
+	function closeSidebar() { sidebarOpen = false; }
+
 	// Toast on save status changes
 	let lastStatus = $state('');
 	$effect(() => {
@@ -133,12 +138,17 @@
 			⚠️ Error de autenticación: {authState.error}
 		</div>
 	{/if}
-	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => {}} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined}>
+	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => {}} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar}>
 		<span class="admin-section-label">{sectionLabel}</span>
 	</AdminTopbar>
 
 	<div class="admin-body">
-		<aside class="sidebar">
+		{#if sidebarOpen}
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div class="sidebar-backdrop" onclick={closeSidebar}></div>
+		{/if}
+		<aside class="sidebar" class:open={sidebarOpen}>
 			{#each navGroups as group, gi}
 				{#if gi > 0}
 					<div class="sep"></div>
@@ -150,6 +160,7 @@
 						class="si"
 						class:active={item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
 						title={item.label}
+						onclick={closeSidebar}
 					>
 						<span class="si-icon">{item.icon}</span>
 						<span class="si-label">{item.label}</span>
@@ -260,21 +271,27 @@
 		}
 
 		.sidebar {
-			width: 56px;
+			position: fixed;
+			top: 52px;
+			left: 0;
+			bottom: 0;
+			width: 220px;
+			z-index: 100;
+			transform: translateX(-100%);
+			transition: transform 0.2s ease;
 		}
 
-		.group-label,
-		.si-label {
-			display: none;
+		.sidebar.open {
+			transform: translateX(0);
 		}
 
-		.si {
-			justify-content: center;
-			padding: var(--space-3);
-		}
-
-		.si-icon {
-			width: auto;
+		.sidebar-backdrop {
+			display: block;
+			position: fixed;
+			inset: 0;
+			top: 52px;
+			background: rgba(0, 0, 0, 0.5);
+			z-index: 99;
 		}
 	}
 

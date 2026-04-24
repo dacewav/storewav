@@ -11,6 +11,7 @@
 		onUndo,
 		onRedo,
 		onLogout,
+		onToggleSidebar,
 		children
 	}: {
 		brandName?: string;
@@ -21,6 +22,7 @@
 		onUndo?: () => void;
 		onRedo?: () => void;
 		onLogout?: () => void;
+		onToggleSidebar?: () => void;
 		children?: Snippet;
 	} = $props();
 
@@ -35,6 +37,9 @@
 </script>
 
 <header class="topbar">
+	<button class="tb-btn hamburger" onclick={onToggleSidebar} title="Menú" aria-label="Toggle sidebar">
+		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+	</button>
 	<div class="topbar-brand">{brandName}<em>·</em> Admin</div>
 
 	<div class="save-status">
@@ -179,5 +184,24 @@
 		color: var(--danger);
 		background: var(--danger-glow);
 		border-color: var(--danger-dim);
+	}
+
+	.hamburger {
+		display: none;
+	}
+
+	@media (max-width: 768px) {
+		.hamburger {
+			display: flex;
+		}
+
+		.save-status {
+			display: none;
+		}
+
+		.topbar-actions .tb-sep,
+		.topbar-actions .tb-btn:not(.tb-save):not(.tb-danger) {
+			display: none;
+		}
 	}
 </style>

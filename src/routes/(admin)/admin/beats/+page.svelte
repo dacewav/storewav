@@ -794,11 +794,22 @@
 
 	@media (max-width: 768px) {
 		.stats-row { grid-template-columns: 1fr 1fr; }
-		.beat-row { flex-wrap: wrap; }
+		.beat-row { flex-wrap: wrap; gap: var(--space-2); }
 		.beat-price { flex-direction: row; gap: var(--space-2); align-items: center; }
+		.beat-plays-col { display: none; }
+		.beat-tags { display: none; }
+		.beat-meta .sep:nth-child(n+4) { display: none; }
+		.beat-meta span:nth-child(n+5) { display: none; }
 		.filters-bar { flex-direction: column; }
 		.search-wrap { min-width: auto; width: 100%; }
 		.filter-select { width: 100%; }
+		.beat-actions .btn-move { display: none; }
+	}
+
+	@media (max-width: 480px) {
+		.beat-cover { width: 40px; height: 40px; }
+		.beat-name { font-size: var(--text-xs); }
+		.header { flex-direction: column; gap: var(--space-3); }
 	}
 
 	/* Skeleton loading */

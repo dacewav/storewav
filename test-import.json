@@ -1,0 +1,29 @@
+{
+  "beats": {
+    "test-import-001": {
+      "name": "Test Import Beat",
+      "genre": "Trap",
+      "bpm": 140,
+      "key": "Am",
+      "tags": ["test", "import"],
+      "imageUrl": "",
+      "audioUrl": "",
+      "licenses": [
+        { "name": "Basic", "priceMXN": 250, "priceUSD": 15 }
+      ],
+      "active": true
+    }
+  },
+  "settings": {
+    "brand": {
+      "name": "YUGEN",
+      "logo": "",
+      "favicon": "",
+      "footerText": "Todos los derechos reservados · 2026",
+      "metaDescription": "Beats que rompen",
+      "whatsapp": ""
+    }
+  },
+  "exportedAt": "2026-04-25T00:00:00.000Z",
+  "version": "1.1"
+}

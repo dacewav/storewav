@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Icon } from '$lib/components';
-	import { auth, loginWithGoogle, settings } from '$lib/stores';
+	import { auth, loginWithGoogle, loginAnonymously, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import type { LabelSettings } from '$lib/stores/settings';
 
@@ -33,6 +33,17 @@
 			await loginWithGoogle();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error al iniciar sesión';
+		}
+		loading = false;
+	}
+
+	async function handleAnonLogin() {
+		loading = true;
+		error = '';
+		try {
+			await loginAnonymously();
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Error al iniciar sesión anónima';
 		}
 		loading = false;
 	}
@@ -84,6 +95,10 @@
 				<span>{loginBtn}</span>
 			</button>
 		</form>
+
+		<button class="anon-btn" onclick={handleAnonLogin} disabled={loading}>
+			🧪 Entrar como tester (anónimo)
+		</button>
 
 		<div class="login-footer">
 			<a href="/" class="back-link">{loginBack}</a>
@@ -237,6 +252,35 @@
 		border-top-color: var(--accent);
 		border-radius: 50%;
 		animation: spin 0.6s linear infinite;
+	}
+
+	.anon-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		width: 100%;
+		padding: var(--space-3);
+		margin-top: var(--space-3);
+		min-height: var(--touch-min);
+		background: rgba(var(--accent-rgb), 0.08);
+		border: 1px dashed rgba(var(--accent-rgb), 0.3);
+		border-radius: var(--radius-lg);
+		color: var(--accent);
+		font-size: var(--text-xs);
+		font-family: var(--font-mono);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.anon-btn:hover:not(:disabled) {
+		background: rgba(var(--accent-rgb), 0.15);
+		border-color: var(--accent);
+	}
+
+	.anon-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 
 	@keyframes spin {

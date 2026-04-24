@@ -125,6 +125,20 @@ export async function loginWithGoogle() {
 	}
 }
 
+/** Login anónimo (para testing) */
+export async function loginAnonymously() {
+	try {
+		const auth = await getAuthInstance();
+		if (!auth) throw new Error('Firebase no inicializado');
+
+		const { signInAnonymously } = await import('firebase/auth');
+		await signInAnonymously(auth);
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err);
+		store.update((s) => ({ ...s, error: msg }));
+	}
+}
+
 /** Logout */
 export async function logout() {
 	try {

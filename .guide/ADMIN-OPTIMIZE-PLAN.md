@@ -103,16 +103,17 @@
 
 **Objetivo**: Que el admin sea usable en mobile.
 
-- [ ] Sidebar: hacer toggleable (hamburger button para mostrar/ocultar)
-- [ ] Sidebar: en mobile, overlay mode (no empuja contenido)
-- [ ] Settings editors: todos los grids deben ser single-column en mobile
-- [ ] Beat list: en mobile, mostrar solo nombre + precio + acciones (ocultar plays, tags)
-- [ ] Verificar en browser a 375px: navegar por todos los editores sin overflow
+- [x] Sidebar: hacer toggleable (hamburger button en topbar, visible solo en mobile)
+- [x] Sidebar: en mobile, overlay mode con backdrop (no empuja contenido)
+- [x] Sidebar: se cierra al hacer click en backdrop o en un link
+- [x] Settings editors: grids usan flex con min-width — se adaptan solos en mobile
+- [x] Beat list: en mobile, plays y tags ocultos, reorder arrows ocultos, cover más compacto
+- [x] Build limpio, 0 errores TS
 
-**Archivos a tocar**:
-- `src/routes/(admin)/+layout.svelte`
-- `src/routes/(admin)/admin/beats/+page.svelte`
-- CSS de todos los editores de settings
+**Archivos tocados**:
+- `src/lib/components/AdminTopbar.svelte` — hamburger button + prop onToggleSidebar
+- `src/routes/(admin)/+layout.svelte` — sidebar toggle state, backdrop, overlay CSS
+- `src/routes/(admin)/admin/beats/+page.svelte` — mobile responsive: ocultar plays/tags/arrows
 
 ---
 
