@@ -3,26 +3,27 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 14 — Effects
+## Sesión Actual: 15 — Labels + Polish
 
 ```yaml
-sesión: "14"
-bloque: "4 — Effects"
-objetivo: "Particles component + integration"
+sesión: "15"
+bloque: "5 — Labels + Polish"
+objetivo: "Label consistency, transition normalization, polish pass"
 tiempo: "50 min"
 estado: "COMPLETADO"
-último_commit: "0989f13"
+último_commit: "7e5926d"
 último_push: "pendiente"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
-### Session 14 — Effects (50 min)
-1. ✅ Particles component — canvas renderer (circle, square, line, text, image)
-2. ✅ Settings integration — count, speed, color, opacity, text, imgUrl
-3. ✅ Store layout integration — conditional on theme.particlesOn
-4. ✅ Exported from components index
-5. ✅ Build verificado
-6. ⬜ Push
+### Session 15 — Labels + Polish (50 min)
+1. ✅ Labels audit — all store labels connected to settings system
+2. ✅ Transition normalization — hardcoded durations → CSS variables
+3. ✅ Focus-visible global style present and working
+4. ✅ Empty states use configurable labels
+5. ✅ Error page labels connected
+6. ✅ Build verificado
+7. ⬜ Push
 
 ### Session 6 — Accessibility + SEO (50 min)
 1. ⬜ aria-label en botones sin texto
@@ -76,7 +77,7 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 12 | Accessibility + SEO | ✅ |
 | 13 | 3C — Content Editors | ✅ |
 | 14 | 4 — Effects | ✅ |
-| 15 | 5 — Labels + Polish | ⬜ |
+| 15 | 5 — Labels + Polish | ✅ |
 | 16 | 6 — Final Audit | ⬜ |
 
 ## Referencia
