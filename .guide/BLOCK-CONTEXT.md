@@ -7,15 +7,29 @@
 
 ```yaml
 sesión: "10"
-bloque: "0 + 3B + Plays Analytics"
-objetivo: "Fix bugs, beat editor UX, dashboard analytics"
+bloque: "0 + 3B + Plays + Session 4"
+objetivo: "Fix bugs, beat editor UX, dashboard analytics, cardstyle migration"
 tiempo: "50 min"
-estado: "COMPLETADO"
-último_commit: "89613aa"
+estado: "COMPLETADO + PUSHED"
+último_commit: "e59a0d9"
+último_push: "2026-04-25 03:06"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
-## Qué se hizo sesión 10
+## Próxima sesión (11)
+
+### Session 5 — Performance + Mobile Polish (50 min)
+1. ⬜ Image optimization — loading="lazy", decoding="async", placeholder blur
+2. ⬜ Animation performance — will-change, prefers-reduced-motion
+3. ⬜ Mobile responsive audit — admin, beat editor, store, player
+4. ⬜ Touch targets ≥ 44px
+5. ⬜ Build + commit
+
+### Session 6 — Accessibility + SEO (50 min)
+1. ⬜ aria-label en botones sin texto
+2. ⬜ Keyboard navigation (tab order, escape, enter)
+3. ⬜ SEO: structured data (JSON-LD), canonical, OG tags
+4. ⬜ Build + commit
 
 ### Session 0 — Critical Bug Fixes ✅ (commit `4842832`)
 1. ✅ XSS `{@html dividerTitle}` — Sanitización whitelist
