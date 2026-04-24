@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.7.0 — 2026-04-24 (Deep Audit + Solidification)
+
+### 🔧 Schema & Types
+- **Beat schema aligned** — todos los campos alineados con deployed Firebase rules
+- **Dead types removed** — Platforms, License, LicenseNames eliminados
+- **Deprecated fields removed** — coverUrl, createdAt eliminados del Beat type
+- **Broken re-exports fixed** — index.ts ya no exporta tipos inexistentes
+- **License labels cleaned** — 8 campos de labels obsoletos eliminados (licenseBasic/Premium/Unlimited/Exclusive)
+
+### ✨ Nuevas features
+- **Seed demo beats** — 8 beats de ejemplo (Trap, R&B, Drill, Corrido, Pop, Ambient, Hip-Hop, Reggaeton)
+- **Seed button** — botón en admin dashboard para poblar Firebase con un click
+- **Content editor mejorado** — 15 campos de labels nuevos (testimonials, beat page, login, error)
+
+### 🐛 Fixes (12 issues)
+- **16 missing keyframes** — drift, spin, tilt, sway, popIn, elastic, dropIn, riseUp, flipX, flipY, rubber, squeeze, float
+- **Object.keys() en array** — licenses.length corregido en dashboard + store page
+- **shimmerCSS incompleta** — función simplificada, ya no retorna código muerto
+- **countUp re-animación** — ahora re-anima cuando el valor target cambia
+- **siblingBlur cleanup** — event listeners correctamente removidos en destroy()
+- **Player metadata leak** — wrapper one-shot se remueve a sí mismo
+- **CSS warnings** — .grid-3 eliminado de BeatEditor
+- **svelte-check** — 0 errores, 0 warnings
+
+### 📋 Guide System
+- **AUDIT-MASTER.md** — actualizado con estado real del proyecto (verificado 2026-04-24)
+- **SOLIDIFICATION-PLAN.md** — nuevo mega plan de 8 sesiones para solidificación
+
+---
+
 ## v0.6.0 — 2026-04-20 (Sesión A+B+C+D)
 
 ### ✨ Nuevas features

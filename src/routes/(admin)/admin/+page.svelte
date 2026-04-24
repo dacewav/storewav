@@ -81,7 +81,7 @@
 			<h1 class="dash-title">Dashboard</h1>
 			<p class="dash-sub">Panel de control {brandName}</p>
 		</div>
-		<Badge variant="accent">v0.6.0</Badge>
+		<Badge variant="accent">v0.7.0</Badge>
 	</div>
 
 	<!-- Stats grid -->

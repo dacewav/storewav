@@ -1,6 +1,6 @@
 # 📋 AUDIT-MASTER.md — Guía Maestra
 
-> **Última actualización: 2026-04-24 04:38**
+> **Última actualización: 2026-04-24 09:23**
 > **Lee este archivo primero en cualquier sesión nueva.**
 
 ---
@@ -54,32 +54,53 @@ Si un audit de 10 minutos te ahorra 30 minutos de fixes incorrectos, el audit ga
 Código:    SvelteKit + Cloudflare Pages + Firebase RTDB
 Repo:      dacewav/storewav
 Firebase:  dacewav-store-3b0f5
-Líneas:    ~13,500 | Archivos: 68 | Commits: 24
+Líneas:    ~14,000 | Archivos: 69 | Commits: 27
+Build:     ✅ 0 errores, 0 warnings (svelte-check)
 Límite:    50 min por sesión de chat
 ```
 
-### ¿Qué funciona?
+### ¿Qué funciona? (Verificado 2026-04-24)
 
-| Área | Status |
-|------|--------|
-| Auth | ✅ Google login + adminWhitelist |
-| Theme engine | ✅ accent, glow, fonts desde Firebase |
-| Build | ✅ 0 errores |
-| Firebase rules | ✅ validación estricta |
-| Design system | ✅ 1191 CSS, 65 keyframes, 28 icons |
-| Componentes | ✅ 29 componentes, 10 stores, 7 actions |
+| Área | Status | Detalle |
+|------|--------|---------|
+| Auth | ✅ | Google login + adminWhitelist + UID fallback |
+| Theme engine | ✅ | 35+ keys → CSS vars, accent variants, glow presets |
+| Build | ✅ | 0 errores, 0 warnings en svelte-check |
+| Firebase rules | ✅ | Validación estricta, `$other` catch-all |
+| Design system | ✅ | 1191 CSS, 28 icons, 40+ animation keyframes |
+| Componentes | ✅ | 29 componentes, 10 stores, 7 actions |
+| Beat schema | ✅ | Alineado con deployed rules (name, genre, bpm, key, licenses[]) |
+| Beat CRUD | ✅ | create, read, update, delete, duplicate, reorder |
+| Store page | ✅ | Hero, grid, filters, featured, wishlist, player |
+| Beat page | ✅ | Cover, waveform, licenses, platforms, related beats |
+| Admin panel | ✅ | 9 páginas (dashboard, beats, theme, content, brand, banner, layout, animations, hero) |
+| Beat editor | ✅ | Tabs (info, licenses, media, platforms, card style), auto-save |
+| Seed data | ✅ | Script para poblar 8 beats de demo desde admin dashboard |
+| Player | ✅ | Play/pause/seek/volume, waveform bars en cards |
+| Wishlist | ✅ | localStorage + reactive + cross-tab sync |
+| Filters | ✅ | Search, genre, key, sort, tags |
+| Analytics | ✅ | Batched events → Firebase |
+| SEO | ✅ | robots.txt, sitemap.xml, OG tags, meta description |
+| Undo/redo | ✅ | Stack 20 entries, Ctrl+Z/Ctrl+Shift+Z |
+| Export/import | ✅ | Backup JSON desde admin dashboard |
+| Labels editables | ✅ | 25+ labels configurables desde admin |
+| Card style engine | ✅ | Glow, filters, border, shadow, hover, shimmer, 40+ animation presets |
+| Actions | ✅ | tilt, parallax, staggerReveal, reveal, siblingBlur, ripple, countUp |
 
-### ¿Qué está roto?
+### ¿Qué falta? (Ver SOLIDIFICATION-PLAN.md)
 
-| Área | Status |
-|------|--------|
-| Store visual | ⚠️ Hero/Banner/Divider/Nav/Footer muestran datos reales, pero beats vacío |
-| Settings paths | ✅ Migration layer funciona (flat → nested verificado) |
-| Beats | ❌ Vacío en Firebase |
-| Admin editors | ❌ No muestran valores actuales |
-| Theme engine | ✅ 35+ keys mapeadas a CSS vars (sesión 3) |
-| globalCardStyle | ⚠️ Firebase usa estructura diferente a CardStyleConfig — migration incompleta |
-| Testimonials | ⚠️ Firebase tiene {name,role,text} — código espera {name,text,stars,avatar} |
+| Área | Prioridad | Detalle |
+|------|-----------|---------|
+| Toast notifications | 🟡 Media | Sistema existe pero no se usa — save errors/successes sin feedback |
+| Plays counter | 🟡 Media | Campo `plays` en Beat type pero nunca se incrementa |
+| Connection state | 🟡 Media | No hay detección de desconexión ni "reconnecting" indicator |
+| Testimonials fix | 🟡 Media | Firebase tiene {name,role,text} — componente soporta ambos pero migration no transforma |
+| globalCardStyle | 🟡 Media | Migration existe pero puede no cubrir todos los casos de Firebase |
+| No tests | 🔴 Alta | 0 tests unitarios, 0 e2e |
+| No CI/CD | 🟡 Media | No hay GitHub Actions, no hay auto-deploy |
+| No PWA | ⚪ Baja | Solo funciona online |
+| No i18n | ⚪ Baja | Todo hardcodeado en español |
+| No rate limiting | ⚪ Baja | Analytics writes sin throttle |
 
 ---
 
@@ -110,91 +131,14 @@ curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/beats.json"
 - `particles*: { type: 'text', text: '𓆉', count: 17, ... }`
 - 95+ keys total
 
-**beats/** → NULL
+**beats/** → NULL (usar seed desde admin dashboard para poblar)
 **adminWhitelist/** → `{ email1: true, email2: true, email3: true }`
 
 ---
 
-## Plan por Sesiones (50 min c/u)
+## Plan de Solidificación
 
-### Sesión 1: Bloque 0 — Data Layer (ya hecho ✅)
-- Migration layer en settings.ts
-- Auth lee adminWhitelist
-- ~30 min de trabajo real
-- **Test pendiente:** ¿se muestran datos reales en deploy?
-
-### Sesión 2: Bloque 1A — Hero
-- [ ] Testear Bloque 0 en deploy (5 min)
-- [ ] Fixear lo que no funcione del migration layer (15 min)
-- [ ] Hero muestra título, eyebrow, glow word, subtitle (15 min)
-- [ ] Hero links (Instagram, WhatsApp) (10 min)
-- [ ] Commit + push + test (5 min)
-
-### Sesión 3: Bloque 1B — Banner + Divider + Nav
-- [ ] Banner visible con datos reales (10 min)
-- [ ] Divider con título/subtítulo (10 min)
-- [ ] Nav logo, links, mobile menu (15 min)
-- [ ] Footer (5 min)
-- [ ] Test + fix (10 min)
-
-### Sesión 4: Bloque 2A — Beats Seed
-- [ ] Crear seed de 6-8 beats en Firebase (20 min)
-- [ ] Verificar que el grid renderiza (10 min)
-- [ ] Fixear lo que no funcione (15 min)
-- [ ] Test + commit (5 min)
-
-### Sesión 5: Bloque 2B — Beat Interactions
-- [ ] Play button (10 min)
-- [ ] Wishlist toggle (5 min)
-- [ ] Filters (search, genre, key, sort) (15 min)
-- [ ] Featured section (5 min)
-- [ ] Beat page links + navigation (10 min)
-- [ ] Test + fix (5 min)
-
-### Sesión 6: Bloque 3A — Admin Auth + Dashboard
-- [ ] Verificar login funciona (5 min)
-- [ ] Dashboard muestra stats reales (10 min)
-- [ ] Beat list muestra beats existentes (15 min)
-- [ ] Quick actions + export/import (15 min)
-- [ ] Test (5 min)
-
-### Sesión 7: Bloque 3B — Beat Editor
-- [ ] Editar beat → carga datos actuales (15 min)
-- [ ] Guardar → escribe a Firebase (10 min)
-- [ ] Crear nuevo beat (10 min)
-- [ ] Borrar beat (5 min)
-- [ ] Test (10 min)
-
-### Sesión 8: Bloque 3C — Content Editors
-- [ ] Theme editor muestra/guarda valores (15 min)
-- [ ] Content editor: hero, section, CTA (15 min)
-- [ ] Brand editor: nombre, logo, whatsapp (10 min)
-- [ ] Test cambios se reflejan en tienda (10 min)
-
-### Sesión 9: Bloque 4 — Effects
-- [ ] Cursor glow, scroll progress, orbs (15 min)
-- [ ] Card glow/animation desde globalCardStyle (15 min)
-- [ ] Hero parallax, sibling blur, stagger (15 min)
-- [ ] Loader, grain overlay (5 min)
-
-### Sesión 10: Bloque 5 — Labels + Polish
-- [ ] Labels editables funcionan (15 min)
-- [ ] CTA section configurable (10 min)
-- [ ] Testimonials (10 min)
-- [ ] Banner animations (5 min)
-- [ ] Test general (10 min)
-
-### Sesión 11: Bloque 6 — Final Audit
-- [ ] Build + svelte-check (5 min)
-- [ ] Todos los links (5 min)
-- [ ] Mobile responsive (10 min)
-- [ ] SEO meta tags (5 min)
-- [ ] 0 console.log, 0 TODOs (5 min)
-- [ ] A11y check (5 min)
-- [ ] Limpieza final + commit (10 min)
-- [ ] Deploy final + test (5 min)
-
-**Total: 11 sesiones de 50 min = ~9 horas reales de chat**
+**Ver `SOLIDIFICATION-PLAN.md`** — Mega plan de 8 sesiones para llevar la tienda de "funciona" a "sólida".
 
 ---
 
@@ -205,7 +149,7 @@ curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/beats.json"
 ```
 INICIO — AUDIT (10-15 min):
 1. Leer este archivo
-2. Leer BLOCK-CONTEXT.md → qué sesión toca
+2. Leer SOLIDIFICATION-PLAN.md → qué sesión toca
 3. Verificar Firebase → qué hay realmente
 4. Leer el código relevante COMPLETO
 5. Entender qué espera vs qué hay
@@ -220,7 +164,7 @@ TRABAJO — FIXEAR (25-30 min):
 
 CIERRE — PUSH (5-10 min):
 12. Pedir token → push → limpiar remote
-13. Actualizar BLOCK-CONTEXT.md
+13. Actualizar este archivo + SOLIDIFICATION-PLAN.md
 14. Resumir qué se hizo, qué falta, qué testear
 
 REGLA DE TIEMPO:
@@ -243,178 +187,48 @@ NO HACER:
 ## Archivos Clave
 
 ```
-src/lib/stores/settings.ts       ★ Settings + migration
+src/lib/stores/settings.ts       ★ Settings + migration (781 líneas)
 src/lib/stores/auth.ts           ★ Auth + adminWhitelist
-src/lib/stores/beats.ts          Beats CRUD
+src/lib/stores/beats.ts          Beats CRUD + types
 src/lib/stores/player.ts         Audio player
-src/lib/theme.ts                 Theme engine
-src/routes/(store)/+page.svelte  ★ Store index
-src/routes/(store)/+layout.svelte★ Store layout
+src/lib/stores/analytics.ts      Batched analytics
+src/lib/stores/_firebaseStore.ts ★ Base store pattern
+src/lib/theme.ts                 Theme engine (CSS vars)
+src/lib/cardStyleEngine.ts       Card style engine (426 líneas)
+src/lib/actions.ts               Svelte actions (tilt, reveal, etc.)
+src/lib/upload.ts                Firebase Storage upload
+src/lib/seed.ts                  ★ Seed demo beats
+src/routes/(store)/+page.svelte  ★ Store index (hero, grid, filters)
+src/routes/(store)/+layout.svelte★ Store layout (nav, footer, player)
 src/routes/(store)/beat/[id]/+page.svelte Beat page
 src/routes/(admin)/+layout.svelte★ Admin auth guard
+src/routes/(admin)/admin/+page.svelte Dashboard (stats, seed, export)
 src/routes/(admin)/admin/beats/+page.svelte Beats list
-src/lib/components/BeatEditor.svelte Beat editor
-src/app.css                      Design tokens
+src/routes/(admin)/admin/beats/[id]/+page.svelte Beat editor
+src/lib/components/BeatEditor.svelte ★ Beat editor component (660 líneas)
+src/lib/components/BeatCard.svelte   Beat card component
+src/lib/components/BeatModal.svelte  Beat modal component
+src/lib/components/Player.svelte     Player bar
+src/lib/components/Waveform.svelte   Waveform visualization
+src/lib/components/Filters.svelte    Filters component
+src/lib/components/FileUpload.svelte File upload with preview
+src/app.css                      Design tokens (1191 líneas)
+firebase-deployed-rules.json     Firebase rules (referencia)
 ```
 
 ---
 
-## Instrucciones para Chat Nuevo
+## Lecciones Aprendidas
 
-1. Clonar: `git clone https://github.com/dacewav/storewav.git`
-2. `cd storewav && npm install && cp .env.example .env`
-3. Leer `.guide/INDEX.md` (30s)
-4. Leer este archivo (AUDIT-MASTER.md)
-5. Leer `.guide/BLOCK-CONTEXT.md` → qué sesión toca
-6. Verificar Firebase: `curl -s "URL/settings.json"`
-7. Hacer SOLO lo de la sesión actual
-8. Build + svelte-check → 0 errores
-9. Commit + push
-10. Actualizar BLOCK-CONTEXT.md
-11. Decirle al usuario qué se hizo y qué testear
+### Sesión 2026-04-24 (hoy)
 
-### Para hacer push
-
-El usuario tiene que darte el token de GitHub. Pedíselo al inicio de la sesión si vas a commitear. Formato:
-```
-git remote set-url origin https://dacewav:TOKEN@github.com/dacewav/storewav.git
-git push origin main
-git remote set-url origin https://github.com/dacewav/storewav.git
-```
-Limpiar el remote después del push (no dejar el token en la URL).
-
-### Para deploy
-
-Cloudflare Pages deploya automáticamente al push a `main`. Esperar 1-2 min después del push. El usuario testea en el browser.
-
-### Cuándo pedir confirmación al usuario
-
-- **Antes de push** → si el cambio es grande o riesgoso
-- **Después de push** → pedirle que teste en el browser
-- **Antes de cambiar Firebase rules** → SIEMPRE pedir confirmación
-- **Antes de borrar archivos** → pedir confirmación
-- **Después de cada sesión** → resumir qué se hizo, qué falta
-
-### Qué NO necesita confirmación
-
-- Fixear bugs obvios (build roto, typo)
-- Commitear fixes pequeños
-- Actualizar .guide/ docs
-- Leer archivos / investigar
-
-### Qué NO hacer nunca
-
-- Cambiar Firebase Security Rules sin confirmación explícita
-- Configurar Cloudflare (eso lo hace el usuario en el dashboard)
-- Cambiar la estructura de archivos del proyecto
-- Borrar datos de Firebase
-- Agregar dependencias sin preguntar
+1. **Schema migration** — Cuando alineás tipos con Firebase, verificá QUE CADA CAMPO exista en las rules. El `$other` catch-all salva strings/numbers pero no arrays ni objects.
+2. **Dead types en re-exports** — `index.ts` puede exportar tipos que no existen sin que el build falle (type erasure). `svelte-check` tampoco lo detecta. Hay que grepear manualmente.
+3. **Object.keys() en arrays** — Error clásico: `Object.keys([1,2,3])` devuelve `['0','1','2']`, no la longitud. Usar `.length`.
+4. **Animation keyframes** — Si el `animMap` referencia un keyframe que no existe en `ANIMATION_KEYFRAMES`, la animación simplemente no se ve. No hay error. Hay que auditar manualmente.
+5. **Listener leaks** — Los wrappers de event listeners que se reemplazan sin removerse a sí mismos causan memory leaks. Siempre hacer el wrapper one-shot o guardar referencia.
+6. **`svelte-check` limpio ≠ sin bugs** — 0 errores y 0 warnings no significa que todo funcione. Los bugs de lógica (Object.keys en array, keyframes faltantes) no los detecta.
 
 ---
 
-## Cierre de Cada Sesión
-
-**Trigger:** El usuario dice "cerrar sesión", "go otro chat", "terminamos", "nos vemos", o similar.
-
-Al detectar ese trigger, hacer en orden:
-
-### 1. Commit + Push todo lo pendiente
-### 2. Actualizar BLOCK-CONTEXT.md
-- Marcar sesión actual como ✅
-- Poner siguiente sesión como "pendiente"
-- Actualizar `commit_actual`
-
-### 3. Actualizar memoria del usuario
-Si durante la sesión aprendiste algo nuevo sobre el usuario (preferencias, cómo trabaja, frustraciones, etc.), escribirlo en:
-- `MEMORY.md` — si es algo importante/recordable
-- `USER.md` — si es un dato sobre el usuario
-- `memory/YYYY-MM-DD.md` — log del día (crear carpeta `memory/` si no existe)
-
-Estos archivos están en el workspace, NO en el repo del proyecto.
-
-### 4. Reescribir .guide/ si es necesario
-Si descubriste algo nuevo (datos de Firebase cambiaron, error nuevo, path incorrecto, feature que no existía):
-- Actualizar `AUDIT-MASTER.md` → agregar/corregir lo que sea necesario
-- Actualizar `REAL-AUDIT.md` → si el mapeo de datos cambió
-- Actualizar `PROJECT_STATE.md` → si el estado del proyecto cambió
-- **NO dejar info vieja** — la siguiente sesión depende de lo que escribiste
-
-### 3. Resumen para el usuario
-```
-✅ Sesión [X] completa:
-- [qué se hizo]
-- commit: [hash]
-
-📋 Siguiente: Sesión [X+1] — [nombre del bloque]
-🧪 Test pendiente: [qué verificar en browser]
-```
-
-### 4. Si la sesión no alcanzó a terminar
-- Commitear lo que esté (aunque sea parcial)
-- Actualizar BLOCK-CONTEXT.md con lo que falta
-- Resumen: qué falta completar en la siguiente sesión
-
----
-
-## 🚫 Lo que NO hacer
-
-| ❌ No hacer | Por qué |
-|-------------|---------|
-| Agregar dependencias sin preguntar | Puede romper el build |
-| Refactorizar código que no se pidió tocar | "Si funciona, no lo toques" |
-| Crear abstracciones prematuras | Over-engineering |
-| Optimizar sin que haya problema real | YAGNI |
-| Cambiar estructura de archivos | Rompe imports |
-| Agregar logging en producción | Quitar antes de commit |
-| Codear sin audit primero | Perdés más tiempo fixeando |
-
----
-
-## ❌ Errores Comunes
-
-### Firebase
-- **"Permission denied"** → Las rules bloquean. Verificar `firebase.rules.json`
-- **"Firebase config error"** → `.env` falta o mal configurado. Prefijo `PUBLIC_` obligatorio
-- **"onValue no actualiza la UI"** → Usar `$store` syntax en Svelte
-
-### SvelteKit
-- **"500 Internal Server Error"** → Firebase en SSR. Usar `browser` check
-- **"Cannot find module"** → `npm install` faltante
-- **"Hydration mismatch"** → Datos del server ≠ client. Usar `{#if browser}`
-- **Layout no aplica** → Verificar jerarquía de `+layout.svelte`
-
-### Build
-- **`npm run build` falla** → Leer el error (dice archivo + línea)
-- **Cloudflare deploy falla** → Verificar `@sveltejs/adapter-cloudflare` en `svelte.config.js`
-
-### Audio
-- **No reproduce** → CORS o autoplay bloqueado. Verificar URL en nueva pestaña
-- **Waveform no se muestra** → Audio no carga o canvas no listo
-
-### Admin
-- **Login no funciona** → Google Auth no habilitado en Firebase Console
-- **Cambios no se reflejan** → Admin escribe en path diferente al que lee la tienda
-
----
-
-## 🚨 Emergencia
-
-### Build roto
-```bash
-npm run build 2>&1 | tail -20      # Ver error
-rm -rf node_modules package-lock.json && npm install  # Reinstalar si es necesario
-```
-
-### Git descompuesto
-```bash
-git stash                            # Guardar cambios rotos
-git reset --soft HEAD~1              # Deshacer último commit
-git pull origin main --rebase        # Sincronizar con remote
-```
-
-### Firebase corrupto
-```bash
-# Ver datos actuales
-curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/.json" | python3 -m json.tool
-# Firebase Console → Realtime Database → Import/Export JSON
-```
+*Proyecto por @dacewav — 2026*
