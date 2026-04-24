@@ -22,6 +22,31 @@
 	let tagInput = $state('');
 	let tagInputEl: HTMLInputElement | undefined = $state();
 
+	// Inline audio preview
+	let previewAudioEl: HTMLAudioElement | undefined = $state();
+	let previewPlaying = $state(false);
+	let previewTime = $state(0);
+	let previewDuration = $state(0);
+	let previewProgress = $derived(previewDuration > 0 ? (previewTime / previewDuration) * 100 : 0);
+
+	function togglePreview() {
+		if (!previewAudioEl || !beat.audioUrl) return;
+		if (previewPlaying) { previewAudioEl.pause(); } else { previewAudioEl.play(); }
+		previewPlaying = !previewPlaying;
+	}
+
+	function seekPreview(e: MouseEvent) {
+		if (!previewAudioEl || !previewDuration) return;
+		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+		previewAudioEl.currentTime = ((e.clientX - rect.left) / rect.width) * previewDuration;
+	}
+
+	function formatTime(s: number) {
+		const m = Math.floor(s / 60);
+		const sec = Math.floor(s % 60);
+		return `${m}:${sec.toString().padStart(2, '0')}`;
+	}
+
 	const GENRES = ['Trap', 'R&B', 'Drill', 'Corrido', 'Ambient', 'Pop', 'Hip-Hop', 'Reggaeton', 'Otro'];
 	const KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
 		'Am', 'Bbm', 'Bm', 'Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m'];
@@ -97,6 +122,11 @@
 		return errs;
 	});
 	let isValid = $derived(validationErrors.length === 0);
+	let fieldErrors = $derived.by(() => ({
+		name: !beat.name?.trim() ? 'Nombre requerido' : '',
+		genre: !beat.genre ? 'Género requerido' : '',
+		bpm: beat.bpm != null && beat.bpm !== 0 && (beat.bpm < 40 || beat.bpm > 300) ? '40-300' : ''
+	}));
 
 	// Auto-save with debounce (1s after last change)
 	let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -154,11 +184,43 @@
 	<!-- Save bar (sticky) -->
 	<div class="save-bar">
 		<div class="save-left">
-			<Badge variant={saveStatus === 'saved' ? 'accent' : saveStatus === 'saving' ? 'warning' : saveStatus === 'error' ? 'danger' : 'muted'}>
-				{saveStatus === 'saved' ? '✓ Guardado' : saveStatus === 'saving' ? 'Guardando...' : saveStatus === 'error' ? 'Error al guardar' : '● Sin guardar'}
-			</Badge>
+			<!-- Auto-save indicator with animation -->
+			<div class="save-indicator" class:saved={saveStatus === 'saved'} class:saving={saveStatus === 'saving'} class:error={saveStatus === 'error'} class:unsaved={saveStatus === 'unsaved'}>
+				<span class="save-dot"></span>
+				<span class="save-text">
+					{saveStatus === 'saved' ? 'Guardado' : saveStatus === 'saving' ? 'Guardando...' : saveStatus === 'error' ? 'Error' : 'Sin guardar'}
+				</span>
+			</div>
 			{#if !isValid}
-				<Badge variant="danger">⚠ {validationErrors.length} campo(s) requerido(s)</Badge>
+				<span class="validation-pill">
+					⚠ {validationErrors.length} requerido{validationErrors.length > 1 ? 's' : ''}
+				</span>
+			{/if}
+			<!-- Inline audio preview -->
+			{#if beat.audioUrl}
+				<div class="inline-preview" role="group" aria-label="Vista previa de audio">
+					<button class="preview-play" onclick={togglePreview} aria-label={previewPlaying ? 'Pausar preview' : 'Reproducir preview'}>
+						{previewPlaying ? '⏸' : '▶'}
+					</button>
+					<div class="preview-bar" role="slider" aria-label="Progreso" aria-valuenow={Math.round(previewProgress)} aria-valuemin={0} aria-valuemax={100} tabindex="0"
+						onclick={seekPreview}
+						onkeydown={(e) => {
+							if (!previewAudioEl) return;
+							if (e.key === 'ArrowRight') previewAudioEl.currentTime = Math.min(previewDuration, previewAudioEl.currentTime + 5);
+							if (e.key === 'ArrowLeft') previewAudioEl.currentTime = Math.max(0, previewAudioEl.currentTime - 5);
+						}}
+					>
+						<div class="preview-fill" style="width: {previewProgress}%"></div>
+					</div>
+					<span class="preview-time">{formatTime(previewTime)}</span>
+					<audio
+						bind:this={previewAudioEl}
+						src={beat.audioUrl}
+						ontimeupdate={() => previewTime = previewAudioEl?.currentTime ?? 0}
+						onloadedmetadata={() => previewDuration = previewAudioEl?.duration ?? 0}
+						onended={() => { previewPlaying = false; previewTime = 0; }}
+					></audio>
+				</div>
 			{/if}
 		</div>
 		<div class="save-right">
@@ -166,7 +228,7 @@
 				<button class="btn-delete" onclick={handleDelete}>🗑️ Borrar</button>
 			{/if}
 			{#if onSave}
-				<button class="btn-save" onclick={onSave}>
+				<button class="btn-save" class:disabled={!isValid} onclick={onSave} title={!isValid ? `Faltan: ${validationErrors.join(', ')}` : ''}>
 					Guardar <kbd>Ctrl+S</kbd>
 				</button>
 			{/if}
@@ -181,20 +243,24 @@
 				<div class="field" class:required-empty={!beat.name?.trim()}>
 					<label for="b-title">Nombre *</label>
 					<input id="b-title" type="text" bind:value={beat.name} placeholder="Nombre del beat" />
+					{#if fieldErrors.name}<span class="field-error">{fieldErrors.name}</span>{/if}
 				</div>
 				<div class="field">
 					<label for="b-artist">Artista</label>
 					<input id="b-artist" type="text" bind:value={beat.artist} placeholder="Productor / Artista" />
 				</div>
-				<div class="field">
+				<div class="field" class:required-empty={!beat.genre}>
 					<label for="b-genre">Género *</label>
 					<select id="b-genre" bind:value={beat.genre}>
+						<option value="">Seleccionar...</option>
 						{#each GENRES as g}<option value={g}>{g}</option>{/each}
 					</select>
+					{#if fieldErrors.genre}<span class="field-error">{fieldErrors.genre}</span>{/if}
 				</div>
 				<div class="field">
 					<label for="b-bpm">BPM</label>
 					<input id="b-bpm" type="number" bind:value={beat.bpm} min="40" max="300" />
+					{#if fieldErrors.bpm}<span class="field-error">{fieldErrors.bpm}</span>{/if}
 				</div>
 				<div class="field">
 					<label for="b-key">Key</label>
@@ -465,10 +531,130 @@
 		background: var(--bg);
 		border-bottom: 1px solid var(--border);
 		margin-bottom: var(--space-2);
+		gap: var(--space-3);
 	}
 
-	.save-left { display: flex; align-items: center; gap: var(--space-2); }
-	.save-right { display: flex; align-items: center; gap: var(--space-2); }
+	.save-left {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		flex: 1;
+		min-width: 0;
+		flex-wrap: wrap;
+	}
+	.save-right { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+
+	/* Save indicator — animated dot */
+	.save-indicator {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		padding: 3px 10px;
+		border-radius: var(--radius-full);
+		border: 1px solid var(--border);
+		background: var(--surface);
+		transition: all var(--duration-fast);
+	}
+
+	.save-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--text-muted);
+		transition: background var(--duration-fast);
+	}
+
+	.save-indicator.saved { border-color: rgba(var(--accent-rgb), 0.3); background: rgba(var(--accent-rgb), 0.06); }
+	.save-indicator.saved .save-dot { background: #22c55e; }
+	.save-indicator.saved .save-text { color: #22c55e; }
+
+	.save-indicator.saving { border-color: rgba(var(--accent-rgb), 0.3); background: rgba(var(--accent-rgb), 0.06); }
+	.save-indicator.saving .save-dot { background: var(--accent); animation: pulse-dot 0.8s ease-in-out infinite; }
+	.save-indicator.saving .save-text { color: var(--accent); }
+
+	.save-indicator.error { border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.06); }
+	.save-indicator.error .save-dot { background: #ef4444; }
+	.save-indicator.error .save-text { color: #ef4444; }
+
+	.save-indicator.unsaved { border-color: rgba(234, 179, 8, 0.3); background: rgba(234, 179, 8, 0.06); }
+	.save-indicator.unsaved .save-dot { background: #eab308; }
+	.save-indicator.unsaved .save-text { color: #eab308; }
+
+	@keyframes pulse-dot {
+		0%, 100% { opacity: 1; transform: scale(1); }
+		50% { opacity: 0.4; transform: scale(0.7); }
+	}
+
+	/* Validation pill */
+	.validation-pill {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		padding: 3px 10px;
+		border-radius: var(--radius-full);
+		border: 1px solid rgba(239, 68, 68, 0.3);
+		background: rgba(239, 68, 68, 0.06);
+		color: #ef4444;
+		white-space: nowrap;
+		animation: fadeIn 0.2s var(--ease-out);
+	}
+
+	/* Inline audio preview */
+	.inline-preview {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: 4px 10px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+		flex-shrink: 0;
+	}
+
+	.preview-play {
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+		border: none;
+		background: var(--accent);
+		color: var(--bg);
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 10px;
+		flex-shrink: 0;
+		transition: all var(--duration-fast);
+	}
+
+	.preview-play:hover { opacity: 0.85; transform: scale(1.05); }
+
+	.preview-bar {
+		width: 80px;
+		height: 4px;
+		background: var(--border);
+		border-radius: 2px;
+		cursor: pointer;
+		overflow: hidden;
+		flex-shrink: 0;
+	}
+
+	.preview-fill {
+		height: 100%;
+		background: var(--accent);
+		border-radius: 2px;
+		transition: width 0.1s linear;
+	}
+
+	.preview-time {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		min-width: 28px;
+	}
 
 	.btn-save {
 		display: flex;
@@ -486,7 +672,8 @@
 		transition: all var(--duration-fast);
 	}
 
-	.btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+	.btn-save:hover:not(.disabled) { opacity: 0.9; transform: translateY(-1px); }
+	.btn-save.disabled { opacity: 0.4; cursor: not-allowed; }
 	.btn-save kbd { font-family: var(--font-mono); font-size: var(--text-2xs); padding: 1px 5px; border-radius: 3px; background: rgba(0,0,0,0.2); color: inherit; opacity: 0.7; }
 
 	.btn-delete {
@@ -512,8 +699,17 @@
 	/* Fields */
 	.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
 	.field label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
-	.field.required-empty input { border-color: var(--danger); }
+	.field.required-empty input,
+	.field.required-empty select { border-color: var(--danger); }
 	.field.required-empty label { color: var(--danger); }
+
+	.field-error {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: #ef4444;
+		margin-top: 2px;
+		animation: fadeIn 0.15s var(--ease-out);
+	}
 
 	.field input[type="text"],
 	.field input[type="number"],
