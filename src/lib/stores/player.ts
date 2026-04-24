@@ -84,6 +84,13 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 	const a = getAudio();
 	if (!a) return; // SSR guard
 
+	// Si no hay audioUrl, no intentar reproducir
+	if (!beat.audioUrl) {
+		console.warn('[Player] Beat sin audio:', beat.name);
+		store.update((s) => ({ ...s, playing: false }));
+		return;
+	}
+
 	// Si es el mismo beat, toggle play/pause
 	let currentBeatId: string | null = null;
 	store.subscribe((s) => { currentBeatId = s.beatId; })();
@@ -103,12 +110,13 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 		const playPromise = a.play();
 		if (playPromise !== undefined) {
 			playPromise.catch((err) => {
+				// AbortError = user navigated away, no es un error real
+				if (err.name === 'AbortError') return;
 				if (attempt < retries) {
 					attempt++;
-					// Retry after short delay
 					setTimeout(() => tryPlay(), 500 * attempt);
 				} else {
-					console.error('[Player] Error al reproducir:', err.message);
+					console.warn('[Player] No se pudo reproducir:', beat.name, err.message);
 					store.update((s) => ({ ...s, playing: false }));
 				}
 			});
@@ -121,7 +129,7 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 			a.pause();
 			a.src = '';
 			store.update((s) => ({ ...s, playing: false }));
-			console.error('[Player] Timeout al cargar audio');
+			console.warn('[Player] Timeout cargando audio:', beat.name);
 		}
 	}, 10_000);
 
