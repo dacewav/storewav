@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { toast } from '$lib/toastStore';
+	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
@@ -20,23 +21,27 @@
 				user: authState.user?.email ?? 'none',
 				uid: authState.user?.uid ?? 'none',
 				isAdmin: authState.isAdmin,
+				adminChecked: authState.adminChecked,
 				error: authState.error
 			});
 		}
 	});
 
-	// Redirect a login si no está autenticado, o a / si no es admin (run once)
-	let redirected = $state(false);
+	// Redirect — non-reactive guard to prevent effect loops
+	let didRedirect = false;
 	$effect(() => {
-		if (redirected || authState.loading || !authState.adminChecked) return;
-		if (!authState.user) {
-			redirected = true;
-			goto('/login');
-		} else if (!authState.isAdmin) {
-			redirected = true;
-			console.warn('[Admin] Not admin, UID:', authState.user.uid);
-			goto('/');
-		}
+		const { loading, adminChecked, user, isAdmin } = authState;
+		if (didRedirect || loading || !adminChecked) return;
+		untrack(() => {
+			if (!user) {
+				didRedirect = true;
+				goto('/login');
+			} else if (!isAdmin) {
+				didRedirect = true;
+				console.warn('[Admin] Not admin, UID:', user.uid);
+				goto('/');
+			}
+		});
 	});
 
 	let currentSaveStatus = $derived($saveStatusStore);
