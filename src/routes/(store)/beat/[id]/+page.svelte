@@ -111,14 +111,13 @@
 			'@context': 'https://schema.org',
 			'@type': 'MusicRecording',
 			name: beat.name,
-			byArtist: { '@type': 'MusicGroup', name: beat.artist ?? brandName },
+			byArtist: { '@type': 'MusicGroup', name: beat.artist ?? (s?.brand?.name ?? 'DACEWAV') },
 			genre: beat.genre,
-			duration: beat.duration ? `PT${Math.floor(beat.duration / 60)}M${Math.floor(beat.duration % 60)}S` : undefined,
 			image: beat.imageUrl || undefined,
 			url: `https://dacewav.store/beat/${beat.id}`,
-			offers: beat.price ? {
+			offers: beat.licenses?.length ? {
 				'@type': 'Offer',
-				price: beat.price,
+				price: Math.min(...beat.licenses.map(l => l.priceUSD)),
 				priceCurrency: 'USD',
 				availability: 'https://schema.org/InStock'
 			} : undefined

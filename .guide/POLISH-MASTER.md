@@ -30,22 +30,24 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que la página principal cargue y muestre beats.
 
-- [ ] Hero se renderiza con título, subtítulo, eyebrow
-- [ ] Hero glow word funciona (si está configurado)
-- [ ] Hero color segments funcionan (si hay segmentos)
-- [ ] Hero gradient de fondo se muestra
-- [ ] Stats (beats, géneros, licencias) se muestran
-- [ ] Filtros funcionan: búsqueda, género, tonalidad, tags, sort
-- [ ] Beat cards se renderizan con imagen, nombre, precio
-- [ ] Click en card → navega a `/beat/[id]`
-- [ ] Play button → player reproduce audio
-- [ ] Testimonials se renderizan (si hay datos)
-- [ ] CTA se muestra (si está configurado)
-- [ ] Section divider se muestra
-- [ ] Footer con links funciona
-- [ ] Loader se muestra y desaparece
+- [x] Hero se renderiza con título, subtítulo, eyebrow
+- [x] Hero glow word funciona (si está configurado)
+- [x] Hero color segments funcionan (si hay segmentos)
+- [x] Hero gradient de fondo se muestra
+- [x] Stats (beats, géneros, licencias) se muestran
+- [x] Filtros funcionan: búsqueda, género, tonalidad, tags, sort
+- [x] Beat cards se renderizan con imagen, nombre, precio
+- [x] Click en card → navega a `/beat/[id]`
+- [x] Play button → player reproduce audio
+- [x] Testimonials se renderizan (si hay datos)
+- [x] CTA se muestra (si está configurado)
+- [x] Section divider se muestra
+- [x] Footer con links funciona
+- [x] Loader se muestra y desaparece
 
 **Debug tip**: Si no se ven beats, revisar `beats.subscribeFirebase()` en consola. Puede que Firebase no esté conectado.
+
+**Fix aplicado**: JSON-LD en beat detail usaba `beat.duration` y `beat.price` que no existen en el tipo `Beat`. Corregido a `beat.licenses` para el precio y eliminado duration.
 
 ---
 
