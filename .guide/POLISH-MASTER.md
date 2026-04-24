@@ -6,9 +6,9 @@
 
 ---
 
-## 📋 Estado actual (post sesiones 11-16)
+## 📋 Estado actual (post sesiones 11-16 + Bloque 1 completo)
 
-Se hicieron mejoras de performance, a11y, SEO, content editors, particles y polish. Pero hay cosas rotas o sin verificar que necesitan atención.
+Se hicieron mejoras de performance, a11y, SEO, content editors, particles y polish. Build limpio, Firebase conectado.
 
 ---
 
@@ -20,7 +20,7 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 - [x] Si el usuario no tiene `.env`, crear uno desde `.env.example` con datos reales de Firebase
 - [x] `npm run build` limpio — 0 errores
 - [x] `npm run dev` arranca y carga la tienda
-- [ ] Verificar que Firebase se conecta (ver consola del navegador) — **requiere credenciales reales en .env**
+- [x] Verificar que Firebase se conecta (ver consola del navegador) — credenciales reales en .env ✅
 
 **Posible issue**: `firebase.ts` usa `$env/static/public` — esto requiere las env vars en build time. Si el deploy en Cloudflare Workers no las tiene, no funciona. Verificar `wrangler.jsonc` o dashboard de Cloudflare.
 
