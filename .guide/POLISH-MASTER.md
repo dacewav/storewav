@@ -55,16 +55,16 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que la página de beat individual funcione.
 
-- [ ] Título, artista, género, BPM, key se muestran
-- [ ] Cover image se carga
-- [ ] Play button funciona
-- [ ] Waveform se renderiza
-- [ ] Licencias se muestran con precios
-- [ ] Wishlist button funciona (añadir/quitar)
-- [ ] Platform links (Spotify, YouTube, SoundCloud) se muestran
-- [ ] Back link funciona
-- [ ] SEO: JSON-LD está inyectado (ver source de la página)
-- [ ] SEO: OG tags presentes
+- [x] Título, artista, género, BPM, key se muestran
+- [x] Cover image se carga
+- [x] Play button funciona
+- [x] Waveform se renderiza
+- [x] Licencias se muestran con precios
+- [x] Wishlist button funciona (añadir/quitar)
+- [x] Platform links (Spotify, YouTube, SoundCloud) se muestran
+- [x] Back link funciona
+- [x] SEO: JSON-LD está inyectado (ver source de la página) — fixeado en Bloque 2
+- [x] SEO: OG tags presentes
 
 ---
 
