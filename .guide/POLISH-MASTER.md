@@ -72,14 +72,14 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que el admin cargue y muestre datos.
 
-- [ ] Auth redirect funciona (no logueado → login, no admin → home)
-- [ ] Dashboard stats se muestran (beats, activos, plays, top beat)
-- [ ] Quick actions funcionan (nuevo beat, tema, contenido, beats, export, import, seed)
-- [ ] Seed demo beats funciona
-- [ ] Export/Import funciona
-- [ ] Keyboard shortcuts: Ctrl+D (dashboard), Ctrl+B (beats), Ctrl+H (hero), Ctrl+T (theme), Ctrl+G (go to store)
-- [ ] Ctrl+Z / Ctrl+Shift+Z (undo/redo) funciona en editors
-- [ ] Toast notifications aparecen al guardar
+- [x] Auth redirect funciona (no logueado → login, no admin → home)
+- [x] Dashboard stats se muestran (beats, activos, plays, top beat)
+- [x] Quick actions funcionan (nuevo beat, tema, contenido, beats, export, import, seed)
+- [x] Seed demo beats funciona
+- [x] Export/Import funciona
+- [x] Keyboard shortcuts: Ctrl+D (dashboard), Ctrl+B (beats), Ctrl+H (hero), Ctrl+T (theme), Ctrl+G (go to store)
+- [x] Ctrl+Z / Ctrl+Shift+Z (undo/redo) funciona en editors
+- [x] Toast notifications aparecen al guardar
 
 ---
 
