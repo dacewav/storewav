@@ -219,7 +219,6 @@ export type LabelSettings = {
 	wishlistEmptySub: string;
 	beatPreview: string;
 	licenses: string;
-	buyPrefix: string;
 	filterAll: string;
 	filterKey: string;
 	clearAll: string;
@@ -228,14 +227,6 @@ export type LabelSettings = {
 	statBeats: string;
 	statGenres: string;
 	statLicenses: string;
-	licenseBasic: string;
-	licensePremium: string;
-	licenseUnlimited: string;
-	licenseExclusive: string;
-	licenseBasicDesc: string;
-	licensePremiumDesc: string;
-	licenseUnlimitedDesc: string;
-	licenseExclusiveDesc: string;
 	preview: string;
 	buy: string;
 	backToCatalog: string;
@@ -410,7 +401,6 @@ const DEFAULT: SettingsData = {
 		wishlistEmptySub: 'Añade beats a tu lista para verlos aquí',
 		beatPreview: 'Escuchar preview',
 		licenses: 'Licencias',
-		buyPrefix: 'Comprar',
 		filterAll: 'Todos',
 		filterKey: 'Tonalidad',
 		clearAll: 'Limpiar todo',
@@ -419,14 +409,6 @@ const DEFAULT: SettingsData = {
 		statBeats: 'beats',
 		statGenres: 'géneros',
 		statLicenses: 'licencias',
-		licenseBasic: 'Basic',
-		licensePremium: 'Premium',
-		licenseUnlimited: 'Unlimited',
-		licenseExclusive: 'Exclusive',
-		licenseBasicDesc: 'MP3 · 1 uso',
-		licensePremiumDesc: 'WAV · Sin tag',
-		licenseUnlimitedDesc: 'WAV + Stems',
-		licenseExclusiveDesc: 'Exclusivo total',
 		preview: 'Escuchar preview',
 		buy: 'Comprar',
 		backToCatalog: 'Volver al catálogo',

@@ -16,12 +16,6 @@ export type LicenseItem = {
 	priceUSD: number;
 };
 
-export type Platforms = {
-	spotify?: string;
-	youtube?: string;
-	soundcloud?: string;
-};
-
 export type Beat = {
 	name: string;
 	artist?: string;

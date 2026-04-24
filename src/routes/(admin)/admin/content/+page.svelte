@@ -23,19 +23,21 @@
 		{ key: 'wishlistEmptySub', label: 'Wishlist vacío subtítulo', group: 'Estados vacíos' },
 		{ key: 'beatPreview', label: '"Escuchar preview"', group: 'Modal' },
 		{ key: 'licenses', label: '"Licencias"', group: 'Modal' },
-		{ key: 'buyPrefix', label: '"Comprar"', group: 'Modal' },
 		{ key: 'priceFrom', label: '"Desde" (precio)', group: 'Beat Card' },
 		{ key: 'statBeats', label: 'Stat "beats"', group: 'Hero Stats' },
 		{ key: 'statGenres', label: 'Stat "géneros"', group: 'Hero Stats' },
 		{ key: 'statLicenses', label: 'Stat "licencias"', group: 'Hero Stats' },
-		{ key: 'licenseBasic', label: 'Licencia Basic', group: 'Licencias' },
-		{ key: 'licensePremium', label: 'Licencia Premium', group: 'Licencias' },
-		{ key: 'licenseUnlimited', label: 'Licencia Unlimited', group: 'Licencias' },
-		{ key: 'licenseExclusive', label: 'Licencia Exclusive', group: 'Licencias' },
-		{ key: 'licenseBasicDesc', label: 'Desc Basic', group: 'Licencias' },
-		{ key: 'licensePremiumDesc', label: 'Desc Premium', group: 'Licencias' },
-		{ key: 'licenseUnlimitedDesc', label: 'Desc Unlimited', group: 'Licencias' },
-		{ key: 'licenseExclusiveDesc', label: 'Desc Exclusive', group: 'Licencias' }
+		{ key: 'testimonialsTitle', label: 'Título testimonios', group: 'Testimonios' },
+		{ key: 'relatedBeats', label: '"Beats relacionados"', group: 'Beat Page' },
+		{ key: 'backToCatalog', label: '"Volver al catálogo"', group: 'Beat Page' },
+		{ key: 'preview', label: '"Escuchar preview"', group: 'Beat Page' },
+		{ key: 'buy', label: '"Comprar"', group: 'Beat Page' },
+		{ key: 'loginTitle', label: 'Login título', group: 'Login' },
+		{ key: 'loginSub', label: 'Login subtítulo', group: 'Login' },
+		{ key: 'loginBtn', label: 'Login botón', group: 'Login' },
+		{ key: 'loginBack', label: 'Login "volver"', group: 'Login' },
+		{ key: 'errorTitle', label: 'Error título', group: 'Error' },
+		{ key: 'errorBtn', label: 'Error botón', group: 'Error' }
 	];
 
 	let labelGroups = $derived(() => {

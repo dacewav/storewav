@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Card, Badge } from '$lib/components';
 	import { allBeatsList, wishlist, settings, auth } from '$lib/stores';
+	import { seedDemoBeats, SEED_COUNT } from '$lib/seed';
 
 	let beats = $derived($allBeatsList);
 	let wl = $derived($wishlist);
@@ -14,6 +15,23 @@
 		{ label: 'Géneros', value: String([...new Set(beats.map(b => b.genre))].length || '—'), icon: '🏷️' },
 		{ label: 'Licencias', value: String(beats.length > 0 && beats[0].licenses ? Object.keys(beats[0].licenses).length : 4), icon: '📄' }
 	]);
+
+	let seeding = $state(false);
+	let seedResult = $state<string | null>(null);
+
+	async function handleSeed() {
+		if (!confirm(`¿Crear ${SEED_COUNT} beats de demo en Firebase?`)) return;
+		seeding = true;
+		seedResult = null;
+		try {
+			const count = await seedDemoBeats();
+			seedResult = `✅ ${count} beats creados`;
+		} catch (err) {
+			seedResult = `❌ Error: ${err instanceof Error ? err.message : String(err)}`;
+		} finally {
+			seeding = false;
+		}
+	}
 
 	let recentActivity = $derived<{ action: string; time: string; type: 'success' | 'warning' | 'default' }[]>([
 		{ action: authState.user ? `Sesión: ${authState.user.email}` : 'Sin sesión', time: 'Ahora', type: authState.user ? 'success' : 'warning' },
@@ -130,6 +148,13 @@
 						<span>Importar</span>
 						<input type="file" accept=".json" onchange={handleImport} hidden />
 					</label>
+					<button class="qa-btn" onclick={handleSeed} disabled={seeding} aria-label="Seed demo beats">
+						<span class="qa-icon">{seeding ? '⏳' : '🌱'}</span>
+						<span>{seeding ? 'Creando...' : `Seed ${SEED_COUNT} beats`}</span>
+					</button>
+					{#if seedResult}
+						<div class="seed-result">{seedResult}</div>
+					{/if}
 				</div>
 			</div>
 		</Card>
@@ -320,6 +345,23 @@
 	.info-value {
 		font-size: var(--text-sm);
 		color: var(--text-secondary);
+	}
+
+	.seed-result {
+		grid-column: 1 / -1;
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		padding: var(--space-2) var(--space-3);
+		border-radius: var(--radius-md);
+		background: rgba(var(--accent-rgb), 0.08);
+		border: 1px solid rgba(var(--accent-rgb), 0.2);
+		color: var(--accent);
+		text-align: center;
+	}
+
+	.qa-btn:disabled {
+		opacity: 0.5;
+		cursor: wait;
 	}
 
 	@media (max-width: 768px) {
