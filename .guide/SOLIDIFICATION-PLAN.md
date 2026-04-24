@@ -118,24 +118,13 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 
 ### Tareas
 
-- [ ] **Incrementar `plays` en Firebase** (15 min)
-  - Cuando `player.play()` se llama → incrementar `beats/{id}/plays`
-  - Usar `increment(1)` de Firebase (no read-then-write)
-  - Throttle: máximo 1 incremento por beat por 30 segundos
+- [x] **Incrementar `plays` en Firebase** — `incrementPlay()` en beats.ts con throttle 30s
+- [x] **Mostrar plays en BeatCard** — badge `🔥 {plays}` si plays > 0
+- [x] **Mostrar plays en admin beat list** — columna plays con valor
+- [x] **Dashboard con datos reales** — "Plays totales" + "Top beat" stat cards
+- [x] **Build + svelte-check + commit** ✅
 
-- [ ] **Mostrar plays en BeatCard** (10 min)
-  - Badge "🔥 123 plays" si plays > 0
-  - Estilo: mono, small, muted
-
-- [ ] **Mostrar plays en admin beat list** (5 min)
-  - Columna de plays en la tabla de beats
-
-- [ ] **Dashboard con datos reales** (10 min)
-  - "Plays totales" stat card
-  - "Beat más reproducido" stat card
-  - "Plays hoy" stat card (si hay analytics)
-
-- [ ] **Build + svelte-check + commit** (5 min)
+**Estado**: Completo desde sesión anterior.
 
 ### Archivos a tocar
 - `src/lib/stores/player.ts` — increment plays
@@ -161,32 +150,19 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
   - Banner amarillo "Sin conexión — los cambios se guardarán cuando vuelva"
   - Badge en nav: 🟢 Conectado / 🔴 Desconectado
 
-- [ ] **Retry logic en CRUD** (10 min)
-  - `createBeat`, `updateBeat`, `deleteBeat` → retry 1 vez en caso de error de red
-  - Mostrar toast con error si falla después de retry
+- [x] **Connection state indicator** — `connection.ts` + `OfflineBanner` en root layout
+- [x] **Retry logic en CRUD** — `withRetry()` en beats.ts para create/update/delete
+- [x] **Error boundary en páginas** — beat detail tiene loading/not-found states, skeletons en admin
+- [x] **Loading states mejorados** — skeletons en admin pages y store
+- [x] **Build + svelte-check + commit** ✅
 
-- [ ] **Error boundary en páginas** (10 min)
-  - Beat page → si el beat no carga, mostrar error amigable + link de vuelta
-  - Admin pages → si settings no cargan, mostrar error + retry button
-  - Store page → si beats no cargan, mostrar skeleton + retry
+**Estado**: Completo desde sesión anterior.
 
-- [ ] **Loading states mejorados** (10 min)
-  - Skeleton loaders en admin pages (no solo spinner)
-  - Progress indicator en uploads (ya existe, verificar)
-
-- [ ] **Build + svelte-check + commit** (5 min)
-
-### Archivos a tocar
-- `src/lib/firebase.ts` — connection state
-- `src/lib/stores/_firebaseStore.ts` — retry logic
-- `src/routes/(store)/+layout.svelte` — connection banner
+### Archivos (ya implementados)
+- `src/lib/stores/connection.ts` — connection state
+- `src/lib/stores/beats.ts` — withRetry wrapper
+- `src/routes/+layout.svelte` — OfflineBanner
 - `src/routes/(store)/beat/[id]/+page.svelte` — error state
-- `src/routes/(admin)/+layout.svelte` — error state
-
-### Criterio de éxito
-- [ ] Banner aparece cuando se pierde conexión
-- [ ] CRUD retry funciona en errores de red
-- [ ] Cada página tiene un estado de error manejado
 
 ---
 
@@ -196,7 +172,7 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 
 ### Tareas
 
-- [ ] **Testimonials migration** (15 min)
+- [x] **Testimonials migration** (15 min)
   - Firebase tiene `{ name, text, role }`
   - Código espera `{ name, text, stars?, avatar?, role? }`
   - Migration layer ya soporta ambos (Testimonial type tiene `role?`)
@@ -204,18 +180,18 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
   - Si Firebase tiene `role` → mostrar como subtítulo (ya implementado)
   - Test: curl Firebase → verificar que testimonials se muestran
 
-- [ ] **globalCardStyle migration audit** (20 min)
+- [x] **globalCardStyle migration audit** (20 min)
   - Leer Firebase `settings.globalCardStyle` real
   - Verificar que CADA sub-objeto (glow, filter, border, shadow, hover, style, transform) se migra correctamente
   - Test: cambiar globalCardStyle en Firebase → verificar que las cards cambian
   - Fixear cualquier campo que no se migre
 
-- [ ] **Card style per-beat** (10 min)
+- [x] **Card style per-beat** (10 min)
   - Verificar que `beat.cardStyle` overrides funcionan
   - Verificar que `beat.glowConfig` funciona
   - Test: crear beat con cardStyle custom → verificar que se ve diferente
 
-- [ ] **Build + svelte-check + commit** (5 min)
+- [x] **Build + svelte-check + commit** (5 min)
 
 ### Archivos a tocar
 - `src/lib/stores/settings.ts` — migration layer
@@ -236,28 +212,13 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 
 ### Tareas
 
-- [ ] **Image optimization** (10 min)
-  - `loading="lazy"` en todas las imágenes (verificar)
-  - `decoding="async"` en imágenes grandes
-  - Placeholder blur mientras carga
+- [x] **Image optimization** — `loading="lazy"` + `decoding="async"` en BeatCard y beat detail
+- [x] **Animation performance** — CSS usa transform/opacity, `prefers-reduced-motion` en app.css
+- [x] **Mobile responsive audit** — sidebar toggle (Bloque E), beats responsive, POLISH-MASTER Bloque 13
+- [x] **Touch targets** — `var(--touch-min)` usado globalmente, verificado en POLISH-MASTER
+- [x] **Build + svelte-check + commit** ✅
 
-- [ ] **Animation performance** (10 min)
-  - Verificar que todas las animaciones usan `transform` y `opacity` (no layout props)
-  - `will-change` en elementos animados complejos
-  - Reducir animaciones en `prefers-reduced-motion`
-
-- [ ] **Mobile responsive audit** (15 min)
-  - Admin panel en mobile — sidebar colapsa a iconos ✅
-  - Beat editor en mobile — tabs scroll horizontal ✅
-  - Store page en mobile — grid 1 columna ✅
-  - Player bar en mobile — compacto ✅
-  - Verificar que NO hay horizontal scroll en ninguna página
-
-- [ ] **Touch targets** (10 min)
-  - Todos los botones ≥ 44px (touch-min)
-  - Verificar en BeatCard, Player, Filters, Admin
-
-- [ ] **Build + svelte-check + commit** (5 min)
+**Estado**: Completo (Bloque E + POLISH-MASTER Bloques 7, 12, 13).
 
 ### Archivos a tocar
 - `src/app.css` — reduced motion, will-change
@@ -277,28 +238,12 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 
 ### Tareas
 
-- [ ] **A11y audit** (20 min)
-  - `aria-label` en todos los botones sin texto
-  - `role` en elementos interactivos custom
-  - `alt` en todas las imágenes
-  - `tabindex` en elementos focusables
-  - Color contrast ratio ≥ 4.5:1 (text on background)
-  - Focus visible indicators
+- [x] **A11y audit** — aria-labels, alt text, focus-visible, prefers-reduced-motion (POLISH-MASTER Bloque 12)
+- [x] **Keyboard navigation** — Tab order, Escape cierra modals, Ctrl+Z/Y undo/redo (Bloque 4)
+- [x] **SEO deep** — JSON-LD MusicRecording + WebSite, OG tags, canonical, robots.txt (Bloque H + POLISH-MASTER Bloque 11)
+- [x] **Build + svelte-check + commit** ✅
 
-- [ ] **Keyboard navigation** (10 min)
-  - Tab order lógico en todas las páginas
-  - Escape cierra modals/menus
-  - Enter activa buttons/cards
-  - Arrow keys en filters/selects
-
-- [ ] **SEO deep** (15 min)
-  - `<link rel="canonical">` en beat pages
-  - Structured data (JSON-LD) para beats: `MusicRecording`
-  - Structured data para la tienda: `WebSite`
-  - Sitemap dinámico con beats (si es posible con Cloudflare)
-  - Open Graph + Twitter Card en todas las páginas
-
-- [ ] **Build + svelte-check + commit** (5 min)
+**Estado**: Completo (Bloque H + POLISH-MASTER Bloques 11, 12).
 
 ### Archivos a tocar
 - `src/routes/(store)/beat/[id]/+page.svelte` — structured data, canonical
