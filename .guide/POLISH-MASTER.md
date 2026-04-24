@@ -287,16 +287,16 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que la accesibilidad esté completa.
 
-- [ ] Skip to content link funciona
-- [ ] All images have alt text
-- [ ] Icon buttons have aria-label
-- [ ] :focus-visible outline visible on keyboard nav
-- [ ] Mobile menu focus trap works
-- [ ] Player slider keyboard nav (arrows)
-- [ ] Beat editor Ctrl+S save
-- [ ] Admin Ctrl+Z/Shift+Z undo/redo
-- [ ] prefers-reduced-motion disables animations
-- [ ] prefers-color-scheme respects system theme
+- [x] Skip to content link funciona — añadido al store layout
+- [x] All images have alt text — verificado en componentes
+- [x] Icon buttons have aria-label — verificado en nav, player, admin
+- [x] :focus-visible outline visible on keyboard nav — definido en app.css
+- [x] Mobile menu focus trap works — verificado en Bloque 8
+- [x] Player slider keyboard nav (arrows) — verificado en Bloque 9
+- [x] Beat editor Ctrl+S save — verificado en BeatEditor.svelte
+- [x] Admin Ctrl+Z/Shift+Z undo/redo — verificado en Bloque 4
+- [x] prefers-reduced-motion disables animations — verificado en app.css
+- [x] prefers-color-scheme respects system theme — verificado en layout
 
 ---
 

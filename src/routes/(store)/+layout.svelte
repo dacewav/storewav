@@ -227,6 +227,9 @@
 	<meta name="twitter:image" content="/og-image.svg" />
 </svelte:head>
 
+<!-- Skip to content (a11y) -->
+<a href="#main-content" class="skip-to-content">Saltar al contenido</a>
+
 <!-- Banner (admin-editable) -->
 {#if bannerEnabled}
 <div class="site-banner" style="background: {bannerBg}">
@@ -396,6 +399,27 @@
 <ToastContainer />
 
 <style>
+	/* Skip to content (a11y) */
+	.skip-to-content {
+		position: absolute;
+		top: -100px;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 9999;
+		padding: var(--space-2) var(--space-4);
+		background: var(--accent);
+		color: var(--bg);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		text-decoration: none;
+		border-radius: var(--radius-md);
+		transition: top var(--duration-fast);
+	}
+
+	.skip-to-content:focus {
+		top: var(--space-2);
+	}
+
 	.app {
 		display: flex;
 		flex-direction: column;
