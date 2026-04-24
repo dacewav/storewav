@@ -214,24 +214,24 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 **Objetivo**: Que los paneles funcionen.
 
 ### Wishlist Panel
-- [ ] Se abre al click en heart icon
-- [ ] Se cierra al click en backdrop
-- [ ] Se cierra con Escape
-- [ ] Beats se muestran
-- [ ] Empty state se muestra si no hay beats
-- [ ] Click en beat → navega al beat
-- [ ] Remove de wishlist funciona
-- [ ] Contador se actualiza
+- [x] Se abre al click en heart icon
+- [x] Se cierra al click en backdrop
+- [x] Se cierra con Escape
+- [x] Beats se muestran
+- [x] Empty state se muestra si no hay beats
+- [x] Click en beat → reproduce audio (play button en cover)
+- [x] Remove de wishlist funciona
+- [x] Contador se actualiza
 
 ### Mobile Menu
-- [ ] Se abre al click en hamburger
-- [ ] Se cierra al click en overlay
-- [ ] Se cierra al click en link
-- [ ] Links se muestran (section title, admin si es admin, nav links)
-- [ ] Theme toggle funciona
-- [ ] Wishlist button funciona
-- [ ] Focus trap funciona (Tab cicla dentro del menú)
-- [ ] Auto-focus primer elemento al abrir
+- [x] Se abre al click en hamburger
+- [x] Se cierra al click en overlay
+- [x] Se cierra al click en link
+- [x] Links se muestran (section title, admin si es admin, nav links)
+- [x] Theme toggle funciona
+- [x] Wishlist button funciona
+- [x] Focus trap funciona (Tab cicla dentro del menú)
+- [x] Auto-focus primer elemento al abrir
 
 ---
 
