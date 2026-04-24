@@ -88,6 +88,16 @@
 	function confirmDelete() { deleteConfirm = false; onDelete?.(); }
 	function cancelDelete() { deleteConfirm = false; }
 
+	// Validation
+	let validationErrors = $derived.by(() => {
+		const errs: string[] = [];
+		if (!beat.name?.trim()) errs.push('Nombre es obligatorio');
+		if (!beat.genre) errs.push('Género es obligatorio');
+		if (beat.bpm && (beat.bpm < 40 || beat.bpm > 300)) errs.push('BPM debe estar entre 40 y 300');
+		return errs;
+	});
+	let isValid = $derived(validationErrors.length === 0);
+
 	// Auto-save with debounce (1s after last change)
 	let autoSaveTimer: ReturnType<typeof setTimeout> | null = $state(null);
 	let mounted = $state(false);
@@ -102,7 +112,7 @@
 	$effect(() => {
 		const _ = JSON.stringify(beat);
 		const status = saveStatus;
-		if (mounted && status === 'unsaved' && onSave) {
+		if (mounted && status === 'unsaved' && onSave && isValid) {
 			if (autoSaveTimer) clearTimeout(autoSaveTimer);
 			autoSaveTimer = setTimeout(() => {
 				onSave?.();
@@ -139,6 +149,9 @@
 			<Badge variant={saveStatus === 'saved' ? 'accent' : saveStatus === 'saving' ? 'warning' : saveStatus === 'error' ? 'danger' : 'muted'}>
 				{saveStatus === 'saved' ? '✓ Guardado' : saveStatus === 'saving' ? 'Guardando...' : saveStatus === 'error' ? 'Error al guardar' : '● Sin guardar'}
 			</Badge>
+			{#if !isValid}
+				<Badge variant="danger">⚠ {validationErrors.length} campo(s) requerido(s)</Badge>
+			{/if}
 		</div>
 		<div class="save-right">
 			{#if onDelete}
