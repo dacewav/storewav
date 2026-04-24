@@ -21,7 +21,14 @@
 	let animId = 0;
 	let particles: { x: number; y: number; vx: number; vy: number; size: number; life: number }[] = [];
 
-	const resolvedColor = $derived(color || 'var(--accent)');
+	const resolvedColor = $derived(color || getComputedAccent());
+
+	/** Resolve CSS variable --accent to actual hex for canvas */
+	function getComputedAccent(): string {
+		if (typeof document === 'undefined') return '#dc2626';
+		const val = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+		return val || '#dc2626';
+	}
 
 	function initParticles(w: number, h: number) {
 		particles = Array.from({ length: count }, () => ({
@@ -96,7 +103,7 @@
 			canvas.height = h * dpr;
 			canvas.style.width = `${w}px`;
 			canvas.style.height = `${h}px`;
-			ctx.scale(dpr, dpr);
+			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 			initParticles(w, h);
 		};
 

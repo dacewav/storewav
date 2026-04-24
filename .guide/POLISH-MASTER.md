@@ -186,26 +186,26 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que los efectos visuales funcionen.
 
-### Particles (NUEVO — sesión 14) ⚠️ POSIBLES BUGS
-- [ ] Canvas se renderiza (verificar que no esté vacío)
-- [ ] Particles se mueven
-- [ ] Type: circle funciona
-- [ ] Type: square funciona
-- [ ] Type: line funciona
-- [ ] Type: text funciona (con texto custom)
-- [ ] Re-resize funciona (cambiar tamaño de ventana)
-- [ ] No hay memory leak (verificar que cancelAnimationFrame funciona al desmontar)
-- [ ] **BUG POTENCIAL**: `resolvedColor` usa `var(--accent)` — CSS variables NO funcionan en canvas. Necesita resolver el color real.
-- [ ] **BUG POTENCIAL**: `ctx.scale(dpr, dpr)` se acumula en cada resize. Necesita `ctx.setTransform(dpr, 0, 0, dpr, 0, 0)` o resetear antes de escalar.
+### Particles (NUEVO — sesión 14) ✅ BUGS ARREGLADOS
+- [x] Canvas se renderiza (verificar que no esté vacío)
+- [x] Particles se mueven
+- [x] Type: circle funciona
+- [x] Type: square funciona
+- [x] Type: line funciona
+- [x] Type: text funciona (con texto custom)
+- [x] Re-resize funciona (cambiar tamaño de ventana)
+- [x] No hay memory leak (verificar que cancelAnimationFrame funciona al desmontar)
+- [x] **BUG FIX**: `resolvedColor` ahora resuelve `--accent` a hex real via getComputedStyle
+- [x] **BUG FIX**: `ctx.scale(dpr, dpr)` reemplazado por `ctx.setTransform(dpr, 0, 0, dpr, 0, 0)` para evitar acumulación
 
 ### Orbs
-- [ ] 3 orbs se renderizan
-- [ ] Animación de float funciona
-- [ ] Se ocultan en mobile (orb3) y con prefers-reduced-motion
+- [x] 3 orbs se renderizan
+- [x] Animación de float funciona
+- [x] Se ocultan en mobile (orb3) y con prefers-reduced-motion
 
 ### Cursor Glow
-- [ ] Se sigue al mouse
-- [ ] Se oculta en mobile y con prefers-reduced-motion
+- [x] Se sigue al mouse
+- [x] Se oculta en mobile y con prefers-reduced-motion
 
 ---
 
