@@ -257,15 +257,15 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que el login funcione.
 
-- [ ] Página de login se carga
-- [ ] Google sign-in button funciona
-- [ ] Redirect a Google OAuth funciona
-- [ ] Callback vuelve a la app
-- [ ] Admin check funciona (PUBLIC_ADMIN_UIDS)
-- [ ] No admin → redirect a home
-- [ ] Admin → redirect a /admin
-- [ ] Logout funciona
-- [ ] "Volver a la tienda" link funciona
+- [x] Página de login se carga
+- [x] Google sign-in button funciona
+- [x] Redirect a Google OAuth funciona
+- [x] Callback vuelve a la app
+- [x] Admin check funciona (PUBLIC_ADMIN_UIDS)
+- [x] No admin → redirect a home
+- [x] Admin → redirect a /admin
+- [x] Logout funciona
+- [x] "Volver a la tienda" link funciona
 
 ---
 
