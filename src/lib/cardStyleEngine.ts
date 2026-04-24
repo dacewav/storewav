@@ -250,6 +250,64 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 		75% { border-image-source: linear-gradient(270deg, var(--accent), transparent); }
 		100% { border-image-source: linear-gradient(360deg, var(--accent), transparent); }
 	}`,
+	drift: `@keyframes cardDrift {
+		0%, 100% { transform: translate(0, 0) rotate(0deg); }
+		25% { transform: translate(3px, -4px) rotate(0.5deg); }
+		50% { transform: translate(-2px, -6px) rotate(-0.3deg); }
+		75% { transform: translate(4px, -2px) rotate(0.2deg); }
+	}`,
+	spin: `@keyframes cardSpin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}`,
+	tilt: `@keyframes cardTilt {
+		0%, 100% { transform: perspective(600px) rotateX(0deg) rotateY(0deg); }
+		25% { transform: perspective(600px) rotateX(2deg) rotateY(3deg); }
+		75% { transform: perspective(600px) rotateX(-2deg) rotateY(-3deg); }
+	}`,
+	sway: `@keyframes cardSway {
+		0%, 100% { transform: rotate(0deg); }
+		25% { transform: rotate(2deg); }
+		75% { transform: rotate(-2deg); }
+	}`,
+	popIn: `@keyframes cardPopIn {
+		0% { transform: scale(0.8); opacity: 0; }
+		60% { transform: scale(1.05); opacity: 1; }
+		100% { transform: scale(1); }
+	}`,
+	elastic: `@keyframes cardElastic {
+		0% { transform: scale(0); }
+		55% { transform: scale(1.08); }
+		70% { transform: scale(0.96); }
+		85% { transform: scale(1.02); }
+		100% { transform: scale(1); }
+	}`,
+	dropIn: `@keyframes cardDropIn {
+		0% { transform: translateY(-30px) scale(0.9); opacity: 0; }
+		60% { transform: translateY(4px) scale(1.02); opacity: 1; }
+		100% { transform: translateY(0) scale(1); }
+	}`,
+	riseUp: `@keyframes cardRiseUp {
+		0% { transform: translateY(20px); opacity: 0; }
+		100% { transform: translateY(0); opacity: 1; }
+	}`,
+	flipX: `@keyframes cardFlipX {
+		0% { transform: perspective(400px) rotateX(0); }
+		100% { transform: perspective(400px) rotateX(360deg); }
+	}`,
+	flipY: `@keyframes cardFlipY {
+		0% { transform: perspective(400px) rotateY(0); }
+		100% { transform: perspective(400px) rotateY(360deg); }
+	}`,
+	rubber: `@keyframes cardRubber {
+		0%, 100% { transform: scaleX(1) scaleY(1); }
+		30% { transform: scaleX(1.12) scaleY(0.88); }
+		60% { transform: scaleX(0.92) scaleY(1.08); }
+	}`,
+	squeeze: `@keyframes cardSqueeze {
+		0%, 100% { transform: scaleX(1) scaleY(1); }
+		50% { transform: scaleX(0.95) scaleY(1.05); }
+	}`,
 };
 
 /**
@@ -417,10 +475,5 @@ export function cardHoverCSS(style: CardStyleConfig, accentRgb: string): string 
  */
 export function shimmerCSS(style: CardStyleConfig): string {
 	if (!style.shimmer) return '';
-	const color = style.shimmerColor || 'rgba(255, 255, 255, 0.08)';
-	const duration = style.shimmerDuration || '2s';
-	return `
-		position: relative;
-		overflow: hidden;
-	`;
+	return `position: relative; overflow: hidden;`;
 }

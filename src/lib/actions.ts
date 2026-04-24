@@ -157,27 +157,31 @@ export const siblingBlur: Action<HTMLElement, { blur?: number; opacity?: number 
 		});
 	}
 
-	// mouseover bubbles (unlike mouseenter which doesn't for delegation)
-	node.addEventListener('mouseover', (e) => {
+	function onMouseOver(e: Event) {
 		const card = (e.target as HTMLElement)?.closest('.beat-card');
 		if (card) blurOthers(card as HTMLElement);
-	});
+	}
 
-	// mouseout bubbles (unlike mouseleave)
-	node.addEventListener('mouseout', (e) => {
-		// Only clear if we left the grid entirely
-		const related = e.relatedTarget as HTMLElement | null;
+	function onMouseOut(e: Event) {
+		const related = (e as MouseEvent).relatedTarget as HTMLElement | null;
 		if (!related || !node.contains(related)) {
 			clearAll();
 		}
-	});
+	}
+
+	node.addEventListener('mouseover', onMouseOver);
+	node.addEventListener('mouseout', onMouseOut);
 
 	return {
-		destroy() {}
+		destroy() {
+			node.removeEventListener('mouseover', onMouseOver);
+			node.removeEventListener('mouseout', onMouseOut);
+			clearAll();
+		}
 	};
 };
 
-/** Click ripple effect */
+/** Click ripple effect (requires @keyframes rippleExpand in global CSS) */
 export const ripple: Action<HTMLElement> = (node) => {
 	let rippleTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -251,7 +255,13 @@ export const countUp: Action<HTMLElement, number> = (node, target) => {
 
 	return {
 		update(newTarget: number) {
+			if (newTarget === target) return;
 			target = newTarget;
+			// Re-animate if already visible
+			if (animated) {
+				animated = false;
+				animate();
+			}
 		},
 		destroy() {
 			observer.disconnect();

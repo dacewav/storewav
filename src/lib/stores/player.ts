@@ -125,11 +125,11 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 		}
 	}, 10_000);
 
-	// Clear timeout once metadata loads
-	const origLoaded = onLoadedMetadata;
+	// Clear timeout once metadata loads (one-shot wrapper)
 	const onMetaWithTimeout = () => {
 		clearTimeout(timeoutId);
-		origLoaded();
+		onLoadedMetadata();
+		a.removeEventListener('loadedmetadata', onMetaWithTimeout);
 	};
 	a.removeEventListener('loadedmetadata', onLoadedMetadata);
 	a.addEventListener('loadedmetadata', onMetaWithTimeout);

@@ -80,7 +80,7 @@
 	let labels = $derived((s?.labels ?? {}) as LabelSettings);
 
 	// License count from first beat (or default 4)
-	let licenseCount = $derived(beats.length > 0 && beats[0].licenses ? Object.keys(beats[0].licenses).length : 4);
+	let licenseCount = $derived(beats.length > 0 && beats[0].licenses ? beats[0].licenses.length : 4);
 	let testimonialsTitle = $derived(s?.labels?.testimonialsTitle ?? 'Lo que dicen');
 
 	// Featured beats (for the featured section)

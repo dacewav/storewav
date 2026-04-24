@@ -13,7 +13,7 @@
 		{ label: 'Beats', value: String(beats.length || '—'), icon: '🎵' },
 		{ label: 'Wishlist', value: String(wl.length || '—'), icon: '❤️' },
 		{ label: 'Géneros', value: String([...new Set(beats.map(b => b.genre))].length || '—'), icon: '🏷️' },
-		{ label: 'Licencias', value: String(beats.length > 0 && beats[0].licenses ? Object.keys(beats[0].licenses).length : 4), icon: '📄' }
+		{ label: 'Licencias', value: String(beats.length > 0 && beats[0].licenses?.length ? beats[0].licenses.length : 4), icon: '📄' }
 	]);
 
 	let seeding = $state(false);
