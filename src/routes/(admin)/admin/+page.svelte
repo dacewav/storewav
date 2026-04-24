@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Card, Badge, Skeleton } from '$lib/components';
-	import { allBeatsList, wishlist, settings, auth, beats as beatsStore, beatsStats, createBeat } from '$lib/stores';
+	import { allBeatsList, wishlist, settings, auth, beats as beatsStore, beatsStats, createBeat, updateBeat } from '$lib/stores';
 	import { seedDemoBeats, SEED_COUNT } from '$lib/seed';
 	import { toast } from '$lib/toastStore';
+	import type { Beat } from '$lib/stores/beats';
 
 	let beatsData = $derived($beatsStore);
 	let beats = $derived($allBeatsList);
@@ -47,13 +48,13 @@
 		{ action: settingsData ? 'Settings Firebase conectado' : 'Settings pendiente', time: 'Ahora', type: settingsData ? 'success' : 'warning' }
 	]);
 
-	// Export all data as JSON
+	// ── Export: include beats + settings (with theme) ──
 	function handleExport() {
 		const data = {
 			beats: Object.fromEntries(beats.map(b => [b.id, { ...b }])),
 			settings: settingsData,
 			exportedAt: new Date().toISOString(),
-			version: '1.0'
+			version: '1.1'
 		};
 		const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
@@ -62,10 +63,37 @@
 		a.download = `dacewav-backup-${new Date().toISOString().slice(0, 10)}.json`;
 		a.click();
 		URL.revokeObjectURL(url);
+		toast.success('Exportación completada');
 	}
 
-	// Import data from JSON
-	async function handleImport(e: Event) {
+	// ── Import: validation + preview + duplicate handling ──
+	const REQUIRED_BEAT_FIELDS = ['name', 'genre', 'bpm', 'key'] as const;
+
+	type ImportPreview = {
+		beats: { id: string; name: string; isDuplicate: boolean }[];
+		hasSettings: boolean;
+		settingsSections: string[];
+		errors: string[];
+	};
+
+	let importPreview = $state<ImportPreview | null>(null);
+	let importFileData = $state<{ beats: Record<string, unknown>; settings: Record<string, unknown> | null } | null>(null);
+	let importDuplicateMode = $state<'skip' | 'overwrite'>('skip');
+	let importing = $state(false);
+
+	/** Validate a single beat object, return list of missing fields */
+	function validateBeat(beat: Record<string, unknown>): string[] {
+		const missing: string[] = [];
+		for (const field of REQUIRED_BEAT_FIELDS) {
+			if (beat[field] === undefined || beat[field] === null || beat[field] === '') {
+				missing.push(field);
+			}
+		}
+		return missing;
+	}
+
+	/** Parse file and show preview modal */
+	async function handleImportSelect(e: Event) {
 		const input = e.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
@@ -73,16 +101,99 @@
 		try {
 			const text = await file.text();
 			const data = JSON.parse(text);
-			let imported = 0;
 
-			if (data.settings) {
-				await settings.set(data.settings);
+			if (typeof data !== 'object' || data === null) {
+				toast.error('Archivo inválido: no es un JSON válido');
+				input.value = '';
+				return;
+			}
+
+			const errors: string[] = [];
+			const beatsPreview: ImportPreview['beats'] = [];
+			const existingIds = new Set(beats.map(b => b.id));
+
+			// Validate beats
+			if (data.beats && typeof data.beats === 'object') {
+				for (const [id, beatData] of Object.entries(data.beats)) {
+					const beat = beatData as Record<string, unknown>;
+					const missing = validateBeat(beat);
+					if (missing.length > 0) {
+						errors.push(`Beat "${beat.name ?? id}": falta ${missing.join(', ')}`);
+					} else {
+						beatsPreview.push({
+							id,
+							name: String(beat.name),
+							isDuplicate: existingIds.has(id)
+						});
+					}
+				}
+			}
+
+			// Detect settings sections
+			const settingsSections: string[] = [];
+			if (data.settings && typeof data.settings === 'object') {
+				for (const key of Object.keys(data.settings)) {
+					if (key !== 'exportedAt' && key !== 'version') {
+						settingsSections.push(key);
+					}
+				}
+			}
+
+			// Store parsed data for import execution
+			importFileData = {
+				beats: (data.beats && typeof data.beats === 'object') ? data.beats as Record<string, unknown> : {},
+				settings: (data.settings && typeof data.settings === 'object') ? data.settings as Record<string, unknown> : null
+			};
+
+			importPreview = {
+				beats: beatsPreview,
+				hasSettings: settingsSections.length > 0,
+				settingsSections,
+				errors
+			};
+		} catch {
+			toast.error('Error al leer el archivo: JSON inválido');
+		}
+		input.value = '';
+	}
+
+	/** Execute import after preview confirmation */
+	async function executeImport() {
+		if (!importFileData || !importPreview) return;
+
+		importing = true;
+		let imported = 0;
+		let skipped = 0;
+
+		try {
+			// Import settings
+			if (importFileData.settings && importPreview.hasSettings) {
+				const { exportedAt, version, ...settingsPayload } = importFileData.settings;
+				await settings.set(settingsPayload as Parameters<typeof settings.set>[0]);
 				imported++;
 			}
 
-			if (data.beats && typeof data.beats === 'object') {
-				for (const [, beatData] of Object.entries(data.beats)) {
-					const { id, date, ...rest } = beatData as Record<string, unknown>;
+			// Import beats
+			for (const beatPreview of importPreview.beats) {
+				const beatData = importFileData.beats[beatPreview.id] as Record<string, unknown> | undefined;
+				if (!beatData) continue;
+
+				if (beatPreview.isDuplicate) {
+					if (importDuplicateMode === 'skip') {
+						skipped++;
+						continue;
+					}
+					// Overwrite: update existing beat
+					const { id, date, ...rest } = beatData;
+					try {
+						await updateBeat(beatPreview.id, rest as Partial<Beat>);
+						imported++;
+					} catch (err) {
+						console.error('[Import] Error updating beat:', beatPreview.id, err);
+					}
+				} else {
+					// New beat
+					const { id, date, ...rest } = beatData;
 					try {
 						await createBeat(rest as Parameters<typeof createBeat>[0]);
 						imported++;
@@ -92,11 +203,22 @@
 				}
 			}
 
-			toast.success(`Importados: ${imported} elemento(s)`);
-		} catch {
-			toast.error('Error al importar: archivo inválido');
+			const msg = skipped > 0
+				? `Importados: ${imported} · Omitidos: ${skipped}`
+				: `Importados: ${imported} elemento(s)`;
+			toast.success(msg);
+		} catch (err) {
+			toast.error(`Error al importar: ${err instanceof Error ? err.message : String(err)}`);
+		} finally {
+			importing = false;
+			importPreview = null;
+			importFileData = null;
 		}
-		input.value = '';
+	}
+
+	function cancelImport() {
+		importPreview = null;
+		importFileData = null;
 	}
 </script>
 
@@ -183,7 +305,7 @@
 					<label class="qa-btn" aria-label="Importar datos">
 						<span class="qa-icon">📥</span>
 						<span>Importar</span>
-						<input type="file" accept=".json" onchange={handleImport} hidden />
+						<input type="file" accept=".json" onchange={handleImportSelect} hidden />
 					</label>
 					<button class="qa-btn" onclick={handleSeed} disabled={seeding} aria-label="Seed demo beats">
 						<span class="qa-icon">{seeding ? '⏳' : '🌱'}</span>
@@ -212,6 +334,83 @@
 			<span class="info-value">v1.0.0</span>
 		</div>
 	</div>
+
+	<!-- Import preview modal -->
+	{#if importPreview}
+		<div class="modal-backdrop" onclick={cancelImport} role="presentation">
+			<div class="modal" onclick={(e) => e.stopPropagation()} role="dialog" aria-label="Vista previa de importación">
+				<h3 class="modal-title">📥 Vista previa de importación</h3>
+
+				<!-- Beats preview -->
+				{#if importPreview.beats.length > 0}
+					<div class="preview-section">
+						<h4 class="preview-label">Beats ({importPreview.beats.length})</h4>
+						<div class="preview-list">
+							{#each importPreview.beats as beat}
+								<div class="preview-item" class:duplicate={beat.isDuplicate}>
+									<span class="preview-name">{beat.name}</span>
+									{#if beat.isDuplicate}
+										<Badge variant="warning">duplicado</Badge>
+									{:else}
+										<Badge variant="accent">nuevo</Badge>
+									{/if}
+								</div>
+							{/each}
+						</div>
+					</div>
+				{:else}
+					<p class="preview-empty">No hay beats en el archivo</p>
+				{/if}
+
+				<!-- Settings preview -->
+				{#if importPreview.hasSettings}
+					<div class="preview-section">
+						<h4 class="preview-label">Settings</h4>
+						<div class="preview-tags">
+							{#each importPreview.settingsSections as section}
+								<span class="preview-tag">{section}</span>
+							{/each}
+						</div>
+					</div>
+				{/if}
+
+				<!-- Validation errors -->
+				{#if importPreview.errors.length > 0}
+					<div class="preview-errors">
+						<h4 class="preview-label error">⚠️ Errores de validación</h4>
+						{#each importPreview.errors as error}
+							<p class="error-text">{error}</p>
+						{/each}
+					</div>
+				{/if}
+
+				<!-- Duplicate mode selector -->
+				{#if importPreview.beats.some(b => b.isDuplicate)}
+					<div class="dup-mode">
+						<h4 class="preview-label">Beats duplicados</h4>
+						<div class="dup-options">
+							<label class="dup-option">
+								<input type="radio" bind:group={importDuplicateMode} value="skip" />
+								<span>Omitir (no sobreescribir)</span>
+							</label>
+							<label class="dup-option">
+								<input type="radio" bind:group={importDuplicateMode} value="overwrite" />
+								<span>Sobreescribir con datos nuevos</span>
+							</label>
+						</div>
+					</div>
+				{/if}
+
+				<!-- Actions -->
+				<div class="modal-actions">
+					<button class="btn-cancel" onclick={cancelImport}>Cancelar</button>
+					<button class="btn-import" onclick={executeImport} disabled={importing}>
+						{importing ? 'Importando...' : 'Confirmar importación'}
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -397,6 +596,192 @@
 	}
 
 	.qa-btn:disabled {
+		opacity: 0.5;
+		cursor: wait;
+	}
+
+	/* ── Import Preview Modal ── */
+	.modal-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.7);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+		padding: var(--space-4);
+	}
+
+	.modal {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-6);
+		max-width: 560px;
+		width: 100%;
+		max-height: 80vh;
+		overflow-y: auto;
+	}
+
+	.modal-title {
+		font-family: var(--font-display);
+		font-size: var(--text-xl);
+		font-weight: 800;
+		color: var(--text);
+		margin-bottom: var(--space-5);
+	}
+
+	.preview-section {
+		margin-bottom: var(--space-4);
+	}
+
+	.preview-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		margin-bottom: var(--space-2);
+	}
+
+	.preview-label.error {
+		color: #ef4444;
+	}
+
+	.preview-list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		max-height: 200px;
+		overflow-y: auto;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		padding: var(--space-2);
+	}
+
+	.preview-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: var(--space-2) var(--space-3);
+		border-radius: var(--radius-sm);
+		font-size: var(--text-sm);
+	}
+
+	.preview-item.duplicate {
+		background: rgba(234, 179, 8, 0.08);
+	}
+
+	.preview-name {
+		color: var(--text);
+		font-weight: 500;
+	}
+
+	.preview-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+	}
+
+	.preview-tag {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		padding: var(--space-1) var(--space-2);
+		border-radius: var(--radius-sm);
+		background: var(--surface-hover);
+		border: 1px solid var(--border);
+		color: var(--text-secondary);
+	}
+
+	.preview-empty {
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+		font-style: italic;
+	}
+
+	.preview-errors {
+		margin-bottom: var(--space-4);
+		padding: var(--space-3);
+		border-radius: var(--radius-md);
+		background: rgba(239, 68, 68, 0.08);
+		border: 1px solid rgba(239, 68, 68, 0.2);
+	}
+
+	.error-text {
+		font-size: var(--text-sm);
+		color: #ef4444;
+		margin-top: var(--space-1);
+	}
+
+	.dup-mode {
+		margin-bottom: var(--space-4);
+		padding: var(--space-3);
+		border-radius: var(--radius-md);
+		background: rgba(234, 179, 8, 0.06);
+		border: 1px solid rgba(234, 179, 8, 0.2);
+	}
+
+	.dup-options {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		margin-top: var(--space-2);
+	}
+
+	.dup-option {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+		cursor: pointer;
+	}
+
+	.dup-option input[type="radio"] {
+		accent-color: var(--accent);
+	}
+
+	.modal-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: var(--space-3);
+		margin-top: var(--space-5);
+		padding-top: var(--space-4);
+		border-top: 1px solid var(--border);
+	}
+
+	.btn-cancel {
+		padding: var(--space-2) var(--space-4);
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border);
+		background: transparent;
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+		cursor: pointer;
+		min-height: var(--touch-min);
+	}
+
+	.btn-cancel:hover {
+		background: var(--surface-hover);
+	}
+
+	.btn-import {
+		padding: var(--space-2) var(--space-4);
+		border-radius: var(--radius-md);
+		border: none;
+		background: var(--accent);
+		color: #fff;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		cursor: pointer;
+		min-height: var(--touch-min);
+	}
+
+	.btn-import:hover {
+		opacity: 0.9;
+	}
+
+	.btn-import:disabled {
 		opacity: 0.5;
 		cursor: wait;
 	}

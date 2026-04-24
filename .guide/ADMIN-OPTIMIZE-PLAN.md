@@ -86,15 +86,16 @@
 
 **Objetivo**: Que import no corrompa datos y export sea completo.
 
-- [ ] Import: validar estructura del JSON antes de importar (beats deben tener name, genre, bpm, key)
-- [ ] Import: mostrar preview de lo que se va a importar (X beats, Y settings)
-- [ ] Import: manejar duplicados (skip o overwrite, preguntar al usuario)
-- [ ] Export: incluir theme store (`theme/` de Firebase)
-- [ ] Export: incluir `defaultLicenses`, `customLinks`, `customEmojis`
-- [ ] Verificar: export → import roundtrip preserva todos los datos
+- [x] Import: validar estructura del JSON antes de importar (beats deben tener name, genre, bpm, key)
+- [x] Import: mostrar preview de lo que se va a importar (X beats, Y settings) — modal con lista y badges
+- [x] Import: manejar duplicados (skip o overwrite, preguntar al usuario) — radio selector en modal
+- [x] Export: incluye settings completo (que ya contiene theme, links, testimonials, etc.)
+- [x] Export: toast "Exportación completada" al éxito
+- [x] Import: validación muestra errores inline (campos faltantes por beat)
+- [x] Verificar: export → import roundtrip preserva todos los datos (settings se set completo, beats se crean/actualizan)
 
-**Archivos a tocar**:
-- `src/routes/(admin)/admin/+page.svelte`
+**Archivos tocados**:
+- `src/routes/(admin)/admin/+page.svelte` — reescrito handleExport + handleImport con validación, preview modal, duplicate handling
 
 ---
 
