@@ -221,13 +221,11 @@ export const ripple: Action<HTMLElement> = (node) => {
 
 /** Animates a number from 0 to target value when element enters viewport */
 export const countUp: Action<HTMLElement, number> = (node, target) => {
-	if (!target || target <= 0) return;
-
 	let animated = false;
 	const duration = 1200;
 
-	function animate() {
-		if (animated) return;
+	function animate(t: number) {
+		if (animated || !t || t <= 0) return;
 		animated = true;
 
 		const start = performance.now();
@@ -236,16 +234,18 @@ export const countUp: Action<HTMLElement, number> = (node, target) => {
 			const progress = Math.min(elapsed / duration, 1);
 			// Ease out cubic
 			const eased = 1 - Math.pow(1 - progress, 3);
-			node.textContent = String(Math.round(eased * target));
+			node.textContent = String(Math.round(eased * t));
 			if (progress < 1) requestAnimationFrame(step);
 		}
 		requestAnimationFrame(step);
 	}
 
+	let visible = false;
 	const observer = new IntersectionObserver(
 		(entries) => {
 			if (entries[0].isIntersecting) {
-				animate();
+				visible = true;
+				animate(target);
 				observer.disconnect();
 			}
 		},
@@ -253,14 +253,21 @@ export const countUp: Action<HTMLElement, number> = (node, target) => {
 	);
 	observer.observe(node);
 
+	// Animate immediately if target is already set
+	if (target && target > 0) {
+		// Let the IntersectionObserver handle it
+	}
+
 	return {
 		update(newTarget: number) {
 			if (newTarget === target) return;
 			target = newTarget;
-			// Re-animate if already visible
-			if (animated) {
+			// Re-animate if already visible and new target is valid
+			if (visible && newTarget && newTarget > 0) {
 				animated = false;
-				animate();
+				animate(newTarget);
+			} else if (!visible && newTarget && newTarget > 0) {
+				// Not yet visible, let observer handle it
 			}
 		},
 		destroy() {
