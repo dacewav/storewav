@@ -304,14 +304,14 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que todo se vea bien en mobile.
 
-- [ ] Homepage: hero, stats, filters, beat grid
-- [ ] Beat detail: single column, square cover
-- [ ] Player: compact, no time/volume
-- [ ] Admin: sidebar collapses, grids reflow
-- [ ] Beat editor: single column, stacked save bar
-- [ ] Mobile menu: full height, touch-friendly links
-- [ ] Wishlist panel: 90vw width
-- [ ] Touch targets ≥ 44px everywhere
+- [x] Homepage: hero, stats, filters, beat grid — media queries en +page.svelte
+- [x] Beat detail: single column, square cover — media queries en beat/[id]/+page.svelte
+- [x] Player: compact, no time/volume — media queries en Player.svelte
+- [x] Admin: sidebar collapses, grids reflow — media queries en admin layout
+- [x] Beat editor: single column, stacked save bar — media queries en BeatEditor.svelte
+- [x] Mobile menu: full height, touch-friendly links — verificado en Bloque 8
+- [x] Wishlist panel: 90vw width — verificado en WishlistPanel.svelte
+- [x] Touch targets ≥ 44px — var(--touch-min) usado globalmente
 
 ---
 
