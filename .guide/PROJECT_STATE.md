@@ -9,8 +9,8 @@ framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
 sesiones:      15 planificadas (~50 min c/u)
-sesión_actual: 8 (Bloque 2A — Beats Seed)
-commits:       31
+sesión_actual: 9 (Bloque 3A — Connection State + Error Resilience)
+commits:       35
 ```
 
 ## Quick Status
@@ -61,13 +61,22 @@ commits:       31
 4. ✅ Analytics: play + wishlist events tracked
 5. ✅ Deploy + push
 
-## 🔴 Qué falta — Bloque 3A (Connection State + Error Resilience)
+## ✅ Bloque 3A — CERRADO
 
-1. Connection state indicator (Firebase `.info/connected`)
-2. Banner "Sin conexión" en store layout
-3. Retry logic en CRUD operations (1x retry on network error)
-4. Error boundary en páginas (beat not found, settings fail)
-5. Loading states mejorados (skeleton en admin)
+1. ✅ Connection store (Firebase `.info/connected` + `navigator.onLine`)
+2. ✅ OfflineBanner component (fixed bottom, dismissable)
+3. ✅ Retry logic en beats CRUD (1x retry on network error)
+4. ✅ Retry logic en settings updateField
+5. ✅ Skeleton loading en admin beats list + dashboard
+6. ✅ Deploy + push
+
+## 🔴 Qué falta — Bloque 3B (Beat Editor)
+
+1. Beat editor: upload de archivos real (Firebase Storage)
+2. Beat editor: validación de campos obligatorios
+3. Beat editor: preview de audio inline
+4. Beat editor: drag & drop para reordenar imágenes
+5. Beat editor: auto-save indicator en tiempo real
 
 ## Commands útiles
 
