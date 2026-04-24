@@ -1,0 +1,103 @@
+# Firebase Rules — DACEWAV.STORE
+
+> Copiá el bloque de abajo en Firebase Console → Realtime Database → Rules
+
+```json
+{
+  "rules": {
+    "admins": {
+      ".read": "auth != null",
+      ".write": false
+    },
+    "beats": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "$beatId": {
+        ".validate": "newData.hasChildren(['title', 'artist', 'bpm', 'key', 'genre', 'coverUrl', 'audioUrl', 'licenses', 'createdAt', 'active'])",
+        "title": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "artist": { ".validate": "newData.isString()" },
+        "bpm": { ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 999" },
+        "key": { ".validate": "newData.isString()" },
+        "genre": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "tags": {
+          ".validate": true,
+          "$tag": { ".validate": "newData.isString()" }
+        },
+        "coverUrl": { ".validate": "newData.isString()" },
+        "audioUrl": { ".validate": "newData.isString()" },
+        "licenses": {
+          ".validate": "newData.hasChildren(['basic', 'premium', 'unlimited', 'exclusive'])",
+          "basic": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "premium": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "unlimited": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "exclusive": { ".validate": "newData.isNumber() && newData.val() >= 0" }
+        },
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "active": { ".validate": "newData.isBoolean()" },
+        "cardStyle": { ".validate": true },
+        "description": { ".validate": "newData.isString()" },
+        "previewUrl": { ".validate": "newData.isString()" },
+        "platforms": {
+          ".validate": true,
+          "spotify": { ".validate": "newData.isString()" },
+          "youtube": { ".validate": "newData.isString()" },
+          "soundCloud": { ".validate": "newData.isString()" }
+        },
+        "licenseNames": {
+          ".validate": true,
+          "basic": { ".validate": "newData.isString()" },
+          "premium": { ".validate": "newData.isString()" },
+          "unlimited": { ".validate": "newData.isString()" },
+          "exclusive": { ".validate": "newData.isString()" }
+        },
+        "licenseDescs": {
+          ".validate": true,
+          "basic": { ".validate": "newData.isString()" },
+          "premium": { ".validate": "newData.isString()" },
+          "unlimited": { ".validate": "newData.isString()" },
+          "exclusive": { ".validate": "newData.isString()" }
+        },
+        "featured": { ".validate": "newData.isBoolean()" },
+        "order": { ".validate": "newData.isNumber()" },
+        "$other": { ".validate": false }
+      }
+    },
+    "settings": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).val() === true",
+      "hero": { ".validate": true },
+      "heroVisual": { ".validate": true },
+      "theme": { ".validate": true },
+      "animations": { ".validate": true },
+      "section": { ".validate": true },
+      "cta": { ".validate": true },
+      "layout": { ".validate": true },
+      "links": { ".validate": true },
+      "brand": { ".validate": true },
+      "loader": { ".validate": true },
+      "banner": { ".validate": true },
+      "testimonials": { ".validate": true },
+      "cardStyle": { ".validate": true },
+      "labels": { ".validate": true }
+    },
+    "theme": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).val() === true"
+    },
+    "analytics": {
+      ".read": "root.child('admins').child(auth.uid).val() === true",
+      ".write": "auth != null",
+      "events": {
+        "$eventId": {
+          ".validate": "newData.hasChildren(['name', 'timestamp'])",
+          "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+          "data": { ".validate": true },
+          "timestamp": { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        }
+      }
+    }
+  }
+}
+
+```
