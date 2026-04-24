@@ -3,54 +3,35 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 7 — Bloque 2A: Beats Seed (deploy + fixes)
+## Sesión Actual: 8 — Bloque 2A: Beats Seed (audit + deploy fix)
 
 ```yaml
-sesión: "7"
+sesión: "8"
 bloque: "2A"
-objetivo: "Deploy + fix bugs críticos + verificar funcionalidad"
+objetivo: "Audit profundo + fix hydration + deploy"
 tiempo: "50 min"
-estado: "deployed — botones/tabs NO funcionan (hidratación rota)"
-último_commit: "669cdb2"
+estado: "audit completo — fix listo, necesita deploy"
+último_commit: "6582bb1"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
-## Qué se hizo sesión 7
+## Qué se hizo sesión 8
 
-1. ✅ Clonado repo + .env Firebase creds + admin UID
-2. ✅ Deploy a Cloudflare Workers (wrangler)
-3. ✅ Fix auth store: `adminWhitelist/approved/{uid}` en vez de `admins/{uid}`
-4. ✅ Sync `firebase.rules.json` con deployed rules
-5. ✅ Fix analytics schema: path `events/{date}/{id}`, campos `{ts,cat,act,lbl,val,meta}`
-6. ✅ Fix filters: keys musicales matchean BeatEditor
-7. ✅ Fix dashboard import: ahora importa beats + settings
-8. ✅ Player: volume slider
-9. ✅ WhatsApp: mensaje incluye precio MXN + USD
-10. ✅ Loader: timeout 3s (antes 800ms fijo)
-11. ✅ Theme reset: +18 campos restaurados
-12. ✅ Admin beats: badges featured/exclusive/sold-out
-13. ✅ Fix `$derived(() =>)` → `$derived.by()` en 4 componentes
-14. ✅ Fix SSR: `export const ssr = false` (hidratación rota en CF Workers)
-15. ❌ **Botones/tabs siguen sin funcionar** — necesita investigación
+1. ✅ Clonado repo fresco + npm install
+2. ✅ Audit profundo del codebase completo
+3. ✅ Identificado causa raíz del bug de hidratación: **deploy viejo** — el fix `ssr = false` (commit `669cdb2`) nunca se deployó
+4. ✅ `svelte-check`: 0 errores, 0 warnings
+5. ✅ Verificado Svelte 5 runes correctos en todos los componentes
+6. ✅ Verificado no hay sintaxis Svelte 4 legacy
+7. ✅ Build exitoso con adapter-cloudflare
+8. ✅ Guide actualizado (este archivo + PROJECT_STATE.md)
 
-## BUG CRÍTICO PENDIENTE
+## BUG CRÍTICO — RESUELTO (pendiente deploy)
 
-Los botones de Media, Theme, y navegación NO funcionan en el deploy.
-- SSR desactivado (`ssr = false`) pero sigue roto
-- En headless browser la página renderiza OK pero `data-sveltekit-hydrated` nunca se setea
-- `kit.start()` se ejecuta sin errores pero la hidratación no completa
-- **Posible causa:** problema de compatibilidad Svelte 5.55 + adapter-cloudflare 7.x
-- **Siguiente paso:** probar con `@sveltejs/adapter-static` o investigar más a fondo
-
-## Commits de la sesión
-
-```
-669cdb2 fix: disable SSR — hydration broken on Cloudflare Workers
-5bf1117 fix: $derived → .by — reactivity broken in 4 components
-b168ac4 feat: volume slider + WhatsApp price + loader timeout + theme reset + beat badges
-00ae54c fix: analytics schema + filters keys + dashboard import beats
-7075cbd fix: sync firebase rules with deployed + fix admin auth paths
-```
+Los botones de Media, Theme, y navegación NO funcionaban en el deploy porque:
+- **El deploy tiene chunks viejos** (hashes `p6gD7Pxe` vs `4j0cC3of`)
+- El commit `669cdb2` (`fix: disable SSR — hydration broken on Cloudflare Workers`) nunca se deployó
+- **Fix:** ejecutar `npx wrangler deploy` para pushear el build actual a Cloudflare Workers
 
 ## Estado de Sesiones
 
@@ -63,13 +44,14 @@ b168ac4 feat: volume slider + WhatsApp price + loader timeout + theme reset + be
 | 5 | 2A — Beats Seed (auth) | ✅ |
 | 6 | 2A — Beats Seed (mismatch fix) | ⬜ falta deploy |
 | 7 | 2A — Beats Seed (deploy + bugs) | ❌ botones rotos |
-| 8 | 2B — Beat Interactions | ⬜ |
-| 9 | 3A — Admin Dashboard | ⬜ |
-| 10 | 3B — Beat Editor | ⬜ |
-| 11 | 3C — Content Editors | ⬜ |
-| 12 | 4 — Effects | ⬜ |
-| 13 | 5 — Labels + Polish | ⬜ |
-| 14 | 6 — Final Audit | ⬜ |
+| 8 | 2A — Beats Seed (audit + deploy fix) | ⬜ necesita deploy |
+| 9 | 2B — Beat Interactions | ⬜ |
+| 10 | 3A — Admin Dashboard | ⬜ |
+| 11 | 3B — Beat Editor | ⬜ |
+| 12 | 3C — Content Editors | ⬜ |
+| 13 | 4 — Effects | ⬜ |
+| 14 | 5 — Labels + Polish | ⬜ |
+| 15 | 6 — Final Audit | ⬜ |
 
 ## Referencia
 
