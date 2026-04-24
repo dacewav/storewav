@@ -3,29 +3,34 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 10 — Session 0: Critical Bug Fixes → Bloque 3B: Beat Editor
+## Sesión Actual: 10 — Bloque 3B: Beat Editor
 
 ```yaml
 sesión: "10"
-bloque: "0-solidification → 3B"
-objetivo: "Fix critical/high bugs, then start Beat Editor"
+bloque: "3B"
+objetivo: "Beat Editor enhancements"
 tiempo: "50 min"
-estado: "Session 0 COMPLETADO — listo para 3B"
-último_commit: "4842832"
+estado: "EN PROGRESO"
+último_commit: "700718f"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
 ## Qué se hizo sesión 10
 
-### Session 0 — Critical Bug Fixes (SOLIDIFICATION-PLAN.md)
-1. ✅ **XSS `{@html dividerTitle}`** — Sanitización con whitelist (em/strong/b/i/span)
-2. ✅ **Bulk operations try/catch** — bulkSetActive, bulkDelete, confirmDelete, moveBeat, handleDuplicate
-3. ✅ **undoField/redoField error handling** — try/catch con revert de stack en fallo
-4. ✅ **`$app/stores` → `$app/state`** — beat/[id] migrado
-5. ✅ **BeatEditor optimization** — Replaced JSON.stringify(beat) con version counter ligero
-6. ℹ️ **Admin layout effect_update_depth_exceeded** — Ya estaba fixeado (untrack en lugar)
-7. ✅ Build: 0 errores, 0 warnings (svelte-check)
-8. ✅ Commit: `4842832`
+### Session 0 — Critical Bug Fixes ✅ (commit `4842832`)
+1. ✅ XSS `{@html dividerTitle}` — Sanitización whitelist
+2. ✅ Bulk operations try/catch — 5 funciones
+3. ✅ undoField/redoField error handling — try/catch con revert
+4. ✅ `$app/stores` → `$app/state` — beat page migrado
+5. ✅ BeatEditor optimization — version counter
+
+### Bloque 3B — Beat Editor (commit `700718f`)
+1. ✅ **Inline audio preview** — Player en save bar (play/pause/seek/time)
+2. ✅ **Animated save indicator** — Dot pulsante (saving), verde (saved), rojo (error), amarillo (unsaved)
+3. ✅ **Field validation** — Errores inline en nombre, género, BPM
+4. ✅ **Save button disabled** — Cuando validación falla
+5. ⬜ Firebase Storage upload — FileUpload ya existe, verificar integración
+6. ⬜ Auto-save indicator en tiempo real — Ya implementado con dot animado
 
 ## Estado de Sesiones
 
@@ -42,7 +47,7 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 9 | 3A — Connection State + Error Resilience | ✅ deployed |
 | 9 | 3A — Connection State + Error Resilience | ✅ |
 | 10 | 0-solidification — Critical Bugs | ✅ |
-| 10 | 3B — Beat Editor | ⬜ |
+| 10 | 3B — Beat Editor | ✅ (parcial) |
 | 11 | 3B — Beat Editor | ⬜ |
 | 12 | 3C — Content Editors | ⬜ |
 | 13 | 4 — Effects | ⬜ |

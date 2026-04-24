@@ -1,22 +1,26 @@
 <script lang="ts">
 	import { Card, Badge, Skeleton } from '$lib/components';
-	import { allBeatsList, wishlist, settings, auth, beats as beatsStore, createBeat } from '$lib/stores';
+	import { allBeatsList, wishlist, settings, auth, beats as beatsStore, beatsStats, createBeat } from '$lib/stores';
 	import { seedDemoBeats, SEED_COUNT } from '$lib/seed';
 	import { toast } from '$lib/toastStore';
 
 	let beatsData = $derived($beatsStore);
 	let beats = $derived($allBeatsList);
 	let wl = $derived($wishlist);
+	let stats = $derived($beatsStats);
 	let settingsData = $derived($settings.data);
 	let authState = $derived($auth);
 	let brandName = $derived(settingsData?.brand?.name ?? 'DACEWAV');
 	let loading = $derived(beatsData.loading);
 
-	const stats = $derived([
-		{ label: 'Beats', value: String(beats.length || '—'), icon: '🎵' },
-		{ label: 'Wishlist', value: String(wl.length || '—'), icon: '❤️' },
-		{ label: 'Géneros', value: String([...new Set(beats.map(b => b.genre))].length || '—'), icon: '🏷️' },
-		{ label: 'Licencias', value: String(beats.length > 0 && beats[0].licenses?.length ? beats[0].licenses.length : 4), icon: '📄' }
+	let topBeatName = $derived(stats.topBeat?.name ?? '—');
+	let topBeatPlays = $derived(stats.topBeat?.plays ?? 0);
+
+	const statCards = $derived([
+		{ label: 'Beats', value: String(stats.total || '—'), icon: '🎵' },
+		{ label: 'Activos', value: String(stats.active || '—'), icon: '✅' },
+		{ label: 'Plays totales', value: stats.totalPlays > 0 ? stats.totalPlays.toLocaleString() : '—', icon: '🔥' },
+		{ label: 'Top beat', value: topBeatPlays > 0 ? `${topBeatName} (${topBeatPlays})` : '—', icon: '👑' }
 	]);
 
 	let seeding = $state(false);
@@ -102,7 +106,7 @@
 			<h1 class="dash-title">Dashboard</h1>
 			<p class="dash-sub">Panel de control {brandName}</p>
 		</div>
-		<Badge variant="accent">v0.7.0</Badge>
+		<Badge variant="accent">v1.0.0</Badge>
 	</div>
 
 	<!-- Stats grid -->
@@ -118,7 +122,7 @@
 		</div>
 	{:else}
 	<div class="stats-grid">
-		{#each stats as stat}
+		{#each statCards as stat}
 			<Card hoverable>
 				<div class="stat-card">
 					<div class="stat-icon">{stat.icon}</div>
@@ -205,7 +209,7 @@
 		</div>
 		<div class="info-row">
 			<span class="info-label">Versión</span>
-			<span class="info-value">v0.6.0</span>
+			<span class="info-value">v1.0.0</span>
 		</div>
 	</div>
 </div>
