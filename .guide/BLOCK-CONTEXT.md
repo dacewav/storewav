@@ -35,6 +35,12 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 2. ✅ **Dashboard stats** — Plays totales + Top beat cards
 3. ✅ **Version fix** — Unificado a v1.0.0
 
+### Session 4 — Testimonials + CardStyle Migration ✅ (commit `4626703`)
+1. ✅ **Testimonials** — Firebase `{name, role, text}` renderiza correctamente (component soporta ambos formatos)
+2. ✅ **globalCardStyle migration** — Todos los sub-objetos migrados (glow, filter, border, shadow, hover, style, transform)
+3. ✅ **CardStyle campos extras** — shimmerOp→shimmerOpacity, shimmerSpeed→shimmerDuration, hoverTransition
+4. ✅ **Per-beat cardStyle** — BeatEditor tab funciona, mergeCardStyles aplica correctamente
+
 ## Estado de Sesiones
 
 | Sesión | Bloque | Estado |
@@ -52,6 +58,7 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 10 | 0-solidification — Critical Bugs | ✅ |
 | 10 | 3B — Beat Editor | ✅ |
 | 10 | Plays Counter + Analytics | ✅ |
+| 10 | Session 4 — Testimonials + CardStyle | ✅ |
 | 11 | 3B — Beat Editor | ⬜ |
 | 12 | 3C — Content Editors | ⬜ |
 | 13 | 4 — Effects | ⬜ |
