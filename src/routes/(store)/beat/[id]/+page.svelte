@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { beatsList, player, wishlist, settings, analytics } from '$lib/stores';
+	import { beatsList, player, wishlist, settings, analytics, beats as beatsStore } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
 	import { Skeleton, Badge, BeatCard, EmptyState } from '$lib/components';
 	import Waveform from '$lib/components/Waveform.svelte';
@@ -11,11 +11,12 @@
 
 	let beatId = $derived(page.params.id);
 	let beats = $derived($beatsList);
+	let beatsRaw = $derived($beatsStore);
 	let s = $derived($settings.data);
 
 	// Current beat
 	let beat = $derived(beats.find(b => b.id === beatId) ?? null);
-	let loading = $derived(beats.length === 0 && !beat);
+	let loading = $derived(beatsRaw.loading);
 
 	// Wishlist
 	let wishStore = $derived(beat ? wishlist.isIn(beat.id) : null);
