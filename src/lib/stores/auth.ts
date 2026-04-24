@@ -21,6 +21,7 @@ export type AuthUser = {
 export type AuthState = {
 	user: AuthUser;
 	isAdmin: boolean;
+	adminChecked: boolean;
 	loading: boolean;
 	error: string | null;
 };
@@ -33,7 +34,7 @@ const ADMIN_UIDS: string[] = [
 
 console.log('[Auth] Admin UIDs configured:', ADMIN_UIDS.length, '(fallback included)');
 
-const store = writable<AuthState>({ user: null, isAdmin: false, loading: true, error: null });
+const store = writable<AuthState>({ user: null, isAdmin: false, adminChecked: false, loading: true, error: null });
 let unsub: (() => void) | null = null;
 
 /** Verifica si el UID o email es admin */
@@ -84,7 +85,7 @@ export async function initAuth() {
 	try {
 		const auth = await getAuthInstance();
 		if (!auth) {
-			store.set({ user: null, isAdmin: false, loading: false, error: 'Firebase no inicializado' });
+			store.set({ user: null, isAdmin: false, adminChecked: true, loading: false, error: 'Firebase no inicializado' });
 			return;
 		}
 
@@ -98,17 +99,18 @@ export async function initAuth() {
 					email: fbUser.email,
 					photoURL: fbUser.photoURL
 				};
-				// Set user immediately, check admin async
-				store.set({ user, isAdmin: false, loading: false, error: null });
+				// Set user immediately, admin check pending
+				store.set({ user, isAdmin: false, adminChecked: false, loading: false, error: null });
 				const isAdmin = await checkAdmin(fbUser.uid, fbUser.email);
-				store.update((s) => ({ ...s, isAdmin }));
+				// Single update: admin check complete
+				store.update((s) => ({ ...s, isAdmin, adminChecked: true }));
 			} else {
-				store.set({ user: null, isAdmin: false, loading: false, error: null });
+				store.set({ user: null, isAdmin: false, adminChecked: true, loading: false, error: null });
 			}
 		});
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
-		store.set({ user: null, isAdmin: false, loading: false, error: msg });
+		store.set({ user: null, isAdmin: false, adminChecked: true, loading: false, error: msg });
 	}
 }
 

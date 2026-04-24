@@ -28,7 +28,7 @@
 	// Redirect a login si no está autenticado, o a / si no es admin (run once)
 	let redirected = $state(false);
 	$effect(() => {
-		if (redirected || authState.loading) return;
+		if (redirected || authState.loading || !authState.adminChecked) return;
 		if (!authState.user) {
 			redirected = true;
 			goto('/login');
