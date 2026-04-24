@@ -15,6 +15,7 @@
 			return;
 		}
 
+		if (saveStatus === 'saving') return; // Prevent double-save
 		saveStatus = 'saving';
 		try {
 			const id = await createBeat(beat as Parameters<typeof createBeat>[0]);
@@ -35,7 +36,7 @@
 		<h1 class="title">+ Nuevo beat</h1>
 	</div>
 
-	<BeatEditor bind:beat beatId={tempId} onSave={handleSave} {saveStatus} />
+	<BeatEditor bind:beat beatId={tempId} onSave={handleSave} bind:saveStatus />
 </div>
 
 <style>

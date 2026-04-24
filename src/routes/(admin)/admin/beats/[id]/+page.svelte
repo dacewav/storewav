@@ -17,11 +17,6 @@
 
 	let saveStatus = $state<'saved' | 'saving' | 'unsaved' | 'error'>('saved');
 
-	// Debug: log mount + beat state
-	$effect(() => {
-		console.log('[BeatEdit] beatId:', beatId, 'beat:', beat ? 'found' : 'null', 'data:', beatsData ? `${Object.keys(beatsData).length} beats` : 'null');
-	});
-
 	async function handleSave() {
 		if (!beat || !beat.name?.trim()) {
 			saveStatus = 'error';
@@ -29,6 +24,7 @@
 			return;
 		}
 
+		if (saveStatus === 'saving') return; // Prevent double-save
 		saveStatus = 'saving';
 		try {
 			await updateBeat(beatId, beat);
@@ -71,7 +67,7 @@
 	{:else if beat}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div onchange={markDirty} oninput={markDirty}>
-			<BeatEditor bind:beat beatId={beatId} onSave={handleSave} onDelete={handleDelete} {saveStatus} />
+			<BeatEditor bind:beat beatId={beatId} onSave={handleSave} onDelete={handleDelete} bind:saveStatus />
 		</div>
 	{:else}
 		<EmptyState icon="❌" title="Beat no encontrado" subtitle="El beat que buscas no existe o fue eliminado">

@@ -8,7 +8,7 @@
 		beatId = 'temp',
 		onSave,
 		onDelete,
-		saveStatus = 'saved'
+		saveStatus = $bindable('saved')
 	}: {
 		beat: Partial<Beat>;
 		beatId?: string;
@@ -55,7 +55,9 @@
 	function handleKeydown(e: KeyboardEvent) {
 		if ((e.ctrlKey || e.metaKey) && e.key === 's') {
 			e.preventDefault();
-			onSave?.();
+			// Cancel pending auto-save to prevent double-save
+			if (autoSaveTimer) { clearTimeout(autoSaveTimer); autoSaveTimer = null; }
+			if (saveStatus !== 'saving') onSave?.();
 		}
 	}
 
@@ -131,7 +133,7 @@
 	// Auto-save with debounce (1s after last change)
 	let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 	let mounted = $state(false);
-	let beatVersion = $state(0);
+	let saving = $state(false);
 
 	// Skip initial reactive chain
 	$effect(() => {
@@ -139,21 +141,35 @@
 		return () => clearTimeout(timer);
 	});
 
-	// Track beat changes via lightweight version counter (avoids JSON.stringify on every keystroke)
+	// Track beat changes — only mark dirty AFTER user interaction (not on mount)
+	let initialSnapshot = $state('');
+	let userInteracted = $state(false);
+
 	$effect(() => {
-		// Read key fields that trigger save — much cheaper than serializing the whole object
-		const _ = `${beat.name}|${beat.genre}|${beat.bpm}|${beat.key}|${beat.artist}|${beat.description}|${beat.active}|${beat.featured}|${beat.imageUrl}|${beat.audioUrl}|${beat.spotify}|${beat.youtube}|${beat.soundcloud}|${beat.licenses?.length}|${beat.tags?.length}`;
-		beatVersion++;
+		// Capture initial snapshot after mount
+		if (mounted && !initialSnapshot) {
+			initialSnapshot = `${beat.name}|${beat.genre}|${beat.bpm}|${beat.key}|${beat.artist}|${beat.description}|${beat.active}|${beat.featured}|${beat.imageUrl}|${beat.audioUrl}|${beat.spotify}|${beat.youtube}|${beat.soundcloud}|${JSON.stringify(beat.licenses)}|${JSON.stringify(beat.tags)}`;
+		}
 	});
 
-	// Auto-save when beat changes and status is unsaved
+	// Watch for REAL changes (not mount)
 	$effect(() => {
-		const _ = beatVersion;
+		const current = `${beat.name}|${beat.genre}|${beat.bpm}|${beat.key}|${beat.artist}|${beat.description}|${beat.active}|${beat.featured}|${beat.imageUrl}|${beat.audioUrl}|${beat.spotify}|${beat.youtube}|${beat.soundcloud}|${JSON.stringify(beat.licenses)}|${JSON.stringify(beat.tags)}`;
+		if (mounted && initialSnapshot && current !== initialSnapshot && !userInteracted) {
+			userInteracted = true;
+		}
+		if (userInteracted && mounted && saveStatus === 'saved') {
+			saveStatus = 'unsaved';
+		}
+	});
+
+	// Auto-save when status is unsaved (only after real user interaction)
+	$effect(() => {
 		const status = saveStatus;
-		if (mounted && status === 'unsaved' && onSave && isValid) {
+		if (mounted && status === 'unsaved' && userInteracted && onSave && isValid && !saving) {
 			if (autoSaveTimer) clearTimeout(autoSaveTimer);
 			autoSaveTimer = setTimeout(() => {
-				onSave?.();
+				if (!saving) onSave?.();
 			}, 1000);
 		}
 	});
@@ -228,8 +244,8 @@
 				<button class="btn-delete" onclick={handleDelete}>🗑️ Borrar</button>
 			{/if}
 			{#if onSave}
-				<button class="btn-save" class:disabled={!isValid} onclick={onSave} title={!isValid ? `Faltan: ${validationErrors.join(', ')}` : ''}>
-					Guardar <kbd>Ctrl+S</kbd>
+				<button class="btn-save" class:disabled={!isValid || saveStatus === 'saving'} onclick={() => { if (autoSaveTimer) { clearTimeout(autoSaveTimer); autoSaveTimer = null; } if (saveStatus !== 'saving') onSave?.(); }} title={!isValid ? `Faltan: ${validationErrors.join(', ')}` : ''}>
+					{saveStatus === 'saving' ? 'Guardando...' : 'Guardar'} <kbd>Ctrl+S</kbd>
 				</button>
 			{/if}
 		</div>
