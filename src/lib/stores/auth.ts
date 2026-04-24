@@ -31,30 +31,48 @@ const ADMIN_UIDS: string[] = [
 	'Uks9YGSd6rS40zqlRujoe6pE6N22'
 ];
 
+console.log('[Auth] Admin UIDs configured:', ADMIN_UIDS.length, '(fallback included)');
+
 const store = writable<AuthState>({ user: null, isAdmin: false, loading: true, error: null });
 let unsub: (() => void) | null = null;
 
 /** Verifica si el UID o email es admin */
 async function checkAdmin(uid: string, email?: string | null): Promise<boolean> {
 	// Fast path: local UIDs
-	if (ADMIN_UIDS.includes(uid)) return true;
+	if (ADMIN_UIDS.includes(uid)) {
+		console.log('[Auth] Admin confirmed via local UID');
+		return true;
+	}
+
+	console.log('[Auth] UID not in local list, checking Firebase...', { uid, email });
 
 	try {
 		const db = await (await import('$lib/firebase')).getDb();
-		if (!db) return false;
+		if (!db) {
+			console.warn('[Auth] Firebase not available for admin check');
+			return false;
+		}
 
 		const { ref, get } = await import('firebase/database');
 
 		// Check adminWhitelist/approved/{uid}
 		const approvedSnap = await get(ref(db, `adminWhitelist/approved/${uid}`));
-		if (approvedSnap.exists()) return true;
+		if (approvedSnap.exists()) {
+			console.log('[Auth] Admin confirmed via Firebase whitelist');
+			return true;
+		}
 
 		// Fallback: legacy admins/{uid} (backward compat)
 		const legacySnap = await get(ref(db, `admins/${uid}`));
-		if (legacySnap.val() === true) return true;
+		if (legacySnap.val() === true) {
+			console.log('[Auth] Admin confirmed via legacy admins/');
+			return true;
+		}
 
+		console.warn('[Auth] NOT admin. UID:', uid);
 		return false;
-	} catch {
+	} catch (err) {
+		console.error('[Auth] Admin check failed:', err);
 		return false;
 	}
 }

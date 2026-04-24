@@ -11,23 +11,30 @@
 	let authState = $derived($auth);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
-	// Debug: log auth state on change
+	// Debug: log auth state (once, not on every change)
+	let authLogged = $state(false);
 	$effect(() => {
-		console.log('[Admin] Auth state:', {
-			loading: authState.loading,
-			user: authState.user?.email ?? null,
-			isAdmin: authState.isAdmin,
-			error: authState.error
-		});
+		if (!authState.loading && !authLogged) {
+			authLogged = true;
+			console.log('[Admin] Auth resolved:', {
+				user: authState.user?.email ?? 'none',
+				uid: authState.user?.uid ?? 'none',
+				isAdmin: authState.isAdmin,
+				error: authState.error
+			});
+		}
 	});
 
-	// Redirect a login si no está autenticado, o a / si no es admin
+	// Redirect a login si no está autenticado, o a / si no es admin (run once)
+	let redirected = $state(false);
 	$effect(() => {
-		if (!authState.loading && !authState.user) {
-			console.warn('[Admin] No autenticado → redirect /login');
+		if (redirected || authState.loading) return;
+		if (!authState.user) {
+			redirected = true;
 			goto('/login');
-		} else if (!authState.loading && authState.user && !authState.isAdmin) {
-			console.warn('[Admin] Usuario no es admin → redirect /', { uid: authState.user.uid });
+		} else if (!authState.isAdmin) {
+			redirected = true;
+			console.warn('[Admin] Not admin, UID:', authState.user.uid);
 			goto('/');
 		}
 	});

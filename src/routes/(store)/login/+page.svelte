@@ -17,9 +17,11 @@
 	let loginBack = $derived(labels.loginBack ?? '← Volver a la tienda');
 	let loginNote = $derived(labels.loginNote ?? 'Solo administradores autorizados');
 
-	// Si ya está logueado, redirigir al admin
+	// Si ya está logueado, redirigir al admin (run once)
+	let redirected = $state(false);
 	$effect(() => {
-		if (authState.user && authState.isAdmin) {
+		if (!redirected && authState.user && authState.isAdmin) {
+			redirected = true;
 			goto('/admin');
 		}
 	});
