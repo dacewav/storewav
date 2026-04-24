@@ -1,113 +1,115 @@
-# 🔍 REAL AUDIT — 2026-04-22 04:00
+# 🔍 REAL-AUDIT.md — Auditoría Profunda Sesión 8
 
-> **Honest assessment after deploy testing.**
-> Previous audits were code-only (no data). This one tests against live Firebase.
-
----
-
-## Problema Raíz
-
-El código y Firebase tienen **estructuras completamente distintas**:
-
-| Código lee (new) | Firebase tiene (old) | ¿Match? |
-|---|---|---|
-| `settings.hero.title` | `settings.heroTitle` (EMPTY) | ❌ |
-| `settings.hero.subtitle` | `settings.heroSubtitle` (EMPTY) | ❌ |
-| `settings.hero.eyebrow` | `theme.heroEyebrow` | ❌ path |
-| `settings.hero.glowWord` | — | ❌ |
-| `settings.heroVisual.glowOn` | `theme.heroGlowOn` | ❌ path |
-| `settings.section.dividerTitle` | `settings.dividerTitle` | ❌ nested |
-| `settings.cta.title` | — | ❌ |
-| `settings.brand.name` | `settings.siteName` ('YUGEN') | ❌ key |
-| `settings.brand.logo` | `theme.logoUrl` | ❌ path |
-| `settings.brand.whatsapp` | `settings.whatsapp` | ❌ key |
-| `settings.banner.enabled` | `settings.bannerActive` | ❌ key |
-| `settings.banner.text` | `settings.bannerText` | ❌ key |
-| `settings.links` | — | ❌ |
-| `settings.loader` | — | ❌ |
-| `settings.cardStyle` | `settings.globalCardStyle` | ❌ key |
-| `settings.animations` | `theme.animLogo, animCards...` | ❌ path |
-| `settings.labels` | — | ❌ |
-| `beats/*` | `null` | ❌ empty |
-| `admins/*` | `adminWhitelist/{email}` | ❌ path |
-
-**Solo 4 paths matchean:** `theme.accent`, `theme.glowColor`, `theme.fontBody`, `theme.fontDisplay`
+> **Fecha: 2026-04-25 01:10 (GMT+8)**
+> **Estado: producción en dacewav.store via Cloudflare Pages**
 
 ---
 
-## Estado Real del Deploy
+## Build & Code Quality
 
-### Store (tienda pública)
-- ✅ Hero: renderiza con defaults ('DACEWAV', 'rompen.') pero NO lee datos reales
-- ❌ Banner: no se muestra (lee `settings.banner.enabled` pero Firebase tiene `bannerActive`)
-- ❌ CTA: no se muestra (lee `settings.cta.title` — no existe)
-- ❌ Testimonials: no se muestran (estructura diferente)
-- ❌ Beats: no hay ninguno en Firebase
-- ❌ Links del hero: no hay (lee `settings.links`)
-- ❌ Divider: no se muestra (lee `settings.section.dividerTitle` pero Firebase tiene `dividerTitle` flat)
-- ✅ Logo: theme engine lee `theme.logoUrl` correctamente
-- ✅ Fonts: theme engine lee `theme.fontBody/fontDisplay` correctamente
-- ✅ Accent color: theme engine lee `theme.accent` correctamente
+| Check | Status | Detalle |
+|-------|--------|---------|
+| svelte-check | ✅ | 0 errores, 0 warnings |
+| Build | ✅ | adapter-cloudflare, 0 errores |
+| console.log | ✅ | 0 en producción |
+| TODO/FIXME | ✅ | 0 |
+| Dead imports | ✅ | Todos los imports válidos |
+| .env security | ✅ | En .gitignore, no commiteado |
 
-### Admin
-- ✅ Auth: fixeado para leer `adminWhitelist/{email}`
-- ⚠️ Settings editors: escriben a paths nuevos que no existen en Firebase
-- ❌ Los editores no muestran los valores actuales (porque leen paths nuevos)
+## Estadísticas
 
----
+| Métrica | Valor |
+|---------|-------|
+| Archivos | 73 |
+| Líneas código | 14,332 |
+| Componentes Svelte | 29 |
+| Stores | 10 |
+| Routes | 14 |
+| Media queries | 22 |
+| CSS vars | 28 |
 
-## Qué Necesita la Tienda para Funcionar
+## Bundle Size
 
-### Prioridad 0: Que se vea (CRÍTICO)
-1. Hero lea `settings.heroTitle` o `theme.heroTitleCustom`
-2. Banner lea `settings.bannerActive`, `settings.bannerText`
-3. Divider lea `settings.dividerTitle`, `settings.dividerSub`
-4. Brand lea `settings.siteName`
-5. WhatsApp lea `settings.whatsapp`
-6. Testimonials lea `settings.testimonials`
-7. CardStyle lea `settings.globalCardStyle`
+| Chunk | Tamaño |
+|-------|--------|
+| D9tSRhv5.js | 127 KB (Firebase SDK) |
+| Bii3IFPn.js | 84 KB (Svelte runtime) |
+| DoGy0j6x.js | 68 KB (rolldown helpers) |
+| Total chunks | 484 KB |
+| Total client | 872 KB |
 
-### Prioridad 1: Que funcione
-8. Beats en Firebase (seed)
-9. Admin editors muestren valores actuales
-10. Admin editors escriban a paths correctos
+⚠️ 3 chunks > 50KB. Firebase SDK (127KB) es el más grande. Considerar tree-shaking o lazy loading.
 
-### Prioridad 2: Que esté completa
-11. CTA section
-12. Hero links
-13. Loader
-14. Labels editables
+## Firebase
 
----
+| Área | Status | Detalle |
+|------|--------|---------|
+| Settings | ✅ | 31 keys, migration layer OK |
+| Beats | ⚠️ | Vacío — necesita seed desde admin |
+| Rules | ✅ | Validación estricta, plays write abierto |
+| Auth | ✅ | adminWhitelist protegido |
+| Analytics | ✅ | Schema correcto |
 
-## Plan de Ejecución
+### Settings en Firebase (flat keys)
+- `siteName: YUGEN` → migra a `brand.name`
+- `bannerActive/Text/Bg/etc` → migra a `banner.*`
+- `dividerTitle/Sub` → migra a `section.*`
+- `globalCardStyle` → migra a `cardStyle`
+- `testimonials` → [{name, role, text}]
+- `r2Config` → upload token + worker URL
 
-### BLOQUE 0: Data Layer Fix
-- Adaptar settings store para leer estructura vieja (flat) + nueva (nested)
-- Priority: leer de donde estén los datos reales
-- Admin editors: mostrar datos actuales + escribir a paths correctos
+### Typo en Firebase
+- `dividerTitle: CALIDAD AEGURADA` → falta la S (debería ser ASEGURADA)
+- Esto es **dato**, no código. Se puede arreglar desde admin panel.
 
-### BLOQUE 1: Store Visual Fix
-- Hero: mostrar título real, eyebrow, glow word
-- Banner: mostrar si está activo
-- Divider: mostrar título y subtítulo
-- Footer: mostrar nombre de marca real
+## Migration Layer
 
-### BLOQUE 2: Beats
-- Seed de beats de ejemplo
-- Que el grid muestre cards reales
-- Play/wishlist/filter funcionando
+✅ El `migrateOldData()` en `settings.ts` cubre:
+- hero (title, subtitle, eyebrow, glowWord)
+- heroVisual (glow, stroke, segments, eyebrow, gradient)
+- section (title, dividerTitle, dividerSub)
+- brand (name, logo, whatsapp, footerText, metaDescription)
+- banner (enabled, text, animation, speed, etc.)
+- loader (enabled, brandText)
+- cardStyle (globalCardStyle → flat config)
 
-### BLOQUE 3: Effects & Polish
-- Cursor glow, orbs, scroll progress
-- Card effects (glow, animation, shimmer)
-- Animaciones del hero
+## Accessibility
 
-### BLOQUE 4: Admin
-- Editors muestren datos actuales
-- Cambios se reflejen en la tienda
-- CRUD de beats funcional
+| Check | Status | Detalle |
+|-------|--------|---------|
+| Images alt | ✅ | 0 imágenes sin alt |
+| Buttons aria | ⚠️ | 46 sin aria-label (mayoría tienen texto visible) |
+| Reduced motion | ⚠️ | Solo 1 regla |
+| Keyboard nav | ✅ | Tab, Escape, Enter funcionales |
 
-### BLOQUE 5: Final Audit
-- Todo funcionando end-to-end
-- Deploy test
+## Cloudflare Architecture
+
+```
+dacewav.store (CNAME → dacewav-store.pages.dev)
+  └─ Pages project: dacewav-store
+     ├─ Auto-deploy: GitHub push → main → build → deploy
+     ├─ Firebase secrets: configurados (encrypted)
+     └─ Framework: @sveltejs/kit
+
+dacewav-store.daceidk.workers.dev
+  └─ Workers script: dacewav-store
+     ├─ Deploy manual: npx wrangler deploy
+     ├─ Firebase creds: baked in .env at build time
+     └─ Uso: staging/preview
+```
+
+## Pendientes (por prioridad)
+
+### 🔴 Alta
+1. Beats vacíos — necesita seed o crear desde admin
+2. `siteName: YUGEN` en Firebase — cambiar a nombre correcto desde admin
+
+### 🟡 Media
+3. 46 buttons sin aria-label (a11y)
+4. Solo 1 prefers-reduced-motion rule
+5. Bundle size: Firebase SDK 127KB (tree-shaking posible)
+6. No hay tests (0 unit, 0 e2e)
+
+### 🟢 Baja
+7. Typo "AEGURADA" en Firebase dividerTitle
+8. Proyecto `storewav` y Workers `storewav` eliminados ✅
