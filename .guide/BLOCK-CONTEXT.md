@@ -19,8 +19,8 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ### Session 11 — Performance + Mobile Polish (50 min)
 1. ✅ Image optimization — `decoding="async"` en 9 `<img>` tags
 2. ✅ Touch targets — btn-sm 40px→44px, Player mobile 36/38px→44px
-3. ⬜ Animation performance — will-change audit (ya tiene prefers-reduced-motion)
-4. ⬜ Mobile responsive audit — revisar flows completos en 375px/768px
+3. ✅ Animation performance — `prefers-reduced-motion` bien implementado, orbs hidden en mobile, will-change solo en cursor-glow
+4. ✅ Mobile responsive audit — breakpoints correctos en store/admin/player/editor
 5. ⬜ Build + commit + push
 
 ### Session 6 — Accessibility + SEO (50 min)
