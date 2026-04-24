@@ -153,6 +153,16 @@
 		analytics.track('beat', 'click', { lbl: beat.id, meta: beat.name });
 		goto(`/beat/${beat.id}`);
 	}
+
+	/** Sanitize HTML from Firebase — only allow safe inline tags */
+	function sanitizeHtml(raw: string): string {
+		if (!raw) return '';
+		// Strip all tags except whitelisted inline formatting
+		return raw.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/gi, (match, tag) => {
+			const allowed = ['em', 'strong', 'b', 'i', 'span'];
+			return allowed.includes(tag.toLowerCase()) ? match : '';
+		});
+	}
 </script>
 
 <svelte:head>
@@ -245,7 +255,7 @@
 <div class="section-divider" use:reveal={{}}>
 	<div class="section-divider-text">
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-		{@html dividerTitle}
+		{@html sanitizeHtml(dividerTitle)}
 	</div>
 	{#if dividerSub}
 	<div class="section-divider-sub">

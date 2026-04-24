@@ -101,6 +101,7 @@
 	// Auto-save with debounce (1s after last change)
 	let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 	let mounted = $state(false);
+	let beatVersion = $state(0);
 
 	// Skip initial reactive chain
 	$effect(() => {
@@ -108,9 +109,16 @@
 		return () => clearTimeout(timer);
 	});
 
+	// Track beat changes via lightweight version counter (avoids JSON.stringify on every keystroke)
+	$effect(() => {
+		// Read key fields that trigger save — much cheaper than serializing the whole object
+		const _ = `${beat.name}|${beat.genre}|${beat.bpm}|${beat.key}|${beat.artist}|${beat.description}|${beat.active}|${beat.featured}|${beat.imageUrl}|${beat.audioUrl}|${beat.spotify}|${beat.youtube}|${beat.soundcloud}|${beat.licenses?.length}|${beat.tags?.length}`;
+		beatVersion++;
+	});
+
 	// Auto-save when beat changes and status is unsaved
 	$effect(() => {
-		const _ = JSON.stringify(beat);
+		const _ = beatVersion;
 		const status = saveStatus;
 		if (mounted && status === 'unsaved' && onSave && isValid) {
 			if (autoSaveTimer) clearTimeout(autoSaveTimer);

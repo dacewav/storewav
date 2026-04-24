@@ -494,7 +494,16 @@ export async function undoField() {
 	redoStack.push(entry);
 	canUndo.set(undoStack.length > 0);
 	canRedo.set(true);
-	await base.update({ [entry.dotPath]: entry.oldValue } as Partial<SettingsData>);
+	try {
+		await base.update({ [entry.dotPath]: entry.oldValue } as Partial<SettingsData>);
+	} catch (err) {
+		console.error('[Undo] Failed:', err);
+		// Revert stack mutation on failure
+		redoStack.pop();
+		undoStack.push(entry);
+		canUndo.set(true);
+		canRedo.set(redoStack.length > 0);
+	}
 }
 
 /** Redo last undone change */
@@ -504,7 +513,16 @@ export async function redoField() {
 	undoStack.push(entry);
 	canRedo.set(redoStack.length > 0);
 	canUndo.set(true);
-	await base.update({ [entry.dotPath]: entry.newValue } as Partial<SettingsData>);
+	try {
+		await base.update({ [entry.dotPath]: entry.newValue } as Partial<SettingsData>);
+	} catch (err) {
+		console.error('[Redo] Failed:', err);
+		// Revert stack mutation on failure
+		undoStack.pop();
+		redoStack.push(entry);
+		canRedo.set(true);
+		canUndo.set(undoStack.length > 0);
+	}
 }
 
 	// ── Data Migration: flat (old) → nested (new) ──

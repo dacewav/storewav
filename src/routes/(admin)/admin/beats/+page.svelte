@@ -74,20 +74,30 @@
 	}
 
 	async function bulkSetActive(active: boolean) {
-		const { updateBeat } = await import('$lib/stores');
-		for (const id of selected) {
-			await updateBeat(id, { active });
+		try {
+			const { updateBeat } = await import('$lib/stores');
+			for (const id of selected) {
+				await updateBeat(id, { active });
+			}
+			toast.success(`${selected.size} beats ${active ? 'activados' : 'desactivados'}`);
+		} catch (err) {
+			console.error('[BulkSetActive]', err);
+			toast.error('Error al actualizar beats');
 		}
-		toast.success(`${selected.size} beats ${active ? 'activados' : 'desactivados'}`);
 		selected = new Set();
 	}
 
 	async function bulkDelete() {
 		if (!confirm(`¿Borrar ${selected.size} beats?`)) return;
-		for (const id of selected) {
-			await deleteBeat(id);
+		try {
+			for (const id of selected) {
+				await deleteBeat(id);
+			}
+			toast.success(`${selected.size} beats eliminados`);
+		} catch (err) {
+			console.error('[BulkDelete]', err);
+			toast.error('Error al borrar beats');
 		}
-		toast.success(`${selected.size} beats eliminados`);
 		selected = new Set();
 	}
 
@@ -98,8 +108,13 @@
 	async function confirmDelete() {
 		if (!deleteTarget) return;
 		const name = deleteTarget.name;
-		await deleteBeat(deleteTarget.id);
-		toast.success(`"${name}" eliminado`);
+		try {
+			await deleteBeat(deleteTarget.id);
+			toast.success(`"${name}" eliminado`);
+		} catch (err) {
+			console.error('[ConfirmDelete]', err);
+			toast.error(`Error al borrar "${name}"`);
+		}
 		deleteTarget = null;
 	}
 
@@ -113,12 +128,22 @@
 		const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
 		if (swapIdx < 0 || swapIdx >= list.length) return;
 		const other = list[swapIdx];
-		await swapBeatOrders(beat.id, beat.order ?? 0, other.id, other.order ?? 0);
+		try {
+			await swapBeatOrders(beat.id, beat.order ?? 0, other.id, other.order ?? 0);
+		} catch (err) {
+			console.error('[MoveBeat]', err);
+			toast.error('Error al reordenar');
+		}
 	}
 
 	async function handleDuplicate(beat: BeatWithId) {
-		await duplicateBeat(beat.id);
-		toast.success(`"${beat.name}" duplicado`);
+		try {
+			await duplicateBeat(beat.id);
+			toast.success(`"${beat.name}" duplicado`);
+		} catch (err) {
+			console.error('[Duplicate]', err);
+			toast.error(`Error al duplicar "${beat.name}"`);
+		}
 	}
 
 	function formatPrice(n: number) {

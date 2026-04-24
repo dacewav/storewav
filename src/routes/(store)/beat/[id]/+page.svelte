@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { beatsList, player, wishlist, settings, analytics } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
@@ -9,7 +9,7 @@
 	import { staggerReveal } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
 
-	let beatId = $derived($page.params.id);
+	let beatId = $derived(page.params.id);
 	let beats = $derived($beatsList);
 	let s = $derived($settings.data);
 
