@@ -10,7 +10,7 @@ sesión: "8"
 bloque: "2A"
 objetivo: "Audit profundo + fix hydration + deploy"
 tiempo: "50 min"
-estado: "audit completo — fix listo, necesita deploy"
+estado: "deployed — fix de hidratación live, testear botones"
 último_commit: "6582bb1"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
@@ -25,13 +25,15 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 6. ✅ Verificado no hay sintaxis Svelte 4 legacy
 7. ✅ Build exitoso con adapter-cloudflare
 8. ✅ Guide actualizado (este archivo + PROJECT_STATE.md)
+9. ✅ Deploy con wrangler — chunks nuevos live (`4j0cC3of`)
 
-## BUG CRÍTICO — RESUELTO (pendiente deploy)
+## BUG CRÍTICO — RESUELTO ✅
 
 Los botones de Media, Theme, y navegación NO funcionaban en el deploy porque:
-- **El deploy tiene chunks viejos** (hashes `p6gD7Pxe` vs `4j0cC3of`)
-- El commit `669cdb2` (`fix: disable SSR — hydration broken on Cloudflare Workers`) nunca se deployó
-- **Fix:** ejecutar `npx wrangler deploy` para pushear el build actual a Cloudflare Workers
+- **El deploy tenía chunks viejos** (hashes `p6gD7Pxe` vs `4j0cC3of`)
+- El commit `669cdb2` (`fix: disable SSR — hydration broken on Cloudflare Workers`) nunca se había deployado
+- **Deploy ejecutado sesión 8** — chunks nuevos confirmados live
+- **Test pendiente:** verificar que botones/tabs funcionan en el deploy real
 
 ## Estado de Sesiones
 
@@ -44,7 +46,7 @@ Los botones de Media, Theme, y navegación NO funcionaban en el deploy porque:
 | 5 | 2A — Beats Seed (auth) | ✅ |
 | 6 | 2A — Beats Seed (mismatch fix) | ⬜ falta deploy |
 | 7 | 2A — Beats Seed (deploy + bugs) | ❌ botones rotos |
-| 8 | 2A — Beats Seed (audit + deploy fix) | ⬜ necesita deploy |
+| 8 | 2A — Beats Seed (audit + deploy fix) | ✅ deployed |
 | 9 | 2B — Beat Interactions | ⬜ |
 | 10 | 3A — Admin Dashboard | ⬜ |
 | 11 | 3B — Beat Editor | ⬜ |
