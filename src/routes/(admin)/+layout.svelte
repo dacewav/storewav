@@ -89,6 +89,8 @@
 				{ href: '/admin/beats', label: 'Beats', icon: '🎵' },
 				{ href: '/admin/hero', label: 'Hero', icon: '🏠' },
 				{ href: '/admin/content', label: 'Contenido', icon: '✏️' },
+				{ href: '/admin/links', label: 'Links', icon: '🔗' },
+				{ href: '/admin/testimonials', label: 'Testimonios', icon: '💬' },
 			]
 		},
 		{
