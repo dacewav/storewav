@@ -3,27 +3,25 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 12 — Accessibility + SEO
+## Sesión Actual: 13 — Content Editors
 
 ```yaml
-sesión: "12"
-bloque: "Accessibility + SEO"
-objetivo: "aria-labels, keyboard nav, JSON-LD, canonical, OG tags"
+sesión: "13"
+bloque: "3C — Content Editors"
+objetivo: "Admin editors for links + testimonials"
 tiempo: "50 min"
 estado: "COMPLETADO"
-último_commit: "e7f2af3"
+último_commit: "a198d94"
 último_push: "pendiente"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
-### Session 12 — Accessibility + SEO (50 min)
-1. ✅ aria-label en 6 icon buttons (beats admin, file upload, hero)
-2. ✅ Keyboard nav — focus trap en mobile menu ya implementado, player slider con arrow keys
-3. ✅ SEO: canonical URL + og:url en store layout
-4. ✅ SEO: MusicRecording JSON-LD en beat detail
-5. ✅ SEO: og:title + og:description en homepage y login
-6. ✅ SEO: robots.txt + sitemap domain fix
-7. ⬜ Build + commit + push
+### Session 13 — Content Editors (50 min)
+1. ✅ Links editor — CRUD social/footer links (label, url, icon, reorder)
+2. ✅ Testimonials editor — CRUD testimonials (name, role, text, stars, avatar, reorder)
+3. ✅ Admin sidebar actualizado con ambas páginas
+4. ✅ Build verificado
+5. ⬜ Push
 
 ### Session 6 — Accessibility + SEO (50 min)
 1. ⬜ aria-label en botones sin texto
@@ -75,7 +73,7 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 10 | Session 4 — Testimonials + CardStyle | ✅ |
 | 11 | Performance + Mobile Polish | ✅ |
 | 12 | Accessibility + SEO | ✅ |
-| 13 | 3C — Content Editors | ⬜ |
+| 13 | 3C — Content Editors | ✅ |
 | 14 | 4 — Effects | ⬜ |
 | 15 | 5 — Labels + Polish | ⬜ |
 | 16 | 6 — Final Audit | ⬜ |
