@@ -2,6 +2,7 @@
 	import { Card, Badge } from '$lib/components';
 	import { allBeatsList, wishlist, settings, auth, createBeat } from '$lib/stores';
 	import { seedDemoBeats, SEED_COUNT } from '$lib/seed';
+	import { toast } from '$lib/toastStore';
 
 	let beats = $derived($allBeatsList);
 	let wl = $derived($wishlist);
@@ -26,8 +27,10 @@
 		try {
 			const count = await seedDemoBeats();
 			seedResult = `✅ ${count} beats creados`;
+			toast.success(`${count} beats de demo creados`);
 		} catch (err) {
 			seedResult = `❌ Error: ${err instanceof Error ? err.message : String(err)}`;
+			toast.error('Error al crear beats de demo');
 		} finally {
 			seeding = false;
 		}
@@ -83,9 +86,9 @@
 				}
 			}
 
-			alert(`✅ Importados: ${imported} elemento(s)`);
+			toast.success(`Importados: ${imported} elemento(s)`);
 		} catch {
-			alert('Error al importar: archivo inválido');
+			toast.error('Error al importar: archivo inválido');
 		}
 		input.value = '';
 	}

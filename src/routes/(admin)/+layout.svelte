@@ -3,6 +3,7 @@
 	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { toast } from '$lib/toastStore';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
@@ -22,6 +23,18 @@
 	let currentSaveStatus = $derived($saveStatusStore);
 	let undoEnabled = $derived($canUndo);
 	let redoEnabled = $derived($canRedo);
+
+	// Toast on save status changes
+	let lastStatus = $state('');
+	$effect(() => {
+		const s = currentSaveStatus;
+		if (s === 'saved' && lastStatus === 'saving') {
+			toast.success('Guardado ✓');
+		} else if (s === 'error' && lastStatus === 'saving') {
+			toast.error('Error al guardar');
+		}
+		lastStatus = s;
+	});
 
 	// Keyboard shortcuts: Ctrl+Z / Ctrl+Shift+Z
 	function handleKeydown(e: KeyboardEvent) {

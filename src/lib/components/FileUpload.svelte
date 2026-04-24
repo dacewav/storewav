@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { uploadFile, generatePath, deleteFile, readFileAsDataUrl, type UploadProgress } from '$lib/upload';
+	import { toast } from '$lib/toastStore';
 
 	let {
 		value = $bindable(''),
@@ -94,9 +95,11 @@
 			value = result.url;
 			onUploadComplete?.(result.url);
 			previewUrl = '';
+			toast.success('Archivo subido');
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error al subir';
 			previewUrl = '';
+			toast.error(error);
 		} finally {
 			uploading = false;
 			progress = null;

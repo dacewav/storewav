@@ -2,6 +2,7 @@
 	import { Badge, EmptyState } from '$lib/components';
 	import { allBeatsList, beatsStats, deleteBeat, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
 	import type { BeatWithId } from '$lib/stores/beats';
+	import { toast } from '$lib/toastStore';
 
 	let beats = $derived($allBeatsList);
 	let stats = $derived($beatsStats);
@@ -75,6 +76,7 @@
 		for (const id of selected) {
 			await updateBeat(id, { active });
 		}
+		toast.success(`${selected.size} beats ${active ? 'activados' : 'desactivados'}`);
 		selected = new Set();
 	}
 
@@ -83,6 +85,7 @@
 		for (const id of selected) {
 			await deleteBeat(id);
 		}
+		toast.success(`${selected.size} beats eliminados`);
 		selected = new Set();
 	}
 
@@ -92,7 +95,9 @@
 
 	async function confirmDelete() {
 		if (!deleteTarget) return;
+		const name = deleteTarget.name;
 		await deleteBeat(deleteTarget.id);
+		toast.success(`"${name}" eliminado`);
 		deleteTarget = null;
 	}
 
@@ -111,6 +116,7 @@
 
 	async function handleDuplicate(beat: BeatWithId) {
 		await duplicateBeat(beat.id);
+		toast.success(`"${beat.name}" duplicado`);
 	}
 
 	function formatPrice(n: number) {
@@ -246,6 +252,12 @@
 								{/if}
 							{/if}
 						</div>
+					</div>
+
+					<!-- Plays -->
+					<div class="beat-plays-col">
+						<span class="plays-val">{beat.plays ?? 0}</span>
+						<span class="plays-lbl">plays</span>
 					</div>
 
 					<!-- Price -->
@@ -608,6 +620,28 @@
 	}
 
 	.tag.more { background: var(--surface-hover); color: var(--text-muted); border-color: var(--border); }
+
+	.beat-plays-col {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		flex-shrink: 0;
+		min-width: 48px;
+	}
+
+	.plays-val {
+		font-family: var(--font-display);
+		font-size: var(--text-sm);
+		font-weight: 700;
+		color: var(--text);
+	}
+
+	.plays-lbl {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		text-transform: uppercase;
+	}
 
 	.beat-price {
 		display: flex;

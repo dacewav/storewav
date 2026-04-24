@@ -96,6 +96,31 @@ export const allTags = derived(beatsList, ($list) => {
 	return [...new Set($list.flatMap((b) => b.tags))].sort();
 });
 
+// ── Plays Counter ──
+
+const playThrottles = new Map<string, number>();
+const PLAY_THROTTLE_MS = 30_000; // Max 1 increment per beat per 30s
+
+/** Incrementar plays de un beat en Firebase (throttled) */
+export async function incrementPlay(beatId: string) {
+	const now = Date.now();
+	const last = playThrottles.get(beatId) ?? 0;
+	if (now - last < PLAY_THROTTLE_MS) return; // Throttled
+	playThrottles.set(beatId, now);
+
+	try {
+		const { getDb } = await import('$lib/firebase');
+		const db = await getDb();
+		if (!db) return;
+
+		const { ref, runTransaction } = await import('firebase/database');
+		const playsRef = ref(db, `beats/${beatId}/plays`);
+		await runTransaction(playsRef, (current) => (current ?? 0) + 1);
+	} catch {
+		// Silencioso — plays no debe romper la UX
+	}
+}
+
 // ── CRUD Helpers ──
 
 /** Crear un beat nuevo */

@@ -3,6 +3,7 @@
 	import { BeatEditor, Spinner, EmptyState } from '$lib/components';
 	import { beats, updateBeat, deleteBeat } from '$lib/stores';
 	import { goto } from '$app/navigation';
+	import { toast } from '$lib/toastStore';
 	import type { Beat } from '$lib/stores/beats';
 
 	let beatId = $derived(page.params.id ?? '');
@@ -19,6 +20,7 @@
 	async function handleSave() {
 		if (!beat || !beat.name?.trim()) {
 			saveStatus = 'error';
+			toast.error('El nombre es obligatorio');
 			return;
 		}
 
@@ -26,18 +28,22 @@
 		try {
 			await updateBeat(beatId, beat);
 			saveStatus = 'saved';
+			toast.success('Beat guardado');
 		} catch (err) {
 			console.error(err);
 			saveStatus = 'error';
+			toast.error('Error al guardar');
 		}
 	}
 
 	async function handleDelete() {
 		try {
 			await deleteBeat(beatId);
+			toast.success('Beat eliminado');
 			goto('/admin/beats');
 		} catch (err) {
 			console.error(err);
+			toast.error('Error al eliminar');
 		}
 	}
 

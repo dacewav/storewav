@@ -2,6 +2,7 @@
 	import { BeatEditor } from '$lib/components';
 	import { createBeat, emptyBeat } from '$lib/stores';
 	import { goto } from '$app/navigation';
+	import { toast } from '$lib/toastStore';
 
 	let beat = $state(emptyBeat());
 	let tempId = $state(`new-${Date.now()}`);
@@ -10,6 +11,7 @@
 	async function handleSave() {
 		if (!beat.name?.trim()) {
 			saveStatus = 'error';
+			toast.error('El nombre es obligatorio');
 			return;
 		}
 
@@ -17,10 +19,12 @@
 		try {
 			const id = await createBeat(beat as Parameters<typeof createBeat>[0]);
 			saveStatus = 'saved';
+			toast.success('Beat creado');
 			if (id) goto(`/admin/beats/${id}`);
 		} catch (err) {
 			console.error(err);
 			saveStatus = 'error';
+			toast.error('Error al crear beat');
 		}
 	}
 </script>

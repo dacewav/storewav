@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { Beat } from '$lib/stores/beats';
-	import { wishlist, settings, player, analytics } from '$lib/stores';
+	import { wishlist, settings, player, analytics, incrementPlay } from '$lib/stores';
 	import { tilt } from '$lib/actions';
+	import { toast } from '$lib/toastStore';
 	import Icon from './Icon.svelte';
 	import {
 		mergeCardStyles,
@@ -50,6 +51,7 @@
 		const wasIn = wishlist.isIn(beat.id);
 		wishlist.toggle(beat.id);
 		analytics.track('wishlist', 'toggle', { lbl: beat.id, val: wasIn ? 0 : 1, meta: beat.name });
+		toast.show(wasIn ? 'Quitado de favoritos' : '❤️ Añadido a favoritos');
 	}
 
 	function handlePlay(e: MouseEvent) {
@@ -57,6 +59,8 @@
 		// Play pulse effect
 		playing = true;
 		setTimeout(() => { playing = false; }, 600);
+		incrementPlay(beat.id);
+		analytics.track('beat', 'play', { lbl: beat.id, meta: beat.name });
 		onplay?.(beat);
 	}
 </script>
@@ -102,6 +106,11 @@
 		<button class="beat-wish" class:active={$inWishlist} onclick={handleWishlist} aria-label="{$inWishlist ? 'Quitar de' : 'Añadir a'} favoritos">
 			<Icon name="heart" size={14} filled={$inWishlist} />
 		</button>
+
+		<!-- Plays badge -->
+		{#if (beat.plays ?? 0) > 0}
+			<span class="beat-plays">🔥 {beat.plays}</span>
+		{/if}
 
 		<!-- Genre badge -->
 		<span class="beat-genre">{beat.genre}</span>
@@ -342,6 +351,22 @@
 
 	.beat-wish.active {
 		color: var(--accent);
+	}
+
+	/* Plays badge */
+	.beat-plays {
+		position: absolute;
+		bottom: var(--space-3);
+		right: var(--space-3);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		padding: 2px 8px;
+		border-radius: var(--radius-full);
+		background: var(--overlay-bg);
+		backdrop-filter: blur(8px);
+		color: var(--text);
+		letter-spacing: 0.04em;
+		z-index: 2;
 	}
 
 	/* Genre badge */
