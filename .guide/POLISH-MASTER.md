@@ -6,10 +6,24 @@
 
 ---
 
-## 📋 Estado actual — TODOS LOS BLOQUES VERIFICADOS (1-14)
+## 📋 Estado actual — Verificación con navegador (2026-04-25)
 
-Polish completa. Build limpio, 0 errores TS, 2 bugs fixeados (particles), skip-to-content añadido.
-Pendiente: deploy a Cloudflare Workers (requiere credenciales Cloudflare).
+**Verificados en navegador (headless Chromium):**
+- Bloques 1-3, 10: homepage, beat detail, login, auth redirect
+- Firebase conectado (stores fulfilled), env vars inlined correctamente
+- **3 bugs reales encontrados y fixeados:**
+  1. Particles: `resolvedColor` usaba string `var(--accent)` en vez de resolver el color → getComputedStyle
+  2. Particles: `ctx.scale(dpr, dpr)` se acumulaba en resize → `ctx.setTransform`
+  3. Beat detail: loading state perpetuo cuando DB vacía → usa `store.loading`
+- Skip-to-content duplicado eliminado (existía en root layout + store layout)
+
+**Verificados solo por código (admin requiere auth):**
+- Bloques 4-9, 11-13: admin dashboard, CRUD, editors, effects, panels, player, SEO, a11y, responsive
+- Pendiente verificar en navegador autenticado
+
+**Pendiente:**
+- Deploy a Cloudflare Workers (requiere credenciales)
+- Verificar bloques 4-9 en sesión autenticada
 
 ---
 
@@ -288,7 +302,7 @@ Pendiente: deploy a Cloudflare Workers (requiere credenciales Cloudflare).
 
 **Objetivo**: Que la accesibilidad esté completa.
 
-- [x] Skip to content link funciona — añadido al store layout
+- [x] Skip to content link funciona — ya existía en root layout (class="sr-only")
 - [x] All images have alt text — verificado en componentes
 - [x] Icon buttons have aria-label — verificado en nav, player, admin
 - [x] :focus-visible outline visible on keyboard nav — definido en app.css
