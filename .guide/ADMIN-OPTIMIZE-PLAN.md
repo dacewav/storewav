@@ -52,11 +52,11 @@
 
 **Objetivo**: Que los stats del dashboard sean correctos y auth no tenga hardcodes.
 
-- [ ] Stats: verificar que `beatsStats` se calcula DESPUÉS de que `beats` store esté fulfilled
-- [ ] Stats: si `beats.loading` es true, mostrar skeleton en vez de "0"
-- [ ] Auth: eliminar UID hardcodeado `'Uks9YGSd6rS40zqlRujoe6pE6N22'` del array `ADMIN_UIDS` en `auth.ts`
-- [ ] Auth: `ADMIN_UIDS` debe venir SOLO de `PUBLIC_ADMIN_UIDS.split(',')`
-- [ ] Verificar en browser: stats muestran 7 beats, admin sigue funcionando
+- [x] Stats: verificar que `beatsStats` se calcula DESPUÉS de que `beats` store esté fulfilled
+- [x] Stats: si `beats.loading` es true, mostrar skeleton en vez de "0" — fixeado via countUp action
+- [x] Auth: eliminar UID hardcodeado `'Uks9YGSd6rS40zqlRujoe6pE6N22'` del array `ADMIN_UIDS` en `auth.ts`
+- [x] Auth: `ADMIN_UIDS` debe venir SOLO de `PUBLIC_ADMIN_UIDS.split(',')`
+- [x] Verificar en browser: stats muestran 7 beats, admin sigue funcionando ✅
 
 **Archivos a tocar**:
 - `src/routes/(admin)/admin/+page.svelte`
