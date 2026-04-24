@@ -1,14 +1,16 @@
 <script lang="ts">
-	import { Card, Badge } from '$lib/components';
-	import { allBeatsList, wishlist, settings, auth, createBeat } from '$lib/stores';
+	import { Card, Badge, Skeleton } from '$lib/components';
+	import { allBeatsList, wishlist, settings, auth, beats as beatsStore, createBeat } from '$lib/stores';
 	import { seedDemoBeats, SEED_COUNT } from '$lib/seed';
 	import { toast } from '$lib/toastStore';
 
+	let beatsData = $derived($beatsStore);
 	let beats = $derived($allBeatsList);
 	let wl = $derived($wishlist);
 	let settingsData = $derived($settings.data);
 	let authState = $derived($auth);
 	let brandName = $derived(settingsData?.brand?.name ?? 'DACEWAV');
+	let loading = $derived(beatsData.loading);
 
 	const stats = $derived([
 		{ label: 'Beats', value: String(beats.length || '—'), icon: '🎵' },
@@ -104,6 +106,17 @@
 	</div>
 
 	<!-- Stats grid -->
+	{#if loading}
+		<div class="stats-grid">
+			{#each Array(4) as _}
+				<Card>
+					<div class="stat-card">
+						<Skeleton variant="compact" lines={2} />
+					</div>
+				</Card>
+			{/each}
+		</div>
+	{:else}
 	<div class="stats-grid">
 		{#each stats as stat}
 			<Card hoverable>
@@ -117,6 +130,7 @@
 			</Card>
 		{/each}
 	</div>
+	{/if}
 
 	<!-- Two column layout -->
 	<div class="dash-grid">

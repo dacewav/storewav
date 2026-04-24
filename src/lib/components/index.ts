@@ -26,4 +26,5 @@ export { default as Icon } from './Icon.svelte';
 export { default as Testimonials } from './Testimonials.svelte';
 export { default as BeatEditor } from './BeatEditor.svelte';
 export { default as FileUpload } from './FileUpload.svelte';
+export { default as OfflineBanner } from './OfflineBanner.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

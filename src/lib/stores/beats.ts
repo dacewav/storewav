@@ -121,38 +121,65 @@ export async function incrementPlay(beatId: string) {
 	}
 }
 
+// ── Retry Helper ──
+
+/** Retry a Firebase operation once on network error */
+async function withRetry<T>(fn: () => Promise<T>, label = 'operation'): Promise<T> {
+	try {
+		return await fn();
+	} catch (err) {
+		const isNetwork = err instanceof Error && (
+			err.message.includes('network') ||
+			err.message.includes('fetch') ||
+			err.message.includes('offline') ||
+			err.message.includes('unavailable')
+		);
+		if (!isNetwork) throw err;
+
+		console.warn(`[Retry] ${label} failed, retrying in 1s...`);
+		await new Promise((r) => setTimeout(r, 1000));
+		return fn();
+	}
+}
+
 // ── CRUD Helpers ──
 
 /** Crear un beat nuevo */
 export async function createBeat(data: Omit<Beat, 'date'>) {
-	const { getDb } = await import('$lib/firebase');
-	const db = await getDb();
-	if (!db) throw new Error('Firebase no inicializado');
+	return withRetry(async () => {
+		const { getDb } = await import('$lib/firebase');
+		const db = await getDb();
+		if (!db) throw new Error('Firebase no inicializado');
 
-	const { ref, push, set } = await import('firebase/database');
-	const newRef = push(ref(db, 'beats'));
-	await set(newRef, { ...data, date: new Date().toISOString() });
-	return newRef.key;
+		const { ref, push, set } = await import('firebase/database');
+		const newRef = push(ref(db, 'beats'));
+		await set(newRef, { ...data, date: new Date().toISOString() });
+		return newRef.key;
+	}, 'createBeat');
 }
 
 /** Actualizar un beat existente */
 export async function updateBeat(id: string, data: Partial<Beat>) {
-	const { getDb } = await import('$lib/firebase');
-	const db = await getDb();
-	if (!db) throw new Error('Firebase no inicializado');
+	return withRetry(async () => {
+		const { getDb } = await import('$lib/firebase');
+		const db = await getDb();
+		if (!db) throw new Error('Firebase no inicializado');
 
-	const { ref, update } = await import('firebase/database');
-	await update(ref(db, `beats/${id}`), data);
+		const { ref, update } = await import('firebase/database');
+		await update(ref(db, `beats/${id}`), data);
+	}, 'updateBeat');
 }
 
 /** Borrar un beat */
 export async function deleteBeat(id: string) {
-	const { getDb } = await import('$lib/firebase');
-	const db = await getDb();
-	if (!db) throw new Error('Firebase no inicializado');
+	return withRetry(async () => {
+		const { getDb } = await import('$lib/firebase');
+		const db = await getDb();
+		if (!db) throw new Error('Firebase no inicializado');
 
-	const { ref, remove } = await import('firebase/database');
-	await remove(ref(db, `beats/${id}`));
+		const { ref, remove } = await import('firebase/database');
+		await remove(ref(db, `beats/${id}`));
+	}, 'deleteBeat');
 }
 
 /** Duplicar un beat */

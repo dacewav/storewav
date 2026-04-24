@@ -455,7 +455,20 @@ async function updateField(dotPath: string, value: unknown) {
 		// Firebase update acepta claves con dot-notation directamente
 		await base.update({ [dotPath]: value } as Partial<SettingsData>);
 		saveStatus.set('saved');
-	} catch {
+	} catch (err) {
+		// Retry once on network error
+		const isNetwork = err instanceof Error && (
+			err.message.includes('network') || err.message.includes('fetch') || err.message.includes('unavailable')
+		);
+		if (isNetwork) {
+			console.warn('[Settings] Update failed, retrying in 1s...');
+			await new Promise((r) => setTimeout(r, 1000));
+			try {
+				await base.update({ [dotPath]: value } as Partial<SettingsData>);
+				saveStatus.set('saved');
+				return;
+			} catch { /* fall through */ }
+		}
 		saveStatus.set('error');
 	}
 }

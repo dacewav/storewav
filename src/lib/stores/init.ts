@@ -7,6 +7,7 @@ import { settings } from './settings';
 import { initTheme } from './theme';
 import { initAuth } from './auth';
 import { beats } from './beats';
+import { initConnection } from './connection';
 
 let initialized = false;
 
@@ -21,11 +22,12 @@ export async function initStores() {
 		settings.subscribeFirebase(),
 		initTheme(),
 		initAuth(),
-		beats.subscribeFirebase()
+		beats.subscribeFirebase(),
+		initConnection()
 	]);
 
 	console.log('[Init] Stores initialized:', results.map((r, i) => {
-		const names = ['settings', 'theme', 'auth', 'beats'];
+		const names = ['settings', 'theme', 'auth', 'beats', 'connection'];
 		return `${names[i]}: ${r.status}`;
 	}));
 }

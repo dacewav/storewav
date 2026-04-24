@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { Badge, EmptyState } from '$lib/components';
-	import { allBeatsList, beatsStats, deleteBeat, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
+	import { Badge, EmptyState, Skeleton } from '$lib/components';
+	import { allBeatsList, beatsStats, beats as beatsStore, deleteBeat, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
 	import type { BeatWithId } from '$lib/stores/beats';
 	import { toast } from '$lib/toastStore';
 
+	let beatsData = $derived($beatsStore);
 	let beats = $derived($allBeatsList);
 	let stats = $derived($beatsStats);
 	let genreList = $derived($genres);
+	let loading = $derived(beatsData.loading);
 
 	// Filters
 	let search = $state('');
@@ -196,7 +198,19 @@
 	{/if}
 
 	<!-- Beat list -->
-	{#if filteredBeats.length > 0}
+	{#if loading}
+		<div class="skeleton-grid">
+			{#each Array(5) as _}
+				<div class="skeleton-row">
+					<div class="skeleton-thumb"></div>
+					<div class="skeleton-lines">
+						<div class="skel-line w60"></div>
+						<div class="skel-line w40"></div>
+					</div>
+				</div>
+			{/each}
+		</div>
+	{:else if filteredBeats.length > 0}
 		<div class="beat-list">
 			{#each filteredBeats as beat (beat.id)}
 				<div class="beat-row" class:inactive={!beat.active}>
@@ -760,5 +774,57 @@
 		.filters-bar { flex-direction: column; }
 		.search-wrap { min-width: auto; width: 100%; }
 		.filter-select { width: 100%; }
+	}
+
+	/* Skeleton loading */
+	.skeleton-grid {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		background: var(--border);
+	}
+
+	.skeleton-row {
+		display: flex;
+		align-items: center;
+		gap: var(--space-4);
+		padding: var(--space-3) var(--space-4);
+		background: var(--surface);
+	}
+
+	.skeleton-thumb {
+		width: 48px;
+		height: 48px;
+		border-radius: var(--radius-sm);
+		background: linear-gradient(90deg, var(--surface2) 25%, rgba(var(--accent-rgb), 0.03) 50%, var(--surface2) 75%);
+		background-size: 200% 100%;
+		animation: shimmer 1.8s ease-in-out infinite;
+		flex-shrink: 0;
+	}
+
+	.skeleton-lines {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.skel-line {
+		height: 12px;
+		border-radius: var(--radius-sm);
+		background: linear-gradient(90deg, var(--surface2) 25%, rgba(var(--accent-rgb), 0.03) 50%, var(--surface2) 75%);
+		background-size: 200% 100%;
+		animation: shimmer 1.8s ease-in-out infinite;
+	}
+
+	.w40 { width: 40%; }
+	.w60 { width: 60%; }
+
+	@keyframes shimmer {
+		0% { background-position: -200% 0; }
+		100% { background-position: 200% 0; }
 	}
 </style>

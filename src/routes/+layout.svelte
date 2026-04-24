@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import { initStores } from '$lib/stores/init';
 	import { settings } from '$lib/stores';
+	import { OfflineBanner } from '$lib/components';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
@@ -54,3 +55,5 @@
 </a>
 
 {@render children()}
+
+<OfflineBanner />
