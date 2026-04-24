@@ -20,3 +20,4 @@ Thumbs.db
 
 # Nested clone (from bootstrap)
 store/
+.env
