@@ -4,7 +4,7 @@ export { auth, initAuth, loginWithGoogle, logout, destroyAuth, type AuthState, t
 export {
 	beats, beatsList, allBeatsList, beatsStats, genres, allTags,
 	createBeat, updateBeat, deleteBeat, duplicateBeat, reorderBeat, swapBeatOrders, emptyBeat,
-	type Beat, type BeatWithId, type BeatsMap, type License, type LicenseNames, type Platforms
+	type Beat, type BeatWithId, type BeatsMap, type LicenseItem
 } from './beats';
 export { wishlist } from './wishlist';
 export { analytics } from './analytics';

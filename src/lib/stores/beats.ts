@@ -54,10 +54,6 @@ export type Beat = {
 	shimmerSpeed?: number;
 	shimmerOp?: number;
 	cardBorder?: Record<string, unknown>;
-	/** @deprecated — not in deployed rules, kept for backwards compat */
-	coverUrl?: string;
-	/** @deprecated — not in deployed rules, kept for backwards compat */
-	createdAt?: number;
 };
 
 export type BeatWithId = Beat & { id: string };
