@@ -11,11 +11,23 @@
 	let authState = $derived($auth);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
+	// Debug: log auth state on change
+	$effect(() => {
+		console.log('[Admin] Auth state:', {
+			loading: authState.loading,
+			user: authState.user?.email ?? null,
+			isAdmin: authState.isAdmin,
+			error: authState.error
+		});
+	});
+
 	// Redirect a login si no está autenticado, o a / si no es admin
 	$effect(() => {
 		if (!authState.loading && !authState.user) {
+			console.warn('[Admin] No autenticado → redirect /login');
 			goto('/login');
 		} else if (!authState.loading && authState.user && !authState.isAdmin) {
+			console.warn('[Admin] Usuario no es admin → redirect /', { uid: authState.user.uid });
 			goto('/');
 		}
 	});
@@ -112,6 +124,16 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <div class="admin-layout">
+	{#if authState.loading}
+		<div class="auth-loading">
+			<div class="auth-spinner"></div>
+			<span>Conectando...</span>
+		</div>
+	{:else if authState.error}
+		<div class="auth-error" role="alert">
+			⚠️ Error de autenticación: {authState.error}
+		</div>
+	{/if}
 	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => {}} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined}>
 		<span class="admin-section-label">{sectionLabel}</span>
 	</AdminTopbar>
@@ -255,5 +277,40 @@
 		.si-icon {
 			width: auto;
 		}
+	}
+
+	.auth-loading {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-3);
+		padding: var(--space-4);
+		background: var(--surface);
+		border-bottom: 1px solid var(--border);
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+	}
+
+	.auth-spinner {
+		width: 16px;
+		height: 16px;
+		border: 2px solid var(--border);
+		border-top-color: var(--accent);
+		border-radius: 50%;
+		animation: spin 0.6s linear infinite;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
+
+	.auth-error {
+		padding: var(--space-3) var(--space-4);
+		background: var(--danger-glow);
+		border-bottom: 1px solid var(--danger-dim);
+		color: var(--danger);
+		font-size: var(--text-sm);
+		text-align: center;
+		font-family: var(--font-mono);
 	}
 </style>

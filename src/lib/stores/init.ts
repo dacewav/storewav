@@ -14,13 +14,20 @@ export async function initStores() {
 	if (initialized) return;
 	initialized = true;
 
+	console.log('[Init] Starting store initialization...');
+
 	// Fire-and-forget — cada store maneja sus errores internamente
-	await Promise.allSettled([
+	const results = await Promise.allSettled([
 		settings.subscribeFirebase(),
 		initTheme(),
 		initAuth(),
 		beats.subscribeFirebase()
 	]);
+
+	console.log('[Init] Stores initialized:', results.map((r, i) => {
+		const names = ['settings', 'theme', 'auth', 'beats'];
+		return `${names[i]}: ${r.status}`;
+	}));
 }
 
 export function destroyStores() {
