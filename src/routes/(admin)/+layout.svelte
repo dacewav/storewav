@@ -82,7 +82,7 @@
 	];
 
 	// Current section label for topbar
-	let sectionLabel = $derived(() => {
+	let sectionLabel = $derived.by(() => {
 		for (const g of navGroups) {
 			for (const item of g.items) {
 				if (item.href === currentPath) return item.label;
@@ -100,7 +100,7 @@
 
 <div class="admin-layout">
 	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => {}} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined}>
-		<span class="admin-section-label">{sectionLabel()}</span>
+		<span class="admin-section-label">{sectionLabel}</span>
 	</AdminTopbar>
 
 	<div class="admin-body">

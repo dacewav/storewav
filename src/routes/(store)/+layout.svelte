@@ -26,7 +26,7 @@
 	let brandName = $derived(settingsData?.brand?.name ?? 'DACEWAV');
 	let brandLogo = $derived(settingsData?.brand?.logo ?? '');
 	let logoHeight = $derived(settingsData?.layout?.logoHeight ?? 28);
-	let brandSplit = $derived(() => {
+	let brandSplit = $derived.by(() => {
 		const name = brandName;
 		if (name.length > 4) {
 			return { first: name.slice(0, -3), last: name.slice(-3) };
@@ -57,7 +57,7 @@
 	let bannerDelay = $derived(settingsData?.banner?.delay ?? 0);
 	let bannerBg = $derived(settingsData?.banner?.bgColor ?? '#7f1d1d');
 	let bannerTxtClr = $derived(settingsData?.banner?.textColor ?? '#ffffff');
-	let bannerDuration = $derived(() => {
+	let bannerDuration = $derived.by(() => {
 		const s = bannerSpeed;
 		switch (bannerAnim) {
 			case 'scroll': return `${s}s`;
@@ -221,13 +221,13 @@
 		<a
 			href={bannerUrl}
 			class="banner-inner"
-			style="color: {bannerTxtClr}; {bannerAnim !== 'static' ? `animation: banner-${bannerAnim} ${bannerDuration()} ${bannerEasing} ${bannerDelay}s infinite ${bannerDir}` : ''}"
+			style="color: {bannerTxtClr}; {bannerAnim !== 'static' ? `animation: banner-${bannerAnim} ${bannerDuration} ${bannerEasing} ${bannerDelay}s infinite ${bannerDir}` : ''}"
 			target="_blank" rel="noopener"
 		>{bannerText}</a>
 	{:else}
 		<div
 			class="banner-inner"
-			style="color: {bannerTxtClr}; {bannerAnim !== 'static' ? `animation: banner-${bannerAnim} ${bannerDuration()} ${bannerEasing} ${bannerDelay}s infinite ${bannerDir}` : ''}"
+			style="color: {bannerTxtClr}; {bannerAnim !== 'static' ? `animation: banner-${bannerAnim} ${bannerDuration} ${bannerEasing} ${bannerDelay}s infinite ${bannerDir}` : ''}"
 		>{bannerText}</div>
 	{/if}
 </div>
@@ -237,8 +237,8 @@
 {#if loaderEnabled && loaderVisible}
 <div id="loader" class:fading={loaderFading}>
 	<div id="loader-brand">
-		{#if brandSplit().last}
-			{brandSplit().first}<em>{brandSplit().last}</em>
+		{#if brandSplit.last}
+			{brandSplit.first}<em>{brandSplit.last}</em>
 		{:else}
 			{loaderText}
 		{/if}
@@ -268,8 +268,8 @@
 		<a href="/" class="nav-brand" onclick={closeMenu}>
 			{#if brandLogo}
 				<img class="nav-logo" src={brandLogo} alt={brandName} style="height: {logoHeight > 0 ? logoHeight : 28}px" />
-			{:else if brandSplit().last}
-				<span>{brandSplit().first}</span><em>{brandSplit().last}</em>.
+			{:else if brandSplit.last}
+				<span>{brandSplit.first}</span><em>{brandSplit.last}</em>.
 			{:else}
 				<span>{brandName}</span><em>.</em>
 			{/if}
@@ -345,8 +345,8 @@
 	<footer class="footer">
 		<div class="footer-left">
 			<div class="footer-brand">
-			{#if brandSplit().last}
-				{brandSplit().first}<em>{brandSplit().last}</em>
+			{#if brandSplit.last}
+				{brandSplit.first}<em>{brandSplit.last}</em>
 			{:else}
 				{brandName}
 			{/if}

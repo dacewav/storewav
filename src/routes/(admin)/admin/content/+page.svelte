@@ -40,7 +40,7 @@
 		{ key: 'errorBtn', label: 'Error botón', group: 'Error' }
 	];
 
-	let labelGroups = $derived(() => {
+	let labelGroups = $derived.by(() => {
 		const groups: Record<string, typeof LABEL_FIELDS> = {};
 		for (const f of LABEL_FIELDS) {
 			(groups[f.group] ??= []).push(f);
@@ -94,7 +94,7 @@
 	</Card>
 
 	<!-- Labels -->
-	{#each Object.entries(labelGroups()) as [group, fields]}
+	{#each Object.entries(labelGroups) as [group, fields]}
 		<Card>
 			<h3 class="section-title">Labels — {group}</h3>
 			{#each fields as f}
