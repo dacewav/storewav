@@ -1,10 +1,10 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { AdminTopbar } from '$lib/components';
 	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { toast } from '$lib/toastStore';
-	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
@@ -12,36 +12,20 @@
 	let authState = $derived($auth);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
-	// Debug: log auth state (once, not on every change)
-	let authLogged = $state(false);
-	$effect(() => {
-		if (!authState.loading && !authLogged) {
-			authLogged = true;
-			console.log('[Admin] Auth resolved:', {
-				user: authState.user?.email ?? 'none',
-				uid: authState.user?.uid ?? 'none',
-				isAdmin: authState.isAdmin,
-				adminChecked: authState.adminChecked,
-				error: authState.error
-			});
-		}
-	});
-
-	// Redirect — non-reactive guard to prevent effect loops
-	let didRedirect = false;
-	$effect(() => {
-		const { loading, adminChecked, user, isAdmin } = authState;
-		if (didRedirect || loading || !adminChecked) return;
-		untrack(() => {
-			if (!user) {
-				didRedirect = true;
+	// Auth redirect — uses raw subscription, NOT $effect (prevents effect_update_depth_exceeded)
+	onMount(() => {
+		let done = false;
+		const unsub = auth.subscribe((state) => {
+			if (done || state.loading || !state.adminChecked) return;
+			done = true;
+			if (!state.user) {
 				goto('/login');
-			} else if (!isAdmin) {
-				didRedirect = true;
-				console.warn('[Admin] Not admin, UID:', user.uid);
+			} else if (!state.isAdmin) {
+				console.warn('[Admin] Not admin, UID:', state.user.uid);
 				goto('/');
 			}
 		});
+		return unsub;
 	});
 
 	let currentSaveStatus = $derived($saveStatusStore);
