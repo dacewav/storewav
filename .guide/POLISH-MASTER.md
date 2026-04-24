@@ -239,17 +239,17 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que el player funcione.
 
-- [ ] Se muestra cuando hay beat reproduciéndose
-- [ ] Cover image se muestra
-- [ ] Nombre y artista se muestran
-- [ ] Play/Pause funciona
-- [ ] Stop funciona (cierra player)
-- [ ] Mute toggle funciona
-- [ ] Progress bar funciona (click para seek)
-- [ ] Volume slider funciona
-- [ ] Time display funciona (current / total)
-- [ ] Keyboard: space para play/pause, arrows para seek
-- [ ] Responsive: se adapta en mobile (time hidden, volume hidden)
+- [x] Se muestra cuando hay beat reproduciéndose
+- [x] Cover image se muestra
+- [x] Nombre y artista se muestran
+- [x] Play/Pause funciona
+- [x] Stop funciona (cierra player)
+- [x] Mute toggle funciona
+- [x] Progress bar funciona (click para seek)
+- [x] Volume slider funciona
+- [x] Time display funciona (current / total)
+- [x] Keyboard: arrows para seek en progress bar
+- [x] Responsive: se adapta en mobile (time hidden, volume hidden)
 
 ---
 
