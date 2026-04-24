@@ -27,4 +27,5 @@ export { default as Testimonials } from './Testimonials.svelte';
 export { default as BeatEditor } from './BeatEditor.svelte';
 export { default as FileUpload } from './FileUpload.svelte';
 export { default as OfflineBanner } from './OfflineBanner.svelte';
+export { default as Particles } from './Particles.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { settings, wishlist, auth, player } from '$lib/stores';
-	import { ToastContainer, Player, WishlistPanel } from '$lib/components';
+	import { ToastContainer, Player, WishlistPanel, Particles } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 
 	let { children } = $props();
@@ -43,6 +43,16 @@
 	let accent = $derived(settingsData?.theme?.accent ?? '#dc2626');
 	let wishCount = $derived($wishlist.length);
 	let hasPlayer = $derived($player.beatId !== null);
+
+	// Particles
+	let particlesOn = $derived(settingsData?.theme?.particlesOn === true);
+	let particlesCount = $derived(settingsData?.theme?.particlesCount ?? 50);
+	let particlesSpeed = $derived(settingsData?.theme?.particlesSpeed ?? 1);
+	let particlesType = $derived(settingsData?.theme?.particlesType ?? 'circle');
+	let particlesColor = $derived(settingsData?.theme?.particlesColor ?? '');
+	let particlesOpacity = $derived(settingsData?.theme?.particlesOpacity ?? 0.3);
+	let particlesText = $derived(settingsData?.theme?.particlesText ?? '');
+	let particlesImgUrl = $derived(settingsData?.theme?.particlesImgUrl ?? '');
 
 	// Check if current user is admin
 	let isAdmin = $derived($auth.isAdmin);
@@ -264,6 +274,19 @@
 <div class="orb orb1"></div>
 <div class="orb orb2"></div>
 <div class="orb orb3"></div>
+
+<!-- Particles -->
+{#if particlesOn}
+	<Particles
+		count={particlesCount}
+		speed={particlesSpeed}
+		type={particlesType}
+		color={particlesColor}
+		opacity={particlesOpacity}
+		text={particlesText}
+		imgUrl={particlesImgUrl}
+	/>
+{/if}
 
 <div class="app">
 	<!-- Nav -->
