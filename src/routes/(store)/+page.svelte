@@ -146,11 +146,11 @@
 			imageUrl: beat.imageUrl ?? '',
 			audioUrl: beat.audioUrl ?? ''
 		});
-		analytics.track('beat_play', { beatId: beat.id, name: beat.name });
+		analytics.track('beat', 'play', { lbl: beat.id, meta: beat.name });
 	}
 
 	function handleBeatClick(beat: Beat & { id: string }) {
-		analytics.track('beat_click', { beatId: beat.id, name: beat.name });
+		analytics.track('beat', 'click', { lbl: beat.id, meta: beat.name });
 		goto(`/beat/${beat.id}`);
 	}
 </script>

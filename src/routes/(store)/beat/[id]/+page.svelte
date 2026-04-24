@@ -54,7 +54,7 @@
 	$effect(() => {
 		if (beatId) {
 			selectedLicense = -1;
-			analytics.track('beat_page_view', { beatId });
+			analytics.track('beat', 'page_view', { lbl: beatId });
 		}
 	});
 
@@ -67,13 +67,13 @@
 			imageUrl: beat.imageUrl ?? '',
 			audioUrl: beat.audioUrl ?? ''
 		});
-		analytics.track('beat_play', { beatId: beat.id, name: beat.name, source: 'beat_page' });
+		analytics.track('beat', 'play', { lbl: beat.id, meta: beat.name });
 	}
 
 	function selectLicense(index: number) {
 		selectedLicense = selectedLicense === index ? -1 : index;
 		if (selectedLicense >= 0) {
-			analytics.track('license_select', { beatId: beat?.id, license: beat?.licenses?.[selectedLicense]?.name });
+			analytics.track('license', 'select', { lbl: beat?.id, meta: beat?.licenses?.[selectedLicense]?.name });
 		}
 	}
 
@@ -256,7 +256,7 @@
 								href="https://wa.me/{whatsappNum}?text={encodeURIComponent(`Quiero la licencia ${beat.licenses[selectedLicense].name} de ${beat.name}`)}"
 								target="_blank"
 								rel="noopener"
-								onclick={() => analytics.track('buy_click', { beatId: beat?.id, license: beat?.licenses?.[selectedLicense]?.name, price: beat?.licenses?.[selectedLicense]?.priceMXN })}
+								onclick={() => analytics.track('license', 'buy_click', { lbl: beat?.id, val: beat?.licenses?.[selectedLicense]?.priceMXN, meta: beat?.licenses?.[selectedLicense]?.name })}
 							>
 								{labelBuy} {beat.licenses[selectedLicense].name} — ${beat.licenses[selectedLicense].priceMXN}
 							</a>

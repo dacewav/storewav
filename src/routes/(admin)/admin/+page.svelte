@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Card, Badge } from '$lib/components';
-	import { allBeatsList, wishlist, settings, auth } from '$lib/stores';
+	import { allBeatsList, wishlist, settings, auth, createBeat } from '$lib/stores';
 	import { seedDemoBeats, SEED_COUNT } from '$lib/seed';
 
 	let beats = $derived($allBeatsList);
@@ -64,10 +64,26 @@
 		try {
 			const text = await file.text();
 			const data = JSON.parse(text);
+			let imported = 0;
+
 			if (data.settings) {
 				await settings.set(data.settings);
+				imported++;
 			}
-			alert('Datos importados correctamente');
+
+			if (data.beats && typeof data.beats === 'object') {
+				for (const [, beatData] of Object.entries(data.beats)) {
+					const { id, date, ...rest } = beatData as Record<string, unknown>;
+					try {
+						await createBeat(rest as Parameters<typeof createBeat>[0]);
+						imported++;
+					} catch (err) {
+						console.error('[Import] Error creando beat:', err);
+					}
+				}
+			}
+
+			alert(`✅ Importados: ${imported} elemento(s)`);
 		} catch {
 			alert('Error al importar: archivo inválido');
 		}

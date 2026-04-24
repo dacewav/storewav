@@ -30,9 +30,9 @@
 	let tagList = $derived($allTags);
 	let showTags = $state(false);
 
-	const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-	const modes = ['m', ''];
-	const allKeys = keys.flatMap(k => modes.map(m => k + m));
+	// Match BeatEditor's key list exactly
+	const allKeys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
+		'Am', 'Bbm', 'Bm', 'Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m'];
 
 	const sortOptions = [
 		{ value: 'newest', label: 'Más recientes' },

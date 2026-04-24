@@ -2,15 +2,20 @@
  * Analytics store — batched events → Firebase
  *
  * Acumula eventos en memoria y los escribe a Firebase en batch.
+ * Schema match deployed rules: analytics/events/{date}/{eventId} → { ts, cat, act, lbl, val, meta }
+ *
  * Uso: analytics.track('beat_play', { beatId: 'xyz' });
  */
 
 import { getDb } from '$lib/firebase';
 
 type AnalyticsEvent = {
-	name: string;
-	data: Record<string, unknown>;
-	timestamp: number;
+	ts: number;
+	cat: string;
+	act: string;
+	lbl?: string;
+	val?: number;
+	meta?: string;
 };
 
 const BATCH_SIZE = 10;
@@ -19,6 +24,11 @@ const MAX_QUEUE_SIZE = 50; // Drop oldest if exceeded
 
 let queue: AnalyticsEvent[] = [];
 let flushTimer: ReturnType<typeof setInterval> | null = null;
+
+/** Get today's date key for path partitioning */
+function todayKey(): string {
+	return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
 
 async function flush() {
 	if (queue.length === 0) return;
@@ -30,7 +40,8 @@ async function flush() {
 		if (!db) return;
 
 		const { ref, push } = await import('firebase/database');
-		const eventsRef = ref(db, 'analytics/events');
+		const dateKey = todayKey();
+		const eventsRef = ref(db, `analytics/events/${dateKey}`);
 
 		for (const event of batch) {
 			await push(eventsRef, event);
@@ -57,9 +68,21 @@ function stopFlushing() {
 }
 
 export const analytics = {
-	/** Registrar un evento */
-	track(name: string, data: Record<string, unknown> = {}) {
-		queue.push({ name, data, timestamp: Date.now() });
+	/**
+	 * Registrar un evento.
+	 * @param cat - Categoría (ej: 'beat', 'license', 'wishlist', 'ui')
+	 * @param act - Acción (ej: 'play', 'select', 'toggle', 'click')
+	 * @param opts - Opciones adicionales
+	 */
+	track(cat: string, act: string, opts?: { lbl?: string; val?: number; meta?: string }) {
+		queue.push({
+			ts: Date.now(),
+			cat,
+			act,
+			...(opts?.lbl && { lbl: opts.lbl }),
+			...(opts?.val !== undefined && { val: opts.val }),
+			...(opts?.meta && { meta: opts.meta })
+		});
 
 		// Cap queue — drop oldest events if over limit
 		if (queue.length > MAX_QUEUE_SIZE) {

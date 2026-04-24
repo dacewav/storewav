@@ -49,7 +49,7 @@
 		e.stopPropagation();
 		const wasIn = wishlist.isIn(beat.id);
 		wishlist.toggle(beat.id);
-		analytics.track('wishlist_toggle', { beatId: beat.id, name: beat.name, added: !wasIn });
+		analytics.track('wishlist', 'toggle', { lbl: beat.id, val: wasIn ? 0 : 1, meta: beat.name });
 	}
 
 	function handlePlay(e: MouseEvent) {
