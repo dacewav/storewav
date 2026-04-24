@@ -347,7 +347,7 @@
 		inset: 0;
 		background: var(--hero-grad, radial-gradient(ellipse 80% 60% at 50% 0%, var(--accent-glow), transparent));
 		pointer-events: none;
-		transition: background 0.6s ease;
+		transition: background var(--duration-normal) var(--ease-out);
 	}
 
 	.hero::after {
@@ -505,7 +505,7 @@
 		font-size: clamp(1.5rem, 4vw, 2rem);
 		font-weight: 800;
 		color: var(--text);
-		transition: all 0.3s var(--ease-out);
+		transition: all var(--duration-fast) var(--ease-out);
 	}
 
 	.stat-label {
