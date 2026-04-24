@@ -3,25 +3,26 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 13 — Content Editors
+## Sesión Actual: 14 — Effects
 
 ```yaml
-sesión: "13"
-bloque: "3C — Content Editors"
-objetivo: "Admin editors for links + testimonials"
+sesión: "14"
+bloque: "4 — Effects"
+objetivo: "Particles component + integration"
 tiempo: "50 min"
 estado: "COMPLETADO"
-último_commit: "a198d94"
+último_commit: "0989f13"
 último_push: "pendiente"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
-### Session 13 — Content Editors (50 min)
-1. ✅ Links editor — CRUD social/footer links (label, url, icon, reorder)
-2. ✅ Testimonials editor — CRUD testimonials (name, role, text, stars, avatar, reorder)
-3. ✅ Admin sidebar actualizado con ambas páginas
-4. ✅ Build verificado
-5. ⬜ Push
+### Session 14 — Effects (50 min)
+1. ✅ Particles component — canvas renderer (circle, square, line, text, image)
+2. ✅ Settings integration — count, speed, color, opacity, text, imgUrl
+3. ✅ Store layout integration — conditional on theme.particlesOn
+4. ✅ Exported from components index
+5. ✅ Build verificado
+6. ⬜ Push
 
 ### Session 6 — Accessibility + SEO (50 min)
 1. ⬜ aria-label en botones sin texto
@@ -74,7 +75,7 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 11 | Performance + Mobile Polish | ✅ |
 | 12 | Accessibility + SEO | ✅ |
 | 13 | 3C — Content Editors | ✅ |
-| 14 | 4 — Effects | ⬜ |
+| 14 | 4 — Effects | ✅ |
 | 15 | 5 — Labels + Polish | ⬜ |
 | 16 | 6 — Final Audit | ⬜ |
 
