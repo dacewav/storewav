@@ -530,7 +530,8 @@ export async function redoField() {
 	// or new nested format (hero.title, banner.text, brand.name, etc.)
 	// This function normalizes both into the nested format the code expects.
 
-function migrateOldData(raw: Record<string, unknown>): SettingsData {
+/** Migration: flat (old) → nested (new). Exported for testing. */
+export function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	const d = { ...raw } as Record<string, unknown>;
 
 	// Merge hero from flat keys if nested doesn't exist

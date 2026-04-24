@@ -337,8 +337,9 @@
 
 	<!-- Import preview modal -->
 	{#if importPreview}
-		<div class="modal-backdrop" onclick={cancelImport} role="presentation">
-			<div class="modal" onclick={(e) => e.stopPropagation()} role="dialog" aria-label="Vista previa de importación">
+		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+		<div class="modal-backdrop" onclick={cancelImport} onkeydown={(e) => e.key === 'Escape' && cancelImport()} role="button" tabindex="-1" aria-label="Cerrar vista previa">
+			<div class="modal" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" tabindex="-1" aria-label="Vista previa de importación">
 				<h3 class="modal-title">📥 Vista previa de importación</h3>
 
 				<!-- Beats preview -->
