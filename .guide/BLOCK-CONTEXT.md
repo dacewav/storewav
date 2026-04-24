@@ -3,26 +3,26 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 15 — Labels + Polish
+## Sesión Actual: 16 — Final Audit
 
 ```yaml
-sesión: "15"
-bloque: "5 — Labels + Polish"
-objetivo: "Label consistency, transition normalization, polish pass"
+sesión: "16"
+bloque: "6 — Final Audit"
+objetivo: "Comprehensive audit: build, a11y, SEO, security, performance"
 tiempo: "50 min"
 estado: "COMPLETADO"
-último_commit: "7e5926d"
+último_commit: "147099d"
 último_push: "pendiente"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
-### Session 15 — Labels + Polish (50 min)
-1. ✅ Labels audit — all store labels connected to settings system
-2. ✅ Transition normalization — hardcoded durations → CSS variables
-3. ✅ Focus-visible global style present and working
-4. ✅ Empty states use configurable labels
-5. ✅ Error page labels connected
-6. ✅ Build verificado
+### Session 16 — Final Audit (50 min)
+1. ✅ Build — clean, no errors
+2. ✅ A11Y — all images have alt, buttons have aria-label or visible text
+3. ✅ SEO — canonical, OG, JSON-LD, robots.txt, sitemap
+4. ✅ Security — sanitizeHtml whitelist, no raw innerHTML, JSON-LD safe
+5. ✅ Performance — decoding="async", lazy loading, touch targets, CSS variables
+6. ✅ Mobile — responsive breakpoints, focus trap, touch-friendly
 7. ⬜ Push
 
 ### Session 6 — Accessibility + SEO (50 min)
@@ -78,7 +78,7 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 13 | 3C — Content Editors | ✅ |
 | 14 | 4 — Effects | ✅ |
 | 15 | 5 — Labels + Polish | ✅ |
-| 16 | 6 — Final Audit | ⬜ |
+| 16 | 6 — Final Audit | ✅ |
 
 ## Referencia
 
