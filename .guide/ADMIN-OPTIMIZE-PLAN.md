@@ -121,15 +121,13 @@
 
 **Objetivo**: Que el usuario sepa cuando algo se guardó o falló.
 
-- [ ] Todos los editores de settings (Brand, Hero, Theme, Content, Banner, Layout, Links, Testimonials, Animations): usar `saveStatus` store correctamente
-- [ ] Mostrar toast "Guardado ✓" al éxito, "Error al guardar" al fallo
-- [ ] Mostrar indicador de "Guardando..." durante la operación
-- [ ] Ctrl+S en todos los editores (no solo BeatEditor)
-- [ ] Verificar: editar cada sección, guardar, ver toast
+- [x] Todos los editores de settings usan `settings.updateField()` → dispara `saveStatus` automáticamente
+- [x] Layout `$effect` muestra toast "Guardado ✓" al éxito, "Error al guardar" al fallo
+- [x] AdminTopbar muestra indicador visual de estado (dot + texto)
+- [x] Ctrl+S: no necesario en settings (auto-save inmediato via updateField), sí en BeatEditor (ya existía)
+- [x] Verificado: saveStatus transiciona saving → saved/error → toast aparece
 
-**Archivos a tocar**:
-- Todos los `+page.svelte` en `src/routes/(admin)/admin/`
-- `src/lib/stores/settings.ts`
+**Nota**: Implementado desde Bloque B (saveStatus store) + layout existente. No requiere cambios adicionales.
 
 ---
 
@@ -137,16 +135,13 @@
 
 **Objetivo**: Normalizar datos y limpiar deuda técnica.
 
-- [ ] Testimonial type: unificar `stars` y `role` — decidir cuál usar y normalizar
-- [ ] Settings migration: cachear resultado de `migrateOldData()` para no recalcular en cada subscribe
-- [ ] Limpiar anonymous UID `EbkwGZFqhYMHKvEI5LbmDfGnwRt2` de `adminWhitelist/approved` en Firebase
-- [ ] Revisar `beatsStats` — el "0 beats" puede ser por timing de la suscripción
-- [ ] Verificar: todo funciona igual después del cleanup
+- [x] Testimonial type: dual-field `stars` + `role` ya soportado — Testimonials.svelte muestra stars si existe, sino role
+- [x] Settings migration: `migrateOldData()` se llama solo cuando Firebase data cambia (onValue) — no es bottleneck
+- [ ] Limpiar anonymous UID `EbkwGZFqhYMHKvEI5LbmDfGnwRt2` de `adminWhitelist/approved` en Firebase — requiere Firebase Console (manual)
+- [x] `beatsStats` "0 beats": ya fixeado en Bloque B con countUp animation
+- [x] Verificar: todo funciona igual después del cleanup
 
-**Archivos a tocar**:
-- `src/lib/stores/settings.ts`
-- `src/lib/stores/beats.ts`
-- Firebase Console (manual)
+**Nota**: El UID cleanup es manual en Firebase Console. Los demás items ya estaban resueltos.
 
 ---
 
@@ -154,16 +149,17 @@
 
 **Objetivo**: Que el sitemap incluya beats y el SEO sea completo.
 
-- [ ] `sitemap.xml`: generar dinámicamente con beats activos desde Firebase
-- [ ] `robots.txt`: verificar que permite crawling de `/beat/*`
-- [ ] JSON-LD en homepage: agregar `WebSite` schema con `potentialAction` SearchAction
-- [ ] OG image default: si beat no tiene imagen, usar brand logo o placeholder
-- [ ] Verificar: Google Rich Results Test con URL de beat
+- [ ] `sitemap.xml`: generar dinámicamente con beats activos — requiere Firebase Admin SDK (no instalado). Pendiente de setup.
+- [x] `robots.txt`: ya permite crawling de `/beat/*` (solo bloquea `/admin/` y `/login`)
+- [x] JSON-LD en homepage: agregado `WebSite` schema con `potentialAction` SearchAction
+- [x] OG image default: si beat no tiene imagen, usa brand logo como fallback
+- [ ] Verificar: Google Rich Results Test con URL de beat — requiere deploy a producción
 
-**Archivos a tocar**:
-- `src/routes/sitemap.xml/+server.ts` (nuevo o modificar)
-- `src/routes/(store)/+layout.svelte`
-- `src/routes/(store)/beat/[id]/+page.svelte`
+**Archivos tocados**:
+- `src/routes/(store)/+page.svelte` — WebSite JSON-LD schema
+- `src/routes/(store)/beat/[id]/+page.svelte` — OG image fallback a brand logo
+
+**Nota**: Sitemap dinámico requiere `firebase-admin` + service account key como env var. Se puede hacer después.
 
 ---
 

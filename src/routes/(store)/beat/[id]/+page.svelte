@@ -106,6 +106,8 @@
 		<meta property="og:description" content={beat.description || `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`} />
 		{#if beat.imageUrl}
 			<meta property="og:image" content={beat.imageUrl} />
+		{:else if s?.brand?.logo}
+			<meta property="og:image" content={s.brand.logo} />
 		{/if}
 		<meta property="og:type" content="music.song" />
 		{@html `<script type="application/ld+json">${JSON.stringify({

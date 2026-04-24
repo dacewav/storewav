@@ -170,6 +170,17 @@
 	<meta property="og:title" content="{heroTitle} — {s?.brand?.metaDescription ?? 'Beats que rompen'}" />
 	<meta property="og:description" content={s?.brand?.metaDescription ?? 'Beats profesionales para tu próximo hit. Explora, escucha y compra instrumentales únicos.'} />
 	<meta property="og:type" content="website" />
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		'@context': 'https://schema.org',
+		'@type': 'WebSite',
+		name: heroTitle,
+		url: 'https://dacewav.store',
+		potentialAction: {
+			'@type': 'SearchAction',
+			target: 'https://dacewav.store/?q={search_term_string}',
+			'query-input': 'required name=search_term_string'
+		}
+	})}</script>`}
 </svelte:head>
 
 <!-- Hero -->
