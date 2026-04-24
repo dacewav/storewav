@@ -106,79 +106,79 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 **Objetivo**: Que todos los editores de contenido funcionen.
 
 ### Brand
-- [ ] Nombre de marca se guarda
-- [ ] Logo URL se guarda
-- [ ] Favicon URL se guarda
-- [ ] WhatsApp se guarda
-- [ ] Footer text se guarda
-- [ ] Meta description se guarda
-- [ ] Loader toggle funciona
-- [ ] Loader text se guarda
+- [x] Nombre de marca se guarda
+- [x] Logo URL se guarda
+- [x] Favicon URL se guarda
+- [x] WhatsApp se guarda
+- [x] Footer text se guarda
+- [x] Meta description se guarda
+- [x] Loader toggle funciona
+- [x] Loader text se guarda
 
 ### Hero
-- [ ] Título se guarda
-- [ ] Glow word se guarda
-- [ ] Subtítulo se guarda
-- [ ] Eyebrow se guarda
-- [ ] Título estilos (size, spacing, line height) funcionan
-- [ ] Glow settings (on/off, intensidad, blur, color) funcionan
-- [ ] Stroke settings funcionan
-- [ ] Color segments funcionan (añadir, editar, eliminar, reorder)
-- [ ] Eyebrow badge settings funcionan
-- [ ] Background gradient settings funcionan
+- [x] Título se guarda
+- [x] Glow word se guarda
+- [x] Subtítulo se guarda
+- [x] Eyebrow se guarda
+- [x] Título estilos (size, spacing, line height) funcionan
+- [x] Glow settings (on/off, intensidad, blur, color) funcionan
+- [x] Stroke settings funcionan
+- [x] Color segments funcionan (añadir, editar, eliminar, reorder)
+- [x] Eyebrow badge settings funcionan
+- [x] Background gradient settings funcionan
 
 ### Content
-- [ ] Section title se guarda
-- [ ] Divider title se guarda
-- [ ] Divider subtitle se guarda
-- [ ] CTA (title, subtitle, button text, url) se guarda
-- [ ] Labels se guardan (todos los campos)
+- [x] Section title se guarda
+- [x] Divider title se guarda
+- [x] Divider subtitle se guarda
+- [x] CTA (title, subtitle, button text, url) se guarda
+- [x] Labels se guardan (todos los campos)
 
 ### Banner
-- [ ] Toggle funciona
-- [ ] Text se guarda
-- [ ] URL se guarda
-- [ ] Animation type se guarda
-- [ ] Speed, easing, direction, delay funcionan
-- [ ] Colors (bg, text) funcionan
+- [x] Toggle funciona
+- [x] Text se guarda
+- [x] URL se guarda
+- [x] Animation type se guarda
+- [x] Speed, easing, direction, delay funcionan
+- [x] Colors (bg, text) funcionan
 
 ### Layout
-- [ ] Cards per row funciona
-- [ ] Wishlist toggle funciona
-- [ ] Logo settings (scale, width, height, rotation, show text) funcionan
-- [ ] Hero padding funciona
-- [ ] Player bottom offset funciona
+- [x] Cards per row funciona
+- [x] Wishlist toggle funciona
+- [x] Logo settings (scale, width, height, rotation, show text) funcionan
+- [x] Hero padding funciona
+- [x] Player bottom offset funciona
 
 ### Theme
-- [ ] Accent color se guarda
-- [ ] Fonts se guardan
-- [ ] Light/dark mode toggle funciona
-- [ ] Card effects (opacity, blur, grain, shadow) funcionan
-- [ ] Opacidades (nav, card, overlay) funcionan
-- [ ] Border radius funciona
-- [ ] Glow settings funcionan
-- [ ] Particles settings funcionan (toggle, count, speed, type, color, opacity, text, image)
+- [x] Accent color se guarda
+- [x] Fonts se guardan
+- [x] Light/dark mode toggle funciona
+- [x] Card effects (opacity, blur, grain, shadow) funcionan
+- [x] Opacidades (nav, card, overlay) funcionan
+- [x] Border radius funciona
+- [x] Glow settings funcionan
+- [x] Particles settings funcionan (toggle, count, speed, type, color, opacity, text, image)
 
 ### Animations
-- [ ] Animation presets se guardan por elemento
-- [ ] Preview de animaciones funciona
+- [x] Animation presets se guardan por elemento
+- [x] Preview de animaciones funciona
 
 ### Links (NUEVO — sesión 13)
-- [ ] Añadir link funciona
-- [ ] Editar label, url, icon funciona
-- [ ] Eliminar link funciona
-- [ ] Reorder con flechas funciona
-- [ ] Vista previa del footer se actualiza
-- [ ] Se guardan en Firebase
-- [ ] Se reflejan en la tienda (footer, nav mobile)
+- [x] Añadir link funciona
+- [x] Editar label, url, icon funciona
+- [x] Eliminar link funciona
+- [x] Reorder con flechas funciona
+- [x] Vista previa del footer se actualiza
+- [x] Se guardan en Firebase
+- [x] Se reflejan en la tienda (footer, nav mobile)
 
 ### Testimonials (NUEVO — sesión 13)
-- [ ] Añadir testimonio funciona
-- [ ] Editar name, role, text, stars, avatar funciona
-- [ ] Eliminar testimonio funciona
-- [ ] Reorder con flechas funciona
-- [ ] Se guardan en Firebase
-- [ ] Se reflejan en la tienda
+- [x] Añadir testimonio funciona
+- [x] Editar name, role, text, stars, avatar funciona
+- [x] Eliminar testimonio funciona
+- [x] Reorder con flechas funciona
+- [x] Se guardan en Firebase
+- [x] Se reflejan en la tienda
 
 ---
 
