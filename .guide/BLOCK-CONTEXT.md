@@ -3,20 +3,21 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 8 — Bloque 2A: Beats Seed (audit + deploy fix)
+## Sesión Actual: 8 — Bloque 2A+2B: Audit + Deploy + Beat Interactions
 
 ```yaml
 sesión: "8"
-bloque: "2A"
-objetivo: "Audit profundo + fix hydration + deploy"
+bloque: "2A+2B"
+objetivo: "Audit + deploy fix + plays counter + toast wiring"
 tiempo: "50 min"
-estado: "deployed — fix de hidratación live, testear botones"
-último_commit: "6582bb1"
+estado: "deployed — plays counter + toast live"
+último_commit: "4c4735f"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
 
 ## Qué se hizo sesión 8
 
+### Bloque 2A — Audit + Deploy
 1. ✅ Clonado repo fresco + npm install
 2. ✅ Audit profundo del codebase completo
 3. ✅ Identificado causa raíz del bug de hidratación: **deploy viejo** — el fix `ssr = false` (commit `669cdb2`) nunca se deployó
@@ -24,8 +25,16 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 5. ✅ Verificado Svelte 5 runes correctos en todos los componentes
 6. ✅ Verificado no hay sintaxis Svelte 4 legacy
 7. ✅ Build exitoso con adapter-cloudflare
-8. ✅ Guide actualizado (este archivo + PROJECT_STATE.md)
-9. ✅ Deploy con wrangler — chunks nuevos live (`4j0cC3of`)
+8. ✅ Deploy con wrangler — chunks nuevos live
+
+### Bloque 2B — Beat Interactions
+9. ✅ `incrementPlay()`: throttled (30s) Firebase transaction para plays count
+10. ✅ Toast wired a: save, create, delete, duplicate, wishlist, upload, seed, import
+11. ✅ SaveStatus toast: auto "Guardado ✓" / "Error al guardar" en admin
+12. ✅ Plays badge en BeatCard (🔥 count)
+13. ✅ Plays column en admin beats list
+14. ✅ Analytics tracking en beat play + wishlist toggle
+15. ✅ Deploy + push — todo live
 
 ## BUG CRÍTICO — RESUELTO ✅
 
@@ -46,8 +55,8 @@ Los botones de Media, Theme, y navegación NO funcionaban en el deploy porque:
 | 5 | 2A — Beats Seed (auth) | ✅ |
 | 6 | 2A — Beats Seed (mismatch fix) | ⬜ falta deploy |
 | 7 | 2A — Beats Seed (deploy + bugs) | ❌ botones rotos |
-| 8 | 2A — Beats Seed (audit + deploy fix) | ✅ deployed |
-| 9 | 2B — Beat Interactions | ⬜ |
+| 8 | 2A+2B — Audit + Deploy + Beat Interactions | ✅ deployed |
+| 9 | 3A — Connection State + Error Resilience | ⬜ |
 | 10 | 3A — Admin Dashboard | ⬜ |
 | 11 | 3B — Beat Editor | ⬜ |
 | 12 | 3C — Content Editors | ⬜ |

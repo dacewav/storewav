@@ -46,14 +46,28 @@ commits:       31
 - ✅ **Audit profundo sesión 8** — 0 errores, 0 warnings, Svelte 5 runes correctos
 - ✅ **Hydration bug identificado** — deploy viejo, fix listo
 
-## 🔴 Qué falta para cerrar bloque 2A
+## ✅ Bloque 2A — CERRADO
 
-1. **Deploy con `npx wrangler deploy`** — pushear build actual a Cloudflare Workers
-2. Crear .env con credenciales Firebase reales (para local dev)
-3. Testear auth + beats CRUD en deploy real
-4. Verificar grid renderiza con datos reales
-5. Crear beats desde admin panel con auth real
-6. Test + push
+1. ✅ Deploy con wrangler — hydration fix live
+2. ✅ svelte-check: 0 errores
+3. ✅ Guide actualizado
+4. ✅ Push a GitHub
+
+## ✅ Bloque 2B — CERRADO
+
+1. ✅ Plays counter: incrementPlay() throttled 30s
+2. ✅ Toast wiring: CRUD, wishlist, upload, seed, import
+3. ✅ Plays display: BeatCard badge + admin column
+4. ✅ Analytics: play + wishlist events tracked
+5. ✅ Deploy + push
+
+## 🔴 Qué falta — Bloque 3A (Connection State + Error Resilience)
+
+1. Connection state indicator (Firebase `.info/connected`)
+2. Banner "Sin conexión" en store layout
+3. Retry logic en CRUD operations (1x retry on network error)
+4. Error boundary en páginas (beat not found, settings fail)
+5. Loading states mejorados (skeleton en admin)
 
 ## Commands útiles
 
