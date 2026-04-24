@@ -99,7 +99,7 @@
 	let isValid = $derived(validationErrors.length === 0);
 
 	// Auto-save with debounce (1s after last change)
-	let autoSaveTimer: ReturnType<typeof setTimeout> | null = $state(null);
+	let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 	let mounted = $state(false);
 
 	// Skip initial reactive chain

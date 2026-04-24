@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { AdminTopbar } from '$lib/components';
 	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField } from '$lib/stores';
 	import { goto } from '$app/navigation';
@@ -36,9 +36,10 @@
 	let lastStatus = $state('');
 	$effect(() => {
 		const s = currentSaveStatus;
-		if (s === 'saved' && lastStatus === 'saving') {
+		const prev = untrack(() => lastStatus);
+		if (s === 'saved' && prev === 'saving') {
 			toast.success('Guardado ✓');
-		} else if (s === 'error' && lastStatus === 'saving') {
+		} else if (s === 'error' && prev === 'saving') {
 			toast.error('Error al guardar');
 		}
 		lastStatus = s;
