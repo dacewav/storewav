@@ -40,6 +40,9 @@
 
 <svelte:head>
 	<title>Login — {brandName}</title>
+	<meta name="description" content="Inicia sesión en {brandName} para comprar beats, gestionar tu biblioteca y acceder a contenido exclusivo." />
+	<meta property="og:title" content="Login — {brandName}" />
+	<meta property="og:description" content="Accede a tu cuenta de {brandName}." />
 </svelte:head>
 
 <div class="login-page">

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { settings, wishlist, auth, player } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
@@ -208,6 +209,8 @@
 
 <svelte:head>
 	<meta name="description" content="{brandName} — {metaDesc}" />
+	<link rel="canonical" href="https://dacewav.store{page.url.pathname}" />
+	<meta property="og:url" content="https://dacewav.store{page.url.pathname}" />
 	<meta property="og:site_name" content={brandName} />
 	<meta property="og:image" content="/og-image.svg" />
 	<meta name="twitter:card" content="summary_large_image" />

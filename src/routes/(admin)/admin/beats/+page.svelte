@@ -191,7 +191,7 @@
 			<span class="search-icon">🔍</span>
 			<input type="text" class="search-input" bind:value={search} placeholder="Buscar beats..." />
 			{#if search}
-				<button class="search-clear" onclick={() => search = ''}>✕</button>
+				<button class="search-clear" aria-label="Limpiar búsqueda" onclick={() => search = ''}>✕</button>
 			{/if}
 		</div>
 		<select class="filter-select" bind:value={filterGenre}>
@@ -307,10 +307,10 @@
 
 					<!-- Actions -->
 					<div class="beat-actions">
-						<button class="btn-action btn-move" title="Subir" onclick={() => moveBeat(beat, 'up')} disabled={filteredBeats.indexOf(beat) === 0}>↑</button>
-						<button class="btn-action btn-move" title="Bajar" onclick={() => moveBeat(beat, 'down')} disabled={filteredBeats.indexOf(beat) === filteredBeats.length - 1}>↓</button>
+						<button class="btn-action btn-move" title="Subir" aria-label="Subir beat" onclick={() => moveBeat(beat, 'up')} disabled={filteredBeats.indexOf(beat) === 0}>↑</button>
+						<button class="btn-action btn-move" title="Bajar" aria-label="Bajar beat" onclick={() => moveBeat(beat, 'down')} disabled={filteredBeats.indexOf(beat) === filteredBeats.length - 1}>↓</button>
 						<a href="/admin/beats/{beat.id}" class="btn-action btn-edit" title="Editar">✏️</a>
-						<button class="btn-action" title="Duplicar" onclick={() => handleDuplicate(beat)}>📋</button>
+						<button class="btn-action" title="Duplicar" aria-label="Duplicar beat" onclick={() => handleDuplicate(beat)}>📋</button>
 						<button
 							class="btn-action btn-del"
 							title="Borrar"

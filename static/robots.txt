@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /login
 
-Sitemap: https://storewav.com/sitemap.xml
+Sitemap: https://dacewav.store/sitemap.xml

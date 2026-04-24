@@ -154,7 +154,7 @@
 						<input type="text" value={seg.color} placeholder="Color" oninput={(e) => updateSegment(i, 'color', e.currentTarget.value)} />
 					</div>
 				</div>
-				<button class="btn-remove" onclick={() => removeSegment(i)} title="Eliminar">✕</button>
+				<button class="btn-remove" onclick={() => removeSegment(i)} aria-label="Eliminar segmento" title="Eliminar">✕</button>
 			</div>
 		{/each}
 		<button class="btn-add" onclick={addSegment}>+ Añadir segmento</button>

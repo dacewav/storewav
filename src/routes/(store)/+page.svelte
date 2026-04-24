@@ -167,6 +167,9 @@
 
 <svelte:head>
 	<title>{heroTitle} — {s?.brand?.metaDescription ?? 'Beats que rompen'}</title>
+	<meta property="og:title" content="{heroTitle} — {s?.brand?.metaDescription ?? 'Beats que rompen'}" />
+	<meta property="og:description" content={s?.brand?.metaDescription ?? 'Beats profesionales para tu próximo hit. Explora, escucha y compra instrumentales únicos.'} />
+	<meta property="og:type" content="website" />
 </svelte:head>
 
 <!-- Hero -->

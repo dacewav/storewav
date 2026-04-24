@@ -238,10 +238,10 @@
 		<span class="label">{label}</span>
 		<div class="actions">
 			{#if hasFile}
-				<button class="btn-action" onclick={openFileDialog} title="Cambiar">🔄</button>
-				<button class="btn-action btn-remove" onclick={handleRemove} title="Quitar">✕</button>
+				<button class="btn-action" onclick={openFileDialog} aria-label="Cambiar archivo" title="Cambiar">🔄</button>
+				<button class="btn-action btn-remove" onclick={handleRemove} aria-label="Quitar archivo" title="Quitar">✕</button>
 			{:else}
-				<button class="btn-action" onclick={openFileDialog} title="Seleccionar">📁</button>
+				<button class="btn-action" onclick={openFileDialog} aria-label="Seleccionar archivo" title="Seleccionar">📁</button>
 			{/if}
 		</div>
 	</div>

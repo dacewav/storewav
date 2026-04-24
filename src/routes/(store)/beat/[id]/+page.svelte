@@ -107,6 +107,22 @@
 			<meta property="og:image" content={beat.imageUrl} />
 		{/if}
 		<meta property="og:type" content="music.song" />
+		{@html `<script type="application/ld+json">${JSON.stringify({
+			'@context': 'https://schema.org',
+			'@type': 'MusicRecording',
+			name: beat.name,
+			byArtist: { '@type': 'MusicGroup', name: beat.artist ?? brandName },
+			genre: beat.genre,
+			duration: beat.duration ? `PT${Math.floor(beat.duration / 60)}M${Math.floor(beat.duration % 60)}S` : undefined,
+			image: beat.imageUrl || undefined,
+			url: `https://dacewav.store/beat/${beat.id}`,
+			offers: beat.price ? {
+				'@type': 'Offer',
+				price: beat.price,
+				priceCurrency: 'USD',
+				availability: 'https://schema.org/InStock'
+			} : undefined
+		})}</script>`}
 	{:else}
 		<title>Beat — DACEWAV</title>
 	{/if}
