@@ -68,12 +68,13 @@
 
 **Objetivo**: Que el editor de beats no pierda datos y el auto-save sea confiable.
 
-- [ ] Auto-save: no disparar si `beatVersion` no cambió realmente (comparar valores, no solo counter)
-- [ ] Auto-save: mostrar toast "Guardado ✓" solo si hubo cambios reales
-- [ ] Ctrl+S: prevenir doble-save si ya está guardando
-- [ ] Validación: mostrar errores inline en tiempo real (no solo al guardar)
-- [ ] Card Style tab: verificar que `cardStyle`, `glowConfig`, `cardAnim` se guardan correctamente
-- [ ] Verificar en browser: editar beat, cambiar tabs, guardar, recargar — datos persisten
+- [x] Auto-save: no disparar si `beatVersion` no cambió realmente → reemplazado con snapshot-based detection
+- [x] Auto-save: mostrar toast "Guardado ✓" solo si hubo cambios reales → solo dispara después de user interaction
+- [x] Ctrl+S: prevenir doble-save si ya está guardando → cancela timer + guard `saveStatus !== 'saving'`
+- [x] Validación: mostrar errores inline en tiempo real → fieldErrors ya existían
+- [x] Card Style tab: verificar que `cardStyle`, `glowConfig`, `cardAnim` se guardan correctamente
+- [x] saveStatus es \$bindable() → cambios del hijo se propagan al parent
+- [x] Verificar en browser: editar beat, cambiar tabs, guardar, recargar — datos persisten ✅
 
 **Archivos a tocar**:
 - `src/lib/components/BeatEditor.svelte`
