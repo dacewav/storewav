@@ -45,16 +45,13 @@ async function checkAdmin(uid: string, email?: string | null): Promise<boolean> 
 
 		const { ref, get } = await import('firebase/database');
 
-		// Check admins/{uid}
-		const adminSnap = await get(ref(db, `admins/${uid}`));
-		if (adminSnap.val() === true) return true;
+		// Check adminWhitelist/approved/{uid}
+		const approvedSnap = await get(ref(db, `adminWhitelist/approved/${uid}`));
+		if (approvedSnap.exists()) return true;
 
-		// Check adminWhitelist/{email} (dots → commas in keys)
-		if (email) {
-			const emailKey = email.replace(/\./g, ',');
-			const wlSnap = await get(ref(db, `adminWhitelist/${emailKey}`));
-			if (wlSnap.val() === true) return true;
-		}
+		// Fallback: legacy admins/{uid} (backward compat)
+		const legacySnap = await get(ref(db, `admins/${uid}`));
+		if (legacySnap.val() === true) return true;
 
 		return false;
 	} catch {
