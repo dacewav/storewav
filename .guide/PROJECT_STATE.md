@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-24 08:51 (Sesión 5)**
+> **Última actualización: 2026-04-24 08:55 (Sesión 6)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -9,25 +9,25 @@ framework:     SvelteKit 2 + Cloudflare Pages + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
 sesiones:      12 planificadas (~50 min c/u)
-sesión_actual: 5 (Bloque 2A — Beats Seed)
-commits:       30
+sesión_actual: 6 (Bloque 2A — Beats Seed)
+commits:       31
 ```
 
 ## Quick Status
 
 | Área | Status | Detalle |
 |------|--------|---------|
-| .env | ✅ | Creado, build pasa |
-| Build | ✅ | 0 errores |
+| .env | ⚠️ | Template existe, falta copia con credenciales reales |
+| Build | ✅ | 0 code errors (solo falla sin .env) |
 | Firebase conn | ✅ | Lectura OK, escritura requiere admin |
 | Settings en DB | ✅ | Formato flat (viejo), migration layer OK |
 | Beats en DB | ❌ | `null` — vacío |
 | Theme engine | ✅ | accent, glow, fonts desde Firebase |
 | Auth | ✅ | Google login + adminWhitelist |
 | Rules deployadas | ✅ | 1391 líneas, restauradas |
-| ⚠️ Mismatch | ❌ | Code usa `title`/`artist`, rules piden `name`/`genre` como required |
+| ✅ Mismatch | ✅ | Resuelto: code alineado con rules (name, imageUrl, date, licenses[], platforms flat) |
 
-## Qué se hizo (sesiones 1-5)
+## Qué se hizo (sesiones 1-6)
 
 - ✅ Data layer (Firebase stores, CRUD, migration)
 - ✅ Hero section (glow, segments, eyebrow, gradient)
@@ -40,14 +40,15 @@ commits:       30
 - ✅ .env creado, build OK
 - ✅ Rules deployadas restauradas
 - ✅ Todo pusheado a GitHub
+- ✅ **Mismatch code↔rules resuelto** (title→name, coverUrl→imageUrl, createdAt→date, licenses restructured, platforms flattened)
 
 ## 🔴 Qué falta para cerrar bloque 2A
 
-1. Resolver mismatch: code `title`/`artist` vs rules `name`/`genre`
-2. Deploy app (Cloudflare Pages)
+1. Crear .env con credenciales Firebase reales
+2. Deploy app (Cloudflare Pages o local)
 3. Crear beats desde admin panel con auth real
 4. Verificar grid renderiza
-5. Test + commit
+5. Test + push
 
 ## Commands útiles
 

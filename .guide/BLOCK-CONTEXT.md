@@ -3,41 +3,36 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 5 — Bloque 2A: Beats Seed
+## Sesión Actual: 6 — Bloque 2A: Beats Seed
 
 ```yaml
-sesión: "5"
+sesión: "6"
 bloque: "2A"
 objetivo: "Seed de 6-8 beats en Firebase + verificar grid renderiza"
 tiempo: "50 min"
-estado: "bloqueado — falta auth para crear beats"
-último_commit: "c872a9a"
+estado: "listo — mismatch resuelto, code alineado con rules"
+último_commit: "4a23e12"
 ```
 
-## Qué se hizo sesión 5
+## Qué se hizo sesión 6
 
 1. ✅ Clonado repo fresh
-2. ✅ Audit profundo del codebase (68 archivos, ~13,500 líneas)
-3. ✅ Verificado Firebase: beats=null, settings=tiene datos
-4. ✅ Creado .env con credenciales Firebase
-5. ✅ Build pasa (0 errores)
-6. ✅ Rules deployadas restauradas (1391 líneas)
-7. ✅ PROJECT_STATE.md y BLOCK-CONTEXT.md actualizados
-8. ✅ Todo pusheado a GitHub
+2. ✅ Audit del mismatch code vs rules
+3. ✅ Renombrado: title→name, coverUrl→imageUrl, createdAt→date
+4. ✅ Plataformas achatadas: spotify/youtube/soundcloud top-level
+5. ✅ Licencias reestructuradas: array [{name, description, priceMXN, priceUSD}]
+6. ✅ Campos nuevos: exclusive, available, genreCustom, images, plays
+7. ✅ 12 archivos actualizados (BeatEditor, BeatCard, BeatModal, Player, WishlistPanel, pages)
+8. ✅ Build pasa (0 code errors, solo falta .env con credenciales Firebase)
+9. ✅ Todo committed
 
-## ⚠️ Problema descubierto
+## Qué falta para cerrar sesión 6 / bloque 2A
 
-Las rules deployadas en Firebase usan `adminWhitelist/approved` para auth.
-El código del repo escribe `title`, `artist` etc — pero las rules piden `name`, `genre`, `bpm`, `key` como campos requeridos.
-**Hay un mismatch entre el código y las rules.** Esto hay que resolver en la próxima sesión.
-
-## Qué falta para cerrar sesión 5
-
-- [ ] Resolver mismatch code vs rules (title vs name, etc.)
+- [ ] Crear .env con credenciales Firebase reales
 - [ ] Deploy de la app (Cloudflare Pages o local)
 - [ ] Crear beats desde admin panel con auth real
 - [ ] Verificar grid renderiza con datos reales
-- [ ] Test + commit
+- [ ] Test completo + push
 
 ## Estado de Sesiones
 
@@ -47,7 +42,8 @@ El código del repo escribe `title`, `artist` etc — pero las rules piden `name
 | 2 | 1A — Hero | ✅ |
 | 3 | 1B — Banner + Divider + Nav | ✅ |
 | 4 | 2A — Beats Seed (fixes) | ✅ |
-| 5 | 2A — Beats Seed (auth) | ⬜ bloqueado |
+| 5 | 2A — Beats Seed (auth) | ✅ |
+| 6 | 2A — Beats Seed (mismatch fix) | ⬜ falta deploy |
 | 6 | 2B — Beat Interactions | ⬜ |
 | 7 | 3A — Admin Dashboard | ⬜ |
 | 8 | 3B — Beat Editor | ⬜ |
