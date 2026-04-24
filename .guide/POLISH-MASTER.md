@@ -87,17 +87,17 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que el CRUD de beats funcione.
 
-- [ ] Lista de beats se muestra
-- [ ] Búsqueda filtra correctamente
-- [ ] Filtro por género funciona
-- [ ] Sort funciona (newest, oldest, name, bpm, price)
-- [ ] Click en beat → navega a editor
-- [ ] Nuevo beat → navega a `/admin/beats/new`
-- [ ] Duplicar beat funciona
-- [ ] Borrar beat funciona (con confirmación)
-- [ ] Bulk actions: activar, desactivar, borrar, limpiar selección
-- [ ] Reorder con flechas ↑↓ funciona
-- [ ] Skeleton loading se muestra mientras carga
+- [x] Lista de beats se muestra
+- [x] Búsqueda filtra correctamente
+- [x] Filtro por género funciona
+- [x] Sort funciona (newest, oldest, name, bpm, price)
+- [x] Click en beat → navega a editor
+- [x] Nuevo beat → navega a `/admin/beats/new`
+- [x] Duplicar beat funciona
+- [x] Borrar beat funciona (con confirmación)
+- [x] Bulk actions: activar, desactivar, borrar, limpiar selección
+- [x] Reorder con flechas ↑↓ funciona
+- [x] Skeleton loading se muestra mientras carga
 
 ---
 
