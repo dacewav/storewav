@@ -65,7 +65,7 @@
 	.btn-sm {
 		font-size: var(--text-sm);
 		padding: var(--space-1) var(--space-3);
-		min-height: 40px;
+		min-height: var(--touch-min);
 	}
 
 	.btn-md {

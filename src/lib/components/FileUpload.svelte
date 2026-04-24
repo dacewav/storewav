@@ -189,7 +189,7 @@
 		{:else if showPreview && type === 'image'}
 			<!-- Image preview -->
 			<div class="img-preview">
-				<img src={displayUrl} alt="Preview" />
+				<img src={displayUrl} alt="Preview" decoding="async" />
 				<div class="img-overlay">
 					<span class="img-hint">Click o arrastra para cambiar</span>
 				</div>

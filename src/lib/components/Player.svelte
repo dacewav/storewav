@@ -40,7 +40,7 @@
 			<!-- Cover + Info -->
 			<div class="player-info">
 				{#if state.imageUrl}
-					<img class="player-cover" src={state.imageUrl} alt="" />
+					<img class="player-cover" src={state.imageUrl} alt="" decoding="async" />
 				{:else}
 					<div class="player-cover player-cover-placeholder">🎵</div>
 				{/if}
@@ -315,13 +315,13 @@
 		}
 
 		.player-right .ctrl-btn {
-			min-width: 36px;
-			min-height: 36px;
+			min-width: var(--touch-min);
+			min-height: var(--touch-min);
 		}
 
 		.ctrl-play {
-			width: 38px;
-			height: 38px;
+			width: 44px;
+			height: 44px;
 		}
 	}
 

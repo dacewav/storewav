@@ -49,7 +49,7 @@
 			<!-- Cover -->
 			<div class="beat-cover">
 				{#if beat.imageUrl}
-					<img src={beat.imageUrl} alt={beat.name} />
+					<img src={beat.imageUrl} alt={beat.name} decoding="async" />
 				{:else}
 					<div class="beat-cover-placeholder">
 						<Icon name="music" size={48} />

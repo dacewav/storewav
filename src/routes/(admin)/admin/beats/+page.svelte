@@ -247,7 +247,7 @@
 					<!-- Cover -->
 					<div class="beat-cover">
 						{#if beat.imageUrl}
-							<img src={beat.imageUrl} alt={beat.name} loading="lazy" />
+							<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" />
 						{:else}
 							<div class="cover-ph">♦</div>
 						{/if}
