@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-25 02:19 (Deep Audit v2)**
+> **Última actualización: 2026-04-25 02:24 (Session 0 — Critical Bug Fixes)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -9,8 +9,8 @@ framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
 sesiones:      15 planificadas (~50 min c/u)
-sesión_actual: 9 (Bloque 3A — Connection State + Error Resilience)
-commits:       35
+sesión_actual: 10 (Session 0 fixeado — listo para Bloque 3B Beat Editor)
+commits:       36
 ```
 
 ## Quick Status
@@ -70,17 +70,20 @@ commits:       35
 5. ✅ Skeleton loading en admin beats list + dashboard
 6. ✅ Deploy + push
 
-## 🔴 AUDIT v2 — 2026-04-25 (25 findings)
+## ✅ Session 0 — 2026-04-25 (Critical Bug Fixes)
 
-### Bugs Críticos (2)
-1. **`effect_update_depth_exceeded`** — `(admin)/+layout.svelte:37`: `$effect` lee+escribe `lastStatus` → loop infinito. Fix: `untrack()`.
-2. **XSS `{@html dividerTitle}`** — `(store)/+page.svelte:248`: HTML crudo desde Firebase sin sanitizar.
+### Bugs Críticos (2) — FIXED ✅
+1. ✅ **`effect_update_depth_exceeded`** — Ya estaba fixeado (untrack en admin layout)
+2. ✅ **XSS `{@html dividerTitle}`** — Sanitización whitelist em/strong/b/i/span
 
-### Bugs Altos (4)
-3. BeatEditor `$effect` lee+escribe `autoSaveTimer` → mismo patrón peligroso
-4. Bulk operations sin try/catch (4 funciones)
-5. `confirmDelete` sin try/catch
-6. `undoField`/`redoField` sin error handling
+### Bugs Altos (4) — FIXED ✅
+3. ✅ BeatEditor `$effect` — Replaced JSON.stringify con version counter
+4. ✅ Bulk operations — try/catch en 5 funciones
+5. ✅ `confirmDelete` — try/catch
+6. ✅ `undoField`/`redoField` — try/catch con revert de stack
+
+### Remaining Audit v2 findings (19)
+7-25. Ver AUDIT-MASTER.md para detalles completos
 
 ### Bugs Medios (11)
 7. `$app/stores` deprecated en beat/[id]
