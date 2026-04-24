@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-25 00:45 (Sesión 8)**
+> **Última actualización: 2026-04-25 02:19 (Deep Audit v2)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -69,6 +69,36 @@ commits:       35
 4. ✅ Retry logic en settings updateField
 5. ✅ Skeleton loading en admin beats list + dashboard
 6. ✅ Deploy + push
+
+## 🔴 AUDIT v2 — 2026-04-25 (25 findings)
+
+### Bugs Críticos (2)
+1. **`effect_update_depth_exceeded`** — `(admin)/+layout.svelte:37`: `$effect` lee+escribe `lastStatus` → loop infinito. Fix: `untrack()`.
+2. **XSS `{@html dividerTitle}`** — `(store)/+page.svelte:248`: HTML crudo desde Firebase sin sanitizar.
+
+### Bugs Altos (4)
+3. BeatEditor `$effect` lee+escribe `autoSaveTimer` → mismo patrón peligroso
+4. Bulk operations sin try/catch (4 funciones)
+5. `confirmDelete` sin try/catch
+6. `undoField`/`redoField` sin error handling
+
+### Bugs Medios (11)
+7. `$app/stores` deprecated en beat/[id]
+8. `as any` bypass en Icon name
+9. `getComputedStyle` por cada BeatCard
+10. `JSON.stringify(beat)` como effect trigger
+11. 14× `Record<string, any>` en vez de tipos propios
+12. No offline write queue
+13. Mobile overlay `onkeydown` vacío
+14. Delete modals sin keyboard handler
+15. Import errors solo console.log
+16. Per-card `$effect` para shared data
+17. No lazy loading admin pages
+
+### Bugs Bajos (8)
+18-25. alt vacío, aria-pressed, keyframes no usados, dead code, version mismatch, etc.
+
+**Fix priority: Session 0 en SOLIDIFICATION-PLAN.md**
 
 ## 🔴 Qué falta — Bloque 3B (Beat Editor)
 

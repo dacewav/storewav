@@ -1,6 +1,6 @@
 # 📋 AUDIT-MASTER.md — Guía Maestra
 
-> **Última actualización: 2026-04-24 09:23**
+> **Última actualización: 2026-04-25 02:19**
 > **Lee este archivo primero en cualquier sesión nueva.**
 
 ---
@@ -87,10 +87,40 @@ Límite:    50 min por sesión de chat
 | Card style engine | ✅ | Glow, filters, border, shadow, hover, shimmer, 40+ animation presets |
 | Actions | ✅ | tilt, parallax, staggerReveal, reveal, siblingBlur, ripple, countUp |
 
+### 🐛 Bugs Activos (Audit v2 — 2026-04-25)
+
+| Bug | Severidad | Archivo | Línea | Descripción |
+|-----|-----------|---------|-------|-------------|
+| `effect_update_depth_exceeded` | 🔴 CRÍTICO | `(admin)/+layout.svelte` | 37 | `$effect` lee+escribe `lastStatus` → loop infinito. Fix: `untrack()` |
+| XSS `{@html dividerTitle}` | 🔴 CRÍTICO | `(store)/+page.svelte` | 248 | HTML crudo desde Firebase sin sanitizar |
+| `$effect` lee+escribe `autoSaveTimer` | 🟡 ALTO | `BeatEditor.svelte` | 102 | Mismo patrón que bug crítico |
+| Bulk ops sin try/catch | 🟡 ALTO | `admin/beats/+page.svelte` | 76-121 | `bulkSetActive`, `bulkDelete`, `moveBeat`, `handleDuplicate` |
+| `confirmDelete` sin try/catch | 🟡 ALTO | `admin/beats/+page.svelte` | 98 | `deleteBeat` sin manejo de errores |
+| `undoField`/`redoField` sin error handling | 🟡 ALTO | `settings.ts` | — | Stacks se mutan antes del update; si falla, estado inconsistente |
+| `$app/stores` deprecated | 🟡 MED | `(store)/beat/[id]/+page.svelte` | 2 | Usa `$app/stores` en vez de `$app/state` |
+| `as any` en Icon name | 🟡 MED | `(store)/+page.svelte` | 205 | Bypass de type safety |
+| `getComputedStyle` por BeatCard | 🟡 MED | `BeatCard.svelte` | 31 | N cards × `$effect` = N calls. Debería ser shared |
+| `JSON.stringify(beat)` cada keystroke | 🟡 MED | `BeatEditor.svelte` | 103 | Serialización completa como trigger |
+| 14× `Record<string, any>` | 🟡 MED | Admin pages | — | Tipos propios no usados |
+| No offline write queue | 🟡 MED | `settings.ts` | — | Updates fallidos se pierden |
+| Mobile overlay `onkeydown` vacío | 🟡 MED | `(store)/+layout.svelte` | 195 | Supresión a11y sin handler real |
+| Delete modals sin keyboard handler | 🟡 MED | Múltiples | — | `svelte-ignore` en vez de Escape handler |
+| Import errors solo console.log | 🟡 MED | `admin/+page.svelte` | 64 | Errores de import no se muestran al usuario |
+| `alt=""` en player cover | 🟢 BAJA | `Player.svelte` | 45 | Alt vacío en imagen del beat actual |
+| Sin `aria-pressed` en wishlist | 🟢 BAJA | `BeatCard.svelte` | 100 | Botón sin estado pressed accesible |
+| No lazy loading admin | 🟢 BAJA | Admin layout | — | Todas las páginas se cargan eagerly |
+| 40+ keyframes no usados | 🟢 BAJA | `cardStyleEngine.ts` | — | CSS bloat |
+| `AdminSidebar` dead code | 🟢 BAJA | `AdminSidebar.svelte` | — | Componente nunca importado |
+| Version mismatch | 🟢 BAJA | `admin/+page.svelte` | — | Muestra v0.7.0 y v0.6.0 |
+
 ### ¿Qué falta? (Ver SOLIDIFICATION-PLAN.md)
 
 | Área | Prioridad | Detalle |
 |------|-----------|---------|
+| Fix `effect_update_depth_exceeded` | 🔴 Crítico | `untrack()` en admin layout |
+| Sanitize `{@html dividerTitle}` | 🔴 Crítico | XSS vector desde Firebase |
+| Fix BeatEditor `$effect` loop | 🟡 Alto | `untrack()` para `autoSaveTimer` |
+| Error handling en bulk ops | 🟡 Alto | try/catch + toast feedback |
 | Toast notifications | 🟡 Media | Sistema existe pero no se usa — save errors/successes sin feedback |
 | Plays counter | 🟡 Media | Campo `plays` en Beat type pero nunca se incrementa |
 | Connection state | 🟡 Media | No hay detección de desconexión ni "reconnecting" indicator |
@@ -220,14 +250,16 @@ firebase-deployed-rules.json     Firebase rules (referencia)
 
 ## Lecciones Aprendidas
 
-### Sesión 2026-04-24 (hoy)
+### Sesión 2026-04-25 (Deep Audit v2)
 
-1. **Schema migration** — Cuando alineás tipos con Firebase, verificá QUE CADA CAMPO exista en las rules. El `$other` catch-all salva strings/numbers pero no arrays ni objects.
-2. **Dead types en re-exports** — `index.ts` puede exportar tipos que no existen sin que el build falle (type erasure). `svelte-check` tampoco lo detecta. Hay que grepear manualmente.
-3. **Object.keys() en arrays** — Error clásico: `Object.keys([1,2,3])` devuelve `['0','1','2']`, no la longitud. Usar `.length`.
-4. **Animation keyframes** — Si el `animMap` referencia un keyframe que no existe en `ANIMATION_KEYFRAMES`, la animación simplemente no se ve. No hay error. Hay que auditar manualmente.
-5. **Listener leaks** — Los wrappers de event listeners que se reemplazan sin removerse a sí mismos causan memory leaks. Siempre hacer el wrapper one-shot o guardar referencia.
-6. **`svelte-check` limpio ≠ sin bugs** — 0 errores y 0 warnings no significa que todo funcione. Los bugs de lógica (Object.keys en array, keyframes faltantes) no los detecta.
+1. **`$effect` + `$state` read/write = loop** — En Svelte 5, si un `$effect` lee una variable `$state` (como `lastStatus`) y luego la escribe, se crea un ciclo infinito. La solución es `untrack()` para la lectura. Es el patrón más peligroso de Svelte 5.
+2. **`{@html}` desde Firebase = XSS** — Cualquier contenido que venga de Firebase y se renderice con `{@html}` es un vector de ataque. Siempre sanitizar o usar formato estructurado.
+3. **`$app/stores` vs `$app/state`** — Svelte 5 tiene dos APIs para `page`. `$app/stores` devuelve un store (requiere `$page`), `$app/state` devuelve el valor directamente. Mezclarlos funciona pero es inconsistente y deprecated.
+4. **`getComputedStyle` en `$effect` por componente** — Si cada instancia de un componente ejecuta `getComputedStyle` en un `$effect`, el costo se multiplica por N. Usar un store compartido.
+5. **`JSON.stringify` como dependency trigger** — Usar `JSON.stringify(obj)` dentro de un `$effect` para detectar cambios es costoso. Mejor usar un contador de versión o checksum.
+6. **`Record<string, any>` en vez de tipos propios** — Cuando el store ya define tipos (`ThemeSettings`, `HeroVisualSettings`), castear a `any` pierde toda la seguridad. Siempre usar los tipos exportados.
+7. **async sin try/catch en UI** — Toda función async que muestra feedback al usuario necesita try/catch con toast. Sin esto, los errores son silenciosos.
+8. **`svelte-check` no detecta todo** — No detecta: dependency cycles en `$effect`, XSS via `{@html}`, dead code, runtime type mismats. Hay que auditar manualmente.
 
 ---
 
