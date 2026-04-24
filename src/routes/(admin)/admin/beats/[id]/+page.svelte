@@ -17,6 +17,11 @@
 
 	let saveStatus = $state<'saved' | 'saving' | 'unsaved' | 'error'>('saved');
 
+	// Debug: log mount + beat state
+	$effect(() => {
+		console.log('[BeatEdit] beatId:', beatId, 'beat:', beat ? 'found' : 'null', 'data:', beatsData ? `${Object.keys(beatsData).length} beats` : 'null');
+	});
+
 	async function handleSave() {
 		if (!beat || !beat.name?.trim()) {
 			saveStatus = 'error';

@@ -39,7 +39,12 @@
 	});
 
 	onMount(() => {
-		initStores();
+		console.log('[Layout] Mounting, initializing stores...');
+		initStores().then(() => {
+			console.log('[Layout] Stores initialized OK');
+		}).catch(err => {
+			console.error('[Layout] Store init failed:', err);
+		});
 	});
 </script>
 
