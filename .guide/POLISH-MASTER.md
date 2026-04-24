@@ -273,13 +273,13 @@ Se hicieron mejoras de performance, a11y, SEO, content editors, particles y poli
 
 **Objetivo**: Que el SEO esté completo.
 
-- [ ] Homepage: title, og:title, og:description, og:type
-- [ ] Beat detail: title, description, og:title, og:description, og:image, og:type, JSON-LD
-- [ ] Login: title, description
-- [ ] Error: title
-- [ ] Store layout: canonical, og:url, og:site_name, og:image, twitter:card
-- [ ] robots.txt: correct domain, disallow admin
-- [ ] sitemap.xml: correct domain
+- [x] Homepage: title, og:title, og:description, og:type
+- [x] Beat detail: title, description, og:title, og:description, og:image, og:type, JSON-LD
+- [x] Login: title, description
+- [x] Error: title
+- [x] Store layout: canonical, og:url, og:site_name, og:image, twitter:card
+- [x] robots.txt: correct domain, disallow admin
+- [x] sitemap.xml: correct domain
 
 ---
 
