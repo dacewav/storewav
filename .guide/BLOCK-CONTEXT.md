@@ -10,7 +10,7 @@ sesión: "8"
 bloque: "2A+2B"
 objetivo: "Audit + deploy fix + plays counter + toast wiring"
 tiempo: "50 min"
-estado: "deployed — plays counter + toast live"
+estado: "BUG: effect loop + auth redirect race condition"
 último_commit: "4c4735f"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 ```
@@ -35,6 +35,13 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 13. ✅ Plays column en admin beats list
 14. ✅ Analytics tracking en beat play + wishlist toggle
 15. ✅ Deploy + push — todo live
+
+### BUG ENCONTRADO sesión 8 (NO FIXEADO)
+- **`effect_update_depth_exceeded`** — loop infinito en $effect
+- **Causa:** redirect effect se dispara cuando `isAdmin=false` (primer auth state), pero async `checkAdmin()` después pone `isAdmin=true`. El cambio de `isAdmin` re-dispara el effect → loop.
+- **UID correcto:** `Uks9YGSd6rS40zqlRujoe6pE6N22` (hardcoded en auth.ts)
+- **Fix necesario:** No redirigir hasta que `checkAdmin()` termine. Necesita un flag `adminChecked` o usar `onMount` en vez de `$effect` para el redirect.
+- **Archivos:** `src/routes/(admin)/+layout.svelte`, `src/lib/stores/auth.ts`
 
 ## BUG CRÍTICO — RESUELTO ✅
 
