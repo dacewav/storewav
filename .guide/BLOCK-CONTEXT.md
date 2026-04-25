@@ -8,59 +8,30 @@
 ```yaml
 sesión: "18"
 bloque: "Deep Audit + Fixes"
-objetivo: "Audit profundo + fixes de bugs, a11y, dead code, type safety"
+objetivo: "Audit profundo + a11y, type safety, dead code, console cleanup"
 tiempo: "50 min"
 estado: "COMPLETADO"
-último_commit: "pendiente"
-último_push: "pendiente"
+último_commit: "68d8a42"
+último_push: "68d8a42"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 tests_total: 80
+svelte_ignore_a11y: "13 → 2 (legítimos)"
 ```
 
-### Session 18 — Deep Audit + Fixes
-1. ✅ shimmerOpacity bug — added to CardStyleConfig type + engine
-2. ✅ console.log gated behind dev (auth.ts, init.ts)
+### Session 18 — Resumen completo
+1. ✅ shimmerOpacity bug — type + engine + CSS var
+2. ✅ console.log gated behind dev (auth, init)
 3. ✅ AdminSidebar dead code removed (118 lines)
 4. ✅ Meaningful alt text (Player, WishlistPanel)
-5. ✅ aria-pressed on wishlist toggle (BeatCard)
-6. ✅ getComputedStyle → shared cssVars store (accentRgb, accentColor)
-7. ✅ Record<string, any> → proper types in all admin pages (7 files)
-8. ✅ as any → IconName type in LinkItem + store page
+5. ✅ aria-pressed on wishlist toggle
+6. ✅ getComputedStyle → shared cssVars store
+7. ✅ Record<string, any> → proper types (7 admin pages)
+8. ✅ as any → IconName type
 9. ✅ Package version 0.5.0 → 1.0.0
-10. ✅ svelte-check: 0 errors, 0 warnings
-11. ✅ 80 tests passing
-12. ✅ Build clean
-6. ✅ Push
-
-### Session 6 — Accessibility + SEO (50 min)
-1. ⬜ aria-label en botones sin texto
-2. ⬜ Keyboard navigation (tab order, escape, enter)
-3. ⬜ SEO: structured data (JSON-LD), canonical, OG tags
-4. ⬜ Build + commit
-
-### Session 0 — Critical Bug Fixes ✅ (commit `4842832`)
-1. ✅ XSS `{@html dividerTitle}` — Sanitización whitelist
-2. ✅ Bulk operations try/catch — 5 funciones
-3. ✅ undoField/redoField error handling — try/catch con revert
-4. ✅ `$app/stores` → `$app/state` — beat page migrado
-5. ✅ BeatEditor optimization — version counter
-
-### Bloque 3B — Beat Editor ✅ (commit `700718f`)
-1. ✅ **Inline audio preview** — Player en save bar (play/pause/seek/time)
-2. ✅ **Animated save indicator** — Dot pulsante (saving), verde (saved), rojo (error), amarillo (unsaved)
-3. ✅ **Field validation** — Errores inline en nombre, género, BPM
-4. ✅ **Save button disabled** — Cuando validación falla
-
-### Plays Counter + Analytics ✅ (commit `89613aa`)
-1. ✅ **beatsStats** — totalPlays + topBeat derived values
-2. ✅ **Dashboard stats** — Plays totales + Top beat cards
-3. ✅ **Version fix** — Unificado a v1.0.0
-
-### Session 4 — Testimonials + CardStyle Migration ✅ (commit `4626703`)
-1. ✅ **Testimonials** — Firebase `{name, role, text}` renderiza correctamente (component soporta ambos formatos)
-2. ✅ **globalCardStyle migration** — Todos los sub-objetos migrados (glow, filter, border, shadow, hover, style, transform)
-3. ✅ **CardStyle campos extras** — shimmerOp→shimmerOpacity, shimmerSpeed→shimmerDuration, hoverTransition
-4. ✅ **Per-beat cardStyle** — BeatEditor tab funciona, mergeCardStyles aplica correctamente
+10. ✅ 11/13 svelte-ignore a11y eliminated
+11. ✅ svelte-check: 0 errors, 0 warnings
+12. ✅ 80 tests, 6 files, all passing
+13. ✅ Build clean
 
 ## Estado de Sesiones
 
@@ -75,7 +46,6 @@ tests_total: 80
 | 7 | 2A — Beats Seed (deploy + bugs) | ❌ botones rotos |
 | 8 | 2A+2B — Audit + Deploy + Beat Interactions | ✅ deployed |
 | 9 | 3A — Connection State + Error Resilience | ✅ deployed |
-| 9 | 3A — Connection State + Error Resilience | ✅ |
 | 10 | 0-solidification — Critical Bugs | ✅ |
 | 10 | 3B — Beat Editor | ✅ |
 | 10 | Plays Counter + Analytics | ✅ |
@@ -87,6 +57,7 @@ tests_total: 80
 | 15 | 5 — Labels + Polish | ✅ |
 | 16 | 6 — Final Audit | ✅ |
 | 17 | 3 — Integration Tests | ✅ |
+| 18 | Deep Audit + Fixes | ✅ |
 
 ## Referencia
 
