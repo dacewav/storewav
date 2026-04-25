@@ -59,7 +59,32 @@ svelte_ignore_a11y: "13 → 2 (legítimos)"
 | 17 | 3 — Integration Tests | ✅ |
 | 18 | Deep Audit + Fixes | ✅ |
 
-## Referencia
+## Siguiente Sesión: Card Style UI Rebuild
+
+```yaml
+sesión: "19"
+bloque: "Card Style UI Rebuild"
+objetivo: "Rebuild completo de la UI de Card Style — de 3 controles a 30+"
+guía: ".guide/CARDSTYLE-REBUILD-PROMPT.md"
+estado: "PENDIENTE"
+```
+
+### Qué hacer al arrancar
+1. Leer `.guide/CARDSTYLE-REBUILD-PROMPT.md` — tiene TODA la spec
+2. Crear `src/lib/components/CardStyleEditor.svelte`
+3. Integrar en BeatEditor (reemplazar sección style tab)
+4. Crear `src/routes/(admin)/admin/cardstyle/+page.svelte`
+5. Agregar al nav admin
+6. svelte-check + tests + build
+7. Commit + push
+
+### Datos clave
+- CardStyleConfig tiene 30+ props (cardStyleEngine.ts)
+- UI actual: 3 controles (glow select, animation select, shimmer checkbox)
+- Motor: 35+ presets de animación, 5 tipos de glow, 7 filtros CSS
+- globalCardStyle se guarda en `settings.globalCardStyle` (Firebase)
+- Per-beat overrides en `beat.cardStyle`
+- `mergeCardStyles(global, perBeat)` hace el merge automático
 
 - `firebase-deployed-rules.json` — rules reales deployadas en Firebase
 - `FIREBASE-RULES.md` — rules en formato MD para copiar-pegar
