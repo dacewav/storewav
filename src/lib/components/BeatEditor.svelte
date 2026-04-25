@@ -450,37 +450,13 @@
 		<Card>
 			<h3 class="section-title">Estilo de tarjeta</h3>
 			<p class="field-desc">Overrides por encima del estilo global. Dejar en "(usar global)" para no sobreescribir.</p>
-			<div class="grid-2">
-				<div class="field">
-					<label for="b-glow">Glow</label>
-					<select id="b-glow" value={beat.cardStyle?.glow ?? ''} onchange={(e) => { if (!beat.cardStyle) beat.cardStyle = {}; beat.cardStyle.glow = e.currentTarget.value || undefined; }}>
-						<option value="">(usar global)</option>
-						<option value="none">Ninguno</option>
-						<option value="soft">Soft</option>
-						<option value="strong">Strong</option>
-						<option value="neon">Neon</option>
-						<option value="custom">Custom</option>
-					</select>
-				</div>
-				<div class="field">
-					<label for="b-anim">Animación</label>
-					<select id="b-anim" value={beat.cardStyle?.animation ?? ''} onchange={(e) => { if (!beat.cardStyle) beat.cardStyle = {}; beat.cardStyle.animation = e.currentTarget.value || undefined; }}>
-						<option value="">(usar global)</option>
-						<option value="none">Ninguna</option>
-						<option value="float">Float</option>
-						<option value="hologram">Hologram</option>
-						<option value="glitch">Glitch</option>
-						<option value="shimmer">Shimmer</option>
-						<option value="borderGlow">Border Glow</option>
-					</select>
-				</div>
-				<div class="field">
-					<label>
-						<input type="checkbox" checked={beat.cardStyle?.shimmer === true} onchange={(e) => { if (!beat.cardStyle) beat.cardStyle = {}; beat.cardStyle.shimmer = e.currentTarget.checked || undefined; }} />
-						Shimmer overlay
-					</label>
-				</div>
-			</div>
+			{#await import('$lib/components/CardStyleEditor.svelte') then { default: CardStyleEditor }}
+				<CardStyleEditor
+					bind:value={beat.cardStyle}
+					mode="per-beat"
+					accentRgb="220, 38, 38"
+				/>
+			{/await}
 		</Card>
 	{/if}
 </div>

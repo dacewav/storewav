@@ -102,6 +102,7 @@
 			label: 'Apariencia',
 			items: [
 				{ href: '/admin/theme', label: 'Tema', icon: '🎨' },
+				{ href: '/admin/cardstyle', label: 'Card Style', icon: '🃏' },
 				{ href: '/admin/brand', label: 'Brand', icon: '🏢' },
 				{ href: '/admin/banner', label: 'Banner', icon: '📢' },
 				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
