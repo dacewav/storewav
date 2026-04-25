@@ -3,6 +3,7 @@
 > **Objetivo**: Arreglar bugs reales, optimizar UX del admin, y dejar todo production-ready.
 > **Regla**: Un bloque a la vez. Verificar en navegador ANTES de seguir. Commit después de cada bloque.
 > **Prioridad**: Bugs que afectan uso real → UX → Optimización → Polish
+> **⚠️ ACTUALIZADO**: Ver MEGA-PLAN-ADMIN.md para el plan completo post-Session 25.
 
 ---
 
@@ -170,3 +171,24 @@
 - **Commit** después de cada bloque exitoso.
 - **Si algo no funciona**, no lo salves — arréglalo antes de seguir.
 - **Actualizar este archivo** marcando los checkboxes completados.
+
+---
+
+## Session 25 — Completado (2026-04-25)
+
+### Fixes realizados
+- [x] ThemeSettings: +10 campos faltantes (glowActive, waveOpacity*, heroGlow*, btnLic*)
+- [x] CLAMP_MAP: 30+ campos con validación de rango en updateField()
+- [x] Slider labels: opacities muestran %, blur muestra px clamped
+- [x] Slider reactividad: $state local para feedback instantáneo (theme + hero pages)
+- [x] Animaciones: wired up presets al store (hero title + nav logo)
+- [x] Brand upload: FileUpload component para logo/favicon
+- [x] 12 nuevos controles: bgColor, surfaceColor, textColor, navBgColor, navBlur, ctaBtn*, containerMaxWidth
+- [x] svelte-check: 26→8 errores (solo env vars)
+
+### Pendiente identificado → Ver MEGA-PLAN-ADMIN.md
+- Particles sliders no afectan la tienda
+- Workers domain corre código viejo
+- Admin UX necesita live preview, save feedback, confirmaciones
+- Animaciones necesitan duration/delay/easing por elemento
+- Responsive admin necesita más trabajo

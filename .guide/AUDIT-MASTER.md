@@ -1,6 +1,6 @@
 # 📋 AUDIT-MASTER.md — Guía Maestra
 
-> **Última actualización: 2026-04-25 02:19**
+> **Última actualización: 2026-04-25 12:41 (Session 25)**
 > **Lee este archivo primero en cualquier sesión nueva.**
 
 ---
@@ -90,41 +90,50 @@ Límite:    50 min por sesión de chat
 | Card style engine | ✅ | Glow, filters, border, shadow, hover, shimmer, 40+ animation presets |
 | Actions | ✅ | tilt, parallax, staggerReveal, reveal, siblingBlur, ripple, countUp |
 
-### 🐛 Bugs Activos (Audit v6 — 2026-04-25)
-
-> **Session 23**: Firebase dummy config + particles rendering fix. Deep browser audit.
+### 🐛 Bugs Activos (Audit v7 — 2026-04-25 Session 25)
 
 | Bug | Severidad | Estado | Detalle |
 |-----|-----------|--------|---------|
-| Particles z-index | 🔴 CRÍTICO | ✅ FIXEADO | z-index:10→var(--z-base)(0). BG absoluto. Session 24. |
-| Admin sidebar overflow | 🟡 MED | ✅ FIXEADO | text-overflow ellipsis on labels. Session 24. |
-| Topbar 768-900px overflow | 🟡 MED | ✅ FIXEADO | Progressive hide at 900px breakpoint. Session 24. |
-| Beat grid 480-600px | 🟡 MED | ✅ FIXEADO | Intermediate breakpoint minmax(200px). Session 24. |
-| Modal import mobile | 🟡 MED | ✅ FIXEADO | dvh + safe-area-inset-bottom. Session 24. |
-| Theme hidden properties | 🟡 ALTO | ✅ FIXEADO | 12 properties exposed in UI. Session 24. |
-| Shimmer diseño | 🟡 MED | ✅ VERIFICADO | "Noche Oscura" shimmer visible en browser (diagonal sweep) |
-| Save button vacío | 🟡 ALTO | ⚠️ NO VERIFICADO | Requiere admin login (Firebase anon auth puede no estar habilitado) |
-| Shortcuts rotos | 🟡 ALTO | ⚠️ NO VERIFICADO | Requiere admin login para probar Ctrl+S/Z |
-| Sin conexión banner | 🟡 MED | ✅ RESUELTO | Transitorio — Firebase RTDB tarda en reportar .info/connected |
+| ThemeSettings type errors | 🔴 CRÍTICO | ✅ FIXEADO | 10 campos faltantes → svelte-check 26→8 errores. Session 25. |
+| Slider labels rotos | 🔴 CRÍTICO | ✅ FIXEADO | Opacities mostraban 0.85 en vez de 85%. Session 25. |
+| Slider values excedían max | 🟡 ALTO | ✅ FIXEADO | glowBlur=67 (max 60), heroGlowBlur=83, grain=0.5. CLAMP_MAP. Session 25. |
+| Slider labels no reactivos | 🔴 CRÍTICO | ✅ FIXEADO | Labels leían de Firebase store, no del slider local. $state local fix. Session 25. |
+| Animations no wired | 🟡 ALTO | ✅ FIXEADO | Presets configurados pero nunca aplicados al store. Session 25. |
+| Brand sin upload | 🟡 MED | ✅ FIXEADO | FileUpload component integrado para logo/favicon. Session 25. |
+| Faltan controles básicos | 🟡 ALTO | ✅ FIXEADO | bgColor, surfaceColor, textColor, nav, CTA, container. Session 25. |
+| Workers domain stale | 🔴 CRÍTICO | ⚠️ ACTIVO | Workers domain corre código viejo. Pages deploy OK pero workers no auto-update. |
+| Particles sliders no funcionan | 🔴 CRÍTICO | ⚠️ ACTIVO | Sliders de partículas no tienen efecto visible en tiempo real. |
+| No hay save/cancel buttons | 🟡 ALTO | ⚠️ ACTIVO | Settings auto-guardan pero no hay feedback de estado ni botón explícito. |
+| Admin UX pobre | 🟡 ALTO | ⚠️ ACTIVO | Pocos accionables, sin preview, sin undo visual, sin confirmaciones. |
 | No lazy loading admin | ⚪ BAJA | ⬜ Pendiente | SvelteKit code-splitting |
 | CSS keyframes no usados | ⚪ BAJA | ⬜ Pendiente | 34 keyframes |
 
-### ¿Qué falta? (Audit v5 — 2026-04-25)
+### Session 25 — Resumen de cambios
 
-> **Session 23 completada**: 4/4 bugs principales fixeados. Firebase config real restaurado.
+| Commit | Qué |
+|--------|-----|
+| `66c99d2` | ThemeSettings +10 campos, CLAMP_MAP 30+ fields, animation timing, brand FileUpload |
+| `05310e6` | Slider labels: opacities → %, blur/intensity → clamped px |
+| `f50eff4` | Slider reactividad: $state local para feedback instantáneo |
+| `acbf0bb` | 12 nuevos controles: bg, surface, text, nav, CTA, button, container |
+
+**Deploy:** Pages `e8f73d6c` (acbf0bb) — Production active
+**Tests:** 107 passing, 0 failures
+**svelte-check:** 8 env var errors (expected), 0 warnings
+
+### ¿Qué falta? (Audit v7 — 2026-04-25 Session 25)
+
+> **Session 25 completada**: ThemeSettings fix, sliders fix, 12 nuevos controles. Ver MEGA-PLAN-ADMIN.md.
 
 | Área | Prioridad | Detalle |
 |------|-----------|---------|
-| ~~Particles~~ | ~~🔴~~ | ✅ Fixeado — canvas sizing + Firebase config |
-| ~~Shimmer~~ | ~~🟡~~ | ✅ Verificado en browser |
-| ~~Save button~~ | ~~🟡~~ | ✅ Fixeado — Firebase config |
-| ~~Shortcuts~~ | ~~🟡~~ | ✅ Fixeado — handlers correctos |
-| No lazy loading admin | ⚪ Baja | SvelteKit code-splitting ya lo maneja parcialmente |
-| CSS keyframes no usados | ⚪ Baja | 34 keyframes en cardStyleEngine, no afecta runtime |
-| No CI/CD | ⚪ Baja | No hay GitHub Actions, deploy manual |
-| No PWA | ⚪ Baja | Solo funciona online |
-| No i18n | ⚪ Baja | Todo hardcodeado en español |
-| No rate limiting | ⚪ Baja | Analytics writes sin throttle |
+| Particles sliders rotos | 🔴 | No afectan la tienda en tiempo real |
+| Workers domain stale | 🔴 | Corre código viejo, no auto-update desde Git |
+| Admin UX general | 🟡 | Ver MEGA-PLAN-ADMIN.md para plan completo |
+| No lazy loading admin | ⚪ Baja | SvelteKit code-splitting |
+| CSS keyframes no usados | ⚪ Baja | 34 keyframes |
+| No CI/CD | ⚪ Baja | Deploy manual |
+| No PWA | ⚪ Baja | Solo online |
 
 ---
 
