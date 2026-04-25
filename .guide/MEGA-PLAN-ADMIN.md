@@ -7,13 +7,13 @@
 
 ---
 
-## Estado actual (Session 26)
+## Estado actual (Session 27)
 
 - **~80 controles** de personalización con timing per-element
-- **107 tests** passing
-- **Admin profesional**: sliders reactivos, keyboard support, save status animado, preview split, undo con field name
+- **117 tests** passing
+- **Admin profesional**: sliders reactivos, keyboard support, save status animado, preview split, undo con field name, brand media management
 - **Bugs activos**: workers domain stale (código viejo en workers.dev)
-- **Bloques completados**: A ✅ B ✅ C ✅ D ✅ (E, F, G pendientes)
+- **Bloques completados**: A ✅ B ✅ C ✅ D ✅ E ✅ (F, G pendientes)
 
 ---
 
@@ -110,26 +110,27 @@
 
 ---
 
-## Bloque E — Brand & Media management
+## Bloque E — Brand & Media management ✅ COMPLETADO Session 27
 
 **Objetivo**: Gestión profesional de assets visuales.
 
-### E1. Logo upload con crop
-- [ ] FileUpload con preview + crop tool (aspect ratio libre o fijo)
-- [ ] Generar automáticamente: favicon (32x32), OG image (1200x630), logo thumbnail
-- [ ] Preview del logo en: nav, footer, loader, browser tab
+### E1. Logo upload con crop ✅
+- [x] FileUpload con preview + crop tool (aspect ratio libre o fijo)
+- [x] Generar automáticamente: favicon (32x32), OG image (1200x630), logo thumbnail
+- [x] Preview del logo en: nav, footer, loader, browser tab
 
-### E2. Color palette generator
-- [ ] A partir del accent color → generar paleta completa (5-7 shades)
-- [ ] Preview de la paleta aplicada a la tienda
-- [ ] "Generar paleta" button → sugiere combinaciones
+### E2. Color palette generator ✅
+- [x] A partir del accent color → generar paleta completa (11 shades: 50-950)
+- [x] Preview de la paleta aplicada a la tienda
+- [x] Harmony suggestions (analogous, complement, triadic) → click to apply
 
-### E3. Font preview
-- [ ] Al escribir un Google Font name → preview inmediato del font
-- [ ] Sugerencias de fonts populares (dropdown)
-- [ ] "Font no encontrado" warning si el font no existe
+### E3. Font preview ✅
+- [x] Al escribir un Google Font name → preview inmediato del font (live load via CSS2 API)
+- [x] Sugerencias de fonts populares (dropdown, 26 fonts)
+- [x] "Font no encontrado" warning si el font no existe
+- [x] Combined preview (display + body fonts together)
 
-**Archivos**: `brand/+page.svelte`, `FileUpload.svelte`, nuevo `FontPreview.svelte`
+**Archivos**: `brand/+page.svelte`, `ImageCropper.svelte`, `FontPreview.svelte`, `colorPalette.ts`
 
 ---
 

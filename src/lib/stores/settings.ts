@@ -55,6 +55,7 @@ export type BrandSettings = {
 	name: string;
 	logo: string;
 	favicon: string;
+	ogImage: string;
 	footerText: string;
 	metaDescription: string;
 	whatsapp: string;
@@ -474,6 +475,7 @@ const DEFAULT: SettingsData = {
 		name: 'DACEWAV',
 		logo: '',
 		favicon: '',
+		ogImage: '',
 		footerText: 'Todos los derechos reservados · 2026',
 		metaDescription: 'Beats que rompen',
 		whatsapp: ''

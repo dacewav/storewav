@@ -27,4 +27,6 @@ export { default as BeatEditor } from './BeatEditor.svelte';
 export { default as FileUpload } from './FileUpload.svelte';
 export { default as OfflineBanner } from './OfflineBanner.svelte';
 export { default as Particles } from './Particles.svelte';
+export { default as ImageCropper } from './ImageCropper.svelte';
+export { default as FontPreview } from './FontPreview.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar
