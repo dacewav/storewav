@@ -685,6 +685,91 @@
 			</div>
 		{/if}
 	</Card>
+	<!-- Hero Height -->
+	<Card>
+		<h3 class="section-title">🏠 Hero</h3>
+		<div class="field">
+			<label for="t-hmh">Altura mínima ({t.heroMinHeight ?? 60}vh)</label>
+			<input id="t-hmh" type="range" min="30" max="100" step="1" value={t.heroMinHeight ?? 60} oninput={(e) => update('theme.heroMinHeight', +e.currentTarget.value)} />
+		</div>
+	</Card>
+	<!-- Section Titles -->
+	<Card>
+		<h3 class="section-title">📝 Títulos de Sección</h3>
+		<p class="field-desc">Personaliza la apariencia de los títulos de sección (Destacados, Catálogo, etc.)</p>
+		<div class="field">
+			<label for="t-sts">Tamaño</label>
+			<select id="t-sts" onchange={(e) => update('theme.sectionTitleSize', e.currentTarget.value)}>
+				<option value="" selected={!t.sectionTitleSize}>Default</option>
+				<option value="1.25rem" selected={t.sectionTitleSize === '1.25rem'}>SM (1.25rem)</option>
+				<option value="1.5rem" selected={t.sectionTitleSize === '1.5rem'}>MD (1.5rem)</option>
+				<option value="2rem" selected={t.sectionTitleSize === '2rem'}>LG (2rem)</option>
+				<option value="2.5rem" selected={t.sectionTitleSize === '2.5rem'}>XL (2.5rem)</option>
+			</select>
+		</div>
+		<div class="field">
+			<label for="t-stw">Peso ({t.sectionTitleWeight || 'auto'})</label>
+			<input id="t-stw" type="range" min="100" max="900" step="100" value={t.sectionTitleWeight || 700} oninput={(e) => update('theme.sectionTitleWeight', +e.currentTarget.value || 0)} />
+		</div>
+		<div class="field">
+			<label for="t-sta">Alineación</label>
+			<select id="t-sta" onchange={(e) => update('theme.sectionTitleAlign', e.currentTarget.value)}>
+				<option value="" selected={!t.sectionTitleAlign}>Izquierda</option>
+				<option value="center" selected={t.sectionTitleAlign === 'center'}>Centro</option>
+				<option value="right" selected={t.sectionTitleAlign === 'right'}>Derecha</option>
+			</select>
+		</div>
+		<div class="field">
+			<label for="t-stc">Color</label>
+			<div class="color-row">
+				<input id="t-stc" type="color" value={t.sectionTitleColor || '#ffffff'} oninput={(e) => update('theme.sectionTitleColor', e.currentTarget.value)} />
+				<input type="text" value={t.sectionTitleColor ?? ''} placeholder="(default)" oninput={(e) => update('theme.sectionTitleColor', e.currentTarget.value)} />
+			</div>
+		</div>
+	</Card>
+	<!-- Background Pattern -->
+	<Card>
+		<h3 class="section-title">🎨 Fondo</h3>
+		<div class="field">
+			<label for="t-bgp">Patrón de fondo</label>
+			<select id="t-bgp" onchange={(e) => update('theme.bgPattern', e.currentTarget.value)}>
+				<option value="none" selected={t.bgPattern === 'none' || !t.bgPattern}>Ninguno</option>
+				<option value="dots" selected={t.bgPattern === 'dots'}>Puntos</option>
+				<option value="lines" selected={t.bgPattern === 'lines'}>Líneas</option>
+				<option value="grid" selected={t.bgPattern === 'grid'}>Cuadrícula</option>
+			</select>
+		</div>
+		{#if t.bgPattern && t.bgPattern !== 'none'}
+			<div class="field">
+				<label for="t-bgc">Color patrón</label>
+				<div class="color-row">
+					<input id="t-bgc" type="color" value={t.bgPatternColor || '#ffffff'} oninput={(e) => update('theme.bgPatternColor', e.currentTarget.value)} />
+					<input type="text" value={t.bgPatternColor ?? ''} placeholder="(default)" oninput={(e) => update('theme.bgPatternColor', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-bgo">Opacidad patrón ({Math.round((t.bgPatternOpacity ?? 0.05) * 100)}%)</label>
+				<input id="t-bgo" type="range" min="0" max="0.3" step="0.01" value={t.bgPatternOpacity ?? 0.05} oninput={(e) => update('theme.bgPatternOpacity', +e.currentTarget.value)} />
+			</div>
+		{/if}
+	</Card>
+	<!-- Scrollbar -->
+	<Card>
+		<h3 class="section-title">📏 Scrollbar</h3>
+		<div class="field">
+			<label>
+				<input type="checkbox" checked={t.scrollbarThin ?? false} onchange={(e) => update('theme.scrollbarThin', e.currentTarget.checked)} />
+				Scrollbar delgado
+			</label>
+		</div>
+		<div class="field">
+			<label for="t-sbc">Color scrollbar</label>
+			<div class="color-row">
+				<input id="t-sbc" type="color" value={t.scrollbarColor || '#666666'} oninput={(e) => update('theme.scrollbarColor', e.currentTarget.value)} />
+				<input type="text" value={t.scrollbarColor ?? ''} placeholder="(default)" oninput={(e) => update('theme.scrollbarColor', e.currentTarget.value)} />
+			</div>
+		</div>
+	</Card>
 	<!-- Custom CSS -->
 	<Card>
 		<h3 class="section-title">CSS Personalizado</h3>

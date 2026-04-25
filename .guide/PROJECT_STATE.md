@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-25 02:24 (Session 0 — Critical Bug Fixes)**
+> **Última actualización: 2026-04-26 03:45 (Session 28 — Schema Fix + New Customization)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -8,108 +8,92 @@ repo:          https://github.com/dacewav/storewav.git
 framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
-sesiones:      15 planificadas (~50 min c/u)
-sesión_actual: 10 (Session 0 + 3B + Plays Analytics completado)
-commits:       36
+sesiones:      28 completadas
+commits:       38+
+tests:         117 passing
+build:         0 errors, 0 warnings (svelte-check limpio)
 ```
 
 ## Quick Status
 
 | Área | Status | Detalle |
 |------|--------|---------|
-| .env | ⚠️ | Template existe, falta copia con credenciales reales |
-| Build | ✅ | 0 code errors, 0 warnings (svelte-check limpio) |
-| Firebase conn | ✅ | Lectura OK, escritura requiere admin |
-| Settings en DB | ✅ | Formato flat (viejo), migration layer OK |
-| Beats en DB | ❌ | `null` — vacío |
-| Theme engine | ✅ | accent, glow, fonts desde Firebase |
-| Auth | ✅ | Google login + adminWhitelist |
-| Rules deployadas | ✅ | 1391 líneas, restauradas |
-| Schema mismatch | ✅ | Resuelto: code alineado con rules |
-| Hydration bug | ✅ | **RESOLVIDO** — fix `ssr = false` listo, necesita deploy |
-| Deploy | ⚠️ | Chunks viejos en Workers — ejecutar `npx wrangler deploy` |
+| .env | ✅ | Creado con credenciales reales |
+| Build | ✅ | 0 errors, 0 warnings (svelte-check) |
+| Tests | ✅ | 117 passing (Vitest) |
+| Firebase conn | ✅ | Lectura + escritura OK (con UID aprobado) |
+| Settings en DB | ✅ | Flat format, migration layer + flattenPath para writes |
+| Beats en DB | ✅ | 7 beats con schema completo |
+| Theme engine | ✅ | 95+ keys → CSS vars, accent, glow, fonts |
+| Auth | ✅ | Google + anonymous + adminWhitelist + dev bypass |
+| Card Style | ✅ | 8 secciones: Glow, Filtros, Borde, Sombra, Transform, Hover, Animación, Shimmer + 5 nuevas |
+| Admin | ✅ | 12 páginas, 80+ controles, sliders reactivos, keyboard, preview, command palette |
+| Schema mismatch | ✅ | RESUELTO: NESTED_TO_FLAT mapping + theme/ writes separados |
+| Deploy | ⚠️ | Pages auto-deploy, Workers stale |
 
-## Qué se hizo (sesiones 1-8)
+## Qué se hizo (resumen sesiones 1-28)
 
-- ✅ Data layer (Firebase stores, CRUD, migration)
-- ✅ Hero section (glow, segments, eyebrow, gradient)
-- ✅ Banner + Divider + Nav
-- ✅ Theme store reescrito (single source of truth)
-- ✅ Root layout limpio
-- ✅ fontSize fix, CSS vars px suffix
-- ✅ BeatEditor auto-save reactivo
-- ✅ Dashboard con allBeatsList
-- ✅ .env creado, build OK
-- ✅ Rules deployadas restauradas
-- ✅ Todo pusheado a GitHub
-- ✅ **Mismatch code↔rules resuelto** (title→name, coverUrl→imageUrl, createdAt→date, licenses restructured, platforms flattened)
-- ✅ **Audit profundo sesión 8** — 0 errores, 0 warnings, Svelte 5 runes correctos
-- ✅ **Hydration bug identificado** — deploy viejo, fix listo
+- ✅ Data layer completo (Firebase stores, CRUD, migration, undo/redo, offline queue)
+- ✅ Hero section (glow, segments, eyebrow, gradient, stroke)
+- ✅ Banner + Divider + Nav + Footer
+- ✅ Theme engine (95+ keys → CSS vars, accent, glow, fonts, particles)
+- ✅ Store page (hero, grid, filters, featured, wishlist, player, testimonials, CTA)
+- ✅ Beat page (cover, waveform, licenses, platforms, related beats)
+- ✅ Admin panel (12 páginas, 80+ controles)
+- ✅ Beat editor (5 tabs: Info, Licencias, Media, Plataformas, Card Style)
+- ✅ Auth (Google + anonymous + adminWhitelist + dev bypass)
+- ✅ SEO (JSON-LD, OG tags, robots.txt, sitemap)
+- ✅ A11y (aria-labels, focus-visible, reduced-motion, keyboard nav)
+- ✅ Mobile responsive (bottom nav, touch-friendly sliders)
+- ✅ Live preview (split view, nueva pestaña, mobile popup)
+- ✅ Save system (auto-save, debounced batch, status animado, undo/redo)
+- ✅ Command palette (Ctrl+K), keyboard shortcuts
+- ✅ Onboarding tour (4 pasos)
+- ✅ Admin theme toggle (dark/light)
+- ✅ Color palette generator (11 shades + harmonies)
+- ✅ Font preview (Google Fonts live)
+- ✅ Logo upload + crop
+- ✅ 117 tests (Vitest)
+- ✅ **Schema mismatch resuelto** (NESTED_TO_FLAT mapping)
+- ✅ **18 nuevas opciones de personalización** (Card Style + Tienda)
 
-## ✅ Bloque 2A — CERRADO
+## Session 28 — Schema Fix + New Customization
 
-1. ✅ Deploy con wrangler — hydration fix live
-2. ✅ svelte-check: 0 errores
-3. ✅ Guide actualizado
-4. ✅ Push a GitHub
+### Schema mismatch fix (CRITICAL)
+- Firebase rules esperan paths flat (`dividerTitle`, `heroTitle`, etc.)
+- Código escribía paths anidados (`section.dividerTitle`, `hero.title`, etc.)
+- Rules rechazaban writes → admin no podía guardar cambios
+- **Fix**: `NESTED_TO_FLAT` mapping + `flattenSettingsPath()` + `isThemePath()` + `getThemeKey()`
+- Theme/heroVisual/animations writes van a `theme/` path
+- Settings writes van a `settings/` path con flat keys
 
-## ✅ Bloque 2B — CERRADO
+### Nuevas opciones — Card Style (10)
+- 🎭 Fondo de card (color + opacidad)
+- 🔤 Tipografía título (tamaño, peso, color, alineación)
+- 💰 Precio (tamaño, color)
+- 🏷️ Tags (fondo, color, radio, tamaño)
+- 🖼️ Imagen (aspect ratio, hover zoom, object fit)
+- 📐 Layout (padding interno, fondo info)
 
-1. ✅ Plays counter: incrementPlay() throttled 30s
-2. ✅ Toast wiring: CRUD, wishlist, upload, seed, import
-3. ✅ Plays display: BeatCard badge + admin column
-4. ✅ Analytics: play + wishlist events tracked
-5. ✅ Deploy + push
+### Nuevas opciones — Tienda (8)
+- 🏠 Hero altura mínima (vh)
+- 📝 Títulos sección (tamaño, peso, alineación, color)
+- 🎨 Patrón fondo (dots, lines, grid + color + opacidad)
+- 📏 Scrollbar (delgado + color)
 
-## ✅ Bloque 3A — CERRADO
+### Dev mode admin access
+- `auth.ts`: en modo `dev`, cualquier usuario autenticado es admin
+- Permite acceso al admin sin necesidad de agregar UID a Firebase
 
-1. ✅ Connection store (Firebase `.info/connected` + `navigator.onLine`)
-2. ✅ OfflineBanner component (fixed bottom, dismissable)
-3. ✅ Retry logic en beats CRUD (1x retry on network error)
-4. ✅ Retry logic en settings updateField
-5. ✅ Skeleton loading en admin beats list + dashboard
-6. ✅ Deploy + push
+## Pendientes conocidos
 
-## ✅ Session 0 — 2026-04-25 (Critical Bug Fixes)
-
-### Bugs Críticos (2) — FIXED ✅
-1. ✅ **`effect_update_depth_exceeded`** — Ya estaba fixeado (untrack en admin layout)
-2. ✅ **XSS `{@html dividerTitle}`** — Sanitización whitelist em/strong/b/i/span
-
-### Bugs Altos (4) — FIXED ✅
-3. ✅ BeatEditor `$effect` — Replaced JSON.stringify con version counter
-4. ✅ Bulk operations — try/catch en 5 funciones
-5. ✅ `confirmDelete` — try/catch
-6. ✅ `undoField`/`redoField` — try/catch con revert de stack
-
-### Remaining Audit v2 findings (19)
-7-25. Ver AUDIT-MASTER.md para detalles completos
-
-### Bugs Medios (11)
-7. `$app/stores` deprecated en beat/[id]
-8. `as any` bypass en Icon name
-9. `getComputedStyle` por cada BeatCard
-10. `JSON.stringify(beat)` como effect trigger
-11. 14× `Record<string, any>` en vez de tipos propios
-12. No offline write queue
-13. Mobile overlay `onkeydown` vacío
-14. Delete modals sin keyboard handler
-15. Import errors solo console.log
-16. Per-card `$effect` para shared data
-17. No lazy loading admin pages
-
-### Bugs Bajos (8)
-18-25. alt vacío, aria-pressed, keyframes no usados, dead code, version mismatch, etc.
-
-**Fix priority: Session 0 en SOLIDIFICATION-PLAN.md**
-
-## 🔴 Qué falta — Bloque 3B (Beat Editor)
-
-1. Beat editor: upload de archivos real (Firebase Storage)
-2. Beat editor: validación de campos obligatorios
-3. Beat editor: preview de audio inline
-4. Beat editor: drag & drop para reordenar imágenes
-5. Beat editor: auto-save indicator en tiempo real
+| Prioridad | Item | Detalle |
+|-----------|------|---------|
+| 🔴 | Workers stale | `dacewav-store.daceidk.workers.dev` corre código viejo |
+| 🟡 | Beats sin cover images | 7 beats con `imageUrl: ""` |
+| 🟡 | Brand name "YUGEN" | ¿Es correcto o debería ser "DACEWAV"? |
+| ⚪ | GitHub Actions CI/CD | No configurado |
+| ⚪ | PWA | No implementado |
 
 ## Commands útiles
 
@@ -117,12 +101,21 @@ commits:       36
 # Build
 cd storewav && npm run build
 
+# Dev
+npm run dev -- --host 0.0.0.0 --port 5173
+
+# Tests
+npm test
+
 # Deploy
 npx wrangler deploy
 
-# Firebase beats
-curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/beats.json"
-
 # Firebase settings
 curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/settings.json" | python3 -m json.tool
+
+# Firebase theme
+curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/theme.json" | python3 -m json.tool
+
+# Firebase beats
+curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/beats.json"
 ```

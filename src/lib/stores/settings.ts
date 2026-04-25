@@ -234,6 +234,24 @@ export type ThemeSettings = {
 
 	// Custom CSS injection
 	customCSS: string;
+
+	// ── NEW: Hero ──
+	heroMinHeight: number;       // vh, default 60
+
+	// ── NEW: Section titles ──
+	sectionTitleSize: string;    // CSS font-size (e.g. "1.5rem")
+	sectionTitleWeight: number;  // 100-900
+	sectionTitleAlign: string;   // left, center, right
+	sectionTitleColor: string;   // hex color
+
+	// ── NEW: Background ──
+	bgPattern: string;           // none, dots, lines, grid
+	bgPatternColor: string;      // hex color
+	bgPatternOpacity: number;    // 0-1
+
+	// ── NEW: Scrollbar ──
+	scrollbarThin: boolean;      // thin scrollbar
+	scrollbarColor: string;      // thumb color
 };
 
 // ── Layout Settings (expanded) ──
@@ -438,7 +456,17 @@ const DEFAULT: SettingsData = {
 		ctaBtnHoverBg: '',
 		ctaBtnRadius: 12,
 		containerMaxWidth: 1200,
-		customCSS: ''
+		customCSS: '',
+		heroMinHeight: 60,
+		sectionTitleSize: '',
+		sectionTitleWeight: 0,
+		sectionTitleAlign: '',
+		sectionTitleColor: '',
+		bgPattern: 'none',
+		bgPatternColor: '',
+		bgPatternOpacity: 0.05,
+		scrollbarThin: false,
+		scrollbarColor: ''
 	},
 	section: {
 		title: 'Catálogo',
@@ -569,7 +597,8 @@ async function flushPendingWrites() {
 	while (pendingWrites.length > 0) {
 		const write = pendingWrites[0];
 		try {
-			await base.update({ [write.dotPath]: write.value } as Partial<SettingsData>);
+			const flatPath = flattenSettingsPath(write.dotPath);
+			await base.update({ [flatPath]: write.value } as Partial<SettingsData>);
 			pendingWrites.shift();
 			pendingCount.set(pendingWrites.length);
 		} catch {
@@ -642,7 +671,119 @@ const CLAMP_MAP: Record<string, [number, number]> = {
 	'theme.navBlur': [0, 40],
 	'theme.ctaBtnRadius': [0, 50],
 	'theme.containerMaxWidth': [800, 1800],
+	'theme.heroMinHeight': [30, 100],
+	'theme.bgPatternOpacity': [0, 1],
 };
+
+/** Reverse mapping: nested dot-path → flat Firebase key for settings/ writes.
+ *  This is needed because Firebase rules expect flat keys but the code uses nested structure. */
+const NESTED_TO_FLAT: Record<string, string> = {
+	// Hero → settings/
+	'hero.title': 'heroTitle',
+	'hero.subtitle': 'heroSubtitle',
+	'hero.eyebrow': 'heroEyebrow',
+	'hero.glowWord': 'heroTitleCustom',
+	// Section → settings/
+	'section.title': 'sectionTitle',
+	'section.dividerTitle': 'dividerTitle',
+	'section.dividerSub': 'dividerSub',
+	// CTA → settings/
+	'cta.title': 'ctaTitle',
+	'cta.subtitle': 'ctaSub',
+	'cta.buttonText': 'ctaBtnText',
+	'cta.buttonUrl': 'ctaBtnUrl',
+	// Brand → settings/
+	'brand.name': 'siteName',
+	'brand.logo': 'logoUrl',
+	'brand.favicon': 'faviconUrl',
+	'brand.ogImage': 'ogImageUrl',
+	'brand.footerText': 'footerText',
+	'brand.metaDescription': 'metaDescription',
+	'brand.whatsapp': 'whatsapp',
+	// Banner → settings/
+	'banner.enabled': 'bannerActive',
+	'banner.text': 'bannerText',
+	'banner.url': 'bannerUrl',
+	'banner.animation': 'bannerAnim',
+	'banner.bgColor': 'bannerBg',
+	'banner.textColor': 'bannerTxtClr',
+	'banner.speed': 'bannerSpeed',
+	'banner.easing': 'bannerEasing',
+	'banner.direction': 'bannerDir',
+	'banner.delay': 'bannerDelay',
+	// Loader → settings/
+	'loader.enabled': 'loaderEnabled',
+	'loader.brandText': 'loaderBrandText',
+	// Layout → settings/
+	'layout.cardsPerRow': 'cardsPerRow',
+	'layout.showWishlist': 'showWishlist',
+	'layout.heroPadTop': 'heroPadTop',
+	'layout.playerBottom': 'playerBottom',
+	'layout.logoScale': 'logoScale',
+	'layout.logoWidth': 'logoWidth',
+	'layout.logoHeight': 'logoHeight',
+	'layout.logoRotation': 'logoRotation',
+	'layout.showLogoText': 'showLogoText',
+	'layout.navHeight': 'navHeight',
+	'layout.footerVisible': 'footerVisible',
+	'layout.showBanner': 'showBanner',
+	'layout.sectionOrder': 'sectionOrder',
+	// Labels → settings/
+	'labels.search': 'labelSearch',
+	'labels.emptyTitle': 'labelEmptyTitle',
+	'labels.emptySub': 'labelEmptySub',
+	'labels.wishlistEmptyTitle': 'labelWishlistEmptyTitle',
+	'labels.wishlistEmptySub': 'labelWishlistEmptySub',
+	'labels.beatPreview': 'labelBeatPreview',
+	'labels.licenses': 'labelLicenses',
+	'labels.filterAll': 'labelFilterAll',
+	'labels.filterKey': 'labelFilterKey',
+	'labels.clearAll': 'labelClearAll',
+	'labels.tags': 'labelTags',
+	'labels.priceFrom': 'labelPriceFrom',
+	'labels.statBeats': 'labelStatBeats',
+	'labels.statGenres': 'labelStatGenres',
+	'labels.statLicenses': 'labelStatLicenses',
+	'labels.preview': 'labelPreview',
+	'labels.buy': 'labelBuy',
+	'labels.backToCatalog': 'labelBackToCatalog',
+	'labels.relatedBeats': 'labelRelatedBeats',
+	'labels.testimonialsTitle': 'labelTestimonialsTitle',
+	'labels.loginTitle': 'labelLoginTitle',
+	'labels.loginSub': 'labelLoginSub',
+	'labels.loginBtn': 'labelLoginBtn',
+	'labels.loginBack': 'labelLoginBack',
+	'labels.loginNote': 'labelLoginNote',
+	'labels.errorTitle': 'labelErrorTitle',
+	'labels.errorBtn': 'labelErrorBtn',
+};
+
+/** Paths that should write to theme/ instead of settings/ */
+const THEME_PREFIXES = ['theme.', 'heroVisual.', 'animations.'];
+
+/** Convert nested dot-path to flat Firebase key, or return as-is if no mapping */
+function flattenSettingsPath(dotPath: string): string {
+	return NESTED_TO_FLAT[dotPath] ?? dotPath;
+}
+
+/** Determine if a dot-path should write to theme/ instead of settings/ */
+function isThemePath(dotPath: string): boolean {
+	return THEME_PREFIXES.some(p => dotPath.startsWith(p));
+}
+
+/** Get the flat key for theme writes (strip prefix) */
+function getThemeKey(dotPath: string): string {
+	if (dotPath.startsWith('heroVisual.')) {
+		// heroVisual.glowOn → heroGlowOn
+		return 'hero' + dotPath.replace('heroVisual.', '');
+	}
+	if (dotPath.startsWith('animations.')) {
+		// animations.animLogo → animLogo
+		return dotPath.replace('animations.', '');
+	}
+	// theme.accent → accent
+	return dotPath.replace('theme.', '');
+}
 
 /** Helper para actualizar un campo por dot-path (ej: 'heroVisual.glowOn') */
 async function updateField(dotPath: string, value: unknown) {
@@ -664,8 +805,20 @@ async function updateField(dotPath: string, value: unknown) {
 
 	saveStatus.set('saving');
 	try {
-		// Firebase update acepta claves con dot-notation directamente
-		await base.update({ [dotPath]: value } as Partial<SettingsData>);
+		// Determine target Firebase path: theme/heroVisual/animations writes go to theme/, settings writes go to settings/
+		if (isThemePath(dotPath)) {
+			// Theme writes: convert to flat key, write to theme/ path
+			const themeKey = getThemeKey(dotPath);
+			const { ref, update: fbUpdate } = await import('firebase/database');
+			const db = await (await import('$lib/firebase')).getDb();
+			if (db) {
+				await fbUpdate(ref(db, 'theme'), { [themeKey]: value });
+			}
+		} else {
+			// Settings writes: flatten nested paths to match deployed rules (flat keys)
+			const flatPath = flattenSettingsPath(dotPath);
+			await base.update({ [flatPath]: value } as Partial<SettingsData>);
+		}
 		saveStatus.set('saved');
 	} catch (err) {
 		// Retry once on network error, then queue for later
@@ -747,16 +900,39 @@ async function flushBatch() {
 	const keys = Object.keys(_pendingBatch);
 	if (keys.length === 0) return;
 
-	const batch = { ..._pendingBatch };
+	const rawBatch = { ..._pendingBatch };
 	for (const k of keys) delete _pendingBatch[k];
 
+	// Flatten nested paths to match Firebase rules (flat keys)
+	// Separate theme/heroVisual/animations writes from settings writes
+	const settingsBatch: Record<string, unknown> = {};
+	const themeBatch: Record<string, unknown> = {};
+	for (const [dotPath, value] of Object.entries(rawBatch)) {
+		if (isThemePath(dotPath)) {
+			themeBatch[getThemeKey(dotPath)] = value;
+		} else {
+			settingsBatch[flattenSettingsPath(dotPath)] = value;
+		}
+	}
+
 	try {
-		await base.update(batch as Partial<SettingsData>);
+		const promises: Promise<void>[] = [];
+		if (Object.keys(settingsBatch).length > 0) {
+			promises.push(base.update(settingsBatch as Partial<SettingsData>));
+		}
+		if (Object.keys(themeBatch).length > 0) {
+			const { ref, update: fbUpdate } = await import('firebase/database');
+			const db = await (await import('$lib/firebase')).getDb();
+			if (db) {
+				promises.push(fbUpdate(ref(db, 'theme'), themeBatch));
+			}
+		}
+		await Promise.all(promises);
 		saveStatus.set('saved');
 	} catch (err) {
 		console.error('[Settings] Batch write failed:', err);
-		// Queue failed writes
-		for (const [dotPath, value] of Object.entries(batch)) {
+		// Queue failed writes (keep original nested paths for retry)
+		for (const [dotPath, value] of Object.entries(rawBatch)) {
 			pendingWrites.push({ dotPath, value, timestamp: Date.now() });
 		}
 		pendingCount.set(pendingWrites.length);

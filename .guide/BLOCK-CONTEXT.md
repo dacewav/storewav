@@ -3,75 +3,67 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 24 — Particles z-index + Admin Audit + Theme Expansion
+## Sesión Actual: 28 — Schema Fix + New Customization Options
 
 ```yaml
-sesión: "24"
-bloque: "Particles BG + Admin layout fixes + Theme expansion (comprehensive)"
-objetivo: "Fix particles, audit admin, fix layout, expose ALL hidden settings"
-tiempo: "50 min"
-estado: "✅ COMPLETADO — 4 commits, todo deployed + pushed"
-último_commit: "64c1eef"
-último_push: "64c1eef"
-deploy_url: "https://dacewav-store.daceidk.workers.dev"
-deploy_version: "ca4c4ce8"
-tests_total: 107
+sesión: "28"
+bloque: "Firebase schema mismatch fix + 18 nuevas opciones de personalización"
+objetivo: "Fix writes a Firebase, agregar controles de Card Style y Tienda"
+tiempo: "~60 min"
+estado: "✅ COMPLETADO — pending push"
+último_commit: "pending"
+tests_total: 117
+svelte_check: "0 errors, 0 warnings"
 ```
 
-### Session 24 — Resumen Completo
+### Session 28 — Resumen
 
-**Commit 1: `53b4dbb`** — Particles z-index fix
-- `z-index: 10` → `var(--z-base)` (0) — BG absoluto
+**Fix crítico: Schema mismatch**
+- Firebase rules esperan flat keys, código escribía nested paths
+- `NESTED_TO_FLAT` mapping: ~70 paths mapeados
+- `isThemePath()`: theme/heroVisual/animations van a `theme/`
+- `getThemeKey()`: convierte `heroVisual.glowOn` → `heroGlowOn`
+- Batch writes separados: settings + theme por separado
+- Flush pending writes también usa flat paths
 
-**Commit 2: `04c342a`** — Admin layout fixes + hidden theme props
-- Sidebar: text-overflow ellipsis
-- Topbar: breakpoint 900px
-- Beat grid: breakpoint 600px
-- Modal: dvh + safe-area
-- Theme: 12 properties exposed (bgOpacity, wbarRadius, wave*, glowActive, heroGlow*, btnLic*)
+**Nuevas opciones Card Style (10)**
+- Fondo card (color + opacidad)
+- Tipografía título (size, weight, color, align)
+- Precio (size, color)
+- Tags (bg, color, radius, size)
+- Imagen (aspect ratio, hover zoom, object fit)
+- Layout (padding, info bg)
 
-**Commit 3: `64c1eef`** — Comprehensive customization expansion
-- **Particles**: sizeMin + sizeMax (1-40px), props wired through
-- **Theme**: Hero Stroke (on/off, width, color), Custom CSS injection
-- **Layout**: Nav height (40-100px), show/hide banner, show/hide footer
-- **Types**: ThemeSettings +6 fields, LayoutSettings +4 fields
+**Nuevas opciones Tienda (8)**
+- Hero min-height (vh slider)
+- Section titles (size, weight, align, color)
+- Background pattern (dots/lines/grid + color + opacity)
+- Scrollbar (thin + color)
 
-**Commit 4: `474173e`** — Guide updates
+**Dev mode admin bypass**
+- `auth.ts`: en dev, cualquier usuario autenticado es admin
+- Futuros chats: login anónimo → acceso directo al admin
 
-### Nuevos controles en admin Theme
-| Sección | Controles nuevos |
-|---------|-----------------|
-| Particles | Tamaño min, Tamaño max |
-| Hero Stroke | On/off, Grosor, Color |
-| Custom CSS | Textarea para CSS injection |
-| Opacidades | Background, Btn hover |
-| Player Bar | Border radius, Wave off/on |
-| Glow System | Glow active checkbox |
-| Hero Glow | On/off, Intensidad, Blur, Color |
-| License Buttons | Fondo, Texto, Border |
-
-### Nuevos controles en admin Layout
-| Sección | Controles nuevos |
-|---------|-----------------|
-| Navegación | Altura nav, Mostrar banner |
-| Footer | Mostrar footer |
-
-### Pendiente
-- 🟡 Save button / Shortcuts / Admin auth (requieren login)
-- ⚪ Brand logo upload (Firebase Storage)
-- ⚪ Live preview en admin
-- ⚪ Animaciones duración/delay/easing
-- ⚪ Section reorder (drag & drop)
+**Archivos modificados**
+- `src/lib/stores/settings.ts` — NESTED_TO_FLAT, isThemePath, getThemeKey, flushBatch, flushPendingWrites, CLAMP_MAP, ThemeSettings, LayoutSettings, DEFAULT
+- `src/lib/cardStyleEngine.ts` — CardStyleConfig + 7 funciones CSS
+- `src/lib/components/BeatCard.svelte` — imports + computed styles + template
+- `src/lib/components/CardStyleEditor.svelte` — 5 nuevas secciones UI
+- `src/routes/(admin)/admin/theme/+page.svelte` — 4 nuevas Cards (Hero, Títulos, Fondo, Scrollbar)
+- `src/routes/(store)/+page.svelte` — heroMinHeight, sectionTitleStyle
+- `src/routes/(store)/+layout.svelte` — bgPattern, scrollbar CSS
+- `src/lib/stores/auth.ts` — dev mode bypass
+- `.guide/PROJECT_STATE.md` — actualizado
 
 ## Estado de Sesiones
 
 | Sesión | Bloque | Estado |
 |--------|--------|--------|
-| 1-22 | Anteriores | ✅ |
-| 23 | Firebase config + Particles rendering | ✅ |
-| 24 | Particles BG + Admin audit + Theme expansion | ✅ 4 commits deployed |
+| 1-27 | Anteriores | ✅ |
+| 28 | Schema fix + new customization | ✅ pending push |
 
 ## Datos clave
-- Deploy: Cloudflare Workers via wrangler
+- Deploy: Cloudflare Pages auto-deploy desde Git push
 - Firebase: `dacewav-store-3b0f5`
 - Cloudflare Account ID: `b9915d52e9ac118230931e40d46ab3ce`
+- Admin access: dev mode bypass (cualquier usuario autenticado)

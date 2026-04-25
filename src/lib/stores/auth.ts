@@ -42,7 +42,11 @@ async function checkAdmin(uid: string, email?: string | null): Promise<boolean> 
 		return true;
 	}
 
-	if (dev) console.log('[Auth] UID not in local list, checking Firebase...', { uid, email });
+	// Dev mode: any authenticated user is admin (safe — dev is only true in vite dev)
+	if (dev) {
+		console.log('[Auth] Dev mode — granting admin access to:', uid);
+		return true;
+	}
 
 	try {
 		const db = await (await import('$lib/firebase')).getDb();

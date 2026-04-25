@@ -7,6 +7,12 @@
 	import {
 		mergeCardStyles,
 		cardStyleToCSS,
+		cardTitleCSS,
+		cardPriceCSS,
+		cardTagCSS,
+		cardImageCSS,
+		cardImageHoverCSS,
+		cardLayoutCSS,
 		type CardStyleConfig
 	} from '$lib/cardStyleEngine';
 
@@ -33,7 +39,16 @@
 	let cardStyle = $derived(
 		mergeCardStyles(globalCardStyle as Partial<CardStyleConfig>, (beat.cardStyle ?? {}) as Partial<CardStyleConfig>)
 	);
-	let inlineCSS = $derived(cardStyleToCSS(cardStyle, accentRgb));
+	let inlineCSS = $derived([
+		cardStyleToCSS(cardStyle, accentRgb),
+		cardStyle.imageHoverZoom ? `--image-hover-zoom: ${cardStyle.imageHoverZoom}` : ''
+	].filter(Boolean).join('; ') || undefined);
+	let titleCSS = $derived(cardTitleCSS(cardStyle));
+	let priceCSS = $derived(cardPriceCSS(cardStyle));
+	let tagCSS = $derived(cardTagCSS(cardStyle));
+	let imageCSS = $derived(cardImageCSS(cardStyle));
+	let imageHoverCSS = $derived(cardImageHoverCSS(cardStyle));
+	let layoutCSS = $derived(cardLayoutCSS(cardStyle));
 	let hasShimmer = $derived(cardStyle.shimmer === true);
 	let shimmerInlineCSS = $derived(hasShimmer ? [
 		`--shimmer-opacity: ${cardStyle.shimmerOpacity ?? 1}`,
@@ -89,7 +104,7 @@
 	<!-- Cover -->
 	<div class="beat-cover">
 		{#if beat.imageUrl}
-			<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" />
+			<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" style={imageCSS || undefined} />
 		{:else}
 			<div class="beat-cover-placeholder">
 				<Icon name="music" size={32} />
@@ -131,7 +146,7 @@
 
 	<!-- Info -->
 	<div class="beat-info">
-		<div class="beat-title">{beat.name}</div>
+		<div class="beat-title" style={titleCSS || undefined}>{beat.name}</div>
 		<div class="beat-meta">
 			<span>{beat.bpm} BPM</span>
 			<span class="meta-dot">·</span>
@@ -140,11 +155,11 @@
 		{#if beat.tags?.length}
 			<div class="beat-tags">
 				{#each beat.tags.slice(0, 3) as tag}
-					<span class="beat-tag">{tag}</span>
+					<span class="beat-tag" style={tagCSS || undefined}>{tag}</span>
 				{/each}
 			</div>
 		{/if}
-		<div class="beat-price">
+		<div class="beat-price" style={priceCSS || undefined}>
 			<span class="price-from">{labelFrom}</span>
 			<span class="price-amount">${lowestPrice(beat)}</span>
 		</div>
@@ -243,7 +258,7 @@
 	}
 
 	.beat-card:hover .beat-cover img {
-		transform: scale(1.05);
+		transform: scale(var(--image-hover-zoom, 1.05));
 	}
 
 	.beat-cover-placeholder {

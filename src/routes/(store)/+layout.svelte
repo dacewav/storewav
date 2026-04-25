@@ -57,6 +57,11 @@
 	let particlesSizeMax = $derived(settingsData?.theme?.particlesSizeMax ?? 8);
 	let customCSS = $derived(settingsData?.theme?.customCSS ?? '');
 	let animCustomCSS = $derived(settingsData?.animations?.animCustomCSS ?? '');
+	let bgPattern = $derived(settingsData?.theme?.bgPattern ?? 'none');
+	let bgPatternColor = $derived(settingsData?.theme?.bgPatternColor ?? '');
+	let bgPatternOpacity = $derived(settingsData?.theme?.bgPatternOpacity ?? 0.05);
+	let scrollbarThin = $derived(settingsData?.theme?.scrollbarThin ?? false);
+	let scrollbarColor = $derived(settingsData?.theme?.scrollbarColor ?? '');
 	let footerVisible = $derived(settingsData?.layout?.footerVisible !== false);
 	let navHeight = $derived(settingsData?.layout?.navHeight ?? 64);
 
@@ -241,6 +246,22 @@
 	{#if animCustomCSS}
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html `<style>${animCustomCSS}</style>`}
+	{/if}
+	{#if bgPattern && bgPattern !== 'none'}
+		{@html `<style>
+			body {
+				background-image: ${bgPattern === 'dots' ? `radial-gradient(circle, ${bgPatternColor || 'rgba(255,255,255,' + bgPatternOpacity + ')'} 1px, transparent 1px)` : bgPattern === 'lines' ? `repeating-linear-gradient(0deg, ${bgPatternColor || 'rgba(255,255,255,' + bgPatternOpacity + ')'} 0px, ${bgPatternColor || 'rgba(255,255,255,' + bgPatternOpacity + ')'} 1px, transparent 1px, transparent 40px)` : `linear-gradient(${bgPatternColor || 'rgba(255,255,255,' + bgPatternOpacity + ')'} 1px, transparent 1px), linear-gradient(90deg, ${bgPatternColor || 'rgba(255,255,255,' + bgPatternOpacity + ')'} 1px, transparent 1px)`};
+				background-size: ${bgPattern === 'dots' ? '40px 40px' : bgPattern === 'lines' ? '100% 40px' : '40px 40px'};
+			}
+		</style>`}
+	{/if}
+	{#if scrollbarThin || scrollbarColor}
+		{@html `<style>
+			${scrollbarThin ? '::-webkit-scrollbar { width: 6px; height: 6px; }' : ''}
+			${scrollbarColor ? `::-webkit-scrollbar-thumb { background: ${scrollbarColor}; border-radius: 3px; }` : ''}
+			${scrollbarThin ? 'html { scrollbar-width: thin; }' : ''}
+			${scrollbarColor ? `html { scrollbar-color: ${scrollbarColor} transparent; }` : ''}
+		</style>`}
 	{/if}
 </svelte:head>
 

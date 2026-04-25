@@ -111,6 +111,37 @@ export type CardStyleConfig = {
 	shimmerColor?: string;
 	shimmerDuration?: string;
 	shimmerOpacity?: number; // 0-1, controls shimmer overlay intensity
+
+	// ── NEW: Card background ──
+	cardBg?: string;           // CSS background (color, gradient)
+	cardBgOpacity?: number;    // 0-1
+
+	// ── NEW: Title typography ──
+	titleSize?: string;        // CSS font-size (e.g. "1rem")
+	titleWeight?: number;      // 100-900
+	titleColor?: string;       // hex color
+	titleAlign?: string;       // left, center, right
+
+	// ── NEW: Price display ──
+	priceSize?: string;        // CSS font-size
+	priceColor?: string;       // hex color
+	priceBadge?: boolean;      // show as badge
+
+	// ── NEW: Tag pills ──
+	tagBg?: string;            // background color
+	tagColor?: string;         // text color
+	tagRadius?: string;        // border-radius
+	tagSize?: string;          // font-size
+
+	// ── NEW: Image ──
+	imageAspect?: string;      // aspect-ratio (e.g. "1/1", "4/3", "16/9")
+	imageHoverZoom?: number;   // scale on hover (e.g. 1.05)
+	imageObjectFit?: string;   // cover, contain, fill
+
+	// ── NEW: Layout ──
+	cardPadding?: string;      // internal padding
+	infoBg?: string;           // background for info section below image
+	gap?: string;              // gap between card elements
 };
 
 const DEFAULT: CardStyleConfig = {
@@ -440,6 +471,69 @@ export function cardStyleToCSS(style: CardStyleConfig, accentRgb: string): strin
 		}
 	}
 
+	return parts.join(' ');
+}
+
+/**
+ * Genera CSS para el título del beat dentro de la card
+ */
+export function cardTitleCSS(style: CardStyleConfig): string {
+	const parts: string[] = [];
+	if (style.titleSize) parts.push(`font-size: ${style.titleSize};`);
+	if (style.titleWeight) parts.push(`font-weight: ${style.titleWeight};`);
+	if (style.titleColor) parts.push(`color: ${style.titleColor};`);
+	if (style.titleAlign) parts.push(`text-align: ${style.titleAlign};`);
+	return parts.join(' ');
+}
+
+/**
+ * Genera CSS para el precio dentro de la card
+ */
+export function cardPriceCSS(style: CardStyleConfig): string {
+	const parts: string[] = [];
+	if (style.priceSize) parts.push(`font-size: ${style.priceSize};`);
+	if (style.priceColor) parts.push(`color: ${style.priceColor};`);
+	return parts.join(' ');
+}
+
+/**
+ * Genera CSS para los tags de la card
+ */
+export function cardTagCSS(style: CardStyleConfig): string {
+	const parts: string[] = [];
+	if (style.tagBg) parts.push(`background: ${style.tagBg};`);
+	if (style.tagColor) parts.push(`color: ${style.tagColor};`);
+	if (style.tagRadius) parts.push(`border-radius: ${style.tagRadius};`);
+	if (style.tagSize) parts.push(`font-size: ${style.tagSize};`);
+	return parts.join(' ');
+}
+
+/**
+ * Genera CSS para la imagen de la card
+ */
+export function cardImageCSS(style: CardStyleConfig): string {
+	const parts: string[] = [];
+	if (style.imageAspect) parts.push(`aspect-ratio: ${style.imageAspect};`);
+	if (style.imageObjectFit) parts.push(`object-fit: ${style.imageObjectFit};`);
+	return parts.join(' ');
+}
+
+/**
+ * Genera hover CSS para zoom de imagen
+ */
+export function cardImageHoverCSS(style: CardStyleConfig): string {
+	if (!style.imageHoverZoom) return '';
+	return `transform: scale(${style.imageHoverZoom});`;
+}
+
+/**
+ * Genera CSS para layout interno de la card
+ */
+export function cardLayoutCSS(style: CardStyleConfig): string {
+	const parts: string[] = [];
+	if (style.cardPadding) parts.push(`padding: ${style.cardPadding};`);
+	if (style.infoBg) parts.push(`background: ${style.infoBg};`);
+	if (style.gap) parts.push(`gap: ${style.gap};`);
 	return parts.join(' ');
 }
 

@@ -218,6 +218,11 @@
 		{ id: 'animation', icon: '✨', title: 'Animación' },
 		{ id: 'shimmer', icon: '💫', title: 'Shimmer' },
 		{ id: 'cover', icon: '🖼️', title: 'Cover Effects' },
+		{ id: 'background', icon: '🎭', title: 'Fondo' },
+		{ id: 'typography', icon: '🔤', title: 'Tipografía' },
+		{ id: 'tags', icon: '🏷️', title: 'Tags' },
+		{ id: 'image', icon: '🖼️', title: 'Imagen' },
+		{ id: 'layout', icon: '📐', title: 'Layout' },
 	] as section}
 		<div class="section" class:open={openSections.has(section.id)}>
 			<button class="section-header" onclick={() => toggleSection(section.id)} aria-expanded={openSections.has(section.id)}>
@@ -462,6 +467,162 @@
 						<div class="field">
 							<label for="cse-cb">Blur ({getNum('coverBlur', 0)}px)</label>
 							<input id="cse-cb" type="range" min="0" max="20" step="1" value={getNum('coverBlur', 0)} oninput={(e) => set('coverBlur', +e.currentTarget.value || undefined)} />
+						</div>
+					{/if}
+
+					<!-- ═══ FONDO ═══ -->
+					{#if section.id === 'background'}
+						<div class="field">
+							<label for="cse-cbg">Color de fondo</label>
+							<div class="color-row">
+								<input id="cse-cbg" type="color" value={value.cardBg ?? '#000000'} oninput={(e) => set('cardBg', e.currentTarget.value)} />
+								<input type="text" value={value.cardBg ?? ''} placeholder="ej: #0f0f0f o gradient" oninput={(e) => set('cardBg', e.currentTarget.value || undefined)} />
+								{#if value.cardBg}<button class="clear-btn" onclick={() => set('cardBg', undefined)}>✕</button>{/if}
+							</div>
+						</div>
+						<div class="field">
+							<label for="cse-cbgo">Opacidad ({Math.round((value.cardBgOpacity ?? 1) * 100)}%)</label>
+							<input id="cse-cbgo" type="range" min="0" max="1" step="0.01" value={value.cardBgOpacity ?? 1} oninput={(e) => set('cardBgOpacity', +e.currentTarget.value || undefined)} />
+						</div>
+					{/if}
+
+					<!-- ═══ TIPOGRAFÍA ═══ -->
+					{#if section.id === 'typography'}
+						<div class="field">
+							<label for="cse-ts">Título tamaño</label>
+							<select id="cse-ts" onchange={(e) => set('titleSize', e.currentTarget.value || undefined)}>
+								<option value="" selected={!value.titleSize}>Auto</option>
+								<option value="0.75rem" selected={value.titleSize === '0.75rem'}>XS (0.75rem)</option>
+								<option value="0.875rem" selected={value.titleSize === '0.875rem'}>SM (0.875rem)</option>
+								<option value="1rem" selected={value.titleSize === '1rem'}>Base (1rem)</option>
+								<option value="1.125rem" selected={value.titleSize === '1.125rem'}>LG (1.125rem)</option>
+								<option value="1.25rem" selected={value.titleSize === '1.25rem'}>XL (1.25rem)</option>
+							</select>
+						</div>
+						<div class="field">
+							<label for="cse-tw">Título peso ({value.titleWeight ?? 'auto'})</label>
+							<input id="cse-tw" type="range" min="100" max="900" step="100" value={value.titleWeight ?? 400} oninput={(e) => set('titleWeight', +e.currentTarget.value || undefined)} />
+						</div>
+						<div class="field">
+							<label for="cse-tc">Título color</label>
+							<div class="color-row">
+								<input id="cse-tc" type="color" value={value.titleColor ?? '#ffffff'} oninput={(e) => set('titleColor', e.currentTarget.value)} />
+								<input type="text" value={value.titleColor ?? ''} placeholder="(default)" oninput={(e) => set('titleColor', e.currentTarget.value || undefined)} />
+								{#if value.titleColor}<button class="clear-btn" onclick={() => set('titleColor', undefined)}>✕</button>{/if}
+							</div>
+						</div>
+						<div class="field">
+							<label for="cse-ta">Título alineación</label>
+							<select id="cse-ta" onchange={(e) => set('titleAlign', e.currentTarget.value || undefined)}>
+								<option value="" selected={!value.titleAlign}>Izquierda</option>
+								<option value="center" selected={value.titleAlign === 'center'}>Centro</option>
+								<option value="right" selected={value.titleAlign === 'right'}>Derecha</option>
+							</select>
+						</div>
+						<div class="field">
+							<label for="cse-ps">Precio tamaño</label>
+							<select id="cse-ps" onchange={(e) => set('priceSize', e.currentTarget.value || undefined)}>
+								<option value="" selected={!value.priceSize}>Auto</option>
+								<option value="0.75rem" selected={value.priceSize === '0.75rem'}>XS (0.75rem)</option>
+								<option value="0.875rem" selected={value.priceSize === '0.875rem'}>SM (0.875rem)</option>
+								<option value="1rem" selected={value.priceSize === '1rem'}>Base (1rem)</option>
+								<option value="1.25rem" selected={value.priceSize === '1.25rem'}>XL (1.25rem)</option>
+							</select>
+						</div>
+						<div class="field">
+							<label for="cse-pc">Precio color</label>
+							<div class="color-row">
+								<input id="cse-pc" type="color" value={value.priceColor ?? '#ffffff'} oninput={(e) => set('priceColor', e.currentTarget.value)} />
+								<input type="text" value={value.priceColor ?? ''} placeholder="(default)" oninput={(e) => set('priceColor', e.currentTarget.value || undefined)} />
+								{#if value.priceColor}<button class="clear-btn" onclick={() => set('priceColor', undefined)}>✕</button>{/if}
+							</div>
+						</div>
+					{/if}
+
+					<!-- ═══ TAGS ═══ -->
+					{#if section.id === 'tags'}
+						<div class="field">
+							<label for="cse-tgb">Fondo tag</label>
+							<div class="color-row">
+								<input id="cse-tgb" type="color" value={value.tagBg ?? '#333333'} oninput={(e) => set('tagBg', e.currentTarget.value)} />
+								<input type="text" value={value.tagBg ?? ''} placeholder="ej: rgba(255,255,255,0.1)" oninput={(e) => set('tagBg', e.currentTarget.value || undefined)} />
+								{#if value.tagBg}<button class="clear-btn" onclick={() => set('tagBg', undefined)}>✕</button>{/if}
+							</div>
+						</div>
+						<div class="field">
+							<label for="cse-tgc">Color tag</label>
+							<div class="color-row">
+								<input id="cse-tgc" type="color" value={value.tagColor ?? '#ffffff'} oninput={(e) => set('tagColor', e.currentTarget.value)} />
+								<input type="text" value={value.tagColor ?? ''} placeholder="(default)" oninput={(e) => set('tagColor', e.currentTarget.value || undefined)} />
+								{#if value.tagColor}<button class="clear-btn" onclick={() => set('tagColor', undefined)}>✕</button>{/if}
+							</div>
+						</div>
+						<div class="field">
+							<label for="cse-tgr">Radio tag</label>
+							<select id="cse-tgr" onchange={(e) => set('tagRadius', e.currentTarget.value || undefined)}>
+								<option value="" selected={!value.tagRadius}>Default</option>
+								<option value="0" selected={value.tagRadius === '0'}>Cuadrado</option>
+								<option value="4px" selected={value.tagRadius === '4px'}>Suave (4px)</option>
+								<option value="999px" selected={value.tagRadius === '999px'}>Píldora</option>
+							</select>
+						</div>
+						<div class="field">
+							<label for="cse-tgs">Tamaño tag</label>
+							<select id="cse-tgs" onchange={(e) => set('tagSize', e.currentTarget.value || undefined)}>
+								<option value="" selected={!value.tagSize}>Auto</option>
+								<option value="0.625rem" selected={value.tagSize === '0.625rem'}>XS (0.625rem)</option>
+								<option value="0.75rem" selected={value.tagSize === '0.75rem'}>SM (0.75rem)</option>
+								<option value="0.875rem" selected={value.tagSize === '0.875rem'}>Base (0.875rem)</option>
+							</select>
+						</div>
+					{/if}
+
+					<!-- ═══ IMAGEN ═══ -->
+					{#if section.id === 'image'}
+						<div class="field">
+							<label for="cse-ia">Aspect ratio</label>
+							<select id="cse-ia" onchange={(e) => set('imageAspect', e.currentTarget.value || undefined)}>
+								<option value="" selected={!value.imageAspect}>Default (1/1)</option>
+								<option value="1/1" selected={value.imageAspect === '1/1'}>Cuadrado (1/1)</option>
+								<option value="4/3" selected={value.imageAspect === '4/3'}>Horizontal (4/3)</option>
+								<option value="16/9" selected={value.imageAspect === '16/9'}>Widescreen (16/9)</option>
+								<option value="3/4" selected={value.imageAspect === '3/4'}>Vertical (3/4)</option>
+								<option value="2/3" selected={value.imageAspect === '2/3'}>Portrait (2/3)</option>
+							</select>
+						</div>
+						<div class="field">
+							<label for="cse-ihz">Zoom hover ({((value.imageHoverZoom ?? 1) * 100).toFixed(0)}%)</label>
+							<input id="cse-ihz" type="range" min="1" max="1.2" step="0.01" value={value.imageHoverZoom ?? 1} oninput={(e) => set('imageHoverZoom', +e.currentTarget.value !== 1 ? +e.currentTarget.value : undefined)} />
+						</div>
+						<div class="field">
+							<label for="cse-iof">Object fit</label>
+							<select id="cse-iof" onchange={(e) => set('imageObjectFit', e.currentTarget.value || undefined)}>
+								<option value="" selected={!value.imageObjectFit}>Cover (default)</option>
+								<option value="cover" selected={value.imageObjectFit === 'cover'}>Cover</option>
+								<option value="contain" selected={value.imageObjectFit === 'contain'}>Contain</option>
+							</select>
+						</div>
+					{/if}
+
+					<!-- ═══ LAYOUT ═══ -->
+					{#if section.id === 'layout'}
+						<div class="field">
+							<label for="cse-cp">Padding interno</label>
+							<select id="cse-cp" onchange={(e) => set('cardPadding', e.currentTarget.value || undefined)}>
+								<option value="" selected={!value.cardPadding}>Default</option>
+								<option value="0" selected={value.cardPadding === '0'}>Sin padding</option>
+								<option value="0.5rem" selected={value.cardPadding === '0.5rem'}>Pequeño (0.5rem)</option>
+								<option value="1rem" selected={value.cardPadding === '1rem'}>Medio (1rem)</option>
+								<option value="1.5rem" selected={value.cardPadding === '1.5rem'}>Grande (1.5rem)</option>
+							</select>
+						</div>
+						<div class="field">
+							<label for="cse-ib">Fondo info</label>
+							<div class="color-row">
+								<input id="cse-ib" type="color" value={value.infoBg ?? '#000000'} oninput={(e) => set('infoBg', e.currentTarget.value)} />
+								<input type="text" value={value.infoBg ?? ''} placeholder="(default)" oninput={(e) => set('infoBg', e.currentTarget.value || undefined)} />
+								{#if value.infoBg}<button class="clear-btn" onclick={() => set('infoBg', undefined)}>✕</button>{/if}
+							</div>
 						</div>
 					{/if}
 				</div>

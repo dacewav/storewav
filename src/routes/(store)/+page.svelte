@@ -66,6 +66,12 @@
 
 	// Section
 	let sectionTitle = $derived(s?.section?.title ?? 'Catálogo');
+	let sectionTitleStyle = $derived([
+		s?.theme?.sectionTitleSize ? `font-size: ${s.theme.sectionTitleSize}` : '',
+		s?.theme?.sectionTitleWeight ? `font-weight: ${s.theme.sectionTitleWeight}` : '',
+		s?.theme?.sectionTitleAlign ? `text-align: ${s.theme.sectionTitleAlign}` : '',
+		s?.theme?.sectionTitleColor ? `color: ${s.theme.sectionTitleColor}` : ''
+	].filter(Boolean).join('; ') || undefined);
 	let dividerTitle = $derived(s?.section?.dividerTitle ?? '');
 	let dividerSub = $derived(s?.section?.dividerSub ?? '');
 
@@ -193,7 +199,7 @@
 </svelte:head>
 
 <!-- Hero -->
-<section class="hero" style={hv.gradOn ? `--hero-grad: ${heroGradStyle}` : ''}>
+<section class="hero" style="{hv.gradOn ? `--hero-grad: ${heroGradStyle}` : ''}; min-height: {s?.theme?.heroMinHeight ?? 60}vh">
 	{#if heroEyebrow && hv.eyebrowOn !== false}
 	<div class="hero-eyebrow" style={eyebrowStyle}>
 		<span class="dot" style="background: {eyebrowClr}"></span>
@@ -261,7 +267,7 @@
 {#if featuredBeats.length > 0}
 <section class="featured-section" use:reveal={{}}>
 	<div class="section-header">
-		<h2 class="section-title">🔥 Destacados</h2>
+		<h2 class="section-title" style={sectionTitleStyle}>🔥 Destacados</h2>
 		<div class="section-line"></div>
 		<div class="section-badge">{featuredBeats.length} beats</div>
 	</div>
@@ -291,7 +297,7 @@
 <!-- Beats section -->
 <section class="section" use:reveal={{}} id="beats">
 	<div class="section-header">
-		<h2 class="section-title">{sectionTitle}</h2>
+		<h2 class="section-title" style={sectionTitleStyle}>{sectionTitle}</h2>
 		<div class="section-line"></div>
 		<div class="section-badge">{beats.length ? `${beats.length} beats` : '—'}</div>
 	</div>
