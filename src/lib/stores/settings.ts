@@ -821,15 +821,25 @@ async function updateField(dotPath: string, value: unknown) {
 		}
 		saveStatus.set('saved');
 	} catch (err) {
+		// Log the actual error for debugging
+		console.error(`[Settings] Write failed: ${isThemePath(dotPath) ? 'theme/' : 'settings/'}${isThemePath(dotPath) ? getThemeKey(dotPath) : flatPath}`, err);
+
 		// Retry once on network error, then queue for later
 		const isNetwork = err instanceof Error && (
 			err.message.includes('network') || err.message.includes('fetch') || err.message.includes('unavailable')
 		);
 		if (isNetwork) {
-			console.warn('[Settings] Update failed, retrying in 1s...');
+			console.warn('[Settings] Network error, retrying in 1s...');
 			await new Promise((r) => setTimeout(r, 1000));
 			try {
-				await base.update({ [dotPath]: value } as Partial<SettingsData>);
+				if (isThemePath(dotPath)) {
+					const themeKey = getThemeKey(dotPath);
+					const { ref, update: fbUpdate } = await import('firebase/database');
+					const db = await (await import('$lib/firebase')).getDb();
+					if (db) await fbUpdate(ref(db, 'theme'), { [themeKey]: value });
+				} else {
+					await base.update({ [flatPath]: value } as Partial<SettingsData>);
+				}
 				saveStatus.set('saved');
 				return;
 			} catch {
@@ -948,7 +958,16 @@ export async function undoField(): Promise<{ dotPath: string; oldValue: unknown;
 	canUndo.set(undoStack.length > 0);
 	canRedo.set(true);
 	try {
-		await base.update({ [entry.dotPath]: entry.oldValue } as Partial<SettingsData>);
+		// Flatten path to match Firebase rules
+		const flatPath = flattenSettingsPath(entry.dotPath);
+		if (isThemePath(entry.dotPath)) {
+			const themeKey = getThemeKey(entry.dotPath);
+			const { ref, update: fbUpdate } = await import('firebase/database');
+			const db = await (await import('$lib/firebase')).getDb();
+			if (db) await fbUpdate(ref(db, 'theme'), { [themeKey]: entry.oldValue });
+		} else {
+			await base.update({ [flatPath]: entry.oldValue } as Partial<SettingsData>);
+		}
 		return entry;
 	} catch (err) {
 		console.error('[Undo] Failed:', err);
@@ -969,7 +988,16 @@ export async function redoField(): Promise<{ dotPath: string; oldValue: unknown;
 	canRedo.set(redoStack.length > 0);
 	canUndo.set(true);
 	try {
-		await base.update({ [entry.dotPath]: entry.newValue } as Partial<SettingsData>);
+		// Flatten path to match Firebase rules
+		const flatPath = flattenSettingsPath(entry.dotPath);
+		if (isThemePath(entry.dotPath)) {
+			const themeKey = getThemeKey(entry.dotPath);
+			const { ref, update: fbUpdate } = await import('firebase/database');
+			const db = await (await import('$lib/firebase')).getDb();
+			if (db) await fbUpdate(ref(db, 'theme'), { [themeKey]: entry.newValue });
+		} else {
+			await base.update({ [flatPath]: entry.newValue } as Partial<SettingsData>);
+		}
 		return entry;
 	} catch (err) {
 		console.error('[Redo] Failed:', err);
@@ -991,81 +1019,85 @@ export async function redoField(): Promise<{ dotPath: string; oldValue: unknown;
 export function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	const d = { ...raw } as Record<string, unknown>;
 
-	// Merge hero from flat keys if nested doesn't exist
+	// Merge hero from flat keys — ALWAYS prefer non-empty flat keys over nested
 	if (!d.hero || typeof d.hero !== 'object') d.hero = {};
 	const hero = d.hero as Record<string, unknown>;
 	const t = (d._theme ?? {}) as Record<string, unknown>;
-	if (!hero.title && d.heroTitle) hero.title = d.heroTitle;
-	if (!hero.title && d.siteName) hero.title = d.siteName;
-	if (!hero.subtitle && d.heroSubtitle) hero.subtitle = d.heroSubtitle;
-	if (!hero.subtitle && d.tagline) hero.subtitle = d.tagline;
+
+	// Title: flat key > theme > nested > siteName > default
+	if (d.heroTitle) hero.title = d.heroTitle;
+	else if (!hero.title && d.siteName) hero.title = d.siteName;
+	// Subtitle: flat key > theme > nested > tagline > default
+	if (d.heroSubtitle) hero.subtitle = d.heroSubtitle;
+	else if (!hero.subtitle && d.tagline) hero.subtitle = d.tagline;
+	// Eyebrow: theme > flat key > nested
+	const hEyebrow = t.heroEyebrow ?? d.heroEyebrow;
+	if (hEyebrow) hero.eyebrow = hEyebrow;
+	// Glow word: settings/heroTitleCustom > theme/heroTitleCustom > nested > default
+	if (d.heroTitleCustom) hero.glowWord = d.heroTitleCustom;
+	else if (t.heroTitleCustom) hero.glowWord = t.heroTitleCustom;
+	else if (!hero.glowWord) hero.glowWord = 'rompen.';
 	// Clean empty strings so DEFAULT fallback kicks in via ?? in templates
 	if (hero.title === '') delete hero.title;
 	if (hero.subtitle === '') delete hero.subtitle;
-	if (!hero.eyebrow) {
-		const hEyebrow = t.heroEyebrow ?? d.heroEyebrow;
-		if (hEyebrow) hero.eyebrow = hEyebrow;
-	}
-	if (!hero.glowWord && t.heroTitleCustom) hero.glowWord = t.heroTitleCustom;
-	else if (!hero.glowWord) hero.glowWord = 'rompen.';
 
-	// Merge heroVisual from theme flat keys
+	// Merge heroVisual from theme flat keys — ALWAYS prefer theme values
 	if (!d.heroVisual || typeof d.heroVisual !== 'object') d.heroVisual = {};
 	const hv = d.heroVisual as Record<string, unknown>;
-	if (hv.glowOn === undefined && t.heroGlowOn !== undefined) hv.glowOn = t.heroGlowOn;
-	if (!hv.glowInt && t.heroGlowInt) hv.glowInt = t.heroGlowInt;
-	if (!hv.glowBlur && t.heroGlowBlur) hv.glowBlur = t.heroGlowBlur;
-	if (!hv.glowClr && t.heroGlowClr) hv.glowClr = t.heroGlowClr;
-	if (hv.strokeOn === undefined && t.heroStrokeOn !== undefined) hv.strokeOn = t.heroStrokeOn;
-	if (!hv.strokeW && t.heroStrokeW) hv.strokeW = t.heroStrokeW;
-	if (!hv.strokeClr && t.heroStrokeClr) hv.strokeClr = t.heroStrokeClr;
-	if (!hv.wordBlur && t.heroWordBlur) hv.wordBlur = t.heroWordBlur;
-	if (!hv.wordOp && t.heroWordOp) hv.wordOp = t.heroWordOp;
-	if (!hv.titleSize && t.heroTitleSize) hv.titleSize = t.heroTitleSize;
-	if (!hv.letterSpacing && t.heroLetterSpacing) hv.letterSpacing = t.heroLetterSpacing;
-	if (!hv.lineHeight && t.heroLineHeight) hv.lineHeight = t.heroLineHeight;
-	if (hv.eyebrowOn === undefined && t.heroEyebrowOn !== undefined) hv.eyebrowOn = t.heroEyebrowOn;
-	if (!hv.eyebrowClr && t.heroEyebrowClr) hv.eyebrowClr = t.heroEyebrowClr;
-	if (!hv.eyebrowSize && t.heroEyebrowSize) hv.eyebrowSize = t.heroEyebrowSize;
-	if (hv.gradOn === undefined && t.heroGradOn !== undefined) hv.gradOn = t.heroGradOn;
-	if (!hv.gradClr && t.heroGradClr) hv.gradClr = t.heroGradClr;
-	if (!hv.gradOp && t.heroGradOp) hv.gradOp = t.heroGradOp;
-	if (!hv.gradW && t.heroGradW) hv.gradW = t.heroGradW;
-	if (!hv.gradH && t.heroGradH) hv.gradH = t.heroGradH;
+	if (t.heroGlowOn !== undefined) hv.glowOn = t.heroGlowOn;
+	if (t.heroGlowInt !== undefined) hv.glowInt = t.heroGlowInt;
+	if (t.heroGlowBlur !== undefined) hv.glowBlur = t.heroGlowBlur;
+	if (t.heroGlowClr !== undefined) hv.glowClr = t.heroGlowClr;
+	if (t.heroStrokeOn !== undefined) hv.strokeOn = t.heroStrokeOn;
+	if (t.heroStrokeW !== undefined) hv.strokeW = t.heroStrokeW;
+	if (t.heroStrokeClr !== undefined) hv.strokeClr = t.heroStrokeClr;
+	if (t.heroWordBlur !== undefined) hv.wordBlur = t.heroWordBlur;
+	if (t.heroWordOp !== undefined) hv.wordOp = t.heroWordOp;
+	if (t.heroTitleSize !== undefined) hv.titleSize = t.heroTitleSize;
+	if (t.heroLetterSpacing !== undefined) hv.letterSpacing = t.heroLetterSpacing;
+	if (t.heroLineHeight !== undefined) hv.lineHeight = t.heroLineHeight;
+	if (t.heroEyebrowOn !== undefined) hv.eyebrowOn = t.heroEyebrowOn;
+	if (t.heroEyebrowClr !== undefined) hv.eyebrowClr = t.heroEyebrowClr;
+	if (t.heroEyebrowSize !== undefined) hv.eyebrowSize = t.heroEyebrowSize;
+	if (t.heroGradOn !== undefined) hv.gradOn = t.heroGradOn;
+	if (t.heroGradClr !== undefined) hv.gradClr = t.heroGradClr;
+	if (t.heroGradOp !== undefined) hv.gradOp = t.heroGradOp;
+	if (t.heroGradW !== undefined) hv.gradW = t.heroGradW;
+	if (t.heroGradH !== undefined) hv.gradH = t.heroGradH;
 	if (hv.eyebrowOn === undefined) hv.eyebrowOn = true;
 	if (hv.glowOn === undefined) hv.glowOn = true;
 
-	// Merge section from flat keys
+	// Merge section from flat keys — prefer non-empty flat keys
 	if (!d.section || typeof d.section !== 'object') d.section = {};
 	const sec = d.section as Record<string, unknown>;
 	if (!sec.title) sec.title = 'Catálogo';
-	if (!sec.dividerTitle && d.dividerTitle) sec.dividerTitle = d.dividerTitle;
-	if (!sec.dividerSub && d.dividerSub) sec.dividerSub = d.dividerSub;
+	if (d.dividerTitle) sec.dividerTitle = d.dividerTitle;
+	if (d.dividerSub) sec.dividerSub = d.dividerSub;
 	if (!sec.dividerTitle) sec.dividerTitle = DEFAULT.section.dividerTitle;
 	if (!sec.dividerSub) sec.dividerSub = DEFAULT.section.dividerSub;
 
-	// Merge brand from flat keys
+	// Merge brand from flat keys — prefer non-empty flat keys
 	if (!d.brand || typeof d.brand !== 'object') d.brand = {};
 	const brand = d.brand as Record<string, unknown>;
-	if (!brand.name && d.siteName) brand.name = d.siteName;
+	if (d.siteName) brand.name = d.siteName;
 	if (!brand.name) brand.name = 'DACEWAV';
-	if (!brand.logo && t.logoUrl) brand.logo = t.logoUrl;
-	if (!brand.whatsapp && d.whatsapp) brand.whatsapp = d.whatsapp;
+	if (t.logoUrl) brand.logo = t.logoUrl;
+	if (d.whatsapp) brand.whatsapp = d.whatsapp;
 	if (!brand.footerText) brand.footerText = 'Todos los derechos reservados · 2026';
 	if (!brand.metaDescription) brand.metaDescription = 'Beats que rompen';
 
-	// Merge banner from flat keys
+	// Merge banner from flat keys — prefer non-empty flat keys
 	if (!d.banner || typeof d.banner !== 'object') d.banner = {};
 	const banner = d.banner as Record<string, unknown>;
-	if (banner.enabled === undefined && d.bannerActive !== undefined) banner.enabled = d.bannerActive;
-	if (!banner.text && d.bannerText) banner.text = d.bannerText;
-	if (!banner.animation && d.bannerAnim) banner.animation = d.bannerAnim;
-	if (!banner.bgColor && d.bannerBg) banner.bgColor = d.bannerBg;
-	if (!banner.textColor && d.bannerTxtClr) banner.textColor = d.bannerTxtClr;
-	if (!banner.speed && d.bannerSpeed) banner.speed = d.bannerSpeed;
-	if (!banner.easing && d.bannerEasing) banner.easing = d.bannerEasing;
-	if (!banner.direction && d.bannerDir) banner.direction = d.bannerDir;
-	if (!banner.delay && d.bannerDelay) banner.delay = d.bannerDelay;
+	if (d.bannerActive !== undefined) banner.enabled = d.bannerActive;
+	if (d.bannerText) banner.text = d.bannerText;
+	if (d.bannerAnim) banner.animation = d.bannerAnim;
+	if (d.bannerBg) banner.bgColor = d.bannerBg;
+	if (d.bannerTxtClr) banner.textColor = d.bannerTxtClr;
+	if (d.bannerSpeed) banner.speed = d.bannerSpeed;
+	if (d.bannerEasing) banner.easing = d.bannerEasing;
+	if (d.bannerDir) banner.direction = d.bannerDir;
+	if (d.bannerDelay !== undefined) banner.delay = d.bannerDelay;
 	// Defaults for banner
 	if (!banner.animation) banner.animation = DEFAULT.banner.animation;
 	if (!banner.bgColor) banner.bgColor = DEFAULT.banner.bgColor;

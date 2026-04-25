@@ -73,31 +73,22 @@ export function createFirebaseStore<T>(
 	}
 
 	/** Escritura a Firebase */
+	/** Escritura completa — re-lanza errores */
 	async function set(value: T) {
-		try {
-			const db = await getDb();
-			if (!db) throw new Error('Firebase no inicializado');
+		const db = await getDb();
+		if (!db) throw new Error('Firebase no inicializado');
 
-			const { ref, set: fbSet } = await import('firebase/database');
-			await fbSet(ref(db, path), value);
-		} catch (err) {
-			const msg = err instanceof Error ? err.message : String(err);
-			store.update((s) => ({ ...s, error: msg }));
-		}
+		const { ref, set: fbSet } = await import('firebase/database');
+		await fbSet(ref(db, path), value);
 	}
 
-	/** Update parcial en Firebase */
+	/** Update parcial en Firebase — re-lanza errores para que el caller los maneje */
 	async function update(value: Partial<T>) {
-		try {
-			const db = await getDb();
-			if (!db) throw new Error('Firebase no inicializado');
+		const db = await getDb();
+		if (!db) throw new Error('Firebase no inicializado');
 
-			const { ref, update: fbUpdate } = await import('firebase/database');
-			await fbUpdate(ref(db, path), value);
-		} catch (err) {
-			const msg = err instanceof Error ? err.message : String(err);
-			store.update((s) => ({ ...s, error: msg }));
-		}
+		const { ref, update: fbUpdate } = await import('firebase/database');
+		await fbUpdate(ref(db, path), value);
 	}
 
 	return {
