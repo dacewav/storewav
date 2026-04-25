@@ -148,13 +148,13 @@
 	$effect(() => {
 		// Capture initial snapshot after mount
 		if (mounted && !initialSnapshot) {
-			initialSnapshot = `${beat.name}|${beat.genre}|${beat.bpm}|${beat.key}|${beat.artist}|${beat.description}|${beat.active}|${beat.featured}|${beat.imageUrl}|${beat.audioUrl}|${beat.spotify}|${beat.youtube}|${beat.soundcloud}|${JSON.stringify(beat.licenses)}|${JSON.stringify(beat.tags)}`;
+			initialSnapshot = `${beat.name}|${beat.genre}|${beat.bpm}|${beat.key}|${beat.artist}|${beat.description}|${beat.active}|${beat.featured}|${beat.imageUrl}|${beat.audioUrl}|${beat.spotify}|${beat.youtube}|${beat.soundcloud}|${JSON.stringify(beat.licenses)}|${JSON.stringify(beat.tags)}|${JSON.stringify(beat.cardStyle)}`;
 		}
 	});
 
 	// Watch for REAL changes (not mount)
 	$effect(() => {
-		const current = `${beat.name}|${beat.genre}|${beat.bpm}|${beat.key}|${beat.artist}|${beat.description}|${beat.active}|${beat.featured}|${beat.imageUrl}|${beat.audioUrl}|${beat.spotify}|${beat.youtube}|${beat.soundcloud}|${JSON.stringify(beat.licenses)}|${JSON.stringify(beat.tags)}`;
+		const current = `${beat.name}|${beat.genre}|${beat.bpm}|${beat.key}|${beat.artist}|${beat.description}|${beat.active}|${beat.featured}|${beat.imageUrl}|${beat.audioUrl}|${beat.spotify}|${beat.youtube}|${beat.soundcloud}|${JSON.stringify(beat.licenses)}|${JSON.stringify(beat.tags)}|${JSON.stringify(beat.cardStyle)}`;
 		if (mounted && initialSnapshot && current !== initialSnapshot && !userInteracted) {
 			userInteracted = true;
 		}

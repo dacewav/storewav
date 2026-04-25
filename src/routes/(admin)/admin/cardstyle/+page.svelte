@@ -4,11 +4,12 @@
 	import CardStyleEditor from '$lib/components/CardStyleEditor.svelte';
 	import { accentRgb as accentRgbStore } from '$lib/stores';
 
-	let cardStyle = $derived($settings.data?.cardStyle ?? {});
+	let cardStyle = $state<Record<string, unknown>>($settings.data?.cardStyle ?? {});
 	let accentRgb = $state('220, 38, 38');
 	accentRgbStore.subscribe(v => { accentRgb = v; });
 
 	function updateCardStyle(newStyle: Record<string, unknown>) {
+		cardStyle = newStyle;
 		settings.updateField('cardStyle', newStyle);
 	}
 
@@ -31,9 +32,10 @@
 
 	<Card>
 		<CardStyleEditor
-			value={cardStyle}
+			bind:value={cardStyle}
 			mode="global"
 			{accentRgb}
+			onchange={updateCardStyle}
 		/>
 	</Card>
 

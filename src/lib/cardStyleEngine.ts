@@ -367,6 +367,10 @@ export function cardStyleToCSS(style: CardStyleConfig, accentRgb: string): strin
 	const parts: string[] = [];
 
 	// Filter
+	// Card background
+	if (style.cardBg) parts.push(`background: ${style.cardBg};`);
+	if (style.cardBgOpacity !== undefined && style.cardBgOpacity < 1) parts.push(`opacity: ${style.cardBgOpacity};`);
+
 	const filters: string[] = [];
 	if (style.brightness !== undefined && style.brightness !== 1) filters.push(`brightness(${style.brightness})`);
 	if (style.contrast !== undefined && style.contrast !== 1) filters.push(`contrast(${style.contrast})`);

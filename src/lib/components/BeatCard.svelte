@@ -145,7 +145,7 @@
 	</div>
 
 	<!-- Info -->
-	<div class="beat-info">
+	<div class="beat-info" style={layoutCSS || undefined}>
 		<div class="beat-title" style={titleCSS || undefined}>{beat.name}</div>
 		<div class="beat-meta">
 			<span>{beat.bpm} BPM</span>

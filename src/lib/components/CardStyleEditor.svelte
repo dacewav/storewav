@@ -5,11 +5,13 @@
 	let {
 		value = $bindable({}),
 		mode = 'per-beat',
-		accentRgb = '220, 38, 38'
+		accentRgb = '220, 38, 38',
+		onchange
 	}: {
 		value?: Partial<CardStyleConfig>;
 		mode?: 'per-beat' | 'global';
 		accentRgb?: string;
+		onchange?: (val: Partial<CardStyleConfig>) => void;
 	} = $props();
 
 	// Collapsible sections
@@ -20,10 +22,13 @@
 	}
 
 	// Helper: set nested field
+	function notify() { onchange?.(value); }
+
 	function set<K extends keyof CardStyleConfig>(key: K, val: CardStyleConfig[K]) {
 		if (val === undefined || val === null) { delete value[key]; }
 		else { value[key] = val; }
 		value = { ...value }; // trigger reactivity
+		notify();
 	}
 
 	function setOrGlobal<K extends keyof CardStyleConfig>(key: K, val: CardStyleConfig[K]) {
@@ -33,6 +38,7 @@
 			value[key] = val;
 		}
 		value = { ...value };
+		notify();
 	}
 
 	// Build shadow string from parts
@@ -201,7 +207,7 @@
 			</div>
 		</div>
 		<div class="preview-actions">
-			<button class="btn-reset" onclick={() => { value = {}; }}>
+			<button class="btn-reset" onclick={() => { value = {}; notify(); }}>
 				↺ Reset{mode === 'per-beat' ? ' (usar global)' : ''}
 			</button>
 		</div>
