@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Badge, EmptyState, Skeleton } from '$lib/components';
-	import { allBeatsList, beatsStats, beats as beatsStore, deleteBeat, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
+	import { allBeatsList, trashedBeatsList, beatsStats, beats as beatsStore, deleteBeat, trashBeat, restoreBeat, permanentDelete, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
 	import type { BeatWithId } from '$lib/stores/beats';
 	import { toast } from '$lib/toastStore';
 
@@ -9,6 +9,8 @@
 	let stats = $derived($beatsStats);
 	let genreList = $derived($genres);
 	let loading = $derived(beatsData.loading);
+	let trashedBeats = $derived($trashedBeatsList);
+	let showTrash = $state(false);
 
 	// Filters
 	let search = $state('');
@@ -88,15 +90,15 @@
 	}
 
 	async function bulkDelete() {
-		if (!confirm(`¿Borrar ${selected.size} beats?`)) return;
+		if (!confirm(`¿Mover ${selected.size} beats a papelera?`)) return;
 		try {
 			for (const id of selected) {
-				await deleteBeat(id);
+				await trashBeat(id);
 			}
-			toast.success(`${selected.size} beats eliminados`);
+			toast.success(`${selected.size} beats movidos a papelera`);
 		} catch (err) {
 			console.error('[BulkDelete]', err);
-			toast.error('Error al borrar beats');
+			toast.error('Error al mover beats a papelera');
 		}
 		selected = new Set();
 	}
@@ -109,8 +111,8 @@
 		if (!deleteTarget) return;
 		const name = deleteTarget.name;
 		try {
-			await deleteBeat(deleteTarget.id);
-			toast.success(`"${name}" eliminado`);
+			await trashBeat(deleteTarget.id);
+			toast.success(`"${name}" movido a papelera`);
 		} catch (err) {
 			console.error('[ConfirmDelete]', err);
 			toast.error(`Error al borrar "${name}"`);
@@ -185,6 +187,45 @@
 		</div>
 	</div>
 
+	<!-- Tabs -->
+	<div class="tabs-row">
+		<button class="tab-btn" class:active={!showTrash} onclick={() => showTrash = false}>
+			🎵 Beats ({beats.length})
+		</button>
+		<button class="tab-btn" class:active={showTrash} onclick={() => showTrash = true}>
+			🗑️ Papelera ({trashedBeats.length})
+		</button>
+	</div>
+
+	{#if showTrash}
+		<!-- Trash section -->
+		{#if trashedBeats.length === 0}
+			<EmptyState icon="🗑️" title="Papelera vacía" subtitle="Los beats eliminados aparecerán aquí" />
+		{:else}
+			<div class="beat-list">
+				{#each trashedBeats as beat (beat.id)}
+					<div class="beat-row trashed">
+						<div class="beat-cover">
+							{#if beat.imageUrl}
+								<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" />
+							{:else}
+								<div class="cover-ph">♦</div>
+							{/if}
+						</div>
+						<div class="beat-info">
+							<div class="beat-name">{beat.name}</div>
+							<div class="beat-meta">{beat.artist ?? '—'} · {beat.genre} · {beat.bpm} BPM</div>
+							<div class="beat-trash-date">Eliminado: {beat.deletedAt ? new Date(beat.deletedAt).toLocaleDateString() : '—'}</div>
+						</div>
+						<div class="beat-actions">
+							<button class="action-btn" onclick={async () => { await restoreBeat(beat.id); toast.success(`"${beat.name}" restaurado`); }} title="Restaurar">♻️</button>
+							<button class="action-btn action-btn-danger" onclick={async () => { if (confirm(`¿Eliminar permanentemente "${beat.name}"?`)) { await permanentDelete(beat.id); toast.success(`"${beat.name}" eliminado permanentemente`); } }} title="Eliminar permanentemente">🗑️</button>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	{:else}
 	<!-- Filters -->
 	<div class="filters-bar">
 		<div class="search-wrap">
@@ -333,6 +374,7 @@
 			{/snippet}
 		</EmptyState>
 	{/if}
+	{/if}
 </div>
 
 <!-- Delete confirm modal -->
@@ -342,7 +384,7 @@
 		<div class="modal-box" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="document">
 			<div class="modal-icon">🗑️</div>
 			<h3 class="modal-title">¿Borrar este beat?</h3>
-			<p class="modal-text">"{deleteTarget.name || 'Sin nombre'}" se eliminará permanentemente.</p>
+			<p class="modal-text">"{deleteTarget.name || 'Sin nombre'}" se moverá a la papelera.</p>
 			<div class="modal-actions">
 				<button class="btn-cancel" onclick={cancelDelete}>Cancelar</button>
 				<button class="btn-confirm-delete" onclick={confirmDelete}>Sí, borrar</button>
@@ -862,4 +904,17 @@
 		0% { background-position: -200% 0; }
 		100% { background-position: 200% 0; }
 	}
+
+	/* Tabs */
+	.tabs-row { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
+	.tab-btn { padding: var(--space-2) var(--space-4); min-height: var(--touch-min); background: var(--surface-hover); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); font-size: var(--text-sm); cursor: pointer; transition: all var(--duration-fast); }
+	.tab-btn.active { background: rgba(var(--accent-rgb), 0.1); border-color: var(--accent); color: var(--accent); }
+	.tab-btn:hover { border-color: rgba(var(--accent-rgb), 0.3); }
+
+	/* Trashed beat row */
+	.beat-row.trashed { opacity: 0.7; }
+	.beat-trash-date { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); margin-top: var(--space-1); }
+	.action-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; font-size: 14px; cursor: pointer; transition: all var(--duration-fast); }
+	.action-btn:hover { background: var(--surface-hover); }
+	.action-btn-danger:hover { background: var(--danger-glow); border-color: var(--danger-dim); }
 </style>

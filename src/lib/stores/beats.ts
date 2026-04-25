@@ -49,6 +49,8 @@ export type Beat = {
 	shimmerSpeed?: number;
 	shimmerOp?: number;
 	cardBorder?: Record<string, unknown>;
+	deleted?: boolean;
+	deletedAt?: number;
 };
 
 export type BeatWithId = Beat & { id: string };
@@ -61,6 +63,7 @@ export const beats = createFirebaseStore<BeatsMap>('beats', {});
 export const allBeatsList = derived(beats, ($beats) => {
 	if (!$beats.data) return [];
 	return Object.entries($beats.data)
+		.filter(([, b]) => !b.deleted)
 		.sort(([, a], [, b]) => {
 			const ao = a.order ?? 0;
 			const bo = b.order ?? 0;
@@ -76,6 +79,15 @@ export const allBeatsList = derived(beats, ($beats) => {
 export const beatsList = derived(allBeatsList, ($list) =>
 	$list.filter((b) => b.active)
 );
+
+/** Beats eliminados (trash) */
+export const trashedBeatsList = derived(beats, ($beats) => {
+	if (!$beats.data) return [];
+	return Object.entries($beats.data)
+		.filter(([, b]) => b.deleted === true)
+		.map(([id, beat]) => ({ id, ...beat }))
+		.sort(([, a], [, b]) => (b.deletedAt ?? 0) - (a.deletedAt ?? 0));
+});
 
 /** Stats rápidas */
 export const beatsStats = derived(allBeatsList, ($list) => ({
@@ -173,7 +185,7 @@ export async function updateBeat(id: string, data: Partial<Beat>) {
 	}, 'updateBeat');
 }
 
-/** Borrar un beat */
+/** Borrar un beat (permanente) */
 export async function deleteBeat(id: string) {
 	return withRetry(async () => {
 		const { getDb } = await import('$lib/firebase');
@@ -183,6 +195,21 @@ export async function deleteBeat(id: string) {
 		const { ref, remove } = await import('firebase/database');
 		await remove(ref(db, `beats/${id}`));
 	}, 'deleteBeat');
+}
+
+/** Mover beat a trash (soft delete) */
+export async function trashBeat(id: string) {
+	return updateBeat(id, { deleted: true, deletedAt: Date.now() });
+}
+
+/** Restaurar beat desde trash */
+export async function restoreBeat(id: string) {
+	return updateBeat(id, { deleted: false, deletedAt: undefined });
+}
+
+/** Eliminar permanentemente (alias de deleteBeat) */
+export async function permanentDelete(id: string) {
+	return deleteBeat(id);
 }
 
 /** Duplicar un beat */

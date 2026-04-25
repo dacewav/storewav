@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { settings } from '$lib/stores';
+	import { settings, themePresets as themePresetsStore, savePreset, loadPreset, deletePreset, renamePreset } from '$lib/stores';
 	import { Card, AdminSkeleton, HelpTip } from '$lib/components';
 	import type { ThemeSettings } from '$lib/stores/settings';
+	import type { ThemePreset } from '$lib/stores';
 
 	let s = $derived($settings.data);
 	let t = $derived((s?.theme ?? {}) as ThemeSettings);
@@ -61,6 +62,39 @@
 	function onSlide(dotPath: string, localKey: string, val: number) {
 		local[localKey] = val;
 		settings.updateFieldDebounced(dotPath, val);
+	}
+
+	// Theme presets
+	let presetName = $state('');
+	let editingPresetId = $state<string | null>(null);
+	let editingPresetName = $state('');
+
+	async function handleSavePreset() {
+		if (!presetName.trim()) return;
+		await savePreset(presetName.trim());
+		presetName = '';
+	}
+
+	async function handleLoadPreset(preset: ThemePreset) {
+		await loadPreset(preset);
+	}
+
+	async function handleDeletePreset(preset: ThemePreset) {
+		if (!confirm(`¿Eliminar preset "${preset.name}"?`)) return;
+		await deletePreset(preset.id);
+	}
+
+	function startRename(preset: ThemePreset) {
+		editingPresetId = preset.id;
+		editingPresetName = preset.name;
+	}
+
+	async function handleRenamePreset(id: string) {
+		if (editingPresetName.trim()) {
+			await renamePreset(id, editingPresetName.trim());
+		}
+		editingPresetId = null;
+		editingPresetName = '';
 	}
 
 	function update(path: string, value: unknown) {
@@ -785,6 +819,57 @@
 			></textarea>
 		</div>
 	</Card>
+
+	<!-- Theme Presets -->
+	<Card>
+		<h3 class="section-title">💾 Presets de Tema</h3>
+		<p class="field-desc">Guarda y carga configuraciones completas de tema.</p>
+
+		<!-- Save current as preset -->
+		<div class="field">
+			<label for="preset-name">Guardar tema actual como preset</label>
+			<div class="row">
+				<div class="field" style="flex:2">
+					<input id="preset-name" type="text" bind:value={presetName} placeholder="Ej: Dark Neon, Minimal, etc." />
+				</div>
+				<div class="field" style="flex:0">
+					<button class="preset-save-btn" onclick={handleSavePreset} disabled={!presetName.trim()}>
+						💾 Guardar
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Saved presets -->
+		{#if $themePresetsStore.length > 0}
+			<div class="presets-grid">
+				{#each $themePresetsStore as preset}
+					<div class="preset-card">
+						<div class="preset-colors">
+							<span class="preset-dot" style="background: {preset.theme.accent ?? '#dc2626'}"></span>
+							<span class="preset-dot" style="background: {preset.theme.bg ?? '#0f0c0b'}"></span>
+							<span class="preset-dot" style="background: {preset.theme.surface ?? '#1a1a2e'}"></span>
+						</div>
+						<div class="preset-info">
+							{#if editingPresetId === preset.id}
+								<input type="text" class="preset-rename" bind:value={editingPresetName} onkeydown={(e) => e.key === 'Enter' && handleRenamePreset(preset.id)} onblur={() => handleRenamePreset(preset.id)} />
+							{:else}
+								<span class="preset-name" ondblclick={() => startRename(preset)}>{preset.name}</span>
+							{/if}
+							<span class="preset-date">{new Date(preset.createdAt).toLocaleDateString()}</span>
+						</div>
+						<div class="preset-actions">
+							<button class="preset-btn" onclick={() => handleLoadPreset(preset)} title="Aplicar">✓</button>
+							<button class="preset-btn" onclick={() => startRename(preset)} title="Renombrar">✏️</button>
+							<button class="preset-btn preset-btn-danger" onclick={() => handleDeletePreset(preset)} title="Eliminar">✕</button>
+						</div>
+					</div>
+				{/each}
+			</div>
+		{:else}
+			<p class="field-desc">No hay presets guardados. Guarda tu tema actual para poder cargarlo después.</p>
+		{/if}
+	</Card>
 </div>
 {/if}
 
@@ -814,4 +899,22 @@
 	.mode-label { font-weight: 500; }
 	.reset-btn { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-5); background: transparent; border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text-muted); font-size: var(--text-sm); cursor: pointer; transition: all var(--duration-fast); min-height: var(--touch-min); }
 	.reset-btn:hover { color: var(--danger); border-color: var(--danger-dim); background: var(--danger-glow); }
+
+	/* Presets */
+	.presets-grid { display: flex; flex-direction: column; gap: var(--space-2); }
+	.preset-card { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--surface-hover); border: 1px solid var(--border); border-radius: var(--radius-md); transition: all var(--duration-fast); }
+	.preset-card:hover { border-color: rgba(var(--accent-rgb), 0.3); }
+	.preset-colors { display: flex; gap: 2px; flex-shrink: 0; }
+	.preset-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); }
+	.preset-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+	.preset-name { font-size: var(--text-sm); color: var(--text); font-weight: 500; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.preset-date { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); }
+	.preset-rename { padding: var(--space-1) var(--space-2); background: var(--surface); border: 1px solid var(--accent); border-radius: var(--radius-sm); color: var(--text); font-size: var(--text-sm); outline: none; }
+	.preset-actions { display: flex; gap: var(--space-1); flex-shrink: 0; }
+	.preset-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-size: 12px; cursor: pointer; transition: all var(--duration-fast); }
+	.preset-btn:hover { background: var(--surface-hover); color: var(--text); }
+	.preset-btn-danger:hover { background: var(--danger-glow); color: var(--danger); border-color: var(--danger-dim); }
+	.preset-save-btn { padding: var(--space-2) var(--space-4); min-height: var(--touch-min); background: var(--accent); border: none; border-radius: var(--radius-md); color: #fff; font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all var(--duration-fast); white-space: nowrap; }
+	.preset-save-btn:hover:not(:disabled) { opacity: 0.9; }
+	.preset-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>
