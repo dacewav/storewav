@@ -65,19 +65,19 @@
 
 ---
 
-## Bloque C — Live preview (Game changer)
+## Bloque C — Live preview (Game changer) ✅ COMPLETADO Session 26
 
 **Objetivo**: Ver los cambios en tiempo real sin salir del admin.
 
-### C1. Preview panel
-- [ ] Split view: admin controls a la izquierda, preview de la tienda a la derecha
-- [ ] Preview se actualiza en tiempo real al mover sliders
-- [ ] Toggle para ocultar/mostrar preview (fullscreen admin mode)
-- [ ] Preview usa los mismos CSS vars que la tienda real
+### C1. Preview panel ✅
+- [x] Split view: admin controls a la izquierda, preview de la tienda a la derecha
+- [x] Preview se actualiza en tiempo real al mover sliders (iframe + Firebase RTDB)
+- [x] Toggle para ocultar/mostrar preview (Ctrl+P o botón en topbar)
+- [x] Preview usa los mismos CSS vars que la tienda real (mismo iframe)
 
-### C2. Quick preview
-- [ ] Botón "👁 Preview" en topbar → abre la tienda en nueva pestaña con los settings actuales
-- [ ] Botón "📱 Mobile preview" → abre preview en viewport mobile
+### C2. Quick preview ✅
+- [x] Botón "↗ Abrir tienda" en topbar → abre la tienda en nueva pestaña
+- [x] Botón "📱 Mobile preview" → abre preview en popup 375x812
 
 **Archivos**: nuevo `AdminPreview.svelte`, `(admin)/+layout.svelte`
 
