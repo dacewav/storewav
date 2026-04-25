@@ -17,3 +17,4 @@ export { themePresets, initThemePresets, savePreset, loadPreset, deletePreset, r
 export { floatingElements, visibleFloatingElements, floatingLoading, initFloating, destroyFloating, createFloatingElement, updateFloatingElement, deleteFloatingElement, type FloatingElement, type FloatingAnimation } from './floating';
 export { gallery, galleryLoading, initGallery, destroyGallery, type GalleryImage } from './gallery';
 export { changelog, initChangelog, destroyChangelog, type ChangelogEntry } from './changelog';
+export { customEmojis, initCustomEmojis, destroyCustomEmojis, type CustomEmoji } from './customEmojis';

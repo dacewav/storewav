@@ -166,6 +166,7 @@
 				{ href: '/admin/floating', label: 'Floating', icon: '✨' },
 				{ href: '/admin/features', label: 'Features', icon: '⚡' },
 				{ href: '/admin/changelog', label: 'Changelog', icon: '📋' },
+				{ href: '/admin/emojis', label: 'Emojis', icon: '😀' },
 			]
 		}
 	];
