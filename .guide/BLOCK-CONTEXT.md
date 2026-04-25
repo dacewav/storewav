@@ -3,66 +3,88 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 21 — Push + Deploy + Smoke Test + Tag
+## Sesión Actual: 22 — Bug Fixes (Particles, Shimmer, Save, Shortcuts)
 
 ```yaml
-sesión: "21"
-bloque: "Push + Deploy + Smoke Test + Tag v1.0.0-solid"
-objetivo: "Fix svelte-check warnings, push, deploy, smoke test, tag v1.0.0-solid"
-tiempo: "10 min"
-estado: "COMPLETADO"
-último_commit: "e18a651"
-último_push: "e18a651"
+sesión: "22"
+bloque: "Bug Fixes — Particles + Shimmer + Admin UX"
+objetivo: "Fix particles, shimmer design, save button, keyboard shortcuts"
+tiempo: "50 min"
+estado: "EN PROGRESO — FIXES NO FUNCIONAN EN PRODUCCIÓN"
+último_commit: "e0ff759"
+último_push: "e0ff759"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 tests_total: 107
-nuevos_tests: 0
 ```
 
-### Session 21 — Resumen
-1. ✅ Fix svelte-check: 0 errors, 0 warnings (CardStyleEditor type safety + $derived fixes)
-2. ✅ 107 tests pasando, build limpio
-3. ✅ Push a GitHub: `e18a651`
-4. ✅ Deploy a Cloudflare Workers: `a5dce5da`
-5. ✅ Smoke test: HTTP 200, HTML OK
-6. ✅ Tag: `v1.0.0-solid`
+### Session 22 — Lo que se intentó (NO VERIFICADO EN PRODUCCIÓN)
+
+**⚠️ IMPORTANTE: Los fixes fueron commiteados y deployed pero el usuario confirma que NO funcionan.**
+
+1. ❌ **Particles no visibles** — Se fixeó migration + reactive $effect, pero NO funciona
+   - Fix intentado: merge `_theme` en `d.theme` en `migrateOldData()`
+   - Fix intentado: $effect separado que re-init particles al cambiar props
+   - **Resultado**: usuario dice que siguen sin verse
+   - **Posible causa real**: el data flow `settings.theme.particlesOn` → `settingsData?.theme?.particlesOn` puede no estar conectado correctamente. Verificar con datos reales de Firebase.
+
+2. ❌ **Shimmer diseño** — Se mejoró CSS, pero NO verificado
+   - Fix intentado: gradiente más ancho (20%-80%), opacidad más alta (0.08-0.2)
+   - Fix intentado: CSS custom properties (--shimmer-color, --shimmer-duration)
+   - **Resultado**: no verificado por usuario
+
+3. ❌ **Save button** — Se cambió `onSave={() => {}}` a mostrar toast
+   - **Resultado**: usuario dice que no hay botón de guardar ni autoguardado
+   - **Posible causa real**: el topbar puede no estar visible, o el toast no se muestra
+
+4. ❌ **Shortcuts** — Se agregó Ctrl+S
+   - **Resultado**: usuario dice que no funcionan
+   - **Posible causa real**: el `svelte:window onkeydown` puede no estar capturando eventos
+
+### Qué hacer en la próxima sesión
+
+**REGLA: Verificar CADA fix en el navegador ANTES de marcar como completado.**
+
+1. **Diagnosticar primero**: abrir admin en browser, verificar qué se ve
+2. **Particles**: verificar si `settingsData.theme.particlesOn` es `true` cuando se activa
+3. **Shimmer**: verificar si algún beat tiene `shimmer: true` en su cardStyle
+4. **Save**: verificar si el topbar se muestra y si el toast aparece
+5. **Shortcuts**: verificar si `handleKeydown` se ejecuta
+6. **NO marcar ✅ sin confirmar visualmente en el browser**
+
+### Archivos tocados (session 22)
+- `src/lib/components/Particles.svelte` — rewrite completo
+- `src/lib/components/BeatCard.svelte` — shimmer CSS
+- `src/lib/stores/settings.ts` — migration merge theme
+- `src/routes/(admin)/+layout.svelte` — shortcuts, onSave
+- `.guide/AUDIT-MASTER.md` — actualizado a v3
 
 ## Estado de Sesiones
 
 | Sesión | Bloque | Estado |
 |--------|--------|--------|
-| 1 | 0 — Data Layer | ✅ |
-| 2 | 1A — Hero | ✅ |
-| 3 | 1B — Banner + Divider + Nav | ✅ |
-| 4 | 2A — Beats Seed (fixes) | ✅ |
-| 5 | 2A — Beats Seed (auth) | ✅ |
-| 6 | 2A — Beats Seed (mismatch fix) | ✅ |
-| 7 | 2A — Beats Seed (deploy + bugs) | ✅ |
-| 8 | 2A+2B — Audit + Deploy + Beat Interactions | ✅ |
-| 9 | 3A — Connection State + Error Resilience | ✅ |
-| 10 | 0-solidification — Critical Bugs + Beat Editor + Plays + Testimonials | ✅ |
-| 11 | Performance + Mobile Polish | ✅ |
-| 12 | Accessibility + SEO | ✅ |
-| 13 | 3C — Content Editors | ✅ |
-| 14 | 4 — Effects | ✅ |
-| 15 | 5 — Labels + Polish | ✅ |
-| 16 | 6 — Final Audit | ✅ |
-| 17 | 3 — Integration Tests | ✅ |
-| 18 | Deep Audit + Fixes | ✅ |
-| 19 | 3 — Integration Tests V2 | ✅ |
-| 20 | Card Style UI Rebuild | ✅ |
-| 21 | Push + Deploy + Tag v1.0.0-solid | ✅ |
+| 1-21 | Ver sesiones anteriores | ✅ |
+| 22 | Bug Fixes (Particles, Shimmer, Save, Shortcuts) | ❌ Fixes no funcionan |
 
-## 🎉 v1.0.0-solid — COMPLETADO
+## Siguiente Sesión: Diagnosticar + Fix Real
 
-Todos los bloques del MEGA-PLAN-V2 están terminados:
-- ✅ 9 bloques completados
-- ✅ 107 tests pasando
-- ✅ svelte-check: 0 errors, 0 warnings
-- ✅ Deployed: https://dacewav-store.daceidk.workers.dev
-- ✅ Tag: v1.0.0-solid
+```yaml
+sesión: "23"
+bloque: "Diagnosticar bugs reales en browser"
+objetivo: "Abrir admin, verificar qué está roto, fixear con evidencia visual"
+estado: "PENDIENTE"
+```
+
+### Protocolo para sesión 23
+1. **NO codear nada** hasta verificar en el browser
+2. Abrir admin → Theme → activar particles → verificar en store
+3. Abrir admin → beats → verificar save button, auto-save, shortcuts
+4. Verificar shimmer en store con un beat que tenga shimmer activo
+5. Documentar qué ESTÁ roto vs qué FUNCIONA
+6. Recién ahí fixear
 
 ### Datos clave
 - Deploy: Cloudflare Workers via wrangler
 - Auth domain: `dacewav.store` + `dacewav-store.daceidk.workers.dev`
 - Firebase: `dacewav-store-3b0f5`
 - Repo: https://github.com/dacewav/storewav
+- Tag: v1.0.0-solid

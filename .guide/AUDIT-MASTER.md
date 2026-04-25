@@ -90,41 +90,31 @@ Límite:    50 min por sesión de chat
 | Card style engine | ✅ | Glow, filters, border, shadow, hover, shimmer, 40+ animation presets |
 | Actions | ✅ | tilt, parallax, staggerReveal, reveal, siblingBlur, ripple, countUp |
 
-### 🐛 Bugs Activos (Audit v3 — 2026-04-25)
+### 🐛 Bugs Activos (Audit v4 — 2026-04-25)
 
-> **Nota**: Audit v3 verificó cada bug del audit v2 contra el código real.
-> 16 de 21 bugs ya estaban fixeados. Se fixearon los 2 restantes.
+> **Audit v4**: Usuario confirma que los fixes de session 22 NO funcionan.
+> Los bugs se marcaron como fixeados pero no fueron verificados en producción.
 
 | Bug | Severidad | Estado | Detalle |
 |-----|-----------|--------|---------|
-| `effect_update_depth_exceeded` | 🔴 CRÍTICO | ✅ FIXEADO | `untrack()` en admin layout |
-| XSS `{@html dividerTitle}` | 🔴 CRÍTICO | ✅ FIXEADO | `sanitizeHtml()` con whitelist |
-| `$effect` autoSaveTimer loop | 🟡 ALTO | ✅ FIXEADO | Version counter reemplazó JSON.stringify |
-| Bulk ops sin try/catch | 🟡 ALTO | ✅ FIXEADO | try/catch + toast en todas |
-| `confirmDelete` sin try/catch | 🟡 ALTO | ✅ FIXEADO | try/catch + toast |
-| `undoField`/`redoField` | 🟡 ALTO | ✅ FIXEADO | try/catch con revert de stack |
-| `$app/stores` deprecated | 🟡 MED | ✅ FIXEADO | Migrado a `$app/state` |
-| `as any` en Icon name | 🟡 MED | ✅ FIXEADO | Eliminado |
-| `getComputedStyle` por BeatCard | 🟡 MED | ✅ FIXEADO | Eliminado |
-| `JSON.stringify(beat)` trigger | 🟡 MED | ✅ FIXEADO | Version counter |
-| 14× `Record<string, any>` | 🟡 MED | ✅ FIXEADO | 0 instancias |
-| No offline write queue | 🟡 MED | ✅ FIXEADO | Queue + auto-flush on reconnect |
-| Mobile overlay onkeydown vacío | 🟡 MED | ✅ FIXEADO | Escape handler presente |
-| Delete modals sin keyboard | 🟡 MED | ✅ FIXEADO | Escape handler en todos |
-| Import errors solo console.log | 🟡 MED | ✅ FIXEADO | Failed counter + toast con desglose |
-| `alt=""` en player cover | 🟢 BAJA | ✅ FIXEADO | Alt text correcto |
-| Sin `aria-pressed` en wishlist | 🟢 BAJA | ✅ FIXEADO | `aria-pressed={$inWishlist}` |
-| No lazy loading admin | 🟢 BAJA | ⬜ Bajo | SvelteKit code-splitting lo maneja |
-| 40+ keyframes no usados | 🟢 BAJA | ⬜ Bajo | CSS bloat menor, no afecta runtime |
-| `AdminSidebar` dead code | 🟢 BAJA | ✅ FIXEADO | Archivo eliminado |
-| Version mismatch | 🟢 BAJA | ✅ FIXEADO | v1.0.0 consistente |
+| Particles no visibles | 🔴 CRÍTICO | ❌ NO FIXEADO | Migration fix + reactive $effect no resolvieron. Diagnosticar data flow real. |
+| Shimmer diseño | 🟡 MED | ⚠️ NO VERIFICADO | CSS mejorado pero no confirmado visualmente |
+| Save button vacío | 🟡 ALTO | ❌ NO FIXEADO | onSave cambiado a toast pero usuario dice que no hay save |
+| Shortcuts rotos | 🟡 ALTO | ❌ NO FIXEADO | Ctrl+S agregado pero usuario dice que no funcionan |
+| No lazy loading admin | ⚪ BAJA | ⬜ Pendiente | SvelteKit code-splitting |
+| CSS keyframes no usados | ⚪ BAJA | ⬜ Pendiente | 34 keyframes |
 
-### ¿Qué falta? (Audit v3 — 2026-04-25)
+### ¿Qué falta? (Audit v4 — 2026-04-25)
 
-> Todos los bugs críticos y altos están fixeados. Solo quedan 2 items de baja prioridad.
+> **Session 22 intentó fixear 4 bugs pero NINGUNO fue confirmado como funcional.**
+> La próxima sesión DEBE diagnosticar en el browser antes de codear.
 
 | Área | Prioridad | Detalle |
 |------|-----------|---------|
+| Particles no visibles | 🔴 Crítico | Diagnosticar si `settingsData.theme.particlesOn` llega como `true` al componente |
+| Shimmer no verificado | 🟡 Medio | Verificar si algún beat tiene shimmer activado y si se ve |
+| Save button no funcional | 🟡 Alto | Verificar si el AdminTopbar renderiza y si onSave se ejecuta |
+| Shortcuts no funcionan | 🟡 Alto | Verificar si `svelte:window onkeydown` captura eventos |
 | No lazy loading admin | ⚪ Baja | SvelteKit code-splitting ya lo maneja parcialmente |
 | CSS keyframes no usados | ⚪ Baja | 34 keyframes en cardStyleEngine, no afecta runtime |
 | No CI/CD | ⚪ Baja | No hay GitHub Actions, deploy manual |
