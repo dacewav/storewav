@@ -96,7 +96,12 @@ Límite:    50 min por sesión de chat
 
 | Bug | Severidad | Estado | Detalle |
 |-----|-----------|--------|---------|
-| Particles z-index | 🔴 CRÍTICO | ✅ FIXEADO | z-index:10→var(--z-orbs)(1). Verificado en browser post-deploy. Session 24. |
+| Particles z-index | 🔴 CRÍTICO | ✅ FIXEADO | z-index:10→var(--z-base)(0). BG absoluto. Session 24. |
+| Admin sidebar overflow | 🟡 MED | ✅ FIXEADO | text-overflow ellipsis on labels. Session 24. |
+| Topbar 768-900px overflow | 🟡 MED | ✅ FIXEADO | Progressive hide at 900px breakpoint. Session 24. |
+| Beat grid 480-600px | 🟡 MED | ✅ FIXEADO | Intermediate breakpoint minmax(200px). Session 24. |
+| Modal import mobile | 🟡 MED | ✅ FIXEADO | dvh + safe-area-inset-bottom. Session 24. |
+| Theme hidden properties | 🟡 ALTO | ✅ FIXEADO | 12 properties exposed in UI. Session 24. |
 | Shimmer diseño | 🟡 MED | ✅ VERIFICADO | "Noche Oscura" shimmer visible en browser (diagonal sweep) |
 | Save button vacío | 🟡 ALTO | ⚠️ NO VERIFICADO | Requiere admin login (Firebase anon auth puede no estar habilitado) |
 | Shortcuts rotos | 🟡 ALTO | ⚠️ NO VERIFICADO | Requiere admin login para probar Ctrl+S/Z |

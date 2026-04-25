@@ -3,61 +3,63 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 24 — Particles z-index + Admin bugs
+## Sesión Actual: 24 — Particles z-index + Admin Audit + Theme Expansion
 
 ```yaml
 sesión: "24"
-bloque: "Particles z-index fix"
-objetivo: "Fix particles z-index, verify in browser, deploy"
+bloque: "Particles BG + Admin layout fixes + Theme hidden props"
+objetivo: "Fix particles z-index, audit admin, fix layout bugs, expose hidden theme properties"
 tiempo: "50 min"
-estado: "✅ FIX COMPLETADO — deploy hecho, verificado en browser. Push pendiente (sin GitHub token)."
-último_commit: "53b4dbb"
-último_push: "PENDIENTE — commit local hecho, falta push"
+estado: "✅ COMPLETADO — todo deployed y pushed"
+último_commit: "04c342a"
+último_push: "04c342a"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
-deploy_version: "70ab5c42"
+deploy_version: "3b482f45"
 tests_total: 107
 ```
 
 ### Session 24 — Resultados
 
-**Particles z-index**: ✅ FIXEADO — z-index cambiado de `10` a `var(--z-orbs)` (1). Particles ahora renderizan DEBAJO del contenido (nav, hero, cards, footer) pero encima del fondo. Verificado en browser post-deploy.
+**1. Particles z-index**: ✅ FIXEADO — `z-index: 10` → `var(--z-base)` (0). Particles como BG absoluto, debajo de orbs y contenido.
 
-### Bug #1: Particles z-index
+**2. Admin Layout Bugs**: ✅ 4 FIXES
+- Sidebar: `text-overflow: ellipsis` en labels (evita corte)
+- Topbar: breakpoint a 900px esconde center + status text progresivamente
+- Beat grid: breakpoint intermedio a 600px (`minmax(200px)`)
+- Modal import: `dvh` + `safe-area-inset-bottom` para mobile
 
-**PROBLEMA**: Canvas de partículas tenía `z-index: 10`, por encima de todo el contenido (z-index: 2 = `--z-content`).
-
-**FIX**: Cambiar `z-index: 10` → `z-index: var(--z-orbs)` (= 1). Jerarquía z-index del proyecto:
-```
---z-base: 0     (fondo)
---z-orbs: 1     (orbs + particles) ← AQUÍ
---z-content: 2  (texto, cards, nav)
---z-nav: 100
---z-player: 500
-```
-
-**VERIFICADO**: Browser screenshot post-deploy muestra partículas como dots sutiles detrás de todo el contenido. Nav, hero, cards y footer están por encima.
-
-### Siguiente sesión: bugs restantes
-- 🟡 **Save button** — no verificado, requiere admin login
-- 🟡 **Shortcuts (Ctrl+S/Z)** — no verificados, requiere admin login
-- 🟡 **Admin auth** — "Permission denied" al revisar adminWhitelist. Posible fix: habilitar Anonymous Auth en Firebase Console.
-- ⬜ **Push pendiente** — falta GitHub token para pushear commit `53b4dbb`
+**3. Theme Hidden Properties**: ✅ 12 PROPIEDADES EXPUESTAS
+- Opacidades: `bgOpacity`, `btnOpacityHover`
+- Player Bar: `wbarRadius`, `waveOpacityOff`, `waveOpacityOn`
+- Glow System: `glowActive` checkbox
+- Hero Glow (nueva sección): `heroGlowOn`, `heroGlowClr`, `heroGlowInt`, `heroGlowBlur`
+- License Buttons (nueva sección): `btnLicBg`, `btnLicClr`, `btnLicBdr`
 
 ### Archivos tocados
-- `src/lib/components/Particles.svelte` — z-index: 10 → var(--z-orbs)
-- `.env` — Credenciales Firebase (extraídas del deploy, gitignored)
+- `src/lib/components/Particles.svelte` — z-index → var(--z-base)
+- `src/lib/components/AdminTopbar.svelte` — breakpoint 900px
+- `src/routes/(admin)/+layout.svelte` — sidebar label overflow
+- `src/routes/(admin)/admin/+page.svelte` — modal dvh
+- `src/routes/(admin)/admin/theme/+page.svelte` — 12 new controls + sections
+- `src/routes/(store)/+page.svelte` — beat grid 600px breakpoint
+
+### Pendiente para próxima sesión
+- 🟡 **Save button** — requiere admin login para verificar
+- 🟡 **Shortcuts (Ctrl+S/Z)** — requiere admin login para verificar
+- 🟡 **Admin auth** — "Permission denied" al revisar adminWhitelist
+- ⚪ **Brand logo upload** — solo URL, sin Firebase Storage upload
+- ⚪ **Live preview** — no hay preview en admin antes de guardar
+- ⚪ **Animations duración/delay** — solo presets, sin timing control
 
 ## Estado de Sesiones
 
 | Sesión | Bloque | Estado |
 |--------|--------|--------|
-| 1-21 | Ver sesiones anteriores | ✅ |
-| 22 | Bug Fixes (Particles, Shimmer, Save, Shortcuts) | ❌ Fixes no funcionaban |
-| 23 | Firebase config + Particles rendering + Deep audit | ✅ Particles + Shimmer verificados |
-| 24 | Particles z-index fix | ✅ Fix verificado en browser. Push pendiente. |
+| 1-22 | Ver sesiones anteriores | ✅ |
+| 23 | Firebase config + Particles rendering | ✅ |
+| 24 | Particles BG + Admin audit + Theme expansion | ✅ Todo deployed + pushed |
 
 ## Datos clave
 - Deploy: Cloudflare Workers via wrangler
 - Firebase: `dacewav-store-3b0f5`
 - Cloudflare Account ID: `b9915d52e9ac118230931e40d46ab3ce`
-- Deploy cmd: `CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... npx wrangler deploy`
