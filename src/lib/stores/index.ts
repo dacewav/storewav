@@ -16,3 +16,4 @@ export { accentRgb, accentColor } from './cssVars';
 export { themePresets, initThemePresets, savePreset, loadPreset, deletePreset, renamePreset, destroyThemePresets, type ThemePreset } from './themePresets';
 export { floatingElements, visibleFloatingElements, floatingLoading, initFloating, destroyFloating, createFloatingElement, updateFloatingElement, deleteFloatingElement, type FloatingElement, type FloatingAnimation } from './floating';
 export { gallery, galleryLoading, initGallery, destroyGallery, type GalleryImage } from './gallery';
+export { changelog, initChangelog, destroyChangelog, type ChangelogEntry } from './changelog';

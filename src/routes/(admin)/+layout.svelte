@@ -164,6 +164,8 @@
 				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
 				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
 				{ href: '/admin/floating', label: 'Floating', icon: '✨' },
+				{ href: '/admin/features', label: 'Features', icon: '⚡' },
+				{ href: '/admin/changelog', label: 'Changelog', icon: '📋' },
 			]
 		}
 	];
