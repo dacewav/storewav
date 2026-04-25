@@ -6,18 +6,72 @@
 	let s = $derived($settings.data);
 	let t = $derived((s?.theme ?? {}) as ThemeSettings);
 
+	/** Local slider state — updates instantly on drag, syncs from store */
+	let local = $state<Record<string, number>>({});
+	let localInit = false;
+
+	/** Sync local values from store when store changes (but not during drag) */
+	$effect(() => {
+		if (!t || !s) return;
+		if (!localInit) {
+			// First load: populate all local values from store
+			local = {
+				glowIntensity: t.glowIntensity ?? 1,
+				glowBlur: t.glowBlur ?? 20,
+				glowAnimSpeed: t.glowAnimSpeed ?? 2,
+				fontWeight: t.fontWeight ?? 400,
+				fontSize: t.fontSize ?? 14,
+				lineHeight: t.lineHeight ?? 1.6,
+				radiusGlobal: t.radiusGlobal ?? 12,
+				sectionPadding: t.sectionPadding ?? 4,
+				beatGap: t.beatGap ?? 16,
+				cardOpacity: t.cardOpacity ?? 0.85,
+				blurBg: t.blurBg ?? 20,
+				grainOpacity: t.grainOpacity ?? 0.03,
+				cardShadowIntensity: t.cardShadowIntensity ?? 0.3,
+				navOpacity: t.navOpacity ?? 0.95,
+				heroBgOpacity: t.heroBgOpacity ?? 1,
+				sectionOpacity: t.sectionOpacity ?? 1,
+				beatImgOpacity: t.beatImgOpacity ?? 1,
+				textOpacity: t.textOpacity ?? 1,
+				btnOpacityNormal: t.btnOpacityNormal ?? 1,
+				btnOpacityHover: t.btnOpacityHover ?? 1,
+				bgOpacity: t.bgOpacity ?? 1,
+				wbarHeight: t.wbarHeight ?? 64,
+				wbarRadius: t.wbarRadius ?? 0,
+				waveOpacityOff: t.waveOpacityOff ?? 0.3,
+				waveOpacityOn: t.waveOpacityOn ?? 0.8,
+				heroGlowInt: t.heroGlowInt ?? 1,
+				heroGlowBlur: t.heroGlowBlur ?? 20,
+				heroStrokeW: t.heroStrokeW ?? 1,
+				particlesCount: t.particlesCount ?? 50,
+				particlesSpeed: t.particlesSpeed ?? 1,
+				particlesSizeMin: t.particlesSizeMin ?? 3,
+				particlesSizeMax: t.particlesSizeMax ?? 8,
+				particlesOpacity: t.particlesOpacity ?? 0.3,
+			};
+			localInit = true;
+		}
+	});
+
+	/** Update local instantly + save to Firebase */
+	function onSlide(dotPath: string, localKey: string, val: number) {
+		local[localKey] = val;
+		settings.updateField(dotPath, val);
+	}
+
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
 	}
 
-	/** Format slider value for display. pct=true → show as % */
-	function fmt(val: unknown, max: number, unit = '', pct = false): string {
-		const n = typeof val === 'number' ? val : Number(val) || 0;
+	/** Format slider value for display */
+	function fmt(key: string, max: number, unit = '', pct = false): string {
+		const n = local[key] ?? 0;
 		const clamped = Math.min(n, max);
 		if (pct) return `${Math.round(clamped * 100)}%`;
 		if (unit === 's') return `${clamped}s`;
 		if (unit) return `${clamped}${unit}`;
-		return String(clamped);
+		return String(Math.round(clamped * 100) / 100);
 	}
 
 	const ANIMS = ['none', 'float', 'pulse', 'bounce', 'spin', 'shake', 'glow', 'slide-up', 'slide-down', 'fade-in'];
@@ -160,12 +214,12 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-gi">Intensidad ({fmt(t.glowIntensity, 3)})</label>
-				<input id="t-gi" type="range" min="0" max="3" step="0.1" value={Math.min(t.glowIntensity ?? 1, 3)} oninput={(e) => update('theme.glowIntensity', +e.currentTarget.value)} />
+				<label for="t-gi">Intensidad ({fmt("glowIntensity", 3)})</label>
+				<input id="t-gi" type="range" min="0" max="3" step="0.1" value={local.glowIntensity ?? 1} oninput={(e) => onSlide('theme.glowIntensity', 'glowIntensity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-gb">Blur ({fmt(t.glowBlur, 60, 'px')})</label>
-				<input id="t-gb" type="range" min="0" max="60" step="1" value={Math.min(t.glowBlur ?? 20, 60)} oninput={(e) => update('theme.glowBlur', +e.currentTarget.value)} />
+				<label for="t-gb">Blur ({fmt("glowBlur", 60, "px")})</label>
+				<input id="t-gb" type="range" min="0" max="60" step="1" value={local.glowBlur ?? 20} oninput={(e) => onSlide('theme.glowBlur', 'glowBlur', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
@@ -176,7 +230,7 @@
 				</select>
 			</div>
 			<div class="field">
-				<label for="t-gas">Velocidad anim ({fmt(t.glowAnimSpeed, 10, 's')})</label>
+				<label for="t-gas">Velocidad anim ({fmt("glowAnimSpeed", 10, "s")})</label>
 				<input id="t-gas" type="range" min="0.5" max="10" step="0.5" value={t.glowAnimSpeed ?? 2} oninput={(e) => update('theme.glowAnimSpeed', +e.currentTarget.value)} />
 			</div>
 		</div>
@@ -197,16 +251,16 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-fw">Font weight ({fmt(t.fontWeight, 900)})</label>
-				<input id="t-fw" type="range" min="100" max="900" step="100" value={t.fontWeight ?? 400} oninput={(e) => update('theme.fontWeight', +e.currentTarget.value)} />
+				<label for="t-fw">Font weight ({fmt("fontWeight", 900)})</label>
+				<input id="t-fw" type="range" min="100" max="900" step="100" value={local.fontWeight ?? 400} oninput={(e) => onSlide('theme.fontWeight', 'fontWeight', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="t-fs">Base font size ({t.fontSize ?? 14}px)</label>
-				<input id="t-fs" type="range" min="10" max="20" step="1" value={t.fontSize ?? 14} oninput={(e) => update('theme.fontSize', +e.currentTarget.value)} />
+				<input id="t-fs" type="range" min="10" max="20" step="1" value={local.fontSize ?? 14} oninput={(e) => onSlide('theme.fontSize', 'fontSize', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="t-flh">Line height ({t.lineHeight ?? 1.6})</label>
-				<input id="t-flh" type="range" min="1" max="2.5" step="0.1" value={t.lineHeight ?? 1.6} oninput={(e) => update('theme.lineHeight', +e.currentTarget.value)} />
+				<input id="t-flh" type="range" min="1" max="2.5" step="0.1" value={local.lineHeight ?? 1.6} oninput={(e) => onSlide('theme.lineHeight', 'lineHeight', +e.currentTarget.value)} />
 			</div>
 		</div>
 	</Card>
@@ -217,15 +271,15 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-r">Border radius ({t.radiusGlobal ?? 12}px)</label>
-				<input id="t-r" type="range" min="0" max="30" step="1" value={t.radiusGlobal ?? 12} oninput={(e) => update('theme.radiusGlobal', +e.currentTarget.value)} />
+				<input id="t-r" type="range" min="0" max="30" step="1" value={local.radiusGlobal ?? 12} oninput={(e) => onSlide('theme.radiusGlobal', 'radiusGlobal', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="t-sp">Section padding ({t.sectionPadding ?? 4}rem)</label>
-				<input id="t-sp" type="range" min="1" max="10" step="0.5" value={t.sectionPadding ?? 4} oninput={(e) => update('theme.sectionPadding', +e.currentTarget.value)} />
+				<input id="t-sp" type="range" min="1" max="10" step="0.5" value={local.sectionPadding ?? 4} oninput={(e) => onSlide('theme.sectionPadding', 'sectionPadding', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="t-bg">Beat gap ({t.beatGap ?? 16}px)</label>
-				<input id="t-bg" type="range" min="4" max="40" step="2" value={t.beatGap ?? 16} oninput={(e) => update('theme.beatGap', +e.currentTarget.value)} />
+				<input id="t-bg" type="range" min="4" max="40" step="2" value={local.beatGap ?? 16} oninput={(e) => onSlide('theme.beatGap', 'beatGap', +e.currentTarget.value)} />
 			</div>
 		</div>
 	</Card>
@@ -235,22 +289,22 @@
 		<h3 class="section-title">Efectos de Card</h3>
 		<div class="row">
 			<div class="field">
-				<label for="t-co">Card opacity ({fmt(t.cardOpacity, 1, "", true)})</label>
-				<input id="t-co" type="range" min="0" max="1" step="0.05" value={t.cardOpacity ?? 0.85} oninput={(e) => update('theme.cardOpacity', +e.currentTarget.value)} />
+				<label for="t-co">Card opacity ({fmt("cardOpacity", 1, "", true)})</label>
+				<input id="t-co" type="range" min="0" max="1" step="0.05" value={local.cardOpacity ?? 0.85} oninput={(e) => onSlide('theme.cardOpacity', 'cardOpacity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="t-blr">Blur fondo ({t.blurBg ?? 20}px)</label>
-				<input id="t-blr" type="range" min="0" max="40" step="1" value={t.blurBg ?? 20} oninput={(e) => update('theme.blurBg', +e.currentTarget.value)} />
+				<input id="t-blr" type="range" min="0" max="40" step="1" value={local.blurBg ?? 20} oninput={(e) => onSlide('theme.blurBg', 'blurBg', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-gr">Grain ({fmt(t.grainOpacity, 0.2, "", true)})</label>
-				<input id="t-gr" type="range" min="0" max="0.2" step="0.01" value={Math.min(t.grainOpacity ?? 0.03, 0.2)} oninput={(e) => update('theme.grainOpacity', +e.currentTarget.value)} />
+				<label for="t-gr">Grain ({fmt("grainOpacity", 0.2, "", true)})</label>
+				<input id="t-gr" type="range" min="0" max="0.2" step="0.01" value={local.grainOpacity ?? 0.03} oninput={(e) => onSlide('theme.grainOpacity', 'grainOpacity', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-csi">Shadow intensidad ({fmt(t.cardShadowIntensity, 1, "", true)})</label>
-				<input id="t-csi" type="range" min="0" max="1" step="0.05" value={t.cardShadowIntensity ?? 0.3} oninput={(e) => update('theme.cardShadowIntensity', +e.currentTarget.value)} />
+				<label for="t-csi">Shadow intensidad ({fmt("cardShadowIntensity", 1, "", true)})</label>
+				<input id="t-csi" type="range" min="0" max="1" step="0.05" value={local.cardShadowIntensity ?? 0.3} oninput={(e) => onSlide('theme.cardShadowIntensity', 'cardShadowIntensity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="t-csc">Shadow color</label>
@@ -267,40 +321,40 @@
 		<h3 class="section-title">Opacidades</h3>
 		<div class="row">
 			<div class="field">
-				<label for="t-no">Nav ({fmt(t.navOpacity, 1, "", true)})</label>
-				<input id="t-no" type="range" min="0" max="1" step="0.05" value={t.navOpacity ?? 0.95} oninput={(e) => update('theme.navOpacity', +e.currentTarget.value)} />
+				<label for="t-no">Nav ({fmt("navOpacity", 1, "", true)})</label>
+				<input id="t-no" type="range" min="0" max="1" step="0.05" value={local.navOpacity ?? 0.95} oninput={(e) => onSlide('theme.navOpacity', 'navOpacity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-ho">Hero bg ({fmt(t.heroBgOpacity, 1, "", true)})</label>
-				<input id="t-ho" type="range" min="0" max="1" step="0.05" value={t.heroBgOpacity ?? 1} oninput={(e) => update('theme.heroBgOpacity', +e.currentTarget.value)} />
+				<label for="t-ho">Hero bg ({fmt("heroBgOpacity", 1, "", true)})</label>
+				<input id="t-ho" type="range" min="0" max="1" step="0.05" value={local.heroBgOpacity ?? 1} oninput={(e) => onSlide('theme.heroBgOpacity', 'heroBgOpacity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-so">Sections ({fmt(t.sectionOpacity, 1, "", true)})</label>
-				<input id="t-so" type="range" min="0" max="1" step="0.05" value={t.sectionOpacity ?? 1} oninput={(e) => update('theme.sectionOpacity', +e.currentTarget.value)} />
-			</div>
-		</div>
-		<div class="row">
-			<div class="field">
-				<label for="t-bio">Beat images ({fmt(t.beatImgOpacity, 1, "", true)})</label>
-				<input id="t-bio" type="range" min="0" max="1" step="0.05" value={t.beatImgOpacity ?? 1} oninput={(e) => update('theme.beatImgOpacity', +e.currentTarget.value)} />
-			</div>
-			<div class="field">
-				<label for="t-to">Text ({fmt(t.textOpacity, 1, "", true)})</label>
-				<input id="t-to" type="range" min="0" max="1" step="0.05" value={t.textOpacity ?? 1} oninput={(e) => update('theme.textOpacity', +e.currentTarget.value)} />
-			</div>
-			<div class="field">
-				<label for="t-bo">Btn normal ({fmt(t.btnOpacityNormal, 1, "", true)})</label>
-				<input id="t-bo" type="range" min="0" max="1" step="0.05" value={t.btnOpacityNormal ?? 1} oninput={(e) => update('theme.btnOpacityNormal', +e.currentTarget.value)} />
+				<label for="t-so">Sections ({fmt("sectionOpacity", 1, "", true)})</label>
+				<input id="t-so" type="range" min="0" max="1" step="0.05" value={local.sectionOpacity ?? 1} oninput={(e) => onSlide('theme.sectionOpacity', 'sectionOpacity', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-bh">Btn hover ({fmt(t.btnOpacityHover, 1, "", true)})</label>
-				<input id="t-bh" type="range" min="0" max="1" step="0.05" value={t.btnOpacityHover ?? 1} oninput={(e) => update('theme.btnOpacityHover', +e.currentTarget.value)} />
+				<label for="t-bio">Beat images ({fmt("beatImgOpacity", 1, "", true)})</label>
+				<input id="t-bio" type="range" min="0" max="1" step="0.05" value={local.beatImgOpacity ?? 1} oninput={(e) => onSlide('theme.beatImgOpacity', 'beatImgOpacity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-bgo">Background ({fmt(t.bgOpacity, 1, "", true)})</label>
-				<input id="t-bgo" type="range" min="0" max="1" step="0.05" value={t.bgOpacity ?? 1} oninput={(e) => update('theme.bgOpacity', +e.currentTarget.value)} />
+				<label for="t-to">Text ({fmt("textOpacity", 1, "", true)})</label>
+				<input id="t-to" type="range" min="0" max="1" step="0.05" value={local.textOpacity ?? 1} oninput={(e) => onSlide('theme.textOpacity', 'textOpacity', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-bo">Btn normal ({fmt("btnOpacityNormal", 1, "", true)})</label>
+				<input id="t-bo" type="range" min="0" max="1" step="0.05" value={local.btnOpacityNormal ?? 1} oninput={(e) => onSlide('theme.btnOpacityNormal', 'btnOpacityNormal', +e.currentTarget.value)} />
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-bh">Btn hover ({fmt("btnOpacityHover", 1, "", true)})</label>
+				<input id="t-bh" type="range" min="0" max="1" step="0.05" value={local.btnOpacityHover ?? 1} oninput={(e) => onSlide('theme.btnOpacityHover', 'btnOpacityHover', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-bgo">Background ({fmt("bgOpacity", 1, "", true)})</label>
+				<input id="t-bgo" type="range" min="0" max="1" step="0.05" value={local.bgOpacity ?? 1} oninput={(e) => onSlide('theme.bgOpacity', 'bgOpacity', +e.currentTarget.value)} />
 			</div>
 		</div>
 	</Card>
@@ -324,22 +378,22 @@
 				</div>
 			</div>
 			<div class="field">
-				<label for="t-wh">Alto ({fmt(t.wbarHeight, 100, "px")})</label>
-				<input id="t-wh" type="range" min="48" max="100" step="4" value={t.wbarHeight ?? 64} oninput={(e) => update('theme.wbarHeight', +e.currentTarget.value)} />
+				<label for="t-wh">Alto ({fmt("wbarHeight", 100, "px")})</label>
+				<input id="t-wh" type="range" min="48" max="100" step="4" value={local.wbarHeight ?? 64} oninput={(e) => onSlide('theme.wbarHeight', 'wbarHeight', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-wr">Border radius ({fmt(t.wbarRadius, 30, "px")})</label>
-				<input id="t-wr" type="range" min="0" max="30" step="1" value={t.wbarRadius ?? 0} oninput={(e) => update('theme.wbarRadius', +e.currentTarget.value)} />
+				<label for="t-wr">Border radius ({fmt("wbarRadius", 30, "px")})</label>
+				<input id="t-wr" type="range" min="0" max="30" step="1" value={local.wbarRadius ?? 0} oninput={(e) => onSlide('theme.wbarRadius', 'wbarRadius', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-woo">Wave off ({fmt(t.waveOpacityOff, 1, "", true)})</label>
-				<input id="t-woo" type="range" min="0" max="1" step="0.05" value={t.waveOpacityOff ?? 0.3} oninput={(e) => update('theme.waveOpacityOff', +e.currentTarget.value)} />
+				<label for="t-woo">Wave off ({fmt("waveOpacityOff", 1, "", true)})</label>
+				<input id="t-woo" type="range" min="0" max="1" step="0.05" value={local.waveOpacityOff ?? 0.3} oninput={(e) => onSlide('theme.waveOpacityOff', 'waveOpacityOff', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-won">Wave on ({fmt(t.waveOpacityOn, 1, "", true)})</label>
-				<input id="t-won" type="range" min="0" max="1" step="0.05" value={t.waveOpacityOn ?? 0.8} oninput={(e) => update('theme.waveOpacityOn', +e.currentTarget.value)} />
+				<label for="t-won">Wave on ({fmt("waveOpacityOn", 1, "", true)})</label>
+				<input id="t-won" type="range" min="0" max="1" step="0.05" value={local.waveOpacityOn ?? 0.8} oninput={(e) => onSlide('theme.waveOpacityOn', 'waveOpacityOn', +e.currentTarget.value)} />
 			</div>
 		</div>
 	</Card>
@@ -374,12 +428,12 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-hgi">Intensidad ({fmt(t.heroGlowInt, 3)})</label>
-				<input id="t-hgi" type="range" min="0" max="3" step="0.1" value={Math.min(t.heroGlowInt ?? 1, 3)} oninput={(e) => update('theme.heroGlowInt', +e.currentTarget.value)} />
+				<label for="t-hgi">Intensidad ({fmt("heroGlowInt", 3)})</label>
+				<input id="t-hgi" type="range" min="0" max="3" step="0.1" value={local.heroGlowInt ?? 1} oninput={(e) => onSlide('theme.heroGlowInt', 'heroGlowInt', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-hgb">Blur ({fmt(t.heroGlowBlur, 60, "px")})</label>
-				<input id="t-hgb" type="range" min="0" max="60" step="1" value={Math.min(t.heroGlowBlur ?? 20, 60)} oninput={(e) => update('theme.heroGlowBlur', +e.currentTarget.value)} />
+				<label for="t-hgb">Blur ({fmt("heroGlowBlur", 60, "px")})</label>
+				<input id="t-hgb" type="range" min="0" max="60" step="1" value={local.heroGlowBlur ?? 20} oninput={(e) => onSlide('theme.heroGlowBlur', 'heroGlowBlur', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="field">
@@ -402,8 +456,8 @@
 				</label>
 			</div>
 			<div class="field">
-				<label for="t-hsw">Grosor ({fmt(t.heroStrokeW, 5, "px")})</label>
-				<input id="t-hsw" type="range" min="0.5" max="5" step="0.5" value={t.heroStrokeW ?? 1} oninput={(e) => update('theme.heroStrokeW', +e.currentTarget.value)} />
+				<label for="t-hsw">Grosor ({fmt("heroStrokeW", 5, "px")})</label>
+				<input id="t-hsw" type="range" min="0.5" max="5" step="0.5" value={local.heroStrokeW ?? 1} oninput={(e) => onSlide('theme.heroStrokeW', 'heroStrokeW', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="t-hsc">Color stroke</label>
@@ -454,12 +508,12 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-pc">Cantidad ({fmt(t.particlesCount, 200)})</label>
-				<input id="t-pc" type="range" min="10" max="200" step="10" value={t.particlesCount ?? 50} oninput={(e) => update('theme.particlesCount', +e.currentTarget.value)} />
+				<label for="t-pc">Cantidad ({fmt("particlesCount", 200)})</label>
+				<input id="t-pc" type="range" min="10" max="200" step="10" value={local.particlesCount ?? 50} oninput={(e) => onSlide('theme.particlesCount', 'particlesCount', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-ps">Velocidad ({fmt(t.particlesSpeed, 5)})</label>
-				<input id="t-ps" type="range" min="0.1" max="5" step="0.1" value={t.particlesSpeed ?? 1} oninput={(e) => update('theme.particlesSpeed', +e.currentTarget.value)} />
+				<label for="t-ps">Velocidad ({fmt("particlesSpeed", 5)})</label>
+				<input id="t-ps" type="range" min="0.1" max="5" step="0.1" value={local.particlesSpeed ?? 1} oninput={(e) => onSlide('theme.particlesSpeed', 'particlesSpeed', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="t-pt">Tipo</label>
@@ -470,12 +524,12 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-psn">Tamaño min ({fmt(t.particlesSizeMin, 20, "px")})</label>
-				<input id="t-psn" type="range" min="1" max="20" step="1" value={t.particlesSizeMin ?? 3} oninput={(e) => update('theme.particlesSizeMin', +e.currentTarget.value)} />
+				<label for="t-psn">Tamaño min ({fmt("particlesSizeMin", 20, "px")})</label>
+				<input id="t-psn" type="range" min="1" max="20" step="1" value={local.particlesSizeMin ?? 3} oninput={(e) => onSlide('theme.particlesSizeMin', 'particlesSizeMin', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-psx">Tamaño max ({fmt(t.particlesSizeMax, 40, "px")})</label>
-				<input id="t-psx" type="range" min="2" max="40" step="1" value={t.particlesSizeMax ?? 8} oninput={(e) => update('theme.particlesSizeMax', +e.currentTarget.value)} />
+				<label for="t-psx">Tamaño max ({fmt("particlesSizeMax", 40, "px")})</label>
+				<input id="t-psx" type="range" min="2" max="40" step="1" value={local.particlesSizeMax ?? 8} oninput={(e) => onSlide('theme.particlesSizeMax', 'particlesSizeMax', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
@@ -487,8 +541,8 @@
 				</div>
 			</div>
 			<div class="field">
-				<label for="t-pop">Opacidad ({fmt(t.particlesOpacity, 1, "", true)})</label>
-				<input id="t-pop" type="range" min="0" max="1" step="0.05" value={t.particlesOpacity ?? 0.3} oninput={(e) => update('theme.particlesOpacity', +e.currentTarget.value)} />
+				<label for="t-pop">Opacidad ({fmt("particlesOpacity", 1, "", true)})</label>
+				<input id="t-pop" type="range" min="0" max="1" step="0.05" value={local.particlesOpacity ?? 0.3} oninput={(e) => onSlide('theme.particlesOpacity', 'particlesOpacity', +e.currentTarget.value)} />
 			</div>
 		</div>
 		{#if t.particlesType === 'text'}

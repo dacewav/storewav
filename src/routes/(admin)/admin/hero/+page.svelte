@@ -8,17 +8,41 @@
 	let hero = $derived((s?.hero ?? {}) as HeroSettings);
 	let theme = $derived((s?.theme ?? {}) as ThemeSettings);
 
+	let local = $state<Record<string, number>>({});
+	let localInit = false;
+
+	$effect(() => {
+		if (!hv || !s || localInit) return;
+		local = {
+			glowInt: hv.glowInt ?? 1,
+			glowBlur: hv.glowBlur ?? 20,
+			wordBlur: hv.wordBlur ?? 10,
+			wordOp: hv.wordOp ?? 0.35,
+			strokeW: hv.strokeW ?? 1,
+			gradOp: hv.gradOp ?? 0.14,
+			titleSize: hv.titleSize ?? 0,
+			letterSpacing: hv.letterSpacing ?? -0.04,
+			lineHeight: hv.lineHeight ?? 1,
+			eyebrowSize: hv.eyebrowSize ?? 0,
+		};
+		localInit = true;
+	});
+
+	function onSlide(dotPath: string, localKey: string, val: number) {
+		local[localKey] = val;
+		settings.updateField(dotPath, val);
+	}
+
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
 	}
 
-	/** Format slider value for display */
-	function fmt(val: unknown, max: number, unit = '', pct = false): string {
-		const n = typeof val === 'number' ? val : Number(val) || 0;
+	function fmt(key: string, max: number, unit = '', pct = false): string {
+		const n = local[key] ?? 0;
 		const clamped = Math.min(n, max);
 		if (pct) return `${Math.round(clamped * 100)}%`;
 		if (unit) return `${clamped}${unit}`;
-		return String(clamped);
+		return String(Math.round(clamped * 100) / 100);
 	}
 
 	// Color segments editor
@@ -96,12 +120,12 @@
 				</label>
 			</div>
 			<div class="field">
-				<label for="hv-gi">Intensidad ({fmt(hv.glowInt, 3)})</label>
-				<input id="hv-gi" type="range" min="0" max="3" step="0.1" value={Math.min(hv.glowInt ?? 1, 3)} oninput={(e) => update('heroVisual.glowInt', +e.currentTarget.value)} />
+				<label for="hv-gi">Intensidad ({fmt("glowInt", 3)})</label>
+				<input id="hv-gi" type="range" min="0" max="3" step="0.1" value={local.glowInt ?? 1} oninput={(e) => onSlide('heroVisual.glowInt', 'glowInt', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="hv-gb">Blur ({fmt(hv.glowBlur, 60, "px")})</label>
-				<input id="hv-gb" type="range" min="0" max="60" step="1" value={Math.min(hv.glowBlur ?? 20, 60)} oninput={(e) => update('heroVisual.glowBlur', +e.currentTarget.value)} />
+				<label for="hv-gb">Blur ({fmt("glowBlur", 60, "px")})</label>
+				<input id="hv-gb" type="range" min="0" max="60" step="1" value={local.glowBlur ?? 20} oninput={(e) => onSlide('heroVisual.glowBlur', 'glowBlur', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
@@ -115,12 +139,12 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="hv-wb">Word blur ({fmt(hv.wordBlur, 40, "px")})</label>
-				<input id="hv-wb" type="range" min="0" max="40" step="1" value={Math.min(hv.wordBlur ?? 10, 40)} oninput={(e) => update('heroVisual.wordBlur', +e.currentTarget.value)} />
+				<label for="hv-wb">Word blur ({fmt("wordBlur", 40, "px")})</label>
+				<input id="hv-wb" type="range" min="0" max="40" step="1" value={local.wordBlur ?? 10} oninput={(e) => onSlide('heroVisual.wordBlur', 'wordBlur', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="hv-wo">Word opacity ({fmt(hv.wordOp, 1, "", true)})</label>
-				<input id="hv-wo" type="range" min="0" max="1" step="0.05" value={Math.min(hv.wordOp ?? 0.35, 1)} oninput={(e) => update('heroVisual.wordOp', +e.currentTarget.value)} />
+				<label for="hv-wo">Word opacity ({fmt("wordOp", 1, "", true)})</label>
+				<input id="hv-wo" type="range" min="0" max="1" step="0.05" value={local.wordOp ?? 0.35} oninput={(e) => onSlide('heroVisual.wordOp', 'wordOp', +e.currentTarget.value)} />
 			</div>
 		</div>
 	</Card>
@@ -136,8 +160,8 @@
 				</label>
 			</div>
 			<div class="field">
-				<label for="hv-sw">Grosor ({fmt(hv.strokeW, 5, "px")})</label>
-				<input id="hv-sw" type="range" min="0.5" max="5" step="0.5" value={Math.min(hv.strokeW ?? 1, 5)} oninput={(e) => update('heroVisual.strokeW', +e.currentTarget.value)} />
+				<label for="hv-sw">Grosor ({fmt("strokeW", 5, "px")})</label>
+				<input id="hv-sw" type="range" min="0.5" max="5" step="0.5" value={local.strokeW ?? 1} oninput={(e) => onSlide('heroVisual.strokeW', 'strokeW', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="hv-sc">Color stroke</label>
@@ -214,8 +238,8 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="hv-go">Opacidad ({fmt(hv.gradOp, 1, "", true)})</label>
-				<input id="hv-go" type="range" min="0" max="1" step="0.01" value={Math.min(hv.gradOp ?? 0.14, 1)} oninput={(e) => update('heroVisual.gradOp', +e.currentTarget.value)} />
+				<label for="hv-go">Opacidad ({fmt("gradOp", 1, "", true)})</label>
+				<input id="hv-go" type="range" min="0" max="1" step="0.01" value={local.gradOp ?? 0.14} oninput={(e) => onSlide('heroVisual.gradOp', 'gradOp', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="hv-gw">Ancho ({fmt(hv.gradW, 100)}%)</label>
