@@ -81,6 +81,23 @@
 	const PARTICLE_TYPES = ['circle', 'square', 'line', 'text', 'image'];
 	const BLEND_MODES = ['normal', 'screen', 'overlay', 'multiply', 'soft-light', 'hard-light', 'color-dodge'];
 	const GLOW_ANIMS = ['none', 'pulse', 'breathe', 'spin'];
+
+	/** Shift+Arrow for 10x step on sliders */
+	function handleShiftArrows(e: KeyboardEvent) {
+		if (!e.shiftKey) return;
+		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+		e.preventDefault();
+		const input = e.currentTarget as HTMLInputElement;
+		const min = parseFloat(input.min);
+		const max = parseFloat(input.max);
+		const step = parseFloat(input.step) || 1;
+		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
+		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
+		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+		if (nativeSetter) nativeSetter.call(input, String(newVal));
+		else input.value = String(newVal);
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+	}
 </script>
 
 <div class="editor">
@@ -260,7 +277,7 @@
 			</div>
 			<div class="field">
 				<label for="t-nbl">Blur nav ({fmt("navBlur", 40, "px")})</label>
-				<input id="t-nbl" type="range" min="0" max="40" step="2" value={local.navBlur ?? 24} oninput={(e) => onSlide('theme.navBlur', 'navBlur', +e.currentTarget.value)} />
+				<input id="t-nbl" type="range" min="0" max="40" step="2" value={local.navBlur ?? 24} oninput={(e) => onSlide('theme.navBlur', 'navBlur', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Card>
@@ -294,7 +311,7 @@
 			</div>
 			<div class="field">
 				<label for="t-ctr">Radio ({fmt("ctaBtnRadius", 50, "px")})</label>
-				<input id="t-ctr" type="range" min="0" max="50" step="2" value={local.ctaBtnRadius ?? 12} oninput={(e) => onSlide('theme.ctaBtnRadius', 'ctaBtnRadius', +e.currentTarget.value)} />
+				<input id="t-ctr" type="range" min="0" max="50" step="2" value={local.ctaBtnRadius ?? 12} oninput={(e) => onSlide('theme.ctaBtnRadius', 'ctaBtnRadius', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Card>
@@ -304,7 +321,7 @@
 		<h3 class="section-title">Contenedor</h3>
 		<div class="field">
 			<label for="t-cmw">Ancho máximo ({fmt("containerMaxWidth", 1800, "px")})</label>
-			<input id="t-cmw" type="range" min="800" max="1800" step="50" value={local.containerMaxWidth ?? 1200} oninput={(e) => onSlide('theme.containerMaxWidth', 'containerMaxWidth', +e.currentTarget.value)} />
+			<input id="t-cmw" type="range" min="800" max="1800" step="50" value={local.containerMaxWidth ?? 1200} oninput={(e) => onSlide('theme.containerMaxWidth', 'containerMaxWidth', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 		</div>
 	</Card>
 
@@ -320,11 +337,11 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-gi">Intensidad ({fmt("glowIntensity", 3)})</label>
-				<input id="t-gi" type="range" min="0" max="3" step="0.1" value={local.glowIntensity ?? 1} oninput={(e) => onSlide('theme.glowIntensity', 'glowIntensity', +e.currentTarget.value)} />
+				<input id="t-gi" type="range" min="0" max="3" step="0.1" value={local.glowIntensity ?? 1} oninput={(e) => onSlide('theme.glowIntensity', 'glowIntensity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-gb">Blur ({fmt("glowBlur", 60, "px")})</label>
-				<input id="t-gb" type="range" min="0" max="60" step="1" value={local.glowBlur ?? 20} oninput={(e) => onSlide('theme.glowBlur', 'glowBlur', +e.currentTarget.value)} />
+				<input id="t-gb" type="range" min="0" max="60" step="1" value={local.glowBlur ?? 20} oninput={(e) => onSlide('theme.glowBlur', 'glowBlur', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
@@ -336,7 +353,7 @@
 			</div>
 			<div class="field">
 				<label for="t-gas">Velocidad anim ({fmt("glowAnimSpeed", 10, "s")})</label>
-				<input id="t-gas" type="range" min="0.5" max="10" step="0.5" value={t.glowAnimSpeed ?? 2} oninput={(e) => update('theme.glowAnimSpeed', +e.currentTarget.value)} />
+				<input id="t-gas" type="range" min="0.5" max="10" step="0.5" value={t.glowAnimSpeed ?? 2} oninput={(e) => update('theme.glowAnimSpeed', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Card>
@@ -357,15 +374,15 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-fw">Font weight ({fmt("fontWeight", 900)})</label>
-				<input id="t-fw" type="range" min="100" max="900" step="100" value={local.fontWeight ?? 400} oninput={(e) => onSlide('theme.fontWeight', 'fontWeight', +e.currentTarget.value)} />
+				<input id="t-fw" type="range" min="100" max="900" step="100" value={local.fontWeight ?? 400} oninput={(e) => onSlide('theme.fontWeight', 'fontWeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-fs">Base font size ({t.fontSize ?? 14}px)</label>
-				<input id="t-fs" type="range" min="10" max="20" step="1" value={local.fontSize ?? 14} oninput={(e) => onSlide('theme.fontSize', 'fontSize', +e.currentTarget.value)} />
+				<input id="t-fs" type="range" min="10" max="20" step="1" value={local.fontSize ?? 14} oninput={(e) => onSlide('theme.fontSize', 'fontSize', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-flh">Line height ({t.lineHeight ?? 1.6})</label>
-				<input id="t-flh" type="range" min="1" max="2.5" step="0.1" value={local.lineHeight ?? 1.6} oninput={(e) => onSlide('theme.lineHeight', 'lineHeight', +e.currentTarget.value)} />
+				<input id="t-flh" type="range" min="1" max="2.5" step="0.1" value={local.lineHeight ?? 1.6} oninput={(e) => onSlide('theme.lineHeight', 'lineHeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Card>
@@ -376,15 +393,15 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-r">Border radius ({t.radiusGlobal ?? 12}px)</label>
-				<input id="t-r" type="range" min="0" max="30" step="1" value={local.radiusGlobal ?? 12} oninput={(e) => onSlide('theme.radiusGlobal', 'radiusGlobal', +e.currentTarget.value)} />
+				<input id="t-r" type="range" min="0" max="30" step="1" value={local.radiusGlobal ?? 12} oninput={(e) => onSlide('theme.radiusGlobal', 'radiusGlobal', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-sp">Section padding ({t.sectionPadding ?? 4}rem)</label>
-				<input id="t-sp" type="range" min="1" max="10" step="0.5" value={local.sectionPadding ?? 4} oninput={(e) => onSlide('theme.sectionPadding', 'sectionPadding', +e.currentTarget.value)} />
+				<input id="t-sp" type="range" min="1" max="10" step="0.5" value={local.sectionPadding ?? 4} oninput={(e) => onSlide('theme.sectionPadding', 'sectionPadding', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-bg">Beat gap ({t.beatGap ?? 16}px)</label>
-				<input id="t-bg" type="range" min="4" max="40" step="2" value={local.beatGap ?? 16} oninput={(e) => onSlide('theme.beatGap', 'beatGap', +e.currentTarget.value)} />
+				<input id="t-bg" type="range" min="4" max="40" step="2" value={local.beatGap ?? 16} oninput={(e) => onSlide('theme.beatGap', 'beatGap', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Card>
@@ -395,21 +412,21 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-co">Card opacity ({fmt("cardOpacity", 1, "", true)})</label>
-				<input id="t-co" type="range" min="0" max="1" step="0.05" value={local.cardOpacity ?? 0.85} oninput={(e) => onSlide('theme.cardOpacity', 'cardOpacity', +e.currentTarget.value)} />
+				<input id="t-co" type="range" min="0" max="1" step="0.05" value={local.cardOpacity ?? 0.85} oninput={(e) => onSlide('theme.cardOpacity', 'cardOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-blr">Blur fondo ({t.blurBg ?? 20}px)</label>
-				<input id="t-blr" type="range" min="0" max="40" step="1" value={local.blurBg ?? 20} oninput={(e) => onSlide('theme.blurBg', 'blurBg', +e.currentTarget.value)} />
+				<input id="t-blr" type="range" min="0" max="40" step="1" value={local.blurBg ?? 20} oninput={(e) => onSlide('theme.blurBg', 'blurBg', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-gr">Grain ({fmt("grainOpacity", 0.2, "", true)})</label>
-				<input id="t-gr" type="range" min="0" max="0.2" step="0.01" value={local.grainOpacity ?? 0.03} oninput={(e) => onSlide('theme.grainOpacity', 'grainOpacity', +e.currentTarget.value)} />
+				<input id="t-gr" type="range" min="0" max="0.2" step="0.01" value={local.grainOpacity ?? 0.03} oninput={(e) => onSlide('theme.grainOpacity', 'grainOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
 				<label for="t-csi">Shadow intensidad ({fmt("cardShadowIntensity", 1, "", true)})</label>
-				<input id="t-csi" type="range" min="0" max="1" step="0.05" value={local.cardShadowIntensity ?? 0.3} oninput={(e) => onSlide('theme.cardShadowIntensity', 'cardShadowIntensity', +e.currentTarget.value)} />
+				<input id="t-csi" type="range" min="0" max="1" step="0.05" value={local.cardShadowIntensity ?? 0.3} oninput={(e) => onSlide('theme.cardShadowIntensity', 'cardShadowIntensity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-csc">Shadow color</label>
@@ -427,39 +444,39 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-no">Nav ({fmt("navOpacity", 1, "", true)})</label>
-				<input id="t-no" type="range" min="0" max="1" step="0.05" value={local.navOpacity ?? 0.95} oninput={(e) => onSlide('theme.navOpacity', 'navOpacity', +e.currentTarget.value)} />
+				<input id="t-no" type="range" min="0" max="1" step="0.05" value={local.navOpacity ?? 0.95} oninput={(e) => onSlide('theme.navOpacity', 'navOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-ho">Hero bg ({fmt("heroBgOpacity", 1, "", true)})</label>
-				<input id="t-ho" type="range" min="0" max="1" step="0.05" value={local.heroBgOpacity ?? 1} oninput={(e) => onSlide('theme.heroBgOpacity', 'heroBgOpacity', +e.currentTarget.value)} />
+				<input id="t-ho" type="range" min="0" max="1" step="0.05" value={local.heroBgOpacity ?? 1} oninput={(e) => onSlide('theme.heroBgOpacity', 'heroBgOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-so">Sections ({fmt("sectionOpacity", 1, "", true)})</label>
-				<input id="t-so" type="range" min="0" max="1" step="0.05" value={local.sectionOpacity ?? 1} oninput={(e) => onSlide('theme.sectionOpacity', 'sectionOpacity', +e.currentTarget.value)} />
+				<input id="t-so" type="range" min="0" max="1" step="0.05" value={local.sectionOpacity ?? 1} oninput={(e) => onSlide('theme.sectionOpacity', 'sectionOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
 				<label for="t-bio">Beat images ({fmt("beatImgOpacity", 1, "", true)})</label>
-				<input id="t-bio" type="range" min="0" max="1" step="0.05" value={local.beatImgOpacity ?? 1} oninput={(e) => onSlide('theme.beatImgOpacity', 'beatImgOpacity', +e.currentTarget.value)} />
+				<input id="t-bio" type="range" min="0" max="1" step="0.05" value={local.beatImgOpacity ?? 1} oninput={(e) => onSlide('theme.beatImgOpacity', 'beatImgOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-to">Text ({fmt("textOpacity", 1, "", true)})</label>
-				<input id="t-to" type="range" min="0" max="1" step="0.05" value={local.textOpacity ?? 1} oninput={(e) => onSlide('theme.textOpacity', 'textOpacity', +e.currentTarget.value)} />
+				<input id="t-to" type="range" min="0" max="1" step="0.05" value={local.textOpacity ?? 1} oninput={(e) => onSlide('theme.textOpacity', 'textOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-bo">Btn normal ({fmt("btnOpacityNormal", 1, "", true)})</label>
-				<input id="t-bo" type="range" min="0" max="1" step="0.05" value={local.btnOpacityNormal ?? 1} oninput={(e) => onSlide('theme.btnOpacityNormal', 'btnOpacityNormal', +e.currentTarget.value)} />
+				<input id="t-bo" type="range" min="0" max="1" step="0.05" value={local.btnOpacityNormal ?? 1} oninput={(e) => onSlide('theme.btnOpacityNormal', 'btnOpacityNormal', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
 				<label for="t-bh">Btn hover ({fmt("btnOpacityHover", 1, "", true)})</label>
-				<input id="t-bh" type="range" min="0" max="1" step="0.05" value={local.btnOpacityHover ?? 1} oninput={(e) => onSlide('theme.btnOpacityHover', 'btnOpacityHover', +e.currentTarget.value)} />
+				<input id="t-bh" type="range" min="0" max="1" step="0.05" value={local.btnOpacityHover ?? 1} oninput={(e) => onSlide('theme.btnOpacityHover', 'btnOpacityHover', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-bgo">Background ({fmt("bgOpacity", 1, "", true)})</label>
-				<input id="t-bgo" type="range" min="0" max="1" step="0.05" value={local.bgOpacity ?? 1} oninput={(e) => onSlide('theme.bgOpacity', 'bgOpacity', +e.currentTarget.value)} />
+				<input id="t-bgo" type="range" min="0" max="1" step="0.05" value={local.bgOpacity ?? 1} oninput={(e) => onSlide('theme.bgOpacity', 'bgOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Card>
@@ -484,21 +501,21 @@
 			</div>
 			<div class="field">
 				<label for="t-wh">Alto ({fmt("wbarHeight", 100, "px")})</label>
-				<input id="t-wh" type="range" min="48" max="100" step="4" value={local.wbarHeight ?? 64} oninput={(e) => onSlide('theme.wbarHeight', 'wbarHeight', +e.currentTarget.value)} />
+				<input id="t-wh" type="range" min="48" max="100" step="4" value={local.wbarHeight ?? 64} oninput={(e) => onSlide('theme.wbarHeight', 'wbarHeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
 				<label for="t-wr">Border radius ({fmt("wbarRadius", 30, "px")})</label>
-				<input id="t-wr" type="range" min="0" max="30" step="1" value={local.wbarRadius ?? 0} oninput={(e) => onSlide('theme.wbarRadius', 'wbarRadius', +e.currentTarget.value)} />
+				<input id="t-wr" type="range" min="0" max="30" step="1" value={local.wbarRadius ?? 0} oninput={(e) => onSlide('theme.wbarRadius', 'wbarRadius', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-woo">Wave off ({fmt("waveOpacityOff", 1, "", true)})</label>
-				<input id="t-woo" type="range" min="0" max="1" step="0.05" value={local.waveOpacityOff ?? 0.3} oninput={(e) => onSlide('theme.waveOpacityOff', 'waveOpacityOff', +e.currentTarget.value)} />
+				<input id="t-woo" type="range" min="0" max="1" step="0.05" value={local.waveOpacityOff ?? 0.3} oninput={(e) => onSlide('theme.waveOpacityOff', 'waveOpacityOff', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-won">Wave on ({fmt("waveOpacityOn", 1, "", true)})</label>
-				<input id="t-won" type="range" min="0" max="1" step="0.05" value={local.waveOpacityOn ?? 0.8} oninput={(e) => onSlide('theme.waveOpacityOn', 'waveOpacityOn', +e.currentTarget.value)} />
+				<input id="t-won" type="range" min="0" max="1" step="0.05" value={local.waveOpacityOn ?? 0.8} oninput={(e) => onSlide('theme.waveOpacityOn', 'waveOpacityOn', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Card>
@@ -534,11 +551,11 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-hgi">Intensidad ({fmt("heroGlowInt", 3)})</label>
-				<input id="t-hgi" type="range" min="0" max="3" step="0.1" value={local.heroGlowInt ?? 1} oninput={(e) => onSlide('theme.heroGlowInt', 'heroGlowInt', +e.currentTarget.value)} />
+				<input id="t-hgi" type="range" min="0" max="3" step="0.1" value={local.heroGlowInt ?? 1} oninput={(e) => onSlide('theme.heroGlowInt', 'heroGlowInt', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-hgb">Blur ({fmt("heroGlowBlur", 60, "px")})</label>
-				<input id="t-hgb" type="range" min="0" max="60" step="1" value={local.heroGlowBlur ?? 20} oninput={(e) => onSlide('theme.heroGlowBlur', 'heroGlowBlur', +e.currentTarget.value)} />
+				<input id="t-hgb" type="range" min="0" max="60" step="1" value={local.heroGlowBlur ?? 20} oninput={(e) => onSlide('theme.heroGlowBlur', 'heroGlowBlur', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="field">
@@ -562,7 +579,7 @@
 			</div>
 			<div class="field">
 				<label for="t-hsw">Grosor ({fmt("heroStrokeW", 5, "px")})</label>
-				<input id="t-hsw" type="range" min="0.5" max="5" step="0.5" value={local.heroStrokeW ?? 1} oninput={(e) => onSlide('theme.heroStrokeW', 'heroStrokeW', +e.currentTarget.value)} />
+				<input id="t-hsw" type="range" min="0.5" max="5" step="0.5" value={local.heroStrokeW ?? 1} oninput={(e) => onSlide('theme.heroStrokeW', 'heroStrokeW', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-hsc">Color stroke</label>
@@ -614,11 +631,11 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-pc">Cantidad ({fmt("particlesCount", 200)})</label>
-				<input id="t-pc" type="range" min="10" max="200" step="10" value={local.particlesCount ?? 50} oninput={(e) => onSlide('theme.particlesCount', 'particlesCount', +e.currentTarget.value)} />
+				<input id="t-pc" type="range" min="10" max="200" step="10" value={local.particlesCount ?? 50} oninput={(e) => onSlide('theme.particlesCount', 'particlesCount', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-ps">Velocidad ({fmt("particlesSpeed", 5)})</label>
-				<input id="t-ps" type="range" min="0.1" max="5" step="0.1" value={local.particlesSpeed ?? 1} oninput={(e) => onSlide('theme.particlesSpeed', 'particlesSpeed', +e.currentTarget.value)} />
+				<input id="t-ps" type="range" min="0.1" max="5" step="0.1" value={local.particlesSpeed ?? 1} oninput={(e) => onSlide('theme.particlesSpeed', 'particlesSpeed', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-pt">Tipo</label>
@@ -630,11 +647,11 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-psn">Tamaño min ({fmt("particlesSizeMin", 20, "px")})</label>
-				<input id="t-psn" type="range" min="1" max="20" step="1" value={local.particlesSizeMin ?? 3} oninput={(e) => onSlide('theme.particlesSizeMin', 'particlesSizeMin', +e.currentTarget.value)} />
+				<input id="t-psn" type="range" min="1" max="20" step="1" value={local.particlesSizeMin ?? 3} oninput={(e) => onSlide('theme.particlesSizeMin', 'particlesSizeMin', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="t-psx">Tamaño max ({fmt("particlesSizeMax", 40, "px")})</label>
-				<input id="t-psx" type="range" min="2" max="40" step="1" value={local.particlesSizeMax ?? 8} oninput={(e) => onSlide('theme.particlesSizeMax', 'particlesSizeMax', +e.currentTarget.value)} />
+				<input id="t-psx" type="range" min="2" max="40" step="1" value={local.particlesSizeMax ?? 8} oninput={(e) => onSlide('theme.particlesSizeMax', 'particlesSizeMax', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
@@ -647,7 +664,7 @@
 			</div>
 			<div class="field">
 				<label for="t-pop">Opacidad ({fmt("particlesOpacity", 1, "", true)})</label>
-				<input id="t-pop" type="range" min="0" max="1" step="0.05" value={local.particlesOpacity ?? 0.3} oninput={(e) => onSlide('theme.particlesOpacity', 'particlesOpacity', +e.currentTarget.value)} />
+				<input id="t-pop" type="range" min="0" max="1" step="0.05" value={local.particlesOpacity ?? 0.3} oninput={(e) => onSlide('theme.particlesOpacity', 'particlesOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		{#if t.particlesType === 'text'}
@@ -692,6 +709,7 @@
 	.field input[type="text"]:focus, .field select:focus, .field textarea:focus { border-color: rgba(var(--accent-rgb), 0.5); }
 	.field-desc { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-3); }
 	.field input[type="range"] { width: 100%; accent-color: var(--accent); }
+	.field input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 	.field input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 	.row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 	.row .field { flex: 1; min-width: 120px; }

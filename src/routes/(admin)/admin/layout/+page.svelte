@@ -6,14 +6,51 @@
 	let s = $derived($settings.data);
 	let layout = $derived((s?.layout ?? {}) as LayoutSettings);
 
+	/** Local slider state — updates instantly on drag, syncs from store */
+	let local = $state<Record<string, number>>({});
+	let localInit = false;
+
+	$effect(() => {
+		if (!layout || !s || localInit) return;
+		local = {
+			cardsPerRow: layout.cardsPerRow ?? 3,
+			logoScale: layout.logoScale ?? 1,
+			logoRotation: layout.logoRotation ?? 0,
+			navHeight: layout.navHeight ?? 64,
+		};
+		localInit = true;
+	});
+
+	function onSlide(dotPath: string, localKey: string, val: number) {
+		local[localKey] = val;
+		settings.updateField(dotPath, val);
+	}
+
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
 	}
 
 	/** Format slider value for display */
-	function fmt(val: unknown, max: number, unit = ''): string {
-		const n = typeof val === 'number' ? val : Number(val) || 0;
+	function fmt(key: string, max: number, unit = ''): string {
+		const n = local[key] ?? 0;
 		return unit ? `${Math.min(n, max)}${unit}` : String(Math.min(n, max));
+	}
+
+	/** Shift+Arrow for 10x step on sliders */
+	function handleShiftArrows(e: KeyboardEvent) {
+		if (!e.shiftKey) return;
+		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+		e.preventDefault();
+		const input = e.currentTarget as HTMLInputElement;
+		const min = parseFloat(input.min);
+		const max = parseFloat(input.max);
+		const step = parseFloat(input.step) || 1;
+		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
+		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
+		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+		if (nativeSetter) nativeSetter.call(input, String(newVal));
+		else input.value = String(newVal);
+		input.dispatchEvent(new Event('input', { bubbles: true }));
 	}
 </script>
 
@@ -25,8 +62,8 @@
 		<h3 class="section-title">Grid</h3>
 		<div class="row">
 			<div class="field">
-				<label for="ly-cards">Cards por fila ({layout.cardsPerRow ?? 3})</label>
-				<input id="ly-cards" type="range" min="1" max="6" step="1" value={layout.cardsPerRow ?? 3} oninput={(e) => update('layout.cardsPerRow', +e.currentTarget.value)} />
+				<label for="ly-cards">Cards por fila ({fmt('cardsPerRow', 6)})</label>
+				<input id="ly-cards" type="range" min="1" max="6" step="1" value={local.cardsPerRow ?? 3} oninput={(e) => onSlide('layout.cardsPerRow', 'cardsPerRow', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label>
@@ -41,8 +78,8 @@
 		<h3 class="section-title">Logo</h3>
 		<div class="row">
 			<div class="field">
-				<label for="ly-ls">Escala ({fmt(layout.logoScale, 3)}x)</label>
-				<input id="ly-ls" type="range" min="0.3" max="3" step="0.1" value={layout.logoScale ?? 1} oninput={(e) => update('layout.logoScale', +e.currentTarget.value)} />
+				<label for="ly-ls">Escala ({fmt('logoScale', 3)}x)</label>
+				<input id="ly-ls" type="range" min="0.3" max="3" step="0.1" value={local.logoScale ?? 1} oninput={(e) => onSlide('layout.logoScale', 'logoScale', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="ly-lw">Ancho (px, 0=auto)</label>
@@ -55,8 +92,8 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="ly-lr">Rotación ({fmt(layout.logoRotation, 180)}°)</label>
-				<input id="ly-lr" type="range" min="-180" max="180" step="5" value={layout.logoRotation ?? 0} oninput={(e) => update('layout.logoRotation', +e.currentTarget.value)} />
+				<label for="ly-lr">Rotación ({fmt('logoRotation', 180)}°)</label>
+				<input id="ly-lr" type="range" min="-180" max="180" step="5" value={local.logoRotation ?? 0} oninput={(e) => onSlide('layout.logoRotation', 'logoRotation', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label>
@@ -87,8 +124,8 @@
 		<h3 class="section-title">Navegación</h3>
 		<div class="row">
 			<div class="field">
-				<label for="ly-nh">Altura nav ({fmt(layout.navHeight, 100, "px")})</label>
-				<input id="ly-nh" type="range" min="40" max="100" step="4" value={layout.navHeight ?? 64} oninput={(e) => update('layout.navHeight', +e.currentTarget.value)} />
+				<label for="ly-nh">Altura nav ({fmt('navHeight', 100, 'px')})</label>
+				<input id="ly-nh" type="range" min="40" max="100" step="4" value={local.navHeight ?? 64} oninput={(e) => onSlide('layout.navHeight', 'navHeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label>
@@ -120,6 +157,7 @@
 	.field input[type="number"] { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color var(--duration-fast); }
 	.field input[type="number"]:focus { border-color: rgba(var(--accent-rgb), 0.5); }
 	.field input[type="range"] { width: 100%; accent-color: var(--accent); }
+	.field input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 	.field input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 	.row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 	.row .field { flex: 1; min-width: 120px; }

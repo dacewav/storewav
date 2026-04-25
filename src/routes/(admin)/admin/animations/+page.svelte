@@ -6,8 +6,47 @@
 	let s = $derived($settings.data);
 	let anim = $derived((s?.animations ?? {}) as AnimationSettings);
 
+	/** Local slider state — updates instantly on drag */
+	let local = $state<Record<string, number>>({});
+	let localInit = false;
+
+	$effect(() => {
+		if (!anim || !s || localInit) return;
+		local = {
+			animDuration: anim.animDuration ?? 2,
+			animDelay: anim.animDelay ?? 0,
+		};
+		localInit = true;
+	});
+
+	function onSlide(dotPath: string, localKey: string, val: number) {
+		local[localKey] = val;
+		settings.updateField(dotPath, val);
+	}
+
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
+	}
+
+	function fmt(key: string, max: number, unit = ''): string {
+		const n = local[key] ?? 0;
+		return unit ? `${Math.min(n, max)}${unit}` : String(Math.min(n, max));
+	}
+
+	function handleShiftArrows(e: KeyboardEvent) {
+		if (!e.shiftKey) return;
+		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+		e.preventDefault();
+		const input = e.currentTarget as HTMLInputElement;
+		const min = parseFloat(input.min);
+		const max = parseFloat(input.max);
+		const step = parseFloat(input.step) || 1;
+		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
+		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
+		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+		if (nativeSetter) nativeSetter.call(input, String(newVal));
+		else input.value = String(newVal);
+		input.dispatchEvent(new Event('input', { bubbles: true }));
 	}
 
 	const PRESETS = [
@@ -71,12 +110,12 @@
 		<p class="field-desc">Duración, delay y easing aplicados a todas las animaciones.</p>
 		<div class="row">
 			<div class="field">
-				<label for="anim-dur">Duración ({anim.animDuration ?? 2}s)</label>
-				<input id="anim-dur" type="range" min="0.2" max="10" step="0.1" value={anim.animDuration ?? 2} oninput={(e) => update('animations.animDuration', +e.currentTarget.value)} />
+				<label for="anim-dur">Duración ({fmt('animDuration', 10, 's')})</label>
+				<input id="anim-dur" type="range" min="0.2" max="10" step="0.1" value={local.animDuration ?? 2} oninput={(e) => onSlide('animations.animDuration', 'animDuration', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="anim-delay">Delay ({anim.animDelay ?? 0}s)</label>
-				<input id="anim-delay" type="range" min="0" max="5" step="0.1" value={anim.animDelay ?? 0} oninput={(e) => update('animations.animDelay', +e.currentTarget.value)} />
+				<label for="anim-delay">Delay ({fmt('animDelay', 5, 's')})</label>
+				<input id="anim-delay" type="range" min="0" max="5" step="0.1" value={local.animDelay ?? 0} oninput={(e) => onSlide('animations.animDelay', 'animDelay', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="field">
@@ -111,6 +150,7 @@
 	.anim-icon { font-size: var(--text-lg); }
 	.field select { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; min-width: 160px; }
 	.field input[type="range"] { width: 100%; accent-color: var(--accent); }
+	.field input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 	.field-desc { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-3); }
 	.row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 	.row .field { flex: 1; min-width: 120px; }

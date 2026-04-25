@@ -114,18 +114,13 @@
 		animId = requestAnimationFrame(draw);
 	}
 
-	// Re-init when config changes
+	// Re-init when any particle config changes — derived key ensures robust tracking
+	const _particleKey = $derived(
+		`${count}|${speed}|${type}|${color}|${opacity}|${text}|${imgUrl}|${sizeMin}|${sizeMax}|${resolvedColor}`
+	);
+
 	$effect(() => {
-		void count;
-		void speed;
-		void type;
-		void color;
-		void opacity;
-		void text;
-		void imgUrl;
-		void sizeMin;
-		void sizeMax;
-		void resolvedColor;
+		void _particleKey;
 		if (canvasW > 0 && canvasH > 0) {
 			initParticles(canvasW, canvasH);
 		}

@@ -63,6 +63,23 @@
 		segs[i] = { ...segs[i], [field]: val };
 		update('heroVisual.segments', segs);
 	}
+
+	/** Shift+Arrow for 10x step on sliders */
+	function handleShiftArrows(e: KeyboardEvent) {
+		if (!e.shiftKey) return;
+		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+		e.preventDefault();
+		const input = e.currentTarget as HTMLInputElement;
+		const min = parseFloat(input.min);
+		const max = parseFloat(input.max);
+		const step = parseFloat(input.step) || 1;
+		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
+		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
+		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+		if (nativeSetter) nativeSetter.call(input, String(newVal));
+		else input.value = String(newVal);
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+	}
 </script>
 
 <div class="editor">
@@ -121,11 +138,11 @@
 			</div>
 			<div class="field">
 				<label for="hv-gi">Intensidad ({fmt("glowInt", 3)})</label>
-				<input id="hv-gi" type="range" min="0" max="3" step="0.1" value={local.glowInt ?? 1} oninput={(e) => onSlide('heroVisual.glowInt', 'glowInt', +e.currentTarget.value)} />
+				<input id="hv-gi" type="range" min="0" max="3" step="0.1" value={local.glowInt ?? 1} oninput={(e) => onSlide('heroVisual.glowInt', 'glowInt', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="hv-gb">Blur ({fmt("glowBlur", 60, "px")})</label>
-				<input id="hv-gb" type="range" min="0" max="60" step="1" value={local.glowBlur ?? 20} oninput={(e) => onSlide('heroVisual.glowBlur', 'glowBlur', +e.currentTarget.value)} />
+				<input id="hv-gb" type="range" min="0" max="60" step="1" value={local.glowBlur ?? 20} oninput={(e) => onSlide('heroVisual.glowBlur', 'glowBlur', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
@@ -140,11 +157,11 @@
 		<div class="row">
 			<div class="field">
 				<label for="hv-wb">Word blur ({fmt("wordBlur", 40, "px")})</label>
-				<input id="hv-wb" type="range" min="0" max="40" step="1" value={local.wordBlur ?? 10} oninput={(e) => onSlide('heroVisual.wordBlur', 'wordBlur', +e.currentTarget.value)} />
+				<input id="hv-wb" type="range" min="0" max="40" step="1" value={local.wordBlur ?? 10} oninput={(e) => onSlide('heroVisual.wordBlur', 'wordBlur', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="hv-wo">Word opacity ({fmt("wordOp", 1, "", true)})</label>
-				<input id="hv-wo" type="range" min="0" max="1" step="0.05" value={local.wordOp ?? 0.35} oninput={(e) => onSlide('heroVisual.wordOp', 'wordOp', +e.currentTarget.value)} />
+				<input id="hv-wo" type="range" min="0" max="1" step="0.05" value={local.wordOp ?? 0.35} oninput={(e) => onSlide('heroVisual.wordOp', 'wordOp', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Card>
@@ -161,7 +178,7 @@
 			</div>
 			<div class="field">
 				<label for="hv-sw">Grosor ({fmt("strokeW", 5, "px")})</label>
-				<input id="hv-sw" type="range" min="0.5" max="5" step="0.5" value={local.strokeW ?? 1} oninput={(e) => onSlide('heroVisual.strokeW', 'strokeW', +e.currentTarget.value)} />
+				<input id="hv-sw" type="range" min="0.5" max="5" step="0.5" value={local.strokeW ?? 1} oninput={(e) => onSlide('heroVisual.strokeW', 'strokeW', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
 				<label for="hv-sc">Color stroke</label>
@@ -239,15 +256,15 @@
 		<div class="row">
 			<div class="field">
 				<label for="hv-go">Opacidad ({fmt("gradOp", 1, "", true)})</label>
-				<input id="hv-go" type="range" min="0" max="1" step="0.01" value={local.gradOp ?? 0.14} oninput={(e) => onSlide('heroVisual.gradOp', 'gradOp', +e.currentTarget.value)} />
+				<input id="hv-go" type="range" min="0" max="1" step="0.01" value={local.gradOp ?? 0.14} oninput={(e) => onSlide('heroVisual.gradOp', 'gradOp', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="hv-gw">Ancho ({fmt(hv.gradW, 100)}%)</label>
-				<input id="hv-gw" type="range" min="10" max="100" step="5" value={hv.gradW ?? 80} oninput={(e) => update('heroVisual.gradW', +e.currentTarget.value)} />
+				<label for="hv-gw">Ancho ({Math.min(hv.gradW ?? 80, 100)}%)</label>
+				<input id="hv-gw" type="range" min="10" max="100" step="5" value={hv.gradW ?? 80} oninput={(e) => update('heroVisual.gradW', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="hv-gh">Alto ({fmt(hv.gradH, 100)}%)</label>
-				<input id="hv-gh" type="range" min="10" max="100" step="5" value={hv.gradH ?? 60} oninput={(e) => update('heroVisual.gradH', +e.currentTarget.value)} />
+				<label for="hv-gh">Alto ({Math.min(hv.gradH ?? 60, 100)}%)</label>
+				<input id="hv-gh" type="range" min="10" max="100" step="5" value={hv.gradH ?? 60} oninput={(e) => update('heroVisual.gradH', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="field">
@@ -333,6 +350,11 @@
 	.field input[type="range"] {
 		width: 100%;
 		accent-color: var(--accent);
+	}
+	.field input[type="range"]:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+		border-radius: 2px;
 	}
 
 	.field input[type="checkbox"] {

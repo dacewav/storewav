@@ -6,8 +6,47 @@
 	let s = $derived($settings.data);
 	let b = $derived((s?.banner ?? {}) as BannerSettings);
 
+	/** Local slider state — updates instantly on drag */
+	let local = $state<Record<string, number>>({});
+	let localInit = false;
+
+	$effect(() => {
+		if (!b || !s || localInit) return;
+		local = {
+			speed: b.speed ?? 20,
+			delay: b.delay ?? 0,
+		};
+		localInit = true;
+	});
+
+	function onSlide(dotPath: string, localKey: string, val: number) {
+		local[localKey] = val;
+		settings.updateField(dotPath, val);
+	}
+
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
+	}
+
+	function fmt(key: string, max: number, unit = ''): string {
+		const n = local[key] ?? 0;
+		return unit ? `${Math.min(n, max)}${unit}` : String(Math.min(n, max));
+	}
+
+	function handleShiftArrows(e: KeyboardEvent) {
+		if (!e.shiftKey) return;
+		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+		e.preventDefault();
+		const input = e.currentTarget as HTMLInputElement;
+		const min = parseFloat(input.min);
+		const max = parseFloat(input.max);
+		const step = parseFloat(input.step) || 1;
+		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
+		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
+		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+		if (nativeSetter) nativeSetter.call(input, String(newVal));
+		else input.value = String(newVal);
+		input.dispatchEvent(new Event('input', { bubbles: true }));
 	}
 
 	const ANIMS = [
@@ -57,8 +96,8 @@
 				</select>
 			</div>
 			<div class="field">
-				<label for="bn-speed">Velocidad ({b.speed ?? 20}s)</label>
-				<input id="bn-speed" type="range" min="5" max="60" step="1" value={b.speed ?? 20} oninput={(e) => update('banner.speed', +e.currentTarget.value)} />
+				<label for="bn-speed">Velocidad ({fmt('speed', 60, 's')})</label>
+				<input id="bn-speed" type="range" min="5" max="60" step="1" value={local.speed ?? 20} oninput={(e) => onSlide('banner.speed', 'speed', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
@@ -75,8 +114,8 @@
 				</select>
 			</div>
 			<div class="field">
-				<label for="bn-delay">Delay ({b.delay ?? 0}s)</label>
-				<input id="bn-delay" type="range" min="0" max="10" step="0.5" value={b.delay ?? 0} oninput={(e) => update('banner.delay', +e.currentTarget.value)} />
+				<label for="bn-delay">Delay ({fmt('delay', 10, 's')})</label>
+				<input id="bn-delay" type="range" min="0" max="10" step="0.5" value={local.delay ?? 0} oninput={(e) => onSlide('banner.delay', 'delay', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Card>
@@ -112,6 +151,7 @@
 	.field input[type="text"], .field select { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color var(--duration-fast); }
 	.field input[type="text"]:focus, .field select:focus { border-color: rgba(var(--accent-rgb), 0.5); }
 	.field input[type="range"] { width: 100%; accent-color: var(--accent); }
+	.field input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 	.field input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 	.row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 	.row .field { flex: 1; min-width: 120px; }
