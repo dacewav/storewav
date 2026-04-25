@@ -1,6 +1,6 @@
 # 📋 AUDIT-MASTER.md — Guía Maestra
 
-> **Última actualización: 2026-04-25 13:29 (Session 26)**
+> **Última actualización: 2026-04-25 14:10 (Session 27 — Audit + MEGA-PLAN completo)**
 > **Lee este archivo primero en cualquier sesión nueva.**
 
 ---
@@ -274,6 +274,17 @@ firebase-deployed-rules.json     Firebase rules (referencia)
 2. **`position: fixed` + `parentElement.getBoundingClientRect()` = 0x0** — Un canvas con `position: fixed; inset: 0` se posiciona relativo al viewport, pero su `parentElement` puede tener dimensiones 0. Usar `window.innerWidth/Height` directamente.
 3. **Verificar en browser ANTES de codear** — Session 22 intentó fixear 4 bugs con cambios de código, pero el root cause era infraestructura (Firebase config). 10 minutos de diagnóstico en browser habrían salvado horas de código innecesario.
 4. **`CLOUDFLARE_ACCOUNT_ID` necesario** — Wrangler necesita `CLOUDFLARE_ACCOUNT_ID` además de `CLOUDFLARE_API_TOKEN` para evitar el error de `/memberships`.
+
+### Sesión 2026-04-25 (Session 27 — MEGA-PLAN completado + Audit)
+
+1. **Debounced batched writes** — Sliders que hacen 1 Firebase write por frame son el #1 performance killer. Solución: `updateFieldDebounced` con 300ms debounce que agrupa cambios en un solo batch. Undo se trackea inmediatamente, el write va deferred.
+2. **Admin mobile = bottom nav** — El sidebar slide-in es malo en mobile. Un bottom nav fijo con 12 secciones + emoji es mejor UX. El hamburger repurposed → abre Command Palette.
+3. **Touch sliders necesitan 24px thumb** — El thumb default de los range inputs es demasiado pequeño en mobile. 24px con box-shadow es el mínimo para touch-friendly.
+4. **A11y: `role="dialog"` necesita `tabindex`** — Los elementos con `role="dialog"` requieren `tabindex` o svelte-check warning. Backdrops usan `role="presentation"`.
+5. **`onerror` en `<img>` necesita cast** — `e.currentTarget.style.display` requiere cast `as HTMLImageElement` para TypeScript en Svelte 5.
+6. **Dead code en exports** — `actions.ts` tiene 7 exports no usados (`tilt`, `parallax`, `staggerReveal`, `reveal`, `siblingBlur`, `ripple`, `countUp`). `cardStyleEngine.ts` tiene 3 (`cardHoverClass`, `cardHoverCSS`, `shimmerCSS`). Revisar y limpiar.
+7. **Onboarding = localStorage flag** — Un modal de 4 pasos con `localStorage.setItem('admin-onboard-seen', '1')` es suficiente. No necesita backend ni user tracking.
+8. **HelpTip = componente reutilizable** — Un `?` icon con tooltip inline es más descubrible que documentación externa. Aplicar a secciones críticas (Colores, Glow, Paleta).
 
 ---
 
