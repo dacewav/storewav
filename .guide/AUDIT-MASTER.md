@@ -90,16 +90,17 @@ Límite:    50 min por sesión de chat
 | Card style engine | ✅ | Glow, filters, border, shadow, hover, shimmer, 40+ animation presets |
 | Actions | ✅ | tilt, parallax, staggerReveal, reveal, siblingBlur, ripple, countUp |
 
-### 🐛 Bugs Activos (Audit v5 — 2026-04-25)
+### 🐛 Bugs Activos (Audit v6 — 2026-04-25)
 
-> **Session 23**: Root cause encontrado — Firebase dummy config en deployment. Todos los bugs fixeados.
+> **Session 23**: Firebase dummy config + particles rendering fix. Deep browser audit.
 
 | Bug | Severidad | Estado | Detalle |
 |-----|-----------|--------|---------|
-| Particles no visibles | 🔴 CRÍTICO | ✅ FIXEADO | Firebase dummy + canvas sizing fix (viewport dims) |
-| Shimmer diseño | 🟡 MED | ✅ VERIFICADO | "Noche Oscura" tiene shimmer overlay activo |
-| Save button vacío | 🟡 ALTO | ✅ FIXEADO | Firebase dummy — writes ahora funcionan |
-| Shortcuts rotos | 🟡 ALTO | ✅ FIXEADO | Firebase dummy — handlers ya estaban correctos |
+| Particles no visibles | 🔴 CRÍTICO | ✅ FIXEADO | z-index:0→10, color boost, size 3-8px, font 18px min, alpha formula fix |
+| Shimmer diseño | 🟡 MED | ✅ VERIFICADO | "Noche Oscura" shimmer visible en browser (diagonal sweep) |
+| Save button vacío | 🟡 ALTO | ⚠️ NO VERIFICADO | Requiere admin login (Firebase anon auth puede no estar habilitado) |
+| Shortcuts rotos | 🟡 ALTO | ⚠️ NO VERIFICADO | Requiere admin login para probar Ctrl+S/Z |
+| Sin conexión banner | 🟡 MED | ✅ RESUELTO | Transitorio — Firebase RTDB tarda en reportar .info/connected |
 | No lazy loading admin | ⚪ BAJA | ⬜ Pendiente | SvelteKit code-splitting |
 | CSS keyframes no usados | ⚪ BAJA | ⬜ Pendiente | 34 keyframes |
 
