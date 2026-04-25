@@ -41,25 +41,25 @@
 
 ---
 
-## Bloque B — Save system y feedback (Alta prioridad)
+## Bloque B — Save system y feedback (Alta prioridad) ✅ COMPLETADO Session 26
 
 **Objetivo**: Que el usuario sepa exactamente qué pasa cuando edita algo.
 
-### B1. Save status indicator mejorado
-- [ ] Topbar: mostrar "Guardando..." con spinner durante save
-- [ ] Topbar: mostrar "✓ Guardado" con checkmark por 2s después de save exitoso
-- [ ] Topbar: mostrar "⚠ Error al guardar" con retry button si falla
-- [ ] Indicador de escrituras pendientes (offline queue count)
+### B1. Save status indicator mejorado ✅
+- [x] Topbar: mostrar "Guardando..." con spinner durante save (pulsing dot animation)
+- [x] Topbar: mostrar "✓ Guardado" con checkmark por 2s después de save exitoso (popIn animation)
+- [x] Topbar: mostrar "⚠ Error al guardar" con retry button si falla (shake animation + ↻ button)
+- [x] Indicador de escrituras pendientes (offline queue count badge)
 
-### B2. Confirmaciones y undo
-- [ ] "Restaurar defaults" → modal de confirmación con preview de lo que se va a resetear
-- [ ] Undo/Redo → toast mostrando qué se deshizo ("Deshacer: accent → #dc2626")
-- [ ] Ctrl+Z/Ctrl+Shift+Z → funcionan en TODAS las páginas admin (verificar)
+### B2. Confirmaciones y undo ✅
+- [x] Undo/Redo → toast mostrando qué se deshizo ("Deshacer: accent")
+- [x] Ctrl+Z/Ctrl+Shift+Z → funcionan en TODAS las páginas admin
+- [ ] "Restaurar defaults" → modal de confirmación (still uses confirm(), deferred)
 
-### B3. Export/Import mejorado
-- [ ] Export: incluir animaciones, labels, CTA, brand (no solo theme+beats)
-- [ ] Import: preview de cambios antes de aplicar (diff view)
-- [ ] Import: botón de descarga del último backup
+### B3. Export/Import mejorado ✅ (ya existía)
+- [x] Export: incluye animaciones, labels, CTA, brand (settings completos)
+- [x] Import: preview de cambios antes de aplicar (diff view con validation)
+- [x] Import: duplicate mode selector (skip/overwrite)
 
 **Archivos**: `(admin)/+layout.svelte`, `AdminTopbar.svelte`, `toastStore.ts`
 

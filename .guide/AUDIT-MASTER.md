@@ -114,8 +114,9 @@ Límite:    50 min por sesión de chat
 | Commit | Qué |
 |--------|-----|
 | `4568761` | Bloque A: particles reactivity, local state (layout/banner/animations), slider keyboard support |
+| `d5c3bfc` | Bloque B: save status animation, undo toast with field name, pending writes indicator |
 
-**Deploy:** Pages `cbddb9c9` (4568761) — Production active
+**Deploy:** Pages auto-deploy from Git push
 **Tests:** 107 passing, 0 failures
 **svelte-check:** 8 env var errors (expected), 0 warnings
 
