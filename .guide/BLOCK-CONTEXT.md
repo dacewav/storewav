@@ -11,8 +11,8 @@ bloque: "Card Style UI Rebuild"
 objetivo: "Rebuild completo de la UI de Card Style — de 3 controles a 30+ propiedades"
 tiempo: "50 min"
 estado: "COMPLETADO"
-último_commit: ""
-último_push: ""
+último_commit: "ee50a32"
+último_push: "ee50a32"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 tests_total: 107
 nuevos_tests: 0
