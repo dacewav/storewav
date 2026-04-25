@@ -9,14 +9,26 @@
 sesión: "23"
 bloque: "Firebase config + Particles rendering + Deep audit"
 objetivo: "Fix 4 bugs reales diagnosticando en browser"
-tiempo: "45 min"
-estado: "✅ COMPLETADO — push hecho"
-último_commit: "7613f67"
-último_push: "7613f67"
+tiempo: "50 min"
+estado: "✅ COMPLETADO — push hecho, particles visibles confirmado por usuario"
+último_commit: "fb217df"
+último_push: "fb217df"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 deploy_version: "4b3b2f78"
 tests_total: 107
 ```
+
+### Session 23 — Resultados
+
+**Particles**: ✅ VISIBLES — usuario confirma que se ven.
+**Shimmer**: ✅ Verificado en browser.
+**Save/Shortcuts**: ⚠️ Pendiente verificar con admin login.
+
+### Siguiente sesión: verificar errores restantes
+- Habilitar Anonymous Auth en Firebase Console para poder testear admin
+- Verificar save button y shortcuts en admin
+- Buscar otros bugs visuales o funcionales
+- Posible issue: admin auth "Permission denied" al revisar adminWhitelist
 
 ### Session 23 — Diagnóstico + Fixes
 
