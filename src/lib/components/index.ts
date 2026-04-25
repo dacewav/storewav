@@ -34,4 +34,5 @@ export { default as AdminSkeleton } from './AdminSkeleton.svelte';
 export { default as AdminOnboard } from './AdminOnboard.svelte';
 export { default as HelpTip } from './HelpTip.svelte';
 export { default as FloatingElement } from './FloatingElement.svelte';
+export { default as ThemePresetCard } from './ThemePresetCard.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

@@ -1,132 +1,147 @@
 /**
- * Theme Presets — save/load theme configurations
+ * Theme Presets — save/load full theme configurations
  *
  * Firebase path: themePresets/
- * Each preset: { id, name, theme: ThemeSettings, createdAt }
+ * Structure: { [id]: { name, theme: ThemeSettings, createdAt } }
  */
 
-import { writable, derived } from 'svelte/store';
+import { writable, get } from 'svelte/store';
+import { ref, onValue, set, remove, push } from 'firebase/database';
 import { getDb } from '$lib/firebase';
-import { settings, type ThemeSettings } from './settings';
+import type { ThemeSettings } from './settings';
+import { settings } from './settings';
 import { toast } from '$lib/toastStore';
 
 export type ThemePreset = {
 	id: string;
 	name: string;
-	theme: Partial<ThemeSettings>;
+	theme: ThemeSettings;
 	createdAt: number;
 };
 
-const presetsStore = writable<ThemePreset[]>([]);
-let unsub: (() => void) | null = null;
+function createThemePresetsStore() {
+	const presets = writable<ThemePreset[]>([]);
+	let _unsub: (() => void) | null = null;
+	let _initialized = false;
 
-/** Start listening to themePresets/ in Firebase */
-export async function initThemePresets() {
-	if (unsub) return;
-	try {
-		const db = await getDb();
-		if (!db) return;
-		const { ref, onValue } = await import('firebase/database');
-		unsub = onValue(ref(db, 'themePresets'), (snap) => {
-			const val = snap.val();
-			if (!val) {
-				presetsStore.set([]);
-				return;
-			}
-			const list: ThemePreset[] = Object.entries(val).map(([id, data]) => ({
-				id,
-				...(data as Omit<ThemePreset, 'id'>)
-			}));
-			list.sort((a, b) => b.createdAt - a.createdAt);
-			presetsStore.set(list);
-		});
-	} catch (err) {
-		console.error('[ThemePresets] Init failed:', err);
-	}
-}
-
-/** Save current theme as a new preset */
-export async function savePreset(name: string): Promise<string | null> {
-	try {
-		const db = await getDb();
-		if (!db) throw new Error('Firebase not available');
-
-		// Capture current theme
-		let currentTheme: Partial<ThemeSettings> = {};
-		const unsubSnap = settings.subscribe((s) => {
-			if (s.data?.theme) {
-				currentTheme = { ...s.data.theme };
-			}
-		});
-		unsubSnap();
-
-		const { ref, push, set: fbSet } = await import('firebase/database');
-		const newRef = push(ref(db, 'themePresets'));
-		const preset: Omit<ThemePreset, 'id'> = {
-			name,
-			theme: currentTheme,
-			createdAt: Date.now()
-		};
-		await fbSet(newRef, preset);
-		toast.success(`Preset "${name}" guardado`);
-		return newRef.key;
-	} catch (err) {
-		console.error('[ThemePresets] Save failed:', err);
-		toast.error('Error al guardar preset');
-		return null;
-	}
-}
-
-/** Load a preset — apply its theme to current settings */
-export async function loadPreset(preset: ThemePreset): Promise<void> {
-	try {
-		// Apply each theme key via updateField
-		for (const [key, value] of Object.entries(preset.theme)) {
-			if (value !== undefined && value !== null) {
-				await settings.updateField(`theme.${key}`, value);
-			}
+	function init() {
+		if (_initialized) return;
+		_initialized = true;
+		try {
+			const db = getDb();
+			const r = ref(db, 'themePresets');
+			_unsub = onValue(r, (snap) => {
+				const val = snap.val();
+				if (!val || typeof val !== 'object') {
+					presets.set([]);
+					return;
+				}
+				const list: ThemePreset[] = Object.entries(val)
+					.map(([id, data]: [string, any]) => ({
+						id,
+						name: data.name ?? 'Unnamed',
+						theme: data.theme ?? {},
+						createdAt: data.createdAt ?? 0
+					}))
+					.sort((a, b) => b.createdAt - a.createdAt);
+				presets.set(list);
+			});
+		} catch (e) {
+			console.warn('[ThemePresets] Firebase not available:', e);
 		}
-		toast.success(`Preset "${preset.name}" aplicado`);
-	} catch (err) {
-		console.error('[ThemePresets] Load failed:', err);
-		toast.error('Error al cargar preset');
 	}
+
+	async function savePreset(name: string): Promise<string | null> {
+		try {
+			const db = getDb();
+			const currentSettings = get(settings).data;
+			if (!currentSettings?.theme) {
+				toast.error('No hay tema para guardar');
+				return null;
+			}
+			const newRef = push(ref(db, 'themePresets'));
+			const preset: Omit<ThemePreset, 'id'> = {
+				name: name.trim() || 'Preset sin nombre',
+				theme: { ...currentSettings.theme },
+				createdAt: Date.now()
+			};
+			await set(newRef, preset);
+			toast.success(`Preset "${preset.name}" guardado`);
+			return newRef.key;
+		} catch (e) {
+			console.error('[ThemePresets] Save error:', e);
+			toast.error('Error al guardar preset');
+			return null;
+		}
+	}
+
+	async function loadPreset(id: string): Promise<boolean> {
+		try {
+			const current = get(presets);
+			const preset = current.find((p) => p.id === id);
+			if (!preset) {
+				toast.error('Preset no encontrado');
+				return false;
+			}
+			// Apply theme via settings store
+			await settings.set({ theme: preset.theme } as any);
+			toast.success(`Tema "${preset.name}" aplicado`);
+			return true;
+		} catch (e) {
+			console.error('[ThemePresets] Load error:', e);
+			toast.error('Error al cargar preset');
+			return false;
+		}
+	}
+
+	async function deletePreset(id: string): Promise<boolean> {
+		try {
+			const db = getDb();
+			await remove(ref(db, `themePresets/${id}`));
+			toast.success('Preset eliminado');
+			return true;
+		} catch (e) {
+			console.error('[ThemePresets] Delete error:', e);
+			toast.error('Error al eliminar preset');
+			return false;
+		}
+	}
+
+	async function renamePreset(id: string, newName: string): Promise<boolean> {
+		try {
+			const db = getDb();
+			const current = get(presets);
+			const preset = current.find((p) => p.id === id);
+			if (!preset) return false;
+			await set(ref(db, `themePresets/${id}/name`), newName.trim());
+			return true;
+		} catch (e) {
+			console.error('[ThemePresets] Rename error:', e);
+			return false;
+		}
+	}
+
+	function destroy() {
+		_unsub?.();
+		_unsub = null;
+		_initialized = false;
+	}
+
+	return {
+		subscribe: presets.subscribe,
+		init,
+		savePreset,
+		loadPreset,
+		deletePreset,
+		renamePreset,
+		destroy
+	};
 }
 
-/** Delete a preset */
-export async function deletePreset(id: string): Promise<void> {
-	try {
-		const db = await getDb();
-		if (!db) throw new Error('Firebase not available');
-		const { ref, remove } = await import('firebase/database');
-		await remove(ref(db, `themePresets/${id}`));
-		toast.success('Preset eliminado');
-	} catch (err) {
-		console.error('[ThemePresets] Delete failed:', err);
-		toast.error('Error al eliminar preset');
-	}
-}
-
-/** Rename a preset */
-export async function renamePreset(id: string, newName: string): Promise<void> {
-	try {
-		const db = await getDb();
-		if (!db) throw new Error('Firebase not available');
-		const { ref, update: fbUpdate } = await import('firebase/database');
-		await fbUpdate(ref(db, `themePresets/${id}`), { name: newName });
-		toast.success('Preset renombrado');
-	} catch (err) {
-		console.error('[ThemePresets] Rename failed:', err);
-		toast.error('Error al renombrar preset');
-	}
-}
-
-/** Destroy listener */
-export function destroyThemePresets() {
-	if (unsub) {
-		unsub();
-		unsub = null;
-	}
-}
-
-export const themePresets = { subscribe: presetsStore.subscribe };
+export const themePresets = createThemePresetsStore();
+export const initThemePresets = () => themePresets.init();
+export const destroyThemePresets = () => themePresets.destroy();
+export const savePreset = (name: string) => themePresets.savePreset(name);
+export const loadPreset = (preset: ThemePreset | string) => themePresets.loadPreset(typeof preset === 'string' ? preset : preset.id);
+export const deletePreset = (id: string) => themePresets.deletePreset(id);
+export const renamePreset = (id: string, name: string) => themePresets.renamePreset(id, name);
