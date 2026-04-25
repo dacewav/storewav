@@ -8,6 +8,7 @@ import { initTheme } from './theme';
 import { initAuth } from './auth';
 import { beats } from './beats';
 import { initConnection } from './connection';
+import { dev } from '$app/environment';
 
 let initialized = false;
 
@@ -15,7 +16,7 @@ export async function initStores() {
 	if (initialized) return;
 	initialized = true;
 
-	console.log('[Init] Starting store initialization...');
+	if (dev) console.log('[Init] Starting store initialization...');
 
 	// Fire-and-forget — cada store maneja sus errores internamente
 	const results = await Promise.allSettled([
@@ -26,7 +27,7 @@ export async function initStores() {
 		initConnection()
 	]);
 
-	console.log('[Init] Stores initialized:', results.map((r, i) => {
+	if (dev) console.log('[Init] Stores initialized:', results.map((r, i) => {
 		const names = ['settings', 'theme', 'auth', 'beats', 'connection'];
 		return `${names[i]}: ${r.status}`;
 	}));

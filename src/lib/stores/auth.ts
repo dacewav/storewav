@@ -10,6 +10,7 @@
 import { writable } from 'svelte/store';
 import { getAuthInstance } from '$lib/firebase';
 import { PUBLIC_ADMIN_UIDS } from '$env/static/public';
+import { dev } from '$app/environment';
 
 export type AuthUser = {
 	uid: string;
@@ -28,7 +29,7 @@ export type AuthState = {
 
 const ADMIN_UIDS: string[] = PUBLIC_ADMIN_UIDS.split(',').map((s: string) => s.trim()).filter(Boolean);
 
-console.log('[Auth] Admin UIDs configured:', ADMIN_UIDS.length);
+if (dev) console.log('[Auth] Admin UIDs configured:', ADMIN_UIDS.length);
 
 const store = writable<AuthState>({ user: null, isAdmin: false, adminChecked: false, loading: true, error: null });
 let unsub: (() => void) | null = null;
@@ -37,11 +38,11 @@ let unsub: (() => void) | null = null;
 async function checkAdmin(uid: string, email?: string | null): Promise<boolean> {
 	// Fast path: local UIDs
 	if (ADMIN_UIDS.includes(uid)) {
-		console.log('[Auth] Admin confirmed via local UID');
+		if (dev) console.log('[Auth] Admin confirmed via local UID');
 		return true;
 	}
 
-	console.log('[Auth] UID not in local list, checking Firebase...', { uid, email });
+	if (dev) console.log('[Auth] UID not in local list, checking Firebase...', { uid, email });
 
 	try {
 		const db = await (await import('$lib/firebase')).getDb();
@@ -55,14 +56,14 @@ async function checkAdmin(uid: string, email?: string | null): Promise<boolean> 
 		// Check adminWhitelist/approved/{uid}
 		const approvedSnap = await get(ref(db, `adminWhitelist/approved/${uid}`));
 		if (approvedSnap.exists()) {
-			console.log('[Auth] Admin confirmed via Firebase whitelist');
+			if (dev) console.log('[Auth] Admin confirmed via Firebase whitelist');
 			return true;
 		}
 
 		// Fallback: legacy admins/{uid} (backward compat)
 		const legacySnap = await get(ref(db, `admins/${uid}`));
 		if (legacySnap.val() === true) {
-			console.log('[Auth] Admin confirmed via legacy admins/');
+			if (dev) console.log('[Auth] Admin confirmed via legacy admins/');
 			return true;
 		}
 

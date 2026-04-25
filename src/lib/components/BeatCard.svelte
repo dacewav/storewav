@@ -102,7 +102,7 @@
 		</button>
 
 		<!-- Wishlist -->
-		<button class="beat-wish" class:active={$inWishlist} onclick={handleWishlist} aria-label="{$inWishlist ? 'Quitar de' : 'Añadir a'} favoritos">
+		<button class="beat-wish" class:active={$inWishlist} onclick={handleWishlist} aria-label="{$inWishlist ? 'Quitar de' : 'Añadir a'} favoritos" aria-pressed={$inWishlist}>
 			<Icon name="heart" size={14} filled={$inWishlist} />
 		</button>
 
@@ -211,6 +211,7 @@
 		content: '';
 		position: absolute;
 		inset: 0;
+		opacity: var(--shimmer-opacity, 1);
 		background: linear-gradient(
 			105deg,
 			transparent 40%,

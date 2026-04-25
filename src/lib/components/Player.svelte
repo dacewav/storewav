@@ -40,7 +40,7 @@
 			<!-- Cover + Info -->
 			<div class="player-info">
 				{#if state.imageUrl}
-					<img class="player-cover" src={state.imageUrl} alt="" decoding="async" />
+					<img class="player-cover" src={state.imageUrl} alt="{state.name} cover" decoding="async" />
 				{:else}
 					<div class="player-cover player-cover-placeholder">🎵</div>
 				{/if}

@@ -3,32 +3,27 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 17 — Integration Tests (Bloque 3)
+## Sesión Actual: 18 — Deep Audit + Fixes
 
 ```yaml
-sesión: "17"
-bloque: "3 — Integration Tests (Firebase Mock)"
-objetivo: "Integration tests con Firebase mockeado"
+sesión: "18"
+bloque: "Deep Audit + Fixes"
+objetivo: "Audit profundo + fixes de bugs, a11y, dead code, console cleanup"
 tiempo: "50 min"
-estado: "COMPLETADO"
+estado: "EN PROGRESO"
 último_commit: "pendiente"
 último_push: "pendiente"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
 tests_total: 80
-tests_integration: 28
 ```
 
-### Session 17 — Integration Tests (50 min)
-1. ✅ Firebase mock completo (database, auth, $env/static/public, $app/environment)
-2. ✅ Settings migration: flat→nested, globalCardStyle, animations, labels, CTA, realistic payload
-3. ✅ Beats derived stores: allBeatsList, beatsList, beatsStats, genres, allTags, empty state
-4. ✅ Beats CRUD: emptyBeat, createBeat, updateBeat, deleteBeat, reorderBeat, swapBeatOrders
-5. ✅ Wishlist: toggle, has, clear, isIn reactive
-6. ✅ Auth: initAuth, loginAnonymously, logout, destroyAuth
-7. ✅ Settings: Firebase subscription, canUndo/canRedo state
-8. ✅ Build — 0 errores
-9. ✅ 80 tests pasando (6 archivos)
-10. ⬜ Push
+### Session 18 — Deep Audit + Fixes
+1. ✅ shimmerOpacity bug — added to CardStyleConfig type + engine
+2. ✅ console.log gated behind dev (auth.ts, init.ts)
+3. ✅ AdminSidebar dead code removed (118 lines)
+4. ✅ Meaningful alt text (Player, WishlistPanel)
+5. ✅ aria-pressed on wishlist toggle (BeatCard)
+6. ⬜ Push
 
 ### Session 6 — Accessibility + SEO (50 min)
 1. ⬜ aria-label en botones sin texto

@@ -110,6 +110,7 @@ export type CardStyleConfig = {
 	shimmer?: boolean;
 	shimmerColor?: string;
 	shimmerDuration?: string;
+	shimmerOpacity?: number; // 0-1, controls shimmer overlay intensity
 };
 
 const DEFAULT: CardStyleConfig = {
@@ -475,5 +476,6 @@ export function cardHoverCSS(style: CardStyleConfig, accentRgb: string): string 
  */
 export function shimmerCSS(style: CardStyleConfig): string {
 	if (!style.shimmer) return '';
-	return `position: relative; overflow: hidden;`;
+	const opacity = style.shimmerOpacity ?? 1;
+	return `position: relative; overflow: hidden; --shimmer-opacity: ${opacity};`;
 }
