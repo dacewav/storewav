@@ -847,8 +847,8 @@
 					<div class="preset-card">
 						<div class="preset-colors">
 							<span class="preset-dot" style="background: {preset.theme.accent ?? '#dc2626'}"></span>
-							<span class="preset-dot" style="background: {preset.theme.bgColor ?? preset.theme.bg ?? '#0f0c0b'}"></span>
-							<span class="preset-dot" style="background: {preset.theme.surfaceColor ?? preset.theme.surface ?? '#1a1a2e'}"></span>
+							<span class="preset-dot" style="background: {(preset.theme as Record<string, unknown>).bgColor ?? (preset.theme as Record<string, unknown>).bg ?? '#0f0c0b'}"></span>
+							<span class="preset-dot" style="background: {(preset.theme as Record<string, unknown>).surfaceColor ?? (preset.theme as Record<string, unknown>).surface ?? '#1a1a2e'}"></span>
 						</div>
 						<div class="preset-info">
 							{#if editingPresetId === preset.id}
