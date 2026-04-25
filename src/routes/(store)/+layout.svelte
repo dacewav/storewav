@@ -56,6 +56,7 @@
 	let particlesSizeMin = $derived(settingsData?.theme?.particlesSizeMin ?? 3);
 	let particlesSizeMax = $derived(settingsData?.theme?.particlesSizeMax ?? 8);
 	let customCSS = $derived(settingsData?.theme?.customCSS ?? '');
+	let animCustomCSS = $derived(settingsData?.animations?.animCustomCSS ?? '');
 	let footerVisible = $derived(settingsData?.layout?.footerVisible !== false);
 	let navHeight = $derived(settingsData?.layout?.navHeight ?? 64);
 
@@ -236,6 +237,10 @@
 	{#if customCSS}
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html `<style>${customCSS}</style>`}
+	{/if}
+	{#if animCustomCSS}
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+		{@html `<style>${animCustomCSS}</style>`}
 	{/if}
 </svelte:head>
 

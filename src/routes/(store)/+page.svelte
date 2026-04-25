@@ -86,6 +86,14 @@
 	let animDuration = $derived(anim.animDuration ?? 2);
 	let animDelay = $derived(anim.animDelay ?? 0);
 	let animEasing = $derived(anim.animEasing ?? 'ease-in-out');
+	let animCards = $derived(anim.animCards ?? 'none');
+	let animCardsDur = $derived(anim.animCardsDur ?? animDuration);
+	let animCardsDel = $derived(anim.animCardsDel ?? animDelay);
+	let animCardsEase = $derived(anim.animCardsEase ?? animEasing);
+	let animButtons = $derived(anim.animButtons ?? 'none');
+	let animButtonsDur = $derived(anim.animButtonsDur ?? animDuration);
+	let animButtonsDel = $derived(anim.animButtonsDel ?? animDelay);
+	let animButtonsEase = $derived(anim.animButtonsEase ?? animEasing);
 
 	// License count from first beat (or default 4)
 	let licenseCount = $derived(beats.length > 0 && beats[0].licenses ? beats[0].licenses.length : 4);
@@ -307,7 +315,7 @@
 	<!-- Beat grid -->
 	{#if beats.length > 0}
 		{#if filteredBeats.length > 0}
-			<div class="beat-grid" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ blur: 3, opacity: 0.5 }}>
+			<div class="beat-grid{animCards && animCards !== 'none' ? ` anim-${animCards}` : ''}" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ blur: 3, opacity: 0.5 }} style="{animCards && animCards !== 'none' ? `--anim-dur: ${animCardsDur}s; --anim-del: ${animCardsDel}s; --anim-ease: ${animCardsEase}` : ''}">
 				{#each filteredBeats as beat (beat.id)}
 					<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 				{/each}
@@ -336,7 +344,7 @@
 	{#if ctaSub}
 	<div class="cta-sub">{ctaSub}</div>
 	{/if}
-	<a class="cta-btn" href={ctaUrl} target="_blank" rel="noopener">
+	<a class="cta-btn{animButtons && animButtons !== 'none' ? ` anim-${animButtons}` : ''}" href={ctaUrl} target="_blank" rel="noopener" style="{animButtons && animButtons !== 'none' ? `animation-duration: ${animButtonsDur}s; animation-delay: ${animButtonsDel}s; animation-timing-function: ${animButtonsEase}` : ''}">
 		<Icon name="whatsapp" size={16} />
 		{ctaBtn}
 	</a>
@@ -761,4 +769,37 @@
 	.anim-slide-up { animation-name: anim-slide-up; }
 	.anim-slide-down { animation-name: anim-slide-down; }
 	.anim-fade-in { animation-name: anim-fade-in; }
+
+	/* Card animations — applied via beat-grid class */
+	.beat-grid.anim-float > *,
+	.beat-grid.anim-pulse > *,
+	.beat-grid.anim-bounce > *,
+	.beat-grid.anim-spin > *,
+	.beat-grid.anim-shake > *,
+	.beat-grid.anim-glow > *,
+	.beat-grid.anim-slide-up > *,
+	.beat-grid.anim-slide-down > *,
+	.beat-grid.anim-fade-in > * {
+		animation-fill-mode: both;
+		animation-iteration-count: infinite;
+		animation-duration: var(--anim-dur, 2s);
+		animation-timing-function: var(--anim-ease, ease-in-out);
+	}
+	.beat-grid.anim-float > * { animation-name: anim-float; }
+	.beat-grid.anim-pulse > * { animation-name: anim-pulse; }
+	.beat-grid.anim-bounce > * { animation-name: anim-bounce; }
+	.beat-grid.anim-spin > * { animation-name: anim-spin; }
+	.beat-grid.anim-shake > * { animation-name: anim-shake; }
+	.beat-grid.anim-glow > * { animation-name: anim-glow; }
+	.beat-grid.anim-slide-up > * { animation-name: anim-slide-up; }
+	.beat-grid.anim-slide-down > * { animation-name: anim-slide-down; }
+	.beat-grid.anim-fade-in > * { animation-name: anim-fade-in; }
+	/* Stagger delay for cards */
+	.beat-grid[class*="anim-"] > *:nth-child(1) { animation-delay: calc(var(--anim-del, 0s) + 0s); }
+	.beat-grid[class*="anim-"] > *:nth-child(2) { animation-delay: calc(var(--anim-del, 0s) + 0.05s); }
+	.beat-grid[class*="anim-"] > *:nth-child(3) { animation-delay: calc(var(--anim-del, 0s) + 0.1s); }
+	.beat-grid[class*="anim-"] > *:nth-child(4) { animation-delay: calc(var(--anim-del, 0s) + 0.15s); }
+	.beat-grid[class*="anim-"] > *:nth-child(5) { animation-delay: calc(var(--anim-del, 0s) + 0.2s); }
+	.beat-grid[class*="anim-"] > *:nth-child(6) { animation-delay: calc(var(--anim-del, 0s) + 0.25s); }
+	.beat-grid[class*="anim-"] > *:nth-child(n+7) { animation-delay: calc(var(--anim-del, 0s) + 0.3s); }
 </style>

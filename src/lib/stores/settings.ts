@@ -264,9 +264,32 @@ export type AnimationSettings = {
 	animCards: AnimPreset;
 	animButtons: AnimPreset;
 	animWaveform: AnimPreset;
-	animDuration: number; // seconds, default 2
-	animDelay: number; // seconds, default 0
-	animEasing: string; // CSS easing, default 'ease-in-out'
+	animDuration: number; // global default seconds, default 2
+	animDelay: number; // global default seconds, default 0
+	animEasing: string; // global default CSS easing, default 'ease-in-out'
+
+	// Per-element timing (optional, falls back to global)
+	animLogoDur?: number;
+	animLogoDel?: number;
+	animLogoEase?: string;
+	animTitleDur?: number;
+	animTitleDel?: number;
+	animTitleEase?: string;
+	animCardsDur?: number;
+	animCardsDel?: number;
+	animCardsEase?: string;
+	animButtonsDur?: number;
+	animButtonsDel?: number;
+	animButtonsEase?: string;
+	animPlayerDur?: number;
+	animPlayerDel?: number;
+	animPlayerEase?: string;
+	animWaveformDur?: number;
+	animWaveformDel?: number;
+	animWaveformEase?: string;
+
+	// Custom CSS keyframes
+	animCustomCSS?: string;
 };
 
 export type LabelSettings = {

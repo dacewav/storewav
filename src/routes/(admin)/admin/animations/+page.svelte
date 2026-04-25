@@ -15,6 +15,19 @@
 		local = {
 			animDuration: anim.animDuration ?? 2,
 			animDelay: anim.animDelay ?? 0,
+			// Per-element timing (falls back to global)
+			animLogoDur: anim.animLogoDur ?? anim.animDuration ?? 2,
+			animLogoDel: anim.animLogoDel ?? anim.animDelay ?? 0,
+			animTitleDur: anim.animTitleDur ?? anim.animDuration ?? 2,
+			animTitleDel: anim.animTitleDel ?? anim.animDelay ?? 0,
+			animCardsDur: anim.animCardsDur ?? anim.animDuration ?? 2,
+			animCardsDel: anim.animCardsDel ?? anim.animDelay ?? 0,
+			animButtonsDur: anim.animButtonsDur ?? anim.animDuration ?? 2,
+			animButtonsDel: anim.animButtonsDel ?? anim.animDelay ?? 0,
+			animPlayerDur: anim.animPlayerDur ?? anim.animDuration ?? 2,
+			animPlayerDel: anim.animPlayerDel ?? anim.animDelay ?? 0,
+			animWaveformDur: anim.animWaveformDur ?? anim.animDuration ?? 2,
+			animWaveformDel: anim.animWaveformDel ?? anim.animDelay ?? 0,
 		};
 		localInit = true;
 	});
@@ -73,13 +86,18 @@
 	];
 
 	const ANIM_ITEMS = [
-		{ key: 'animLogo', label: 'Logo / Brand', icon: '🏷️' },
-		{ key: 'animTitle', label: 'Título Hero', icon: '✨' },
-		{ key: 'animPlayer', label: 'Player Bar', icon: '🎵' },
-		{ key: 'animCards', label: 'Beat Cards', icon: '🃏' },
-		{ key: 'animButtons', label: 'Botones', icon: '🔘' },
-		{ key: 'animWaveform', label: 'Waveform', icon: '📊' }
+		{ key: 'animLogo', label: 'Logo / Brand', icon: '🏷️', durKey: 'animLogoDur', delKey: 'animLogoDel', easeKey: 'animLogoEase' },
+		{ key: 'animTitle', label: 'Título Hero', icon: '✨', durKey: 'animTitleDur', delKey: 'animTitleDel', easeKey: 'animTitleEase' },
+		{ key: 'animCards', label: 'Beat Cards', icon: '🃏', durKey: 'animCardsDur', delKey: 'animCardsDel', easeKey: 'animCardsEase' },
+		{ key: 'animButtons', label: 'Botones CTA', icon: '🔘', durKey: 'animButtonsDur', delKey: 'animButtonsDel', easeKey: 'animButtonsEase' },
+		{ key: 'animPlayer', label: 'Player Bar', icon: '🎵', durKey: 'animPlayerDur', delKey: 'animPlayerDel', easeKey: 'animPlayerEase' },
+		{ key: 'animWaveform', label: 'Waveform', icon: '📊', durKey: 'animWaveformDur', delKey: 'animWaveformDel', easeKey: 'animWaveformEase' }
 	];
+
+	/** Get per-element easing or global fallback */
+	function getEase(key: string): string {
+		return (anim as Record<string, unknown>)[key] as string ?? anim.animEasing ?? 'ease-in-out';
+	}
 </script>
 
 <div class="editor">
@@ -101,6 +119,25 @@
 					</select>
 				</div>
 			</div>
+			{#if (anim as Record<string, unknown>)[item.key] && (anim as Record<string, unknown>)[item.key] !== 'none'}
+				<div class="anim-timing">
+					<div class="timing-row">
+						<div class="timing-field">
+							<span class="timing-label">Dur: {fmt(item.durKey, 10, 's')}</span>
+							<input type="range" min="0.2" max="10" step="0.1" value={local[item.durKey] ?? 2} oninput={(e) => onSlide(`animations.${item.durKey}`, item.durKey, +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+						</div>
+						<div class="timing-field">
+							<span class="timing-label">Del: {fmt(item.delKey, 5, 's')}</span>
+							<input type="range" min="0" max="5" step="0.1" value={local[item.delKey] ?? 0} oninput={(e) => onSlide(`animations.${item.delKey}`, item.delKey, +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+						</div>
+						<div class="timing-field">
+							<select value={getEase(item.easeKey)} onchange={(e) => update(`animations.${item.easeKey}`, e.currentTarget.value)}>
+								{#each EASINGS as ea}<option value={ea.value}>{ea.label}</option>{/each}
+							</select>
+						</div>
+					</div>
+				</div>
+			{/if}
 		</Card>
 	{/each}
 
@@ -126,9 +163,32 @@
 		</div>
 	</Card>
 
+	<!-- Custom CSS keyframes -->
+	<Card>
+		<h3 class="section-title">🎨 Keyframes personalizados</h3>
+		<p class="field-desc">Define CSS @keyframes custom. Úsalos como nombre de animación en los selectores.</p>
+		<div class="field">
+			<textarea
+				value={anim.animCustomCSS ?? ''}
+				oninput={(e) => update('animations.animCustomCSS', e.currentTarget.value)}
+				placeholder={"@keyframes mi-anim {\n  0% { transform: scale(1); }\n  50% { transform: scale(1.1); }\n  100% { transform: scale(1); }\n}"}
+				rows={8}
+			></textarea>
+		</div>
+	</Card>
+
 	<Card>
 		<h3 class="section-title">Referencia de presets</h3>
+		<p class="field-desc">Cada preview usa el timing de su elemento (o el global si no tiene custom).</p>
 		<div class="preset-grid">
+			{#each ANIM_ITEMS as item}
+				{#if (anim as Record<string, unknown>)[item.key] && (anim as Record<string, unknown>)[item.key] !== 'none'}
+					<div class="preset-card">
+						<div class="preset-demo anim-{(anim as Record<string, unknown>)[item.key]}" style="animation-duration: {local[item.durKey] ?? local.animDuration ?? 2}s; animation-delay: {local[item.delKey] ?? local.animDelay ?? 0}s; animation-timing-function: {getEase(item.easeKey)}">♦</div>
+						<span class="preset-name">{item.label}</span>
+					</div>
+				{/if}
+			{/each}
 			{#each PRESETS.filter(p => p.value !== 'none') as p}
 				<div class="preset-card">
 					<div class="preset-demo anim-{p.value}">♦</div>
@@ -149,11 +209,25 @@
 	.anim-label { display: flex; align-items: center; gap: var(--space-3); flex: 1; font-size: var(--text-sm); color: var(--text); }
 	.anim-icon { font-size: var(--text-lg); }
 	.field select { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; min-width: 160px; }
+	.field textarea { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-xs); font-family: var(--font-mono); min-height: 100px; resize: vertical; outline: none; width: 100%; }
+	.field textarea:focus { border-color: rgba(var(--accent-rgb), 0.5); }
+	.field select:focus-visible { border-color: rgba(var(--accent-rgb), 0.5); }
 	.field input[type="range"] { width: 100%; accent-color: var(--accent); }
 	.field input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
 	.field-desc { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-3); }
 	.row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 	.row .field { flex: 1; min-width: 120px; }
+
+	/* Per-element timing */
+	.anim-timing { padding: var(--space-2) var(--space-2) 0; border-top: 1px solid var(--border); margin-top: var(--space-2); animation: fadeIn 0.2s ease; }
+	.timing-row { display: flex; gap: var(--space-3); align-items: end; }
+	.timing-field { flex: 1; min-width: 80px; display: flex; flex-direction: column; gap: var(--space-1); }
+	.timing-label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.06em; }
+	.timing-field input[type="range"] { width: 100%; accent-color: var(--accent); }
+	.timing-field select { padding: var(--space-1) var(--space-2); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: var(--text-xs); min-height: 28px; outline: none; }
+	.timing-field select:focus-visible { border-color: rgba(var(--accent-rgb), 0.5); }
+
+	@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
 	.preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: var(--space-3); }
 	.preset-card { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
