@@ -167,7 +167,7 @@
 	.particles-canvas {
 		position: fixed;
 		inset: 0;
-		z-index: 10;
+		z-index: var(--z-orbs);
 		pointer-events: none;
 		width: 100%;
 		height: 100%;
