@@ -394,7 +394,8 @@
 						{beatId}
 						accept="audio/*"
 						type="audio"
-						label="Audio · MP3, WAV, OGG"
+						maxSizeMB={100}
+						label="Audio · MP3, WAV, OGG · máx 100MB"
 					/>
 				</div>
 
@@ -407,7 +408,8 @@
 						{beatId}
 						accept="audio/*"
 						type="audio"
-						label="Preview · MP3 (30s tag)"
+						maxSizeMB={20}
+						label="Preview · MP3 (30s tag) · máx 20MB"
 					/>
 				</div>
 			</div>

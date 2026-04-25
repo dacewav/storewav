@@ -9,6 +9,7 @@
 		accept = 'image/*',
 		label = 'Archivo',
 		type = 'image', // 'image' | 'audio'
+		maxSizeMB = 50, // configurable per instance
 		onUploadStart,
 		onUploadComplete,
 		onRemove
@@ -19,6 +20,7 @@
 		accept?: string;
 		label?: string;
 		type?: 'image' | 'audio';
+		maxSizeMB?: number;
 		onUploadStart?: () => void;
 		onUploadComplete?: (url: string) => void;
 		onRemove?: () => void;
@@ -71,9 +73,10 @@
 			return;
 		}
 
-		// Size limit: 50MB
-		if (file.size > 50 * 1024 * 1024) {
-			error = 'Máximo 50MB';
+		// Size limit
+		const maxBytes = maxSizeMB * 1024 * 1024;
+		if (file.size > maxBytes) {
+			error = `Máximo ${maxSizeMB}MB`;
 			return;
 		}
 
@@ -176,7 +179,7 @@
 							fill="none"
 							stroke="var(--accent)"
 							stroke-width="2"
-							stroke-dasharray="{progress.percent} {100 - progress.percent}"
+							stroke-dasharray="{progress.percent * 0.9739} {97.39 - progress.percent * 0.9739}"
 							stroke-linecap="round"
 							transform="rotate(-90 18 18)"
 						/>
@@ -227,7 +230,7 @@
 					<span class="empty-main">Arrastra {type === 'image' ? 'una imagen' : 'un audio'} aquí</span>
 					<span class="empty-sub">o haz click para seleccionar</span>
 				</div>
-				<span class="empty-hint">{type === 'image' ? 'JPG, PNG, WebP' : 'MP3, WAV, OGG'} · máx 50MB</span>
+				<span class="empty-hint">{type === 'image' ? 'JPG, PNG, WebP' : 'MP3, WAV, OGG'} · máx {maxSizeMB}MB</span>
 			</div>
 		{/if}
 	</div>
