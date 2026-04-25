@@ -361,6 +361,25 @@
 		.topbar-actions .tb-btn:not(.tb-save):not(.tb-danger) {
 			display: none;
 		}
+
+		/* Show palette trigger on mobile */
+		.palette-trigger {
+			display: flex;
+		}
+
+		.palette-placeholder {
+			display: none;
+		}
+
+		.palette-kbd {
+			display: none;
+		}
+	}
+
+	@media (min-width: 769px) {
+		.palette-trigger {
+			display: flex;
+		}
 	}
 
 	@keyframes popIn {

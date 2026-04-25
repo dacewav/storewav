@@ -11,9 +11,9 @@
 
 - **~80 controles** de personalización con timing per-element
 - **117 tests** passing
-- **Admin profesional**: sliders reactivos, keyboard support, save status animado, preview split, undo con field name, brand media management, command palette, admin theme toggle, debounced writes, skeleton loading
+- **Admin profesional**: sliders reactivos, keyboard support, save status animado, preview split, undo con field name, brand media management, command palette, admin theme toggle, debounced writes, skeleton loading, mobile responsive
 - **Bugs activos**: workers domain stale (código viejo en workers.dev)
-- **Bloques completados**: A ✅ B ✅ C ✅ D ✅ E ✅ F parcial (F1 ✅ F3 ✅, F2 F4 pendientes) G ✅
+- **Bloques completados**: A ✅ B ✅ C ✅ D ✅ E ✅ F ✅ G ✅ (F4 onboarding deferred)
 
 ---
 
@@ -144,11 +144,14 @@
 - [x] Breadcrumb-like section label en topbar (ya existía)
 - [x] Keyboard shortcuts visibles en sidebar (Ctrl+B, Ctrl+H, Ctrl+T, Ctrl+D, Ctrl+P)
 
-### F2. Responsive admin
-- [ ] Admin 100% usable en mobile (no solo "no roto")
-- [ ] Bottom nav en mobile con iconos
-- [ ] Swipe entre secciones en mobile
-- [ ] Touch-friendly: sliders con thumb más grande en mobile
+### F2. Responsive admin ✅
+- [x] Bottom nav en mobile con iconos (replaces sidebar, 12 sections con emoji + label)
+- [x] Hamburger en mobile → abre Command Palette (en vez de sidebar)
+- [x] Touch-friendly: sliders con thumb 24px en mobile (webkit + moz)
+- [x] Command Palette responsive (95vw en mobile, max-height 70vh)
+- [x] Brand page responsive (palette grid wrap, logo previews 2-col)
+- [x] Admin content padding bottom para bottom nav (80px)
+- [ ] Swipe entre secciones en mobile (deferred — bottom nav suficiente)
 
 ### F3. Dark/light admin theme ✅
 - [x] Admin theme independiente del store theme

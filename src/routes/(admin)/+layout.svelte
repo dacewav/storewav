@@ -42,9 +42,16 @@
 		return field.replace(/([A-Z])/g, ' $1').toLowerCase().trim();
 	}
 
-	// Sidebar toggle (mobile)
+	// Sidebar toggle (mobile → opens palette instead)
 	let sidebarOpen = $state(false);
-	function toggleSidebar() { sidebarOpen = !sidebarOpen; }
+	function toggleSidebar() {
+		// On mobile, sidebar is replaced by bottom nav — open palette instead
+		if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+			paletteOpen = true;
+			return;
+		}
+		sidebarOpen = !sidebarOpen;
+	}
 	function closeSidebar() { sidebarOpen = false; }
 
 	// Preview panel (split view)
@@ -235,6 +242,20 @@
 			</div>
 		{/if}
 	</div>
+
+	<!-- Mobile bottom nav -->
+	<nav class="bottom-nav">
+		{#each navGroups.flatMap((g) => g.items) as item}
+			<a
+				href={item.href}
+				class="bn-item"
+				class:active={item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
+			>
+				<span class="bn-icon">{item.icon}</span>
+				<span class="bn-label">{item.label}</span>
+			</a>
+		{/each}
+	</nav>
 </div>
 
 <style>
@@ -442,6 +463,79 @@
 			background: rgba(0, 0, 0, 0.5);
 			z-index: 99;
 		}
+
+		/* Hide sidebar on mobile — use bottom nav instead */
+		.admin-body .sidebar {
+			display: none;
+		}
+
+		.admin-content {
+			padding-bottom: 80px; /* space for bottom nav */
+		}
+	}
+
+	/* ── Bottom nav (mobile only) ── */
+	.bottom-nav {
+		display: none;
+	}
+
+	@media (max-width: 768px) {
+		.bottom-nav {
+			display: flex;
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			z-index: var(--z-nav);
+			background: var(--surface);
+			border-top: 1px solid var(--border);
+			padding: var(--space-1) 0;
+			padding-bottom: env(safe-area-inset-bottom, var(--space-1));
+			justify-content: space-around;
+			align-items: center;
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+		}
+
+		.bn-item {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 2px;
+			padding: var(--space-1) var(--space-2);
+			border-radius: var(--radius-md);
+			text-decoration: none;
+			color: var(--text-muted);
+			font-size: 10px;
+			transition: color var(--duration-fast);
+			min-width: 0;
+			flex: 1;
+		}
+
+		.bn-item.active {
+			color: var(--accent);
+		}
+
+		.bn-item:hover {
+			color: var(--text);
+		}
+
+		.bn-icon {
+			font-size: 18px;
+			line-height: 1;
+		}
+
+		.bn-label {
+			font-family: var(--font-mono);
+			font-size: 9px;
+			font-weight: 500;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			max-width: 100%;
+		}
 	}
 
 	.auth-loading {
@@ -491,5 +585,48 @@
 		--text-muted: #8888a0;
 		--text-hint: #aaaabc;
 		--accent-rgb: 220, 38, 38;
+	}
+
+	/* ── Touch-friendly sliders on mobile ── */
+	@media (max-width: 768px) {
+		:global(.admin-layout input[type="range"]) {
+			height: 32px;
+			-webkit-appearance: none;
+			appearance: none;
+			background: transparent;
+			cursor: pointer;
+		}
+
+		:global(.admin-layout input[type="range"]::-webkit-slider-thumb) {
+			-webkit-appearance: none;
+			width: 24px;
+			height: 24px;
+			border-radius: 50%;
+			background: var(--accent);
+			border: 3px solid var(--surface);
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+			margin-top: -8px;
+		}
+
+		:global(.admin-layout input[type="range"]::-webkit-slider-runnable-track) {
+			height: 8px;
+			border-radius: 4px;
+			background: var(--border);
+		}
+
+		:global(.admin-layout input[type="range"]::-moz-range-thumb) {
+			width: 24px;
+			height: 24px;
+			border-radius: 50%;
+			background: var(--accent);
+			border: 3px solid var(--surface);
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+		}
+
+		:global(.admin-layout input[type="range"]::-moz-range-track) {
+			height: 8px;
+			border-radius: 4px;
+			background: var(--border);
+		}
 	}
 </style>

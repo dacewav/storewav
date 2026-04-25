@@ -310,4 +310,20 @@
 		from { opacity: 0; transform: translateY(-8px) scale(0.98); }
 		to { opacity: 1; transform: translateY(0) scale(1); }
 	}
+
+	@media (max-width: 640px) {
+		.palette-backdrop {
+			padding-top: 8vh;
+			align-items: flex-start;
+		}
+
+		.palette-modal {
+			width: 95vw;
+			max-height: 70vh;
+		}
+
+		.palette-results {
+			max-height: 50vh;
+		}
+	}
 </style>

@@ -368,4 +368,14 @@
 		padding: var(--space-4); background: var(--surface);
 		border: 1px solid var(--border); border-radius: var(--radius-md);
 	}
+
+	/* ── Mobile responsive ── */
+	@media (max-width: 640px) {
+		.logo-previews { grid-template-columns: 1fr 1fr; }
+		.palette-shades { flex-wrap: wrap; }
+		.shade-chip { min-width: 28%; }
+		.harmony-row { flex-wrap: wrap; }
+		.harmony-chip { width: 64px; height: 48px; }
+		.weights-row { gap: var(--space-1); }
+	}
 </style>
