@@ -800,6 +800,19 @@ export function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	// Merge testimonials
 	if (!d.testimonials) d.testimonials = [];
 
+	// Merge theme from Firebase theme/ path
+	// _theme (t) contains the flat theme data from the separate Firebase path.
+	// Settings writes go to settings.theme.*, but old data may live in theme/.
+	// Merge: settings.theme takes priority, fill gaps from theme/ path.
+	if (!d.theme || typeof d.theme !== 'object') d.theme = {};
+	const theme = d.theme as Record<string, unknown>;
+	// Copy all _theme keys that aren't already set in settings.theme
+	for (const [k, v] of Object.entries(t)) {
+		if (theme[k] === undefined || theme[k] === null || theme[k] === '') {
+			theme[k] = v;
+		}
+	}
+
 	return d as unknown as SettingsData;
 }
 

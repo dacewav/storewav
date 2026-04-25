@@ -20,6 +20,8 @@
 	let canvas: HTMLCanvasElement;
 	let animId = 0;
 	let particles: { x: number; y: number; vx: number; vy: number; size: number; life: number }[] = [];
+	let canvasW = 0;
+	let canvasH = 0;
 
 	const resolvedColor = $derived(color || getComputedAccent());
 
@@ -41,7 +43,9 @@
 		}));
 	}
 
-	function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
+	function draw(ctx: CanvasRenderingContext2D) {
+		const w = canvasW;
+		const h = canvasH;
 		ctx.clearRect(0, 0, w, h);
 
 		for (const p of particles) {
@@ -86,7 +90,7 @@
 		}
 
 		ctx.globalAlpha = 1;
-		animId = requestAnimationFrame(() => draw(ctx, w, h));
+		animId = requestAnimationFrame(() => draw(ctx));
 	}
 
 	$effect(() => {
@@ -97,18 +101,18 @@
 		const resize = () => {
 			const dpr = window.devicePixelRatio || 1;
 			const rect = canvas.parentElement?.getBoundingClientRect() ?? { width: window.innerWidth, height: window.innerHeight };
-			const w = rect.width;
-			const h = rect.height;
-			canvas.width = w * dpr;
-			canvas.height = h * dpr;
-			canvas.style.width = `${w}px`;
-			canvas.style.height = `${h}px`;
+			canvasW = rect.width;
+			canvasH = rect.height;
+			canvas.width = canvasW * dpr;
+			canvas.height = canvasH * dpr;
+			canvas.style.width = `${canvasW}px`;
+			canvas.style.height = `${canvasH}px`;
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-			initParticles(w, h);
+			initParticles(canvasW, canvasH);
 		};
 
 		resize();
-		draw(ctx, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
+		draw(ctx);
 
 		window.addEventListener('resize', resize);
 		return () => {

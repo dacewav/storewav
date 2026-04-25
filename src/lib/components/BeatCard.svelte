@@ -35,6 +35,11 @@
 	);
 	let inlineCSS = $derived(cardStyleToCSS(cardStyle, accentRgb));
 	let hasShimmer = $derived(cardStyle.shimmer === true);
+	let shimmerInlineCSS = $derived(hasShimmer ? [
+		`--shimmer-opacity: ${cardStyle.shimmerOpacity ?? 1}`,
+		`--shimmer-duration: ${cardStyle.shimmerDuration ?? '2.5s'}`,
+		cardStyle.shimmerColor ? `--shimmer-color: ${cardStyle.shimmerColor}` : ''
+	].filter(Boolean).join('; ') : '');
 
 	function lowestPrice(beat: Beat & { id: string }): number {
 		if (!beat.licenses?.length) return 0;
@@ -73,7 +78,7 @@
 >
 	<!-- Shimmer overlay -->
 	{#if hasShimmer}
-		<div class="shimmer-overlay"></div>
+		<div class="shimmer-overlay" style={shimmerInlineCSS}></div>
 	{/if}
 
 	<!-- Featured badge -->
@@ -205,17 +210,21 @@
 	.shimmer-overlay::after {
 		content: '';
 		position: absolute;
-		inset: 0;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
 		opacity: var(--shimmer-opacity, 1);
 		background: linear-gradient(
 			105deg,
-			transparent 40%,
-			rgba(255, 255, 255, 0.06) 45%,
-			rgba(255, 255, 255, 0.12) 50%,
-			rgba(255, 255, 255, 0.06) 55%,
-			transparent 60%
+			transparent 20%,
+			var(--shimmer-color, rgba(255, 255, 255, 0.08)) 35%,
+			var(--shimmer-color, rgba(255, 255, 255, 0.2)) 50%,
+			var(--shimmer-color, rgba(255, 255, 255, 0.08)) 65%,
+			transparent 80%
 		);
-		animation: cardShimmer 2.5s ease-in-out infinite;
+		transform: translateX(-100%);
+		animation: cardShimmer var(--shimmer-duration, 2.5s) ease-in-out infinite;
 	}
 
 	/* ── Cover ── */
