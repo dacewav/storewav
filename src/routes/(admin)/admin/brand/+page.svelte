@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card, FileUpload, ImageCropper, FontPreview } from '$lib/components';
+	import { Card, FileUpload, ImageCropper, FontPreview, HelpTip } from '$lib/components';
 	import type { BrandSettings, LoaderSettings, ThemeSettings } from '$lib/stores/settings';
 	import { generatePalette, generateHarmony, contrastRatio, type PaletteShade } from '$lib/colorPalette';
 	import { uploadFile } from '$lib/upload';
@@ -206,7 +206,7 @@
 
 	<!-- ═══ E2: Color Palette Generator ═══ -->
 	<Card>
-		<h3 class="section-title">🎨 Paleta de colores</h3>
+		<h3 class="section-title">🎨 Paleta de colores <HelpTip text="Generada automáticamente desde tu color accent. Click en cualquier shade para aplicarlo como accent." /></h3>
 		<p class="section-desc">Generada automáticamente desde tu color accent ({theme.accent || '#dc2626'}). Edita el accent en Theme.</p>
 
 		{#if palette.length}
@@ -376,6 +376,5 @@
 		.shade-chip { min-width: 28%; }
 		.harmony-row { flex-wrap: wrap; }
 		.harmony-chip { width: 64px; height: 48px; }
-		.weights-row { gap: var(--space-1); }
 	}
 </style>

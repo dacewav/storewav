@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card, AdminSkeleton } from '$lib/components';
+	import { Card, AdminSkeleton, HelpTip } from '$lib/components';
 	import type { ThemeSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -219,7 +219,7 @@
 
 	<!-- Colors -->
 	<Card>
-		<h3 class="section-title">Colores</h3>
+		<h3 class="section-title">Colores <HelpTip text="El accent es el color principal de toda la tienda — botones, links, highlights. El glow es el resplandor que lo acompaña." /></h3>
 		<div class="row">
 			<div class="field">
 				<label for="t-accent">Accent (color principal)</label>
@@ -332,7 +332,7 @@
 
 	<!-- Glow System -->
 	<Card>
-		<h3 class="section-title">Sistema de Glow</h3>
+		<h3 class="section-title">Sistema de Glow <HelpTip text="El glow crea un resplandor alrededor de elementos importantes. Actívalo para un look más llamativo, desactívalo para uno más limpio." /></h3>
 		<div class="field">
 			<label>
 				<input type="checkbox" checked={t.glowActive === true} onchange={(e) => update('theme.glowActive', e.currentTarget.checked)} />

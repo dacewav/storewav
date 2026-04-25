@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
-	import { AdminTopbar, CommandPalette } from '$lib/components';
+	import { AdminTopbar, CommandPalette, AdminOnboard } from '$lib/components';
 	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField, pendingCount } from '$lib/stores';
 	import { adminTheme } from '$lib/stores/adminTheme';
 	import { goto } from '$app/navigation';
@@ -199,6 +199,7 @@
 	</AdminTopbar>
 
 	<CommandPalette bind:open={paletteOpen} />
+	<AdminOnboard />
 
 	<div class="admin-body">
 		{#if sidebarOpen}
