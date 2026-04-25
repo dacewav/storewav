@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card } from '$lib/components';
+	import type { BrandSettings, LoaderSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
-	let brand = $derived((s?.brand ?? {}) as Record<string, any>);
-	let loader = $derived((s?.loader ?? {}) as Record<string, any>);
+	let brand = $derived((s?.brand ?? {}) as BrandSettings);
+	let loader = $derived((s?.loader ?? {}) as LoaderSettings);
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);

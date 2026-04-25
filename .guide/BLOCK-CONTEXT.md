@@ -8,9 +8,9 @@
 ```yaml
 sesión: "18"
 bloque: "Deep Audit + Fixes"
-objetivo: "Audit profundo + fixes de bugs, a11y, dead code, console cleanup"
+objetivo: "Audit profundo + fixes de bugs, a11y, dead code, type safety"
 tiempo: "50 min"
-estado: "EN PROGRESO"
+estado: "COMPLETADO"
 último_commit: "pendiente"
 último_push: "pendiente"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
@@ -23,7 +23,14 @@ tests_total: 80
 3. ✅ AdminSidebar dead code removed (118 lines)
 4. ✅ Meaningful alt text (Player, WishlistPanel)
 5. ✅ aria-pressed on wishlist toggle (BeatCard)
-6. ⬜ Push
+6. ✅ getComputedStyle → shared cssVars store (accentRgb, accentColor)
+7. ✅ Record<string, any> → proper types in all admin pages (7 files)
+8. ✅ as any → IconName type in LinkItem + store page
+9. ✅ Package version 0.5.0 → 1.0.0
+10. ✅ svelte-check: 0 errors, 0 warnings
+11. ✅ 80 tests passing
+12. ✅ Build clean
+6. ✅ Push
 
 ### Session 6 — Accessibility + SEO (50 min)
 1. ⬜ aria-label en botones sin texto

@@ -1,18 +1,19 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card } from '$lib/components';
+	import type { HeroVisualSettings, HeroSettings, ThemeSettings, HeroColorSegment } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
-	let hv = $derived((s?.heroVisual ?? {}) as Record<string, any>);
-	let hero = $derived((s?.hero ?? {}) as Record<string, any>);
-	let theme = $derived((s?.theme ?? {}) as Record<string, any>);
+	let hv = $derived((s?.heroVisual ?? {}) as HeroVisualSettings);
+	let hero = $derived((s?.hero ?? {}) as HeroSettings);
+	let theme = $derived((s?.theme ?? {}) as ThemeSettings);
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
 	}
 
 	// Color segments editor
-	let segments = $derived(hv.segments ?? []);
+	let segments = $derived((hv.segments ?? []) as HeroColorSegment[]);
 
 	function addSegment() {
 		const segs = [...segments, { text: '', color: '' }];
@@ -20,7 +21,7 @@
 	}
 
 	function removeSegment(i: number) {
-		const segs = segments.filter((_: unknown, idx: number) => idx !== i);
+		const segs = segments.filter((_: HeroColorSegment, idx: number) => idx !== i);
 		update('heroVisual.segments', segs);
 	}
 

@@ -5,6 +5,7 @@
 	import { beatsList, genres, settings, player, analytics } from '$lib/stores';
 	import { sanitizeHtml } from '$lib/sanitize';
 	import type { HeroVisualSettings, LabelSettings } from '$lib/stores/settings';
+	import type { IconName } from '$lib/icons';
 	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
 
@@ -69,7 +70,7 @@
 	let dividerSub = $derived(s?.section?.dividerSub ?? '');
 
 	// Hero links
-	let heroLinks = $derived((s?.links ?? []) as Array<{label: string; url: string; icon: string}>);
+	let heroLinks = $derived((s?.links ?? []) as Array<{label: string; url: string; icon: IconName}>);
 
 	// CTA
 	let ctaTitle = $derived(s?.cta?.title ?? '');
@@ -220,7 +221,7 @@
 	<div class="hero-links">
 		{#each heroLinks as link}
 			<a class="hero-link" href={link.url} target="_blank" rel="noopener">
-				<Icon name={link.icon as any} size={16} />
+				<Icon name={link.icon} size={16} />
 				{link.label}
 			</a>
 		{/each}

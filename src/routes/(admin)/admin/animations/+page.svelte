@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card } from '$lib/components';
+	import type { AnimationSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
-	let anim = $derived((s?.animations ?? {}) as Record<string, any>);
+	let anim = $derived((s?.animations ?? {}) as AnimationSettings);
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
@@ -44,7 +45,7 @@
 					<span>{item.label}</span>
 				</div>
 				<div class="field">
-					<select value={anim[item.key] ?? 'none'} onchange={(e) => update(`animations.${item.key}`, e.currentTarget.value)}>
+					<select value={(anim as Record<string, unknown>)[item.key] ?? 'none'} onchange={(e) => update(`animations.${item.key}`, e.currentTarget.value)}>
 						{#each PRESETS as p}
 							<option value={p.value}>{p.label}</option>
 						{/each}

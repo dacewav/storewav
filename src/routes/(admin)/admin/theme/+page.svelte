@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card } from '$lib/components';
+	import type { ThemeSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
-	let t = $derived((s?.theme ?? {}) as Record<string, any>);
+	let t = $derived((s?.theme ?? {}) as ThemeSettings);
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);

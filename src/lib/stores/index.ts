@@ -11,3 +11,4 @@ export { analytics } from './analytics';
 export { player } from './player';
 export { online, firebaseConnected, isFullyConnected, initConnection, destroyConnection } from './connection';
 export { initStores, destroyStores } from './init';
+export { accentRgb, accentColor } from './cssVars';

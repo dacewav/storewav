@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { beatsList, player, wishlist, settings, analytics, beats as beatsStore } from '$lib/stores';
+	import { beatsList, player, wishlist, settings, analytics, beats as beatsStore, accentRgb as accentRgbStore } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
 	import { Skeleton, Badge, BeatCard, EmptyState } from '$lib/components';
 	import Waveform from '$lib/components/Waveform.svelte';
@@ -88,14 +88,9 @@
 		});
 	}
 
-	// Accent RGB for dynamic styles
+	// Accent RGB for dynamic styles (shared store — reads CSS var once)
 	let accentRgb = $state('220, 38, 38');
-	$effect(() => {
-		if (typeof document !== 'undefined') {
-			const val = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb').trim();
-			if (val) accentRgb = val;
-		}
-	});
+	accentRgbStore.subscribe(v => { accentRgb = v; });
 </script>
 
 <svelte:head>

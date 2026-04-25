@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card } from '$lib/components';
+	import type { SectionSettings, CtaSettings, LabelSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
-	let section = $derived((s?.section ?? {}) as Record<string, any>);
-	let cta = $derived((s?.cta ?? {}) as Record<string, any>);
-	let labels = $derived((s?.labels ?? {}) as Record<string, any>);
+	let section = $derived((s?.section ?? {}) as SectionSettings);
+	let cta = $derived((s?.cta ?? {}) as CtaSettings);
+	let labels = $derived((s?.labels ?? {}) as LabelSettings);
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
@@ -100,7 +101,7 @@
 			{#each fields as f}
 				<div class="field">
 					<label for="lbl-{f.key}">{f.label}</label>
-					<input id="lbl-{f.key}" type="text" value={labels[f.key] ?? ''} oninput={(e) => update(`labels.${f.key}`, e.currentTarget.value)} />
+					<input id="lbl-{f.key}" type="text" value={(labels as Record<string, unknown>)[f.key] ?? ''} oninput={(e) => update(`labels.${f.key}`, e.currentTarget.value)} />
 				</div>
 			{/each}
 		</Card>

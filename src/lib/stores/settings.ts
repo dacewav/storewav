@@ -21,6 +21,7 @@
 import { createFirebaseStore } from './_firebaseStore';
 import type { StoreState } from './_firebaseStore';
 import type { CardStyleConfig } from '$lib/cardStyleEngine';
+import type { IconName } from '$lib/icons';
 import { writable, type Writable } from 'svelte/store';
 import { getDb } from '$lib/firebase';
 
@@ -47,7 +48,7 @@ export type CtaSettings = {
 export type LinkItem = {
 	label: string;
 	url: string;
-	icon: string;
+	icon: IconName;
 };
 
 export type BrandSettings = {
@@ -173,6 +174,9 @@ export type ThemeSettings = {
 
 	orbBlendMode: string;
 	grainBlendMode: string;
+
+	// Light/dark mode
+	lightMode?: boolean;
 
 	// Particles
 	particlesOn: boolean;

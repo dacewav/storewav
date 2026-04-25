@@ -6,12 +6,13 @@
 	import { settings } from '$lib/stores';
 	import { OfflineBanner } from '$lib/components';
 	import type { Snippet } from 'svelte';
+	import type { ThemeSettings } from '$lib/stores/settings';
 
 	let { children }: { children: Snippet } = $props();
 
 	let s = $derived($settings.data);
 	let faviconUrl = $derived(s?.brand?.favicon || favicon);
-	let t = $derived(s?.theme as Record<string, any> | null);
+	let t = $derived(s?.theme as ThemeSettings | null);
 
 	// Load fonts dynamically from Firebase theme
 	$effect(() => {

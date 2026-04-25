@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { Beat } from '$lib/stores/beats';
-	import { wishlist, settings, player, analytics, incrementPlay } from '$lib/stores';
+	import { wishlist, settings, player, analytics, incrementPlay, accentRgb as accentRgbStore } from '$lib/stores';
 	import { tilt } from '$lib/actions';
 	import { toast } from '$lib/toastStore';
 	import Icon from './Icon.svelte';
@@ -29,10 +28,7 @@
 
 	// Card style engine: merge global (from settings) + per-beat
 	let accentRgb = $state('220, 38, 38');
-	onMount(() => {
-		const val = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb').trim();
-		if (val) accentRgb = val;
-	});
+	accentRgbStore.subscribe(v => { accentRgb = v; });
 	let globalCardStyle = $derived($settings.data?.cardStyle ?? {});
 	let cardStyle = $derived(
 		mergeCardStyles(globalCardStyle as Partial<CardStyleConfig>, (beat.cardStyle ?? {}) as Partial<CardStyleConfig>)
