@@ -195,6 +195,24 @@ export type ThemeSettings = {
 	heroStrokeClr: string;
 	heroStrokeW: number; // px
 
+	// Global glow toggle
+	glowActive: boolean;
+
+	// Wave opacity
+	waveOpacityOff: number; // 0-1
+	waveOpacityOn: number; // 0-1
+
+	// Hero glow (background)
+	heroGlowOn: boolean;
+	heroGlowInt: number; // 0-3
+	heroGlowBlur: number; // px
+	heroGlowClr: string;
+
+	// License buttons
+	btnLicBg: string;
+	btnLicClr: string;
+	btnLicBdr: string;
+
 	// Custom CSS injection
 	customCSS: string;
 };
@@ -228,6 +246,9 @@ export type AnimationSettings = {
 	animCards: AnimPreset;
 	animButtons: AnimPreset;
 	animWaveform: AnimPreset;
+	animDuration: number; // seconds, default 2
+	animDelay: number; // seconds, default 0
+	animEasing: string; // CSS easing, default 'ease-in-out'
 };
 
 export type LabelSettings = {
@@ -355,6 +376,16 @@ const DEFAULT: SettingsData = {
 		heroStrokeOn: false,
 		heroStrokeClr: '',
 		heroStrokeW: 1,
+		glowActive: false,
+		waveOpacityOff: 0.3,
+		waveOpacityOn: 0.8,
+		heroGlowOn: false,
+		heroGlowInt: 1,
+		heroGlowBlur: 20,
+		heroGlowClr: '',
+		btnLicBg: '',
+		btnLicClr: '',
+		btnLicBdr: '',
 		customCSS: ''
 	},
 	section: {
@@ -420,7 +451,10 @@ const DEFAULT: SettingsData = {
 		animPlayer: 'none',
 		animCards: 'none',
 		animButtons: 'none',
-		animWaveform: 'none'
+		animWaveform: 'none',
+		animDuration: 2,
+		animDelay: 0,
+		animEasing: 'ease-in-out'
 	},
 	labels: {
 		search: 'Buscar beats...',
@@ -519,8 +553,45 @@ export function getPendingCount(): number {
 	return pendingWrites.length;
 }
 
+/** Clamp numeric fields to their valid ranges */
+const CLAMP_MAP: Record<string, [number, number]> = {
+	'theme.glowBlur': [0, 60],
+	'theme.heroGlowBlur': [0, 60],
+	'theme.heroGlowInt': [0, 3],
+	'theme.glowIntensity': [0, 3],
+	'theme.waveOpacityOff': [0, 1],
+	'theme.waveOpacityOn': [0, 1],
+	'heroVisual.glowBlur': [0, 60],
+	'heroVisual.glowInt': [0, 3],
+	'heroVisual.wordBlur': [0, 40],
+	'heroVisual.wordOp': [0, 1],
+	'heroVisual.gradOp': [0, 1],
+	'heroVisual.gradW': [10, 100],
+	'heroVisual.gradH': [10, 100],
+	'theme.cardOpacity': [0, 1],
+	'theme.navOpacity': [0, 1],
+	'theme.heroBgOpacity': [0, 1],
+	'theme.sectionOpacity': [0, 1],
+	'theme.beatImgOpacity': [0, 1],
+	'theme.textOpacity': [0, 1],
+	'theme.bgOpacity': [0, 1],
+	'theme.btnOpacityNormal': [0, 1],
+	'theme.btnOpacityHover': [0, 1],
+	'theme.grainOpacity': [0, 0.2],
+	'theme.cardShadowIntensity': [0, 1],
+	'theme.particlesOpacity': [0, 1],
+	'banner.speed': [5, 60],
+	'banner.delay': [0, 10],
+};
+
 /** Helper para actualizar un campo por dot-path (ej: 'heroVisual.glowOn') */
 async function updateField(dotPath: string, value: unknown) {
+	// Clamp numeric values to valid ranges
+	const range = CLAMP_MAP[dotPath];
+	if (range && typeof value === 'number') {
+		value = Math.max(range[0], Math.min(range[1], value));
+	}
+
 	// Get current value for undo
 	const current = getNestedValue(dotPath);
 	if (current !== value) {

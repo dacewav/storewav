@@ -59,6 +59,9 @@
 	let footerVisible = $derived(settingsData?.layout?.footerVisible !== false);
 	let navHeight = $derived(settingsData?.layout?.navHeight ?? 64);
 
+	// Animations
+	let animLogo = $derived(settingsData?.animations?.animLogo ?? 'none');
+
 	// Check if current user is admin
 	let isAdmin = $derived($auth.isAdmin);
 
@@ -302,7 +305,7 @@
 <div class="app">
 	<!-- Nav -->
 	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled} aria-label="Navegación principal" style="min-height: {navHeight}px">
-		<a href="/" class="nav-brand" onclick={closeMenu}>
+		<a href="/" class="nav-brand{animLogo && animLogo !== 'none' ? ` anim-${animLogo}` : ''}" onclick={closeMenu}>
 			{#if brandLogo}
 				<img class="nav-logo" src={brandLogo} alt={brandName} decoding="async" style="height: {logoHeight > 0 ? logoHeight : 28}px" />
 			{:else if brandSplit.last}
@@ -814,4 +817,32 @@
 			grid-template-columns: 1fr;
 		}
 	}
+
+	/* ── Animation presets ── */
+	@keyframes anim-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+	@keyframes anim-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+	@keyframes anim-bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-12px); } 60% { transform: translateY(-6px); } }
+	@keyframes anim-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+	@keyframes anim-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+	@keyframes anim-glow { 0%, 100% { opacity: 0.6; filter: brightness(1); } 50% { opacity: 1; filter: brightness(1.5); } }
+	@keyframes anim-slide-up { from { transform: translateY(10px); opacity: 0.5; } to { transform: translateY(0); opacity: 1; } }
+	@keyframes anim-slide-down { from { transform: translateY(-10px); opacity: 0.5; } to { transform: translateY(0); opacity: 1; } }
+	@keyframes anim-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+	.anim-float, .anim-pulse, .anim-bounce, .anim-spin, .anim-shake, .anim-glow, .anim-slide-up, .anim-slide-down, .anim-fade-in {
+		animation-fill-mode: both;
+		animation-iteration-count: infinite;
+		animation-duration: 2s;
+		animation-timing-function: ease-in-out;
+	}
+
+	.anim-float { animation-name: anim-float; }
+	.anim-pulse { animation-name: anim-pulse; }
+	.anim-bounce { animation-name: anim-bounce; }
+	.anim-spin { animation-name: anim-spin; }
+	.anim-shake { animation-name: anim-shake; }
+	.anim-glow { animation-name: anim-glow; }
+	.anim-slide-up { animation-name: anim-slide-up; }
+	.anim-slide-down { animation-name: anim-slide-down; }
+	.anim-fade-in { animation-name: anim-fade-in; }
 </style>

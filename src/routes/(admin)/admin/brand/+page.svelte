@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card, FileUpload } from '$lib/components';
 	import type { BrandSettings, LoaderSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -23,12 +23,38 @@
 			<input id="b-name" type="text" value={brand.name ?? ''} oninput={(e) => update('brand.name', e.currentTarget.value)} />
 		</div>
 		<div class="field">
-			<label for="b-logo">URL logo (dejar vacío = texto)</label>
-			<input id="b-logo" type="text" value={brand.logo ?? ''} oninput={(e) => update('brand.logo', e.currentTarget.value)} placeholder="https://..." />
+			<span class="upload-label">Logo</span>
+			<FileUpload
+				value={brand.logo ?? ''}
+				folder="brand"
+				beatId="logo"
+				accept="image/*"
+				label="Logo de marca"
+				type="image"
+				onUploadComplete={(url) => update('brand.logo', url)}
+				onRemove={() => update('brand.logo', '')}
+			/>
+			<div class="url-fallback">
+				<label for="b-logo">O pega una URL:</label>
+				<input id="b-logo" type="text" value={brand.logo ?? ''} oninput={(e) => update('brand.logo', e.currentTarget.value)} placeholder="https://..." />
+			</div>
 		</div>
 		<div class="field">
-			<label for="b-fav">URL favicon (SVG/PNG, vacío = default)</label>
-			<input id="b-fav" type="text" value={brand.favicon ?? ''} oninput={(e) => update('brand.favicon', e.currentTarget.value)} placeholder="https://..." />
+			<span class="upload-label">Favicon</span>
+			<FileUpload
+				value={brand.favicon ?? ''}
+				folder="brand"
+				beatId="favicon"
+				accept="image/svg+xml,image/png,image/jpeg"
+				label="Favicon (SVG/PNG)"
+				type="image"
+				onUploadComplete={(url) => update('brand.favicon', url)}
+				onRemove={() => update('brand.favicon', '')}
+			/>
+			<div class="url-fallback">
+				<label for="b-fav">O pega una URL:</label>
+				<input id="b-fav" type="text" value={brand.favicon ?? ''} oninput={(e) => update('brand.favicon', e.currentTarget.value)} placeholder="https://..." />
+			</div>
 		</div>
 		<div class="field">
 			<label for="b-wa">WhatsApp (número con código de país, ej: 5215512345678)</label>
@@ -73,4 +99,7 @@
 	.field input[type="text"] { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color var(--duration-fast); }
 	.field input[type="text"]:focus { border-color: rgba(var(--accent-rgb), 0.5); }
 	.field input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
+	.url-fallback { margin-top: var(--space-2); }
+	.url-fallback label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); margin-bottom: var(--space-1); display: block; }
+	.upload-label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: var(--space-1); }
 </style>

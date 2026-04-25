@@ -23,6 +23,16 @@
 		{ value: 'fade-in', label: 'Fade In' }
 	];
 
+	const EASINGS = [
+		{ value: 'ease-in-out', label: 'Ease In-Out' },
+		{ value: 'ease', label: 'Ease' },
+		{ value: 'ease-in', label: 'Ease In' },
+		{ value: 'ease-out', label: 'Ease Out' },
+		{ value: 'linear', label: 'Linear' },
+		{ value: 'cubic-bezier(0.16, 1, 0.3, 1)', label: 'Spring' },
+		{ value: 'cubic-bezier(0.68, -0.6, 0.32, 1.6)', label: 'Bouncy' }
+	];
+
 	const ANIM_ITEMS = [
 		{ key: 'animLogo', label: 'Logo / Brand', icon: '🏷️' },
 		{ key: 'animTitle', label: 'Título Hero', icon: '✨' },
@@ -55,6 +65,28 @@
 		</Card>
 	{/each}
 
+	<!-- Global timing controls -->
+	<Card>
+		<h3 class="section-title">⏱️ Timing global</h3>
+		<p class="field-desc">Duración, delay y easing aplicados a todas las animaciones.</p>
+		<div class="row">
+			<div class="field">
+				<label for="anim-dur">Duración ({anim.animDuration ?? 2}s)</label>
+				<input id="anim-dur" type="range" min="0.2" max="10" step="0.1" value={anim.animDuration ?? 2} oninput={(e) => update('animations.animDuration', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="anim-delay">Delay ({anim.animDelay ?? 0}s)</label>
+				<input id="anim-delay" type="range" min="0" max="5" step="0.1" value={anim.animDelay ?? 0} oninput={(e) => update('animations.animDelay', +e.currentTarget.value)} />
+			</div>
+		</div>
+		<div class="field">
+			<label for="anim-ease">Easing</label>
+			<select id="anim-ease" value={anim.animEasing ?? 'ease-in-out'} onchange={(e) => update('animations.animEasing', e.currentTarget.value)}>
+				{#each EASINGS as e}<option value={e.value}>{e.label}</option>{/each}
+			</select>
+		</div>
+	</Card>
+
 	<Card>
 		<h3 class="section-title">Referencia de presets</h3>
 		<div class="preset-grid">
@@ -78,6 +110,10 @@
 	.anim-label { display: flex; align-items: center; gap: var(--space-3); flex: 1; font-size: var(--text-sm); color: var(--text); }
 	.anim-icon { font-size: var(--text-lg); }
 	.field select { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; min-width: 160px; }
+	.field input[type="range"] { width: 100%; accent-color: var(--accent); }
+	.field-desc { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-3); }
+	.row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+	.row .field { flex: 1; min-width: 120px; }
 
 	.preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: var(--space-3); }
 	.preset-card { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }

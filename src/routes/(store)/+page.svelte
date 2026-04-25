@@ -4,7 +4,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { beatsList, genres, settings, player, analytics } from '$lib/stores';
 	import { sanitizeHtml } from '$lib/sanitize';
-	import type { HeroVisualSettings, LabelSettings } from '$lib/stores/settings';
+	import type { HeroVisualSettings, LabelSettings, AnimationSettings } from '$lib/stores/settings';
 	import type { IconName } from '$lib/icons';
 	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
@@ -80,6 +80,12 @@
 
 	// Labels
 	let labels = $derived((s?.labels ?? {}) as LabelSettings);
+
+	// Animations
+	let anim = $derived((s?.animations ?? {}) as AnimationSettings);
+	let animDuration = $derived(anim.animDuration ?? 2);
+	let animDelay = $derived(anim.animDelay ?? 0);
+	let animEasing = $derived(anim.animEasing ?? 'ease-in-out');
 
 	// License count from first beat (or default 4)
 	let licenseCount = $derived(beats.length > 0 && beats[0].licenses ? beats[0].licenses.length : 4);
@@ -186,7 +192,7 @@
 		{heroEyebrow}
 	</div>
 	{/if}
-	<h1 class="hero-title" style="{heroGlowStyle}; {heroTitleStyle}">
+	<h1 class="hero-title{anim.animTitle && anim.animTitle !== 'none' ? ` anim-${anim.animTitle}` : ''}" style="{heroGlowStyle}; {heroTitleStyle}; animation-duration: {animDuration}s; animation-delay: {animDelay}s; animation-timing-function: {animEasing}">
 		{#if hasSegments}
 			<!-- Color segments mode -->
 			{#each hv.segments as seg}
@@ -729,4 +735,30 @@
 			flex-wrap: wrap;
 		}
 	}
+
+	/* ── Animation presets ── */
+	@keyframes anim-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+	@keyframes anim-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+	@keyframes anim-bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-12px); } 60% { transform: translateY(-6px); } }
+	@keyframes anim-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+	@keyframes anim-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+	@keyframes anim-glow { 0%, 100% { opacity: 0.6; filter: brightness(1); } 50% { opacity: 1; filter: brightness(1.5); } }
+	@keyframes anim-slide-up { from { transform: translateY(10px); opacity: 0.5; } to { transform: translateY(0); opacity: 1; } }
+	@keyframes anim-slide-down { from { transform: translateY(-10px); opacity: 0.5; } to { transform: translateY(0); opacity: 1; } }
+	@keyframes anim-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+	.anim-float, .anim-pulse, .anim-bounce, .anim-spin, .anim-shake, .anim-glow, .anim-slide-up, .anim-slide-down, .anim-fade-in {
+		animation-fill-mode: both;
+		animation-iteration-count: infinite;
+	}
+
+	.anim-float { animation-name: anim-float; }
+	.anim-pulse { animation-name: anim-pulse; }
+	.anim-bounce { animation-name: anim-bounce; }
+	.anim-spin { animation-name: anim-spin; }
+	.anim-shake { animation-name: anim-shake; }
+	.anim-glow { animation-name: anim-glow; }
+	.anim-slide-up { animation-name: anim-slide-up; }
+	.anim-slide-down { animation-name: anim-slide-down; }
+	.anim-fade-in { animation-name: anim-fade-in; }
 </style>
