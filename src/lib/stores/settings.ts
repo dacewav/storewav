@@ -704,6 +704,66 @@ function getNestedValue(dotPath: string): unknown {
 	return current;
 }
 
+// ── Debounced batched writes ──
+const _pendingBatch: Record<string, unknown> = {};
+let _debounceTimer: ReturnType<typeof setTimeout> | null = null;
+const DEBOUNCE_MS = 300;
+
+/**
+ * Debounced version of updateField — batches multiple rapid changes
+ * into a single Firebase write after DEBOUNCE_MS of inactivity.
+ * Undo entries are tracked immediately on each call.
+ */
+function updateFieldDebounced(dotPath: string, value: unknown) {
+	// Clamp
+	const range = CLAMP_MAP[dotPath];
+	if (range && typeof value === 'number') {
+		value = Math.max(range[0], Math.min(range[1], value));
+	}
+
+	// Track undo immediately
+	const current = getNestedValue(dotPath);
+	if (current !== value) {
+		undoStack.push({ dotPath, oldValue: current, newValue: value });
+		if (undoStack.length > MAX_UNDO) undoStack.shift();
+		redoStack.length = 0;
+		canUndo.set(true);
+		canRedo.set(false);
+	}
+
+	// Add to pending batch
+	_pendingBatch[dotPath] = value;
+
+	// Reset debounce timer
+	if (_debounceTimer) clearTimeout(_debounceTimer);
+	_debounceTimer = setTimeout(flushBatch, DEBOUNCE_MS);
+
+	// Show saving immediately for UX feedback
+	saveStatus.set('saving');
+}
+
+/** Flush all pending writes as a single Firebase update */
+async function flushBatch() {
+	const keys = Object.keys(_pendingBatch);
+	if (keys.length === 0) return;
+
+	const batch = { ..._pendingBatch };
+	for (const k of keys) delete _pendingBatch[k];
+
+	try {
+		await base.update(batch as Partial<SettingsData>);
+		saveStatus.set('saved');
+	} catch (err) {
+		console.error('[Settings] Batch write failed:', err);
+		// Queue failed writes
+		for (const [dotPath, value] of Object.entries(batch)) {
+			pendingWrites.push({ dotPath, value, timestamp: Date.now() });
+		}
+		pendingCount.set(pendingWrites.length);
+		saveStatus.set('error');
+	}
+}
+
 /** Undo last change — returns entry info for toast display */
 export async function undoField(): Promise<{ dotPath: string; oldValue: unknown; newValue: unknown } | null> {
 	const entry = undoStack.pop();
@@ -1028,5 +1088,6 @@ export const settings = {
 	},
 	set: base.set,
 	update: base.update,
-	updateField
+	updateField,
+	updateFieldDebounced
 };

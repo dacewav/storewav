@@ -30,4 +30,5 @@ export { default as Particles } from './Particles.svelte';
 export { default as ImageCropper } from './ImageCropper.svelte';
 export { default as FontPreview } from './FontPreview.svelte';
 export { default as CommandPalette } from './CommandPalette.svelte';
+export { default as AdminSkeleton } from './AdminSkeleton.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

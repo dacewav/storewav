@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card, AdminSkeleton } from '$lib/components';
 	import type { ThemeSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -57,10 +57,10 @@
 		}
 	});
 
-	/** Update local instantly + save to Firebase */
+	/** Update local instantly + debounced save to Firebase (batches rapid changes) */
 	function onSlide(dotPath: string, localKey: string, val: number) {
 		local[localKey] = val;
-		settings.updateField(dotPath, val);
+		settings.updateFieldDebounced(dotPath, val);
 	}
 
 	function update(path: string, value: unknown) {
@@ -100,6 +100,11 @@
 	}
 </script>
 
+{#if $settings.loading}
+	<div class="editor">
+		<AdminSkeleton variant="full" />
+	</div>
+{:else}
 <div class="editor">
 	<h2 class="editor-title">🎨 Tema Global</h2>
 	<p class="editor-desc">Colores, glow, tipografía y efectos visuales de toda la tienda.</p>
@@ -696,6 +701,7 @@
 		</div>
 	</Card>
 </div>
+{/if}
 
 <style>
 	.editor { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }

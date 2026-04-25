@@ -34,7 +34,7 @@
 
 	function onSlide(dotPath: string, localKey: string, val: number) {
 		local[localKey] = val;
-		settings.updateField(dotPath, val);
+		settings.updateFieldDebounced(dotPath, val);
 	}
 
 	function update(path: string, value: unknown) {
