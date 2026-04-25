@@ -3,59 +3,49 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 23 — Diagnostic + Fix Real (Deep Audit)
+## Sesión Actual: 24 — Particles z-index + Admin bugs
 
 ```yaml
-sesión: "23"
-bloque: "Firebase config + Particles rendering + Deep audit"
-objetivo: "Fix 4 bugs reales diagnosticando en browser"
+sesión: "24"
+bloque: "Particles z-index fix"
+objetivo: "Fix particles z-index, verify in browser, deploy"
 tiempo: "50 min"
-estado: "✅ COMPLETADO — push hecho, particles visibles confirmado por usuario"
-último_commit: "fb217df"
-último_push: "fb217df"
+estado: "✅ FIX COMPLETADO — deploy hecho, verificado en browser. Push pendiente (sin GitHub token)."
+último_commit: "53b4dbb"
+último_push: "PENDIENTE — commit local hecho, falta push"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
-deploy_version: "4b3b2f78"
+deploy_version: "70ab5c42"
 tests_total: 107
 ```
 
-### Session 23 — Resultados
+### Session 24 — Resultados
 
-**Particles**: ✅ VISIBLES — usuario confirma que se ven.
-**Shimmer**: ✅ Verificado en browser.
-**Save/Shortcuts**: ⚠️ Pendiente verificar con admin login.
+**Particles z-index**: ✅ FIXEADO — z-index cambiado de `10` a `var(--z-orbs)` (1). Particles ahora renderizan DEBAJO del contenido (nav, hero, cards, footer) pero encima del fondo. Verificado en browser post-deploy.
 
-### Siguiente sesión: verificar errores restantes
-- 🔴 **Particles z-index**: están saliendo AL FRENTE del contenido (z-index:10). Necesita estar entre fondo y contenido. Probar z-index:1 o mover el canvas dentro del .app antes del contenido.
-- Habilitar Anonymous Auth en Firebase Console para poder testear admin
-- Verificar save button y shortcuts en admin
-- Buscar otros bugs visuales o funcionales
-- Posible issue: admin auth "Permission denied" al revisar adminWhitelist
+### Bug #1: Particles z-index
 
-### Session 23 — Diagnóstico + Fixes
+**PROBLEMA**: Canvas de partículas tenía `z-index: 10`, por encima de todo el contenido (z-index: 2 = `--z-content`).
 
-**ROOT CAUSE 1**: Cloudflare Workers deployment tenía Firebase dummy config (`dummy.firebaseio`). Fix: `.env` con credenciales reales + rebuild.
+**FIX**: Cambiar `z-index: 10` → `z-index: var(--z-orbs)` (= 1). Jerarquía z-index del proyecto:
+```
+--z-base: 0     (fondo)
+--z-orbs: 1     (orbs + particles) ← AQUÍ
+--z-content: 2  (texto, cards, nav)
+--z-nav: 100
+--z-player: 500
+```
 
-**ROOT CAUSE 2**: Particles canvas z-index:0 estaba DEBAJO de todo el contenido (z-index:2). Invisible incluso con datos correctos.
+**VERIFICADO**: Browser screenshot post-deploy muestra partículas como dots sutiles detrás de todo el contenido. Nav, hero, cards y footer están por encima.
 
-**ROOT CAUSE 3**: Color de partículas `#492222` demasiado oscuro para fondo dark. Alpha formula hacía partículas desaparecer 50% del tiempo.
-
-### Fixes aplicados
-
-1. ✅ **Particles visibles** (4 problemas encontrados y fixeados):
-   - z-index: 0 → 10 (canvas sobre contenido, pointer-events:none)
-   - Color boost: `brighten()` detecta colores oscuros y los eleva
-   - Tamaño: partículas 3-8px (era 2-5), font mínimo 18px bold (era 6-15px)
-   - Alpha: `opacity + (1-opacity)*breathe` (oscila entre opacity y 1.0, nunca desaparece)
-
-2. ✅ **Shimmer verificado** — "Noche Oscura" tiene shimmer diagonal visible en browser
-
-3. ⚠️ **Save/Shortcuts** — No verificables sin admin login. Firebase anon auth puede no estar habilitado en el proyecto.
+### Siguiente sesión: bugs restantes
+- 🟡 **Save button** — no verificado, requiere admin login
+- 🟡 **Shortcuts (Ctrl+S/Z)** — no verificados, requiere admin login
+- 🟡 **Admin auth** — "Permission denied" al revisar adminWhitelist. Posible fix: habilitar Anonymous Auth en Firebase Console.
+- ⬜ **Push pendiente** — falta GitHub token para pushear commit `53b4dbb`
 
 ### Archivos tocados
-- `src/lib/components/Particles.svelte` — Rewrite completo del rendering
-- `.env` — Credenciales Firebase reales (gitignored)
-- `.guide/AUDIT-MASTER.md` — Audit v6
-- `.guide/BLOCK-CONTEXT.md` — Este archivo
+- `src/lib/components/Particles.svelte` — z-index: 10 → var(--z-orbs)
+- `.env` — Credenciales Firebase (extraídas del deploy, gitignored)
 
 ## Estado de Sesiones
 
@@ -64,6 +54,7 @@ tests_total: 107
 | 1-21 | Ver sesiones anteriores | ✅ |
 | 22 | Bug Fixes (Particles, Shimmer, Save, Shortcuts) | ❌ Fixes no funcionaban |
 | 23 | Firebase config + Particles rendering + Deep audit | ✅ Particles + Shimmer verificados |
+| 24 | Particles z-index fix | ✅ Fix verificado en browser. Push pendiente. |
 
 ## Datos clave
 - Deploy: Cloudflare Workers via wrangler

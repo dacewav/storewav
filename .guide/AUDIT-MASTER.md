@@ -96,7 +96,7 @@ Límite:    50 min por sesión de chat
 
 | Bug | Severidad | Estado | Detalle |
 |-----|-----------|--------|---------|
-| Particles no visibles | 🔴 CRÍTICO | ✅ FIXEADO | z-index:0→10, color boost, size 3-8px, font 18px min, alpha formula fix |
+| Particles z-index | 🔴 CRÍTICO | ✅ FIXEADO | z-index:10→var(--z-orbs)(1). Verificado en browser post-deploy. Session 24. |
 | Shimmer diseño | 🟡 MED | ✅ VERIFICADO | "Noche Oscura" shimmer visible en browser (diagonal sweep) |
 | Save button vacío | 🟡 ALTO | ⚠️ NO VERIFICADO | Requiere admin login (Firebase anon auth puede no estar habilitado) |
 | Shortcuts rotos | 🟡 ALTO | ⚠️ NO VERIFICADO | Requiere admin login para probar Ctrl+S/Z |
