@@ -34,8 +34,7 @@
 </script>
 
 {#if open}
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="panel-backdrop" onclick={() => open = false} onkeydown={(e) => { if (e.key === 'Escape') open = false; }} role="presentation" aria-hidden="true" transition:fade={{ duration: 200 }}></div>
+	<div class="panel-backdrop" onclick={() => open = false} onkeydown={(e) => { if (e.key === 'Escape') open = false; }} role="button" tabindex="-1" aria-label="Cerrar favoritos" transition:fade={{ duration: 200 }}></div>
 	<aside class="wishlist-panel" transition:fly={{ x: 360, duration: 300, easing: quintOut }}>
 		<div class="panel-header">
 			<h3 class="panel-title">

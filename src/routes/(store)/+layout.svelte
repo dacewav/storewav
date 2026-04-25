@@ -336,8 +336,7 @@
 
 	<!-- Mobile menu overlay -->
 	{#if menuOpen}
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="mobile-overlay" onclick={closeMenu} onkeydown={() => {}}></div>
+		<div class="mobile-overlay" onclick={closeMenu} onkeydown={(e) => e.key === 'Escape' && closeMenu()} role="button" tabindex="-1" aria-label="Cerrar menú"></div>
 		<div class="mobile-menu" bind:this={mobileMenuEl}>
 			<a href="/" class="mobile-link" onclick={closeMenu}>{sectionTitle}</a>
 			{#if isAdmin}

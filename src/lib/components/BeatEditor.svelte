@@ -487,10 +487,9 @@
 
 <!-- Delete confirm modal -->
 {#if deleteConfirm}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="modal-overlay" onclick={cancelDelete}>
-		<div class="modal-box" onclick={(e) => e.stopPropagation()}>
+	<!-- svelte-ignore a11y_no_noninteractive_element_interactions — modal overlay backdrop -->
+	<div class="modal-overlay" onclick={cancelDelete} onkeydown={(e) => e.key === 'Escape' && cancelDelete()} role="alertdialog" aria-modal="true" aria-label="Confirmar borrado" tabindex="-1">
+		<div class="modal-box" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="document">
 			<div class="modal-icon">🗑️</div>
 			<h3 class="modal-title">¿Borrar este beat?</h3>
 			<p class="modal-text">"{beat.name || 'Sin nombre'}" se eliminará permanentemente. Esta acción no se puede deshacer.</p>

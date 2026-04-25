@@ -65,8 +65,7 @@
 			<span class="loading-text">Cargando beat...</span>
 		</div>
 	{:else if beat}
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div onchange={markDirty} oninput={markDirty}>
+		<div onchange={markDirty} oninput={markDirty} role="form" aria-label="Editor de beat">
 			<BeatEditor bind:beat beatId={beatId} onSave={handleSave} onDelete={handleDelete} bind:saveStatus />
 		</div>
 	{:else}

@@ -144,9 +144,7 @@
 
 	<div class="admin-body">
 		{#if sidebarOpen}
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div class="sidebar-backdrop" onclick={closeSidebar}></div>
+			<div class="sidebar-backdrop" onclick={closeSidebar} onkeydown={(e) => e.key === 'Escape' && closeSidebar()} role="button" tabindex="-1" aria-label="Cerrar menú"></div>
 		{/if}
 		<aside class="sidebar" class:open={sidebarOpen}>
 			{#each navGroups as group, gi}

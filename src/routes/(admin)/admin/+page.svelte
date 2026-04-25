@@ -337,8 +337,7 @@
 
 	<!-- Import preview modal -->
 	{#if importPreview}
-		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-		<div class="modal-backdrop" onclick={cancelImport} onkeydown={(e) => e.key === 'Escape' && cancelImport()} role="button" tabindex="-1" aria-label="Cerrar vista previa">
+		<div class="modal-backdrop" onclick={cancelImport} onkeydown={(e) => e.key === 'Escape' && cancelImport()} role="dialog" aria-modal="true" aria-label="Vista previa de importación" tabindex="-1">
 			<div class="modal" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" tabindex="-1" aria-label="Vista previa de importación">
 				<h3 class="modal-title">📥 Vista previa de importación</h3>
 
