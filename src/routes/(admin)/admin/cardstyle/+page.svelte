@@ -3,6 +3,7 @@
 	import { Card } from '$lib/components';
 	import CardStyleEditor from '$lib/components/CardStyleEditor.svelte';
 	import { accentRgb as accentRgbStore } from '$lib/stores';
+	import { CARD_PRESETS, type CardPreset } from '$lib/cardStylePresets';
 
 	let cardStyle = $state<Record<string, unknown>>($settings.data?.cardStyle ?? {});
 	let accentRgb = $state('220, 38, 38');
@@ -11,6 +12,11 @@
 	function updateCardStyle(newStyle: Record<string, unknown>) {
 		cardStyle = newStyle;
 		settings.updateField('cardStyle', newStyle);
+	}
+
+	function applyPreset(preset: CardPreset) {
+		if (!confirm(`¿Aplicar preset "${preset.name}"? Sobreescribirá el estilo actual.`)) return;
+		updateCardStyle({ ...cardStyle, ...preset.config });
 	}
 
 	function resetToDefaults() {
@@ -27,6 +33,20 @@
 		</div>
 		<div class="header-actions">
 			<button class="btn-ghost" onclick={resetToDefaults}>↺ Reset defaults</button>
+		</div>
+	</div>
+
+	<!-- Presets -->
+	<div class="presets-section">
+		<h3 class="presets-title">Presets rápidos</h3>
+		<div class="presets-grid">
+			{#each CARD_PRESETS as preset}
+				<button class="preset-card" onclick={() => applyPreset(preset)} title={preset.description}>
+					<span class="preset-icon">{preset.icon}</span>
+					<span class="preset-name">{preset.name}</span>
+					<span class="preset-desc">{preset.description}</span>
+				</button>
+			{/each}
 		</div>
 	</div>
 
@@ -56,6 +76,26 @@
 	.page-title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
 	.page-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; margin-top: var(--space-1); }
 	.header-actions { display: flex; gap: var(--space-2); flex-shrink: 0; }
+
+	/* Presets */
+	.presets-section { margin-bottom: var(--space-2); }
+	.presets-title { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--text); margin-bottom: var(--space-3); }
+	.presets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-3); }
+	.preset-card {
+		display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+		padding: var(--space-4) var(--space-3);
+		border: 1px solid var(--border); border-radius: var(--radius-md);
+		background: var(--surface); cursor: pointer; transition: all var(--duration-fast);
+		text-align: center;
+	}
+	.preset-card:hover {
+		border-color: rgba(var(--accent-rgb), 0.4);
+		background: rgba(var(--accent-rgb), 0.06);
+		transform: translateY(-2px);
+	}
+	.preset-icon { font-size: 1.5rem; }
+	.preset-name { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--text); }
+	.preset-desc { font-size: var(--text-2xs); color: var(--text-muted); line-height: 1.3; }
 	.btn-ghost {
 		padding: var(--space-2) var(--space-3); min-height: var(--touch-min);
 		background: transparent; border: 1px solid var(--border);

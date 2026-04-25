@@ -411,6 +411,37 @@
 							<label for="cse-hsat">Saturate ({getNum('hoverSaturate', 1)})</label>
 							<input id="cse-hsat" type="range" min="0" max="3" step="0.1" value={getNum('hoverSaturate', 1)} oninput={(e) => set('hoverSaturate', +e.currentTarget.value !== 1 ? +e.currentTarget.value : undefined)} />
 						</div>
+
+						<div class="section-divider"></div>
+						<div class="subsection-title">Efecto hermanas</div>
+
+						<div class="field">
+							<label for="cse-she">Tipo de efecto</label>
+							<select id="cse-she" onchange={(e) => set('siblingHoverEffect', e.currentTarget.value !== 'blur' ? e.currentTarget.value : undefined)}>
+								<option value="blur" selected={!value.siblingHoverEffect || value.siblingHoverEffect === 'blur'}>Blur</option>
+								<option value="dim" selected={value.siblingHoverEffect === 'dim'}>Dim (opacidad)</option>
+								<option value="scale-down" selected={value.siblingHoverEffect === 'scale-down'}>Scale down</option>
+								<option value="none" selected={value.siblingHoverEffect === 'none'}>Ninguno</option>
+							</select>
+						</div>
+						{#if value.siblingHoverEffect !== 'none'}
+							<div class="field">
+								<label for="cse-shb">Blur hermanas ({getNum('siblingHoverBlur', 3)}px)</label>
+								<input id="cse-shb" type="range" min="0" max="10" step="0.5" value={getNum('siblingHoverBlur', 3)} oninput={(e) => set('siblingHoverBlur', +e.currentTarget.value !== 3 ? +e.currentTarget.value : undefined)} />
+							</div>
+							<div class="field">
+								<label for="cse-sho">Opacidad hermanas ({getNum('siblingHoverOpacity', 0.6)})</label>
+								<input id="cse-sho" type="range" min="0.1" max="1" step="0.05" value={getNum('siblingHoverOpacity', 0.6)} oninput={(e) => set('siblingHoverOpacity', +e.currentTarget.value !== 0.6 ? +e.currentTarget.value : undefined)} />
+							</div>
+							<div class="field">
+								<label for="cse-shs">Scale hermanas ({getNum('siblingHoverScale', 0.95)})</label>
+								<input id="cse-shs" type="range" min="0.8" max="1" step="0.01" value={getNum('siblingHoverScale', 0.95)} oninput={(e) => set('siblingHoverScale', +e.currentTarget.value !== 0.95 ? +e.currentTarget.value : undefined)} />
+							</div>
+							<div class="field">
+								<label for="cse-shd">Duración ({value.siblingHoverDuration ?? '0.3s'})</label>
+								<input id="cse-shd" type="range" min="0.1" max="1" step="0.05" value={parseFloat(value.siblingHoverDuration ?? '0.3') || 0.3} oninput={(e) => set('siblingHoverDuration', +e.currentTarget.value !== 0.3 ? `${e.currentTarget.value}s` : undefined)} />
+							</div>
+						{/if}
 					{/if}
 
 					<!-- ═══ ANIMATION ═══ -->
@@ -718,6 +749,22 @@
 	@keyframes cardShimmer {
 		0% { transform: translateX(-100%); }
 		100% { transform: translateX(100%); }
+	}
+
+	.section-divider {
+		height: 1px;
+		background: var(--border);
+		margin: var(--space-4) 0;
+	}
+
+	.subsection-title {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		font-weight: 500;
+		color: var(--text-hint);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		margin-bottom: var(--space-3);
 	}
 
 	@media (max-width: 640px) {

@@ -23,6 +23,14 @@
 	let hv = $derived((s?.heroVisual ?? {}) as HeroVisualSettings);
 	let accent = $derived(s?.theme?.accent ?? '#dc2626');
 
+	// Sibling hover config from global cardStyle
+	let cardStyle = $derived((s?.cardStyle ?? {}) as Record<string, unknown>);
+	let siblingHoverEffect = $derived((cardStyle.siblingHoverEffect ?? 'blur') as 'blur' | 'dim' | 'scale-down' | 'none');
+	let siblingHoverBlur = $derived(Number(cardStyle.siblingHoverBlur ?? 3));
+	let siblingHoverOpacity = $derived(Number(cardStyle.siblingHoverOpacity ?? 0.6));
+	let siblingHoverScale = $derived(Number(cardStyle.siblingHoverScale ?? 0.95));
+	let siblingHoverDuration = $derived(String(cardStyle.siblingHoverDuration ?? '0.3s'));
+
 	// Resolve colors (empty = use accent)
 	let glowClr = $derived(hv.glowClr || accent);
 	let strokeClr = $derived(hv.strokeClr || accent);
@@ -321,7 +329,7 @@
 	<!-- Beat grid -->
 	{#if beats.length > 0}
 		{#if filteredBeats.length > 0}
-			<div class="beat-grid{animCards && animCards !== 'none' ? ` anim-${animCards}` : ''}" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ blur: 3, opacity: 0.5 }} style="{animCards && animCards !== 'none' ? `--anim-dur: ${animCardsDur}s; --anim-del: ${animCardsDel}s; --anim-ease: ${animCardsEase}` : ''}">
+			<div class="beat-grid{animCards && animCards !== 'none' ? ` anim-${animCards}` : ''}" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ effect: siblingHoverEffect, blur: siblingHoverBlur, opacity: siblingHoverOpacity, scale: siblingHoverScale, duration: siblingHoverDuration }} style="{animCards && animCards !== 'none' ? `--anim-dur: ${animCardsDur}s; --anim-del: ${animCardsDel}s; --anim-ease: ${animCardsEase}` : ''}">
 				{#each filteredBeats as beat (beat.id)}
 					<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 				{/each}

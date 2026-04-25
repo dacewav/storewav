@@ -126,56 +126,95 @@ export const reveal: Action<HTMLElement, { threshold?: number }> = (node, params
 	};
 };
 
-/** Sibling blur — blur all sibling cards on hover (like catalog) */
-export const siblingBlur: Action<HTMLElement, { blur?: number; opacity?: number }> = (node, params = {}) => {
+/** Sibling hover effect — configurable effect on sibling cards (blur, dim, scale-down, none) */
+export const siblingBlur: Action<HTMLElement, {
+	blur?: number;
+	opacity?: number;
+	effect?: 'blur' | 'dim' | 'scale-down' | 'none';
+	scale?: number;
+	duration?: string;
+}> = (node, params = {}) => {
 	const blurPx = params.blur ?? 3;
 	const opacity = params.opacity ?? 0.6;
+	const effect = params.effect ?? 'blur';
+	const scale = params.scale ?? 0.95;
+	const duration = params.duration ?? '0.3s';
 
 	// Only on devices with hover
 	const mq = window.matchMedia('(hover: hover)');
-	if (!mq.matches) return { destroy() {} };
+	if (!mq.matches || effect === 'none') return { destroy() {} };
 
-	function blurOthers(hovered: HTMLElement) {
+	let activeCard: HTMLElement | null = null;
+
+	function applyEffect(hovered: HTMLElement) {
+		if (activeCard === hovered) return;
+		activeCard = hovered;
 		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
 		cards.forEach((c) => {
+			c.style.transition = `filter ${duration}, opacity ${duration}, transform ${duration}`;
 			if (c !== hovered) {
-				c.style.filter = `blur(${blurPx}px)`;
-				c.style.opacity = String(opacity);
-				c.style.transition = 'filter 0.3s, opacity 0.3s';
+				switch (effect) {
+					case 'blur':
+						c.style.filter = `blur(${blurPx}px)`;
+						c.style.opacity = String(opacity);
+						c.style.transform = '';
+						break;
+					case 'dim':
+						c.style.filter = '';
+						c.style.opacity = String(opacity);
+						c.style.transform = '';
+						break;
+					case 'scale-down':
+						c.style.filter = '';
+						c.style.opacity = String(opacity);
+						c.style.transform = `scale(${scale})`;
+						break;
+				}
 			} else {
 				c.style.filter = '';
 				c.style.opacity = '';
+				c.style.transform = '';
 			}
 		});
 	}
 
 	function clearAll() {
+		activeCard = null;
 		const cards = node.querySelectorAll<HTMLElement>('.beat-card');
 		cards.forEach((c) => {
 			c.style.filter = '';
 			c.style.opacity = '';
+			c.style.transform = '';
 		});
 	}
 
 	function onMouseOver(e: Event) {
 		const card = (e.target as HTMLElement)?.closest('.beat-card');
-		if (card) blurOthers(card as HTMLElement);
+		if (card) applyEffect(card as HTMLElement);
 	}
 
 	function onMouseOut(e: Event) {
 		const related = (e as MouseEvent).relatedTarget as HTMLElement | null;
+		// Clear if leaving the grid or moving to a non-card element
 		if (!related || !node.contains(related)) {
 			clearAll();
 		}
 	}
 
+	// Also clear on mouseleave from the grid container
+	function onMouseLeave() {
+		clearAll();
+	}
+
 	node.addEventListener('mouseover', onMouseOver);
 	node.addEventListener('mouseout', onMouseOut);
+	node.addEventListener('mouseleave', onMouseLeave);
 
 	return {
 		destroy() {
 			node.removeEventListener('mouseover', onMouseOver);
 			node.removeEventListener('mouseout', onMouseOut);
+			node.removeEventListener('mouseleave', onMouseLeave);
 			clearAll();
 		}
 	};

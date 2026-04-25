@@ -142,6 +142,13 @@ export type CardStyleConfig = {
 	cardPadding?: string;      // internal padding
 	infoBg?: string;           // background for info section below image
 	gap?: string;              // gap between card elements
+
+	// ── NEW: Sibling hover effect ──
+	siblingHoverEffect?: 'blur' | 'dim' | 'scale-down' | 'none';
+	siblingHoverBlur?: number;      // px, default: 3
+	siblingHoverOpacity?: number;   // 0-1, default: 0.6
+	siblingHoverScale?: number;     // e.g. 0.95
+	siblingHoverDuration?: string;  // default: '0.3s'
 };
 
 const DEFAULT: CardStyleConfig = {
