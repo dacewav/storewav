@@ -76,6 +76,32 @@
 			<input id="ly-pb" type="number" min="0" max="40" step="4" value={layout.playerBottom ?? 0} oninput={(e) => update('layout.playerBottom', +e.currentTarget.value)} />
 		</div>
 	</Card>
+
+	<Card>
+		<h3 class="section-title">Navegación</h3>
+		<div class="row">
+			<div class="field">
+				<label for="ly-nh">Altura nav ({layout.navHeight ?? 64}px)</label>
+				<input id="ly-nh" type="range" min="40" max="100" step="4" value={layout.navHeight ?? 64} oninput={(e) => update('layout.navHeight', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label>
+					<input type="checkbox" checked={layout.showBanner !== false} onchange={(e) => update('layout.showBanner', e.currentTarget.checked)} />
+					Mostrar banner superior
+				</label>
+			</div>
+		</div>
+	</Card>
+
+	<Card>
+		<h3 class="section-title">Footer</h3>
+		<div class="field">
+			<label>
+				<input type="checkbox" checked={layout.footerVisible !== false} onchange={(e) => update('layout.footerVisible', e.currentTarget.checked)} />
+				Mostrar footer
+			</label>
+		</div>
+	</Card>
 </div>
 
 <style>

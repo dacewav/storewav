@@ -187,6 +187,16 @@ export type ThemeSettings = {
 	particlesOpacity: number; // 0-1
 	particlesText: string;
 	particlesImgUrl: string;
+	particlesSizeMin: number; // px, default 3
+	particlesSizeMax: number; // px, default 8
+
+	// Hero stroke (background overlay)
+	heroStrokeOn: boolean;
+	heroStrokeClr: string;
+	heroStrokeW: number; // px
+
+	// Custom CSS injection
+	customCSS: string;
 };
 
 // ── Layout Settings (expanded) ──
@@ -201,6 +211,11 @@ export type LayoutSettings = {
 	logoHeight: number; // px 0=auto
 	logoRotation: number; // deg
 	showLogoText: boolean;
+
+	navHeight: number; // px, default 64
+	footerVisible: boolean;
+	showBanner: boolean;
+	sectionOrder: string; // comma-separated section ids
 };
 
 // ── Animation Settings ──
@@ -334,7 +349,13 @@ const DEFAULT: SettingsData = {
 		particlesColor: '',
 		particlesOpacity: 0.3,
 		particlesText: '',
-		particlesImgUrl: ''
+		particlesImgUrl: '',
+		particlesSizeMin: 3,
+		particlesSizeMax: 8,
+		heroStrokeOn: false,
+		heroStrokeClr: '',
+		heroStrokeW: 1,
+		customCSS: ''
 	},
 	section: {
 		title: 'Catálogo',
@@ -356,7 +377,11 @@ const DEFAULT: SettingsData = {
 		logoWidth: 80,
 		logoHeight: 0,
 		logoRotation: 0,
-		showLogoText: true
+		showLogoText: true,
+		navHeight: 64,
+		footerVisible: true,
+		showBanner: true,
+		sectionOrder: 'hero,featured,divider,beats,testimonials,cta'
 	},
 	links: [
 		{ label: 'Instagram', url: 'https://instagram.com', icon: 'instagram' },

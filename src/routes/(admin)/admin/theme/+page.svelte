@@ -78,6 +78,10 @@
 						['theme.particlesType', 'circle'],
 						['theme.particlesColor', ''],
 						['theme.particlesOpacity', 0.3],
+						['theme.particlesText', ''],
+						['theme.particlesImgUrl', ''],
+						['theme.particlesSizeMin', 3],
+						['theme.particlesSizeMax', 8],
 						['theme.lightMode', false],
 						['theme.heroGlowOn', false],
 						['theme.heroGlowClr', ''],
@@ -97,6 +101,7 @@
 						['theme.btnLicBg', ''],
 						['theme.btnLicClr', ''],
 						['theme.btnLicBdr', ''],
+						['theme.customCSS', ''],
 					];
 					for (const [path, val] of defaults) {
 						settings.updateField(path, val);
@@ -376,6 +381,30 @@
 		</div>
 	</Card>
 
+	<!-- Hero Stroke -->
+	<Card>
+		<h3 class="section-title">Hero Stroke (outline título)</h3>
+		<div class="row">
+			<div class="field">
+				<label>
+					<input type="checkbox" checked={t.heroStrokeOn === true} onchange={(e) => update('theme.heroStrokeOn', e.currentTarget.checked)} />
+					Stroke activado
+				</label>
+			</div>
+			<div class="field">
+				<label for="t-hsw">Grosor ({t.heroStrokeW ?? 1}px)</label>
+				<input id="t-hsw" type="range" min="0.5" max="5" step="0.5" value={t.heroStrokeW ?? 1} oninput={(e) => update('theme.heroStrokeW', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-hsc">Color stroke</label>
+				<div class="color-row">
+					<input id="t-hsc" type="color" value={t.heroStrokeClr || t.accent || '#dc2626'} oninput={(e) => update('theme.heroStrokeClr', e.currentTarget.value)} />
+					<input type="text" value={t.heroStrokeClr ?? ''} placeholder="(usa accent)" oninput={(e) => update('theme.heroStrokeClr', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+	</Card>
+
 	<!-- License Buttons -->
 	<Card>
 		<h3 class="section-title">Botones de Licencia</h3>
@@ -431,6 +460,16 @@
 		</div>
 		<div class="row">
 			<div class="field">
+				<label for="t-psn">Tamaño min ({t.particlesSizeMin ?? 3}px)</label>
+				<input id="t-psn" type="range" min="1" max="20" step="1" value={t.particlesSizeMin ?? 3} oninput={(e) => update('theme.particlesSizeMin', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-psx">Tamaño max ({t.particlesSizeMax ?? 8}px)</label>
+				<input id="t-psx" type="range" min="2" max="40" step="1" value={t.particlesSizeMax ?? 8} oninput={(e) => update('theme.particlesSizeMax', +e.currentTarget.value)} />
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
 				<label for="t-pcl">Color</label>
 				<div class="color-row">
 					<input id="t-pcl" type="color" value={t.particlesColor || '#dc2626'} oninput={(e) => update('theme.particlesColor', e.currentTarget.value)} />
@@ -455,6 +494,21 @@
 			</div>
 		{/if}
 	</Card>
+	<!-- Custom CSS -->
+	<Card>
+		<h3 class="section-title">CSS Personalizado</h3>
+		<p class="field-desc">Inyecta CSS custom que se aplica a toda la tienda. Úsalo para overrides avanzados.</p>
+		<div class="field">
+			<label for="t-css">CSS</label>
+			<textarea
+				id="t-css"
+				value={t.customCSS ?? ''}
+				oninput={(e) => update('theme.customCSS', e.currentTarget.value)}
+				placeholder={"/* .mi-clase { color: red; } */"}
+				rows={6}
+			></textarea>
+		</div>
+	</Card>
 </div>
 
 <style>
@@ -464,8 +518,10 @@
 	.section-title { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--text); margin-bottom: var(--space-4); }
 	.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
 	.field label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: var(--space-2); }
-	.field input[type="text"], .field select { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color var(--duration-fast); }
-	.field input[type="text"]:focus, .field select:focus { border-color: rgba(var(--accent-rgb), 0.5); }
+	.field input[type="text"], .field select, .field textarea { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color var(--duration-fast); }
+	.field textarea { min-height: 80px; resize: vertical; font-family: var(--font-mono); font-size: var(--text-xs); }
+	.field input[type="text"]:focus, .field select:focus, .field textarea:focus { border-color: rgba(var(--accent-rgb), 0.5); }
+	.field-desc { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-3); }
 	.field input[type="range"] { width: 100%; accent-color: var(--accent); }
 	.field input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 	.row { display: flex; gap: var(--space-3); flex-wrap: wrap; }

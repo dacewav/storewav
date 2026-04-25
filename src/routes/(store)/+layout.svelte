@@ -53,12 +53,17 @@
 	let particlesOpacity = $derived(settingsData?.theme?.particlesOpacity ?? 0.3);
 	let particlesText = $derived(settingsData?.theme?.particlesText ?? '');
 	let particlesImgUrl = $derived(settingsData?.theme?.particlesImgUrl ?? '');
+	let particlesSizeMin = $derived(settingsData?.theme?.particlesSizeMin ?? 3);
+	let particlesSizeMax = $derived(settingsData?.theme?.particlesSizeMax ?? 8);
+	let customCSS = $derived(settingsData?.theme?.customCSS ?? '');
+	let footerVisible = $derived(settingsData?.layout?.footerVisible !== false);
+	let navHeight = $derived(settingsData?.layout?.navHeight ?? 64);
 
 	// Check if current user is admin
 	let isAdmin = $derived($auth.isAdmin);
 
 	// Banner
-	let bannerEnabled = $derived(settingsData?.banner?.enabled && settingsData?.banner?.text);
+	let bannerEnabled = $derived(settingsData?.banner?.enabled && settingsData?.banner?.text && settingsData?.layout?.showBanner !== false);
 	let bannerText = $derived(settingsData?.banner?.text ?? '');
 	let bannerUrl = $derived(settingsData?.banner?.url ?? '');
 	let bannerAnim = $derived(settingsData?.banner?.animation ?? 'static');
@@ -225,6 +230,10 @@
 	<meta property="og:image" content="/og-image.svg" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:image" content="/og-image.svg" />
+	{#if customCSS}
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+		{@html `<style>${customCSS}</style>`}
+	{/if}
 </svelte:head>
 
 <!-- Banner (admin-editable) -->
@@ -285,12 +294,14 @@
 		opacity={particlesOpacity}
 		text={particlesText}
 		imgUrl={particlesImgUrl}
+		sizeMin={particlesSizeMin}
+		sizeMax={particlesSizeMax}
 	/>
 {/if}
 
 <div class="app">
 	<!-- Nav -->
-	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled} aria-label="Navegación principal">
+	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled} aria-label="Navegación principal" style="min-height: {navHeight}px">
 		<a href="/" class="nav-brand" onclick={closeMenu}>
 			{#if brandLogo}
 				<img class="nav-logo" src={brandLogo} alt={brandName} decoding="async" style="height: {logoHeight > 0 ? logoHeight : 28}px" />
@@ -367,6 +378,7 @@
 	</main>
 
 	<!-- Footer -->
+	{#if footerVisible}
 	<footer class="footer">
 		<div class="footer-left">
 			<div class="footer-brand">
@@ -384,6 +396,7 @@
 			{/each}
 		</div>
 	</footer>
+	{/if}
 </div>
 
 <Player />

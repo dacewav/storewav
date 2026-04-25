@@ -6,7 +6,9 @@
 		color = '',
 		opacity = 0.3,
 		text = '',
-		imgUrl = ''
+		imgUrl = '',
+		sizeMin = 3,
+		sizeMax = 8
 	}: {
 		count?: number;
 		speed?: number;
@@ -15,6 +17,8 @@
 		opacity?: number;
 		text?: string;
 		imgUrl?: string;
+		sizeMin?: number;
+		sizeMax?: number;
 	} = $props();
 
 	let canvas: HTMLCanvasElement;
@@ -55,7 +59,7 @@
 			y: Math.random() * h,
 			vx: (Math.random() - 0.5) * speed,
 			vy: (Math.random() - 0.5) * speed,
-			size: 3 + Math.random() * 5,
+			size: sizeMin + Math.random() * (sizeMax - sizeMin),
 			life: Math.random()
 		}));
 	}
@@ -119,6 +123,8 @@
 		void opacity;
 		void text;
 		void imgUrl;
+		void sizeMin;
+		void sizeMax;
 		void resolvedColor;
 		if (canvasW > 0 && canvasH > 0) {
 			initParticles(canvasW, canvasH);
