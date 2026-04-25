@@ -7,57 +7,69 @@
 
 ```yaml
 sesión: "24"
-bloque: "Particles BG + Admin layout fixes + Theme hidden props"
-objetivo: "Fix particles z-index, audit admin, fix layout bugs, expose hidden theme properties"
+bloque: "Particles BG + Admin layout fixes + Theme expansion (comprehensive)"
+objetivo: "Fix particles, audit admin, fix layout, expose ALL hidden settings"
 tiempo: "50 min"
-estado: "✅ COMPLETADO — todo deployed y pushed"
-último_commit: "04c342a"
-último_push: "04c342a"
+estado: "✅ COMPLETADO — 4 commits, todo deployed + pushed"
+último_commit: "64c1eef"
+último_push: "64c1eef"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
-deploy_version: "3b482f45"
+deploy_version: "ca4c4ce8"
 tests_total: 107
 ```
 
-### Session 24 — Resultados
+### Session 24 — Resumen Completo
 
-**1. Particles z-index**: ✅ FIXEADO — `z-index: 10` → `var(--z-base)` (0). Particles como BG absoluto, debajo de orbs y contenido.
+**Commit 1: `53b4dbb`** — Particles z-index fix
+- `z-index: 10` → `var(--z-base)` (0) — BG absoluto
 
-**2. Admin Layout Bugs**: ✅ 4 FIXES
-- Sidebar: `text-overflow: ellipsis` en labels (evita corte)
-- Topbar: breakpoint a 900px esconde center + status text progresivamente
-- Beat grid: breakpoint intermedio a 600px (`minmax(200px)`)
-- Modal import: `dvh` + `safe-area-inset-bottom` para mobile
+**Commit 2: `04c342a`** — Admin layout fixes + hidden theme props
+- Sidebar: text-overflow ellipsis
+- Topbar: breakpoint 900px
+- Beat grid: breakpoint 600px
+- Modal: dvh + safe-area
+- Theme: 12 properties exposed (bgOpacity, wbarRadius, wave*, glowActive, heroGlow*, btnLic*)
 
-**3. Theme Hidden Properties**: ✅ 12 PROPIEDADES EXPUESTAS
-- Opacidades: `bgOpacity`, `btnOpacityHover`
-- Player Bar: `wbarRadius`, `waveOpacityOff`, `waveOpacityOn`
-- Glow System: `glowActive` checkbox
-- Hero Glow (nueva sección): `heroGlowOn`, `heroGlowClr`, `heroGlowInt`, `heroGlowBlur`
-- License Buttons (nueva sección): `btnLicBg`, `btnLicClr`, `btnLicBdr`
+**Commit 3: `64c1eef`** — Comprehensive customization expansion
+- **Particles**: sizeMin + sizeMax (1-40px), props wired through
+- **Theme**: Hero Stroke (on/off, width, color), Custom CSS injection
+- **Layout**: Nav height (40-100px), show/hide banner, show/hide footer
+- **Types**: ThemeSettings +6 fields, LayoutSettings +4 fields
 
-### Archivos tocados
-- `src/lib/components/Particles.svelte` — z-index → var(--z-base)
-- `src/lib/components/AdminTopbar.svelte` — breakpoint 900px
-- `src/routes/(admin)/+layout.svelte` — sidebar label overflow
-- `src/routes/(admin)/admin/+page.svelte` — modal dvh
-- `src/routes/(admin)/admin/theme/+page.svelte` — 12 new controls + sections
-- `src/routes/(store)/+page.svelte` — beat grid 600px breakpoint
+**Commit 4: `474173e`** — Guide updates
 
-### Pendiente para próxima sesión
-- 🟡 **Save button** — requiere admin login para verificar
-- 🟡 **Shortcuts (Ctrl+S/Z)** — requiere admin login para verificar
-- 🟡 **Admin auth** — "Permission denied" al revisar adminWhitelist
-- ⚪ **Brand logo upload** — solo URL, sin Firebase Storage upload
-- ⚪ **Live preview** — no hay preview en admin antes de guardar
-- ⚪ **Animations duración/delay** — solo presets, sin timing control
+### Nuevos controles en admin Theme
+| Sección | Controles nuevos |
+|---------|-----------------|
+| Particles | Tamaño min, Tamaño max |
+| Hero Stroke | On/off, Grosor, Color |
+| Custom CSS | Textarea para CSS injection |
+| Opacidades | Background, Btn hover |
+| Player Bar | Border radius, Wave off/on |
+| Glow System | Glow active checkbox |
+| Hero Glow | On/off, Intensidad, Blur, Color |
+| License Buttons | Fondo, Texto, Border |
+
+### Nuevos controles en admin Layout
+| Sección | Controles nuevos |
+|---------|-----------------|
+| Navegación | Altura nav, Mostrar banner |
+| Footer | Mostrar footer |
+
+### Pendiente
+- 🟡 Save button / Shortcuts / Admin auth (requieren login)
+- ⚪ Brand logo upload (Firebase Storage)
+- ⚪ Live preview en admin
+- ⚪ Animaciones duración/delay/easing
+- ⚪ Section reorder (drag & drop)
 
 ## Estado de Sesiones
 
 | Sesión | Bloque | Estado |
 |--------|--------|--------|
-| 1-22 | Ver sesiones anteriores | ✅ |
+| 1-22 | Anteriores | ✅ |
 | 23 | Firebase config + Particles rendering | ✅ |
-| 24 | Particles BG + Admin audit + Theme expansion | ✅ Todo deployed + pushed |
+| 24 | Particles BG + Admin audit + Theme expansion | ✅ 4 commits deployed |
 
 ## Datos clave
 - Deploy: Cloudflare Workers via wrangler
