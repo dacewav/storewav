@@ -7,7 +7,7 @@
 		mode = 'per-beat',
 		accentRgb = '220, 38, 38'
 	}: {
-		value: Partial<CardStyleConfig>;
+		value?: Partial<CardStyleConfig>;
 		mode?: 'per-beat' | 'global';
 		accentRgb?: string;
 	} = $props();
@@ -92,18 +92,20 @@
 	}
 
 	// Presets
-	const GLOW_TYPES: { value: GlowType | ''; label: string }[] = [
-		{ value: '', label: mode === 'per-beat' ? '(usar global)' : 'Ninguno' },
+	const globalLabel = $derived(mode === 'per-beat' ? '(usar global)' : 'Ninguno');
+	const GLOW_TYPES: { value: GlowType | ''; label: string }[] = $derived([
+		{ value: '', label: globalLabel },
 		{ value: 'none', label: 'Ninguno' },
 		{ value: 'active', label: 'Activo' },
 		{ value: 'rgb', label: 'RGB' },
 		{ value: 'pulse', label: 'Pulse' },
 		{ value: 'breathe', label: 'Breathe' },
 		{ value: 'neon', label: 'Neon' },
-	];
+	]);
 
-	const ANIMATIONS: { value: CardAnimation | ''; label: string; group: string }[] = [
-		{ value: '', label: mode === 'per-beat' ? '(usar global)' : 'Ninguna', group: '' },
+	const globalAnimLabel = $derived(mode === 'per-beat' ? '(usar global)' : 'Ninguna');
+	const ANIMATIONS: { value: CardAnimation | ''; label: string; group: string }[] = $derived([
+		{ value: '', label: globalAnimLabel, group: '' },
 		{ value: 'none', label: 'Ninguna', group: '' },
 		// Suaves
 		{ value: 'float', label: 'Float', group: 'Suaves' },
@@ -152,7 +154,7 @@
 		{ value: 'spinReverse', label: 'Spin Reverse', group: 'Especiales' },
 		{ value: 'rubber', label: 'Rubber', group: 'Especiales' },
 		{ value: 'squeeze', label: 'Squeeze', group: 'Especiales' },
-	];
+	]);
 
 	const BORDER_STYLES = ['none', 'solid', 'dashed', 'dotted', 'double'];
 

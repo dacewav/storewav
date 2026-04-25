@@ -7,6 +7,7 @@
 
 import { createFirebaseStore } from './_firebaseStore';
 import { derived } from 'svelte/store';
+import type { CardStyleConfig } from '$lib/cardStyleEngine';
 
 /** License item in the deployed array format */
 export type LicenseItem = {
@@ -40,7 +41,7 @@ export type Beat = {
 	exclusive?: boolean;
 	available?: boolean;
 	plays?: number;
-	cardStyle?: Record<string, unknown>;
+	cardStyle?: Partial<CardStyleConfig>;
 	glowConfig?: Record<string, unknown>;
 	cardAnim?: Record<string, unknown>;
 	accentColor?: string;
