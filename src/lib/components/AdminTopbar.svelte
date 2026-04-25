@@ -353,8 +353,23 @@
 			display: flex;
 		}
 
+		/* Floating save pill on mobile */
 		.save-status {
-			display: none;
+			position: fixed;
+			bottom: 72px;
+			right: 12px;
+			z-index: calc(var(--z-nav) + 1);
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 999px;
+			padding: 4px 10px;
+			box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+			gap: var(--space-1);
+		}
+
+		.save-status .status-text {
+			display: inline;
+			font-size: 10px;
 		}
 
 		.topbar-actions .tb-sep,

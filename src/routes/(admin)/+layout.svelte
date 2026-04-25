@@ -167,6 +167,21 @@
 		}
 	];
 
+	// Breadcrumb
+	let breadcrumbs = $derived.by(() => {
+		const crumbs: { label: string; href: string }[] = [{ label: 'Admin', href: '/admin' }];
+		if (currentPath === '/admin') return crumbs;
+		for (const g of navGroups) {
+			for (const item of g.items) {
+				if (item.href !== '/admin' && currentPath.startsWith(item.href)) {
+					crumbs.push({ label: item.label, href: item.href });
+					break;
+				}
+			}
+		}
+		return crumbs;
+	});
+
 	// Current section label for topbar
 	let sectionLabel = $derived.by(() => {
 		for (const g of navGroups) {
@@ -198,6 +213,19 @@
 	<AdminTopbar {brandName} saveStatus={currentSaveStatus} pendingCount={pendingWritesCount} {previewOpen} adminTheme={currentAdminTheme} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar} onTogglePreview={togglePreview} onToggleTheme={() => adminTheme.toggle()} onOpenPalette={() => (paletteOpen = true)}>
 		<span class="admin-section-label">{sectionLabel}</span>
 	</AdminTopbar>
+
+	{#if breadcrumbs.length > 1}
+		<nav class="breadcrumb" aria-label="Navegación">
+			{#each breadcrumbs as crumb, i}
+				{#if i > 0}<span class="bc-sep">/</span>{/if}
+				{#if i < breadcrumbs.length - 1}
+					<a href={crumb.href} class="bc-link">{crumb.label}</a>
+				{:else}
+					<span class="bc-current">{crumb.label}</span>
+				{/if}
+			{/each}
+		</nav>
+	{/if}
 
 	<CommandPalette bind:open={paletteOpen} />
 	<AdminOnboard />
@@ -601,6 +629,45 @@
 		font-size: var(--text-sm);
 		text-align: center;
 		font-family: var(--font-mono);
+	}
+
+	/* ── Breadcrumb ── */
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: var(--space-1);
+		padding: var(--space-2) var(--space-6);
+		background: var(--bg-secondary);
+		border-bottom: 1px solid var(--border);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+	}
+
+	.bc-sep {
+		color: var(--text-hint);
+		margin: 0 2px;
+	}
+
+	.bc-link {
+		color: var(--text-muted);
+		text-decoration: none;
+		transition: color var(--duration-fast);
+	}
+
+	.bc-link:hover {
+		color: var(--accent);
+	}
+
+	.bc-current {
+		color: var(--text-secondary);
+		font-weight: 500;
+	}
+
+	@media (max-width: 768px) {
+		.breadcrumb {
+			padding: var(--space-2) var(--space-4);
+			font-size: 10px;
+		}
 	}
 
 	/* Admin light theme overrides */
