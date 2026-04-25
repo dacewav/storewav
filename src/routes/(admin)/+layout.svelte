@@ -46,6 +46,10 @@
 	function toggleSidebar() { sidebarOpen = !sidebarOpen; }
 	function closeSidebar() { sidebarOpen = false; }
 
+	// Preview panel (split view)
+	let previewOpen = $state(false);
+	function togglePreview() { previewOpen = !previewOpen; }
+
 	// Toast on save status changes
 	let lastStatus = $state('');
 	$effect(() => {
@@ -107,6 +111,9 @@
 		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'g') {
 			e.preventDefault();
 			goto('/');
+		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'p') {
+			e.preventDefault();
+			togglePreview();
 		} else if (!isInput && e.key === '/') {
 			e.preventDefault();
 			document.querySelector<HTMLInputElement>('.search-input')?.focus();
@@ -169,7 +176,7 @@
 			⚠️ Error de autenticación: {authState.error}
 		</div>
 	{/if}
-	<AdminTopbar {brandName} saveStatus={currentSaveStatus} pendingCount={pendingWritesCount} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar}>
+	<AdminTopbar {brandName} saveStatus={currentSaveStatus} pendingCount={pendingWritesCount} {previewOpen} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar} onTogglePreview={togglePreview}>
 		<span class="admin-section-label">{sectionLabel}</span>
 	</AdminTopbar>
 
@@ -198,9 +205,22 @@
 			{/each}
 		</aside>
 
-		<main class="admin-content">
+		<main class="admin-content" class:preview-open={previewOpen}>
 			{@render children()}
 		</main>
+
+		{#if previewOpen}
+			<div class="preview-panel">
+				<div class="preview-header">
+					<span class="preview-label">👁 Preview en vivo</span>
+					<div class="preview-actions">
+						<button class="preview-btn" onclick={() => window.open('/', '_blank')} title="Abrir en nueva pestaña">↗</button>
+						<button class="preview-btn" onclick={togglePreview} title="Cerrar preview">✕</button>
+					</div>
+				</div>
+				<iframe src="/" class="preview-iframe" title="Vista previa de la tienda"></iframe>
+			</div>
+		{/if}
 	</div>
 </div>
 
@@ -223,6 +243,78 @@
 		flex: 1;
 		overflow-y: auto;
 		padding: var(--space-6);
+		transition: max-width 0.3s ease;
+	}
+
+	.admin-content.preview-open {
+		max-width: 50%;
+		min-width: 360px;
+	}
+
+	/* Preview panel (split view) */
+	.preview-panel {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		border-left: 1px solid var(--border);
+		background: var(--bg);
+		min-width: 320px;
+		animation: slideInPreview 0.3s ease;
+	}
+
+	.preview-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: var(--space-2) var(--space-3);
+		border-bottom: 1px solid var(--border);
+		background: var(--surface);
+		flex-shrink: 0;
+	}
+
+	.preview-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-secondary);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.preview-actions {
+		display: flex;
+		gap: var(--space-1);
+	}
+
+	.preview-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		border-radius: var(--radius-sm);
+		border: 1px solid var(--border);
+		background: transparent;
+		color: var(--text-secondary);
+		font-size: 12px;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.preview-btn:hover {
+		background: var(--surface-hover);
+		color: var(--text);
+	}
+
+	.preview-iframe {
+		flex: 1;
+		border: none;
+		width: 100%;
+		background: var(--bg);
+	}
+
+	@keyframes slideInPreview {
+		from { opacity: 0; transform: translateX(20px); }
+		to { opacity: 1; transform: translateX(0); }
 	}
 
 	.admin-section-label {
@@ -303,6 +395,15 @@
 	@media (max-width: 768px) {
 		.admin-content {
 			padding: var(--space-4);
+		}
+
+		.admin-content.preview-open {
+			max-width: 100%;
+			min-width: 0;
+		}
+
+		.preview-panel {
+			display: none;
 		}
 
 		.sidebar {

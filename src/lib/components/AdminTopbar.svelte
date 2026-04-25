@@ -6,6 +6,7 @@
 		brandName = 'DACEWAV',
 		saveStatus = 'saved',
 		pendingCount = 0,
+		previewOpen = false,
 		onSave,
 		onExport,
 		onImport,
@@ -13,11 +14,13 @@
 		onRedo,
 		onLogout,
 		onToggleSidebar,
+		onTogglePreview,
 		children
 	}: {
 		brandName?: string;
 		saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 		pendingCount?: number;
+		previewOpen?: boolean;
 		onSave?: () => void;
 		onExport?: () => void;
 		onImport?: () => void;
@@ -25,6 +28,7 @@
 		onRedo?: () => void;
 		onLogout?: () => void;
 		onToggleSidebar?: () => void;
+		onTogglePreview?: () => void;
 		children?: Snippet;
 	} = $props();
 </script>
@@ -67,6 +71,16 @@
 		</button>
 		<button class="tb-btn" onclick={onRedo} title="Rehacer (Ctrl+Shift+Z)" aria-label="Rehacer">
 			<Icon name="redo" size={14} />
+		</button>
+		<div class="tb-sep"></div>
+		<button class="tb-btn" class:tb-active={previewOpen} onclick={onTogglePreview} title="Preview split (Ctrl+P)" aria-label="Toggle preview">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+		</button>
+		<button class="tb-btn" onclick={() => window.open('/', '_blank')} title="Abrir tienda" aria-label="Abrir tienda">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+		</button>
+		<button class="tb-btn" onclick={() => window.open('/', 'preview-mobile', 'width=375,height=812,toolbar=no,menubar=no,scrollbars=yes')} title="Preview mobile" aria-label="Preview mobile">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
 		</button>
 		<div class="tb-sep"></div>
 		<button class="tb-btn tb-save" onclick={onSave} title="Guardar (Ctrl+S)" aria-label="Guardar">
@@ -249,6 +263,12 @@
 	}
 
 	.tb-save:hover {
+		background: rgba(var(--accent-rgb), 0.1);
+		border-color: rgba(var(--accent-rgb), 0.3);
+	}
+
+	.tb-active {
+		color: var(--accent);
 		background: rgba(var(--accent-rgb), 0.1);
 		border-color: rgba(var(--accent-rgb), 0.3);
 	}
