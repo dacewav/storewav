@@ -3,35 +3,30 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 18 — Deep Audit + Fixes
+## Sesión Actual: 19 — Integration Tests (Bloque 3 V2)
 
 ```yaml
-sesión: "18"
-bloque: "Deep Audit + Fixes"
-objetivo: "Audit profundo + a11y, type safety, dead code, console cleanup"
+sesión: "19"
+bloque: "Integration Tests — Bloque 3 V2"
+objetivo: "Extender integration tests: settings edge cases, CRUD edge cases, player, analytics, auth, error resilience"
 tiempo: "50 min"
 estado: "COMPLETADO"
-último_commit: "68d8a42"
-último_push: "68d8a42"
+último_commit: ""
+último_push: ""
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
-tests_total: 80
-svelte_ignore_a11y: "13 → 2 (legítimos)"
+tests_total: 107
+nuevos_tests: 27
 ```
 
-### Session 18 — Resumen completo
-1. ✅ shimmerOpacity bug — type + engine + CSS var
-2. ✅ console.log gated behind dev (auth, init)
-3. ✅ AdminSidebar dead code removed (118 lines)
-4. ✅ Meaningful alt text (Player, WishlistPanel)
-5. ✅ aria-pressed on wishlist toggle
-6. ✅ getComputedStyle → shared cssVars store
-7. ✅ Record<string, any> → proper types (7 admin pages)
-8. ✅ as any → IconName type
-9. ✅ Package version 0.5.0 → 1.0.0
-10. ✅ 11/13 svelte-ignore a11y eliminated
-11. ✅ svelte-check: 0 errors, 0 warnings
-12. ✅ 80 tests, 6 files, all passing
-13. ✅ Build clean
+### Session 19 — Resumen
+1. ✅ Settings Edge Cases (4 tests): empty payload defaults, partial update, overwrite via emit, updateField saveStatus
+2. ✅ Beats CRUD Edge Cases (5 tests): minimal data createBeat, partial patch, delete nonexistent, reorder negative, incrementPlay
+3. ✅ Auth Admin Check (3 tests): loginAnonymously, logout, destroyAuth idempotent
+4. ✅ Player Store (6 tests): defaults, pause, stop, setVolume, progress, timeFormatted
+5. ✅ Analytics Store (4 tests): track, track with opts, flush empty, destroy
+6. ✅ Error Resilience (5 tests): null beats, missing fields, null db createBeat, empty migrateOldData, null values
+7. ✅ 107 tests, 6 files, all passing
+8. ✅ svelte-check: 0 errors from test file (8 pre-existing .env errors)
 
 ## Estado de Sesiones
 
@@ -58,11 +53,12 @@ svelte_ignore_a11y: "13 → 2 (legítimos)"
 | 16 | 6 — Final Audit | ✅ |
 | 17 | 3 — Integration Tests | ✅ |
 | 18 | Deep Audit + Fixes | ✅ |
+| 19 | 3 — Integration Tests V2 | ✅ |
 
 ## Siguiente Sesión: Card Style UI Rebuild
 
 ```yaml
-sesión: "19"
+sesión: "20"
 bloque: "Card Style UI Rebuild"
 objetivo: "Rebuild completo de la UI de Card Style — de 3 controles a 30+"
 guía: ".guide/CARDSTYLE-REBUILD-PROMPT.md"

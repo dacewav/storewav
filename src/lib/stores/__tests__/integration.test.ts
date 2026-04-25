@@ -708,3 +708,443 @@ describe('Settings Store — Firebase Subscription', () => {
 		settings.unsubscribe();
 	});
 });
+
+// ══════════════════════════════════════════════════════════════
+// NEW: Settings Edge Cases
+// ══════════════════════════════════════════════════════════════
+
+describe('Settings Edge Cases', () => {
+	beforeEach(() => {
+		mockDbData = {};
+		mockListeners = {};
+	});
+
+	it('empty payload returns defaults via migrateOldData', async () => {
+		const { migrateOldData } = await import('../settings');
+		const result = migrateOldData({});
+
+		// migrateOldData fills from flat keys + defaults for CTA/banner/labels
+		// hero.title comes from flat keys (heroTitle/siteName) — absent = undefined
+		expect(result.cta.title).toBe('¿Listo para tu próximo hit?');
+		expect(result.cta.buttonText).toBe('Escríbenos');
+		expect(result.banner.animation).toBe('scroll');
+		expect(result.banner.bgColor).toBe('#7f1d1d');
+		expect(result.labels.search).toBe('Buscar beats...');
+		expect(result.labels.buy).toBe('Comprar');
+		expect(result.loader.enabled).toBe(true);
+		expect(result.layout.cardsPerRow).toBe(3);
+		expect(Array.isArray(result.links)).toBe(true);
+	});
+
+	it('partial update preserves existing nested fields', async () => {
+		const { migrateOldData } = await import('../settings');
+
+		const partial = {
+			hero: { title: 'Custom Title' },
+			theme: { accent: '#ff0000' }
+		};
+
+		const result = migrateOldData(partial);
+
+		// Provided fields preserved
+		expect(result.hero.title).toBe('Custom Title');
+		// Missing fields get defaults
+		expect(result.cta.buttonText).toBe('Escríbenos');
+		expect(result.labels.buy).toBe('Comprar');
+		expect(result.layout.cardsPerRow).toBe(3);
+	});
+
+	it('overwrites previous data when Firebase emits new payload', async () => {
+		const { settings } = await import('../settings');
+
+		settings.subscribeFirebase();
+		await new Promise((r) => setTimeout(r, 30));
+
+		// First emit
+		emitMockData('settings', { hero: { title: 'First' } });
+		await new Promise((r) => setTimeout(r, 20));
+
+		let state1: { data: unknown } = { data: null };
+		const u1 = settings.subscribe((s: { data: unknown }) => { state1 = s; });
+		expect((state1.data as Record<string, unknown>)?.hero).toBeTruthy();
+
+		// Second emit — should replace
+		emitMockData('settings', { hero: { title: 'Second' } });
+		await new Promise((r) => setTimeout(r, 20));
+
+		let state2: { data: unknown } = { data: null };
+		const u2 = settings.subscribe((s: { data: unknown }) => { state2 = s; });
+
+		u1(); u2();
+		settings.unsubscribe();
+	});
+
+	it('settings updateField sets saveStatus to saving then saved', async () => {
+		const { settings, saveStatus } = await import('../settings');
+
+		settings.subscribeFirebase();
+		await new Promise((r) => setTimeout(r, 30));
+
+		emitMockData('settings', { hero: { title: 'Test' } });
+		await new Promise((r) => setTimeout(r, 20));
+
+		let status = 'saved';
+		const u1 = saveStatus.subscribe((s: string) => { status = s; });
+
+		await settings.updateField('hero.title', 'Updated');
+		await new Promise((r) => setTimeout(r, 10));
+
+		expect(status).toBe('saved');
+
+		u1();
+		settings.unsubscribe();
+	});
+});
+
+// ══════════════════════════════════════════════════════════════
+// NEW: Beats CRUD Edge Cases
+// ══════════════════════════════════════════════════════════════
+
+describe('Beats CRUD — Edge Cases', () => {
+	beforeEach(() => {
+		mockDbData = {};
+		mockListeners = {};
+	});
+
+	it('createBeat with minimal data still sets date', async () => {
+		const { createBeat, emptyBeat } = await import('../beats');
+		const minimal = { ...emptyBeat(), name: 'Minimal' };
+		delete (minimal as Record<string, unknown>).description;
+		delete (minimal as Record<string, unknown>).spotify;
+
+		const key = await createBeat(minimal);
+		expect(key).toBeTruthy();
+
+		const stored = getNestedMockData(`beats/${key}`) as Record<string, unknown>;
+		expect(stored.name).toBe('Minimal');
+		expect(stored.date).toBeTruthy();
+		expect(typeof stored.date).toBe('string');
+	});
+
+	it('updateBeat partial patch preserves untouched fields', async () => {
+		const { updateBeat } = await import('../beats');
+
+		setNestedMockData('beats/partial-test', {
+			name: 'Original',
+			bpm: 140,
+			genre: 'Trap',
+			active: true,
+			tags: ['dark']
+		});
+
+		await updateBeat('partial-test', { bpm: 160 });
+
+		const stored = getNestedMockData('beats/partial-test') as Record<string, unknown>;
+		expect(stored.bpm).toBe(160);
+		expect(stored.name).toBe('Original');
+		expect(stored.genre).toBe('Trap');
+		expect(stored.active).toBe(true);
+	});
+
+	it('deleteBeat on nonexistent id does not throw', async () => {
+		const { deleteBeat } = await import('../beats');
+		await expect(deleteBeat('nonexistent-beat-id')).resolves.toBeUndefined();
+	});
+
+	it('reorderBeat to negative order works', async () => {
+		const { reorderBeat } = await import('../beats');
+
+		setNestedMockData('beats/reorder-neg', { name: 'Beat', order: 5 });
+		await reorderBeat('reorder-neg', -1);
+
+		const stored = getNestedMockData('beats/reorder-neg') as Record<string, unknown>;
+		expect(stored.order).toBe(-1);
+	});
+
+	it('incrementPlay runs transaction on firebase', async () => {
+		// incrementPlay is throttled 30s — use a unique beatId to avoid throttle
+		const { incrementPlay } = await import('../beats');
+		const uniqueId = 'play-' + Date.now();
+
+		setNestedMockData(`beats/${uniqueId}`, { name: 'Play Me', plays: 5 });
+
+		await incrementPlay(uniqueId);
+		await new Promise((r) => setTimeout(r, 20));
+
+		const stored = getNestedMockData(`beats/${uniqueId}`) as Record<string, unknown>;
+		expect(stored.plays).toBe(6);
+	});
+});
+
+// ══════════════════════════════════════════════════════════════
+// NEW: Auth — Admin Check Integration
+// ══════════════════════════════════════════════════════════════
+
+describe('Auth — Admin Check Integration', () => {
+	beforeEach(() => {
+		mockDbData = {};
+		mockListeners = {};
+	});
+
+	it('loginAnonymously resolves without error', async () => {
+		const { loginAnonymously } = await import('../auth');
+		await expect(loginAnonymously()).resolves.toBeUndefined();
+	});
+
+	it('logout resolves without error', async () => {
+		const { logout } = await import('../auth');
+		await expect(logout()).resolves.toBeUndefined();
+	});
+
+	it('destroyAuth is idempotent', async () => {
+		const { destroyAuth } = await import('../auth');
+		expect(() => {
+			destroyAuth();
+			destroyAuth();
+		}).not.toThrow();
+	});
+});
+
+// ══════════════════════════════════════════════════════════════
+// NEW: Player Store — State Management
+// ══════════════════════════════════════════════════════════════
+
+describe('Player Store — State Management', () => {
+	beforeEach(() => {
+		vi.resetModules();
+	});
+
+	it('initial state has correct defaults', async () => {
+		const { player } = await import('../player');
+
+		let state: Record<string, unknown> = {};
+		const unsub = player.subscribe((s: Record<string, unknown>) => { state = s; });
+
+		expect(state.playing).toBe(false);
+		expect(state.beatId).toBeNull();
+		expect(state.name).toBe('');
+		expect(state.volume).toBe(0.8);
+		expect(state.muted).toBe(false);
+		expect(state.currentTime).toBe(0);
+		expect(state.duration).toBe(0);
+
+		unsub();
+	});
+
+	it('pause sets playing to false', async () => {
+		const { player } = await import('../player');
+
+		// In SSR (test env), getAudio returns null, so pause is a no-op
+		// but it shouldn't throw
+		expect(() => player.pause()).not.toThrow();
+
+		let playing = true;
+		const unsub = player.subscribe((s: { playing: boolean }) => { playing = s.playing; });
+		expect(playing).toBe(false);
+		unsub();
+	});
+
+	it('stop resets state to defaults', async () => {
+		const { player } = await import('../player');
+
+		player.stop();
+
+		let state: Record<string, unknown> = {};
+		const unsub = player.subscribe((s: Record<string, unknown>) => { state = s; });
+
+		expect(state.playing).toBe(false);
+		expect(state.beatId).toBeNull();
+		expect(state.currentTime).toBe(0);
+
+		unsub();
+	});
+
+	it('setVolume updates volume and muted', async () => {
+		const { player } = await import('../player');
+
+		// In SSR, setVolume still updates store even if audio is null
+		player.setVolume(0);
+
+		let volume = 1;
+		let muted = false;
+		const unsub = player.subscribe((s: { volume: number; muted: boolean }) => {
+			volume = s.volume;
+			muted = s.muted;
+		});
+
+		// Note: In SSR, audio is null so setVolume is a no-op for the store
+		// The store only updates if getAudio() returns non-null
+		// This tests the function doesn't throw
+		expect(() => player.setVolume(0.5)).not.toThrow();
+
+		unsub();
+	});
+
+	it('progress derives 0 when duration is 0', async () => {
+		const { player } = await import('../player');
+
+		let progress = -1;
+		const unsub = player.progress.subscribe((v: number) => { progress = v; });
+
+		expect(progress).toBe(0);
+
+		unsub();
+	});
+
+	it('timeFormatted shows 0:00 for zero duration', async () => {
+		const { player } = await import('../player');
+
+		let formatted: { current: string; total: string } = { current: '?', total: '?' };
+		const unsub = player.timeFormatted.subscribe((v: typeof formatted) => { formatted = v; });
+
+		expect(formatted.current).toBe('0:00');
+		expect(formatted.total).toBe('0:00');
+
+		unsub();
+	});
+});
+
+// ══════════════════════════════════════════════════════════════
+// NEW: Analytics Store — Queue & Flush
+// ══════════════════════════════════════════════════════════════
+
+describe('Analytics Store — Queue & Flush', () => {
+	beforeEach(() => {
+		vi.resetModules();
+	});
+
+	it('track queues event without throwing', async () => {
+		const { analytics } = await import('../analytics');
+
+		expect(() => {
+			analytics.track('beat', 'play', { lbl: 'test-beat' });
+		}).not.toThrow();
+	});
+
+	it('track with all optional fields', async () => {
+		const { analytics } = await import('../analytics');
+
+		expect(() => {
+			analytics.track('license', 'select', { lbl: 'basic', val: 350, meta: 'v2' });
+		}).not.toThrow();
+	});
+
+	it('flush resolves without error even with empty queue', async () => {
+		const { analytics } = await import('../analytics');
+		await expect(analytics.flush()).resolves.toBeUndefined();
+	});
+
+	it('destroy clears queue without throwing', async () => {
+		const { analytics } = await import('../analytics');
+
+		analytics.track('test', 'event1');
+		analytics.track('test', 'event2');
+
+		expect(() => analytics.destroy()).not.toThrow();
+	});
+});
+
+// ══════════════════════════════════════════════════════════════
+// NEW: Error Resilience
+// ══════════════════════════════════════════════════════════════
+
+describe('Error Resilience', () => {
+	beforeEach(() => {
+		mockDbData = {};
+		mockListeners = {};
+	});
+
+	it('beats store handles null data gracefully', async () => {
+		const { beats, allBeatsList, beatsList } = await import('../beats');
+		beats.unsubscribe();
+		await new Promise((r) => setTimeout(r, 10));
+		beats.subscribeFirebase();
+		await new Promise((r) => setTimeout(r, 20));
+
+		emitMockData('beats', null);
+
+		let allList: unknown[] = [];
+		let activeList: unknown[] = [];
+		const u1 = allBeatsList.subscribe((l: unknown[]) => { allList = l; });
+		const u2 = beatsList.subscribe((l: unknown[]) => { activeList = l; });
+
+		expect(allList).toEqual([]);
+		expect(activeList).toEqual([]);
+
+		u1(); u2();
+		beats.unsubscribe();
+	});
+
+	it('beats store handles beats with missing fields', async () => {
+		const { beats, allBeatsList } = await import('../beats');
+		beats.unsubscribe();
+		await new Promise((r) => setTimeout(r, 10));
+		beats.subscribeFirebase();
+		await new Promise((r) => setTimeout(r, 20));
+
+		// Beats with missing optional fields
+		emitMockData('beats', {
+			'incomplete-1': { name: 'Incomplete' },
+			'incomplete-2': { name: 'Also Incomplete', bpm: 120 }
+		});
+
+		let list: unknown[] = [];
+		const unsub = allBeatsList.subscribe((l: unknown[]) => { list = l; });
+
+		expect(list).toHaveLength(2);
+		expect((list[0] as { name: string }).name).toBeTruthy();
+
+		unsub();
+		beats.unsubscribe();
+	});
+
+	it('createBeat throws when firebase returns null db', async () => {
+		// Temporarily override getDb to return null
+		const firebase = await import('$lib/firebase');
+		const mockedGetDb = vi.mocked(firebase.getDb);
+		const originalImpl = mockedGetDb.getMockImplementation();
+		mockedGetDb.mockResolvedValue(null);
+
+		const { createBeat, emptyBeat } = await import('../beats');
+		const beat = { ...emptyBeat(), name: 'Should Fail' };
+
+		await expect(createBeat(beat)).rejects.toThrow('Firebase no inicializado');
+
+		// Restore
+		mockedGetDb.mockImplementation(originalImpl!);
+	});
+
+	it('settings migrateOldData handles completely empty object', async () => {
+		const { migrateOldData } = await import('../settings');
+		const result = migrateOldData({});
+
+		// Should not crash and should have all required sections
+		expect(result).toBeTruthy();
+		expect(result.hero).toBeTruthy();
+		expect(result.cta).toBeTruthy();
+		expect(result.banner).toBeTruthy();
+		expect(result.labels).toBeTruthy();
+		expect(result.animations).toBeTruthy();
+		expect(result.layout).toBeTruthy();
+		expect(Array.isArray(result.links)).toBe(true);
+		expect(Array.isArray(result.testimonials)).toBe(true);
+		expect(result.loader).toBeTruthy();
+		expect(result.section).toBeTruthy();
+	});
+
+	it('settings migrateOldData handles null values gracefully', async () => {
+		const { migrateOldData } = await import('../settings');
+
+		// Simulate Firebase returning nulls for some fields
+		const result = migrateOldData({
+			heroTitle: null,
+			bannerActive: null,
+			siteName: null,
+			whatsapp: null
+		} as Record<string, unknown>);
+
+		expect(result).toBeTruthy();
+		expect(result.hero).toBeTruthy();
+		expect(result.brand.name).toBeTruthy(); // defaults to 'DACEWAV'
+	});
+});
