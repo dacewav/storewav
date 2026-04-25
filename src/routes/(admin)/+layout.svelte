@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
 	import { AdminTopbar } from '$lib/components';
-	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField } from '$lib/stores';
+	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField, pendingCount } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { toast } from '$lib/toastStore';
@@ -31,6 +31,15 @@
 	let currentSaveStatus = $derived($saveStatusStore);
 	let undoEnabled = $derived($canUndo);
 	let redoEnabled = $derived($canRedo);
+	let pendingWritesCount = $derived($pendingCount);
+
+	/** Format dotPath into human-readable field name */
+	function formatFieldName(dotPath: string): string {
+		const parts = dotPath.split('.');
+		const field = parts[parts.length - 1];
+		// Convert camelCase to readable
+		return field.replace(/([A-Z])/g, ' $1').toLowerCase().trim();
+	}
 
 	// Sidebar toggle (mobile)
 	let sidebarOpen = $state(false);
@@ -58,10 +67,18 @@
 		// Shortcuts that work even inside inputs
 		if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
 			e.preventDefault();
-			if (undoEnabled) undoField();
+			if (undoEnabled) {
+				undoField().then((entry) => {
+					if (entry) toast.show(`Deshacer: ${formatFieldName(entry.dotPath)}`);
+				});
+			}
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
 			e.preventDefault();
-			if (redoEnabled) redoField();
+			if (redoEnabled) {
+				redoField().then((entry) => {
+					if (entry) toast.show(`Rehacer: ${formatFieldName(entry.dotPath)}`);
+				});
+			}
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
 			e.preventDefault();
 			// Settings auto-save, just confirm
@@ -152,7 +169,7 @@
 			⚠️ Error de autenticación: {authState.error}
 		</div>
 	{/if}
-	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar}>
+	<AdminTopbar {brandName} saveStatus={currentSaveStatus} pendingCount={pendingWritesCount} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar}>
 		<span class="admin-section-label">{sectionLabel}</span>
 	</AdminTopbar>
 

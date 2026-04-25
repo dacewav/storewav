@@ -1,10 +1,11 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { Spinner, Icon } from '$lib/components';
+	import { Icon } from '$lib/components';
 
 	let {
 		brandName = 'DACEWAV',
 		saveStatus = 'saved',
+		pendingCount = 0,
 		onSave,
 		onExport,
 		onImport,
@@ -16,6 +17,7 @@
 	}: {
 		brandName?: string;
 		saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
+		pendingCount?: number;
 		onSave?: () => void;
 		onExport?: () => void;
 		onImport?: () => void;
@@ -25,15 +27,6 @@
 		onToggleSidebar?: () => void;
 		children?: Snippet;
 	} = $props();
-
-	const statusConfig = {
-		saved: { dot: 'var(--accent)', text: 'Guardado' },
-		saving: { dot: 'var(--warning)', text: 'Guardando...' },
-		unsaved: { dot: 'var(--warning)', text: 'Sin guardar' },
-		error: { dot: 'var(--danger)', text: 'Error al guardar' },
-	};
-
-	const status = $derived(statusConfig[saveStatus]);
 </script>
 
 <header class="topbar">
@@ -42,13 +35,24 @@
 	</button>
 	<div class="topbar-brand">{brandName}<em>·</em> Admin</div>
 
-	<div class="save-status">
+	<div class="save-status" class:saving={saveStatus === 'saving'} class:error={saveStatus === 'error'}>
 		{#if saveStatus === 'saving'}
-			<Spinner size="sm" />
+			<span class="sdot saving-dot"></span>
+			<span class="status-text">Guardando...</span>
+		{:else if saveStatus === 'error'}
+			<span class="sdot error-dot"></span>
+			<span class="status-text">Error</span>
+			<button class="retry-btn" onclick={onSave} title="Reintentar">↻</button>
+		{:else if saveStatus === 'saved'}
+			<span class="sdot saved-dot">✓</span>
+			<span class="status-text">Guardado</span>
 		{:else}
-			<span class="sdot" style="background: {status.dot}"></span>
+			<span class="sdot" style="background: var(--warning)"></span>
+			<span class="status-text">Sin guardar</span>
 		{/if}
-		<span class="status-text">{status.text}</span>
+		{#if pendingCount > 0}
+			<span class="pending-badge" title="{pendingCount} escrituras pendientes">{pendingCount}</span>
+		{/if}
 	</div>
 
 	<div class="topbar-center">
@@ -120,6 +124,75 @@
 		height: 8px;
 		border-radius: 50%;
 		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.3s ease;
+	}
+
+	.saved-dot {
+		width: 18px;
+		height: 18px;
+		background: var(--accent);
+		color: #fff;
+		font-size: 10px;
+		font-weight: 700;
+		border-radius: 50%;
+		animation: popIn 0.3s ease;
+	}
+
+	.saving-dot {
+		width: 8px;
+		height: 8px;
+		background: var(--warning);
+		border-radius: 50%;
+		animation: pulse 1s ease-in-out infinite;
+	}
+
+	.error-dot {
+		width: 8px;
+		height: 8px;
+		background: var(--danger);
+		border-radius: 50%;
+		animation: shake 0.4s ease;
+	}
+
+	.retry-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		border: 1px solid var(--danger-dim);
+		background: var(--danger-glow);
+		color: var(--danger);
+		font-size: 12px;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		padding: 0;
+	}
+
+	.retry-btn:hover {
+		background: var(--danger);
+		color: #fff;
+		border-color: var(--danger);
+	}
+
+	.pending-badge {
+		font-family: var(--font-mono);
+		font-size: 9px;
+		min-width: 16px;
+		height: 16px;
+		padding: 0 4px;
+		border-radius: 8px;
+		background: var(--warning);
+		color: #000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		animation: popIn 0.2s ease;
 	}
 
 	.status-text {
@@ -213,5 +286,22 @@
 		.topbar-actions .tb-btn:not(.tb-save):not(.tb-danger) {
 			display: none;
 		}
+	}
+
+	@keyframes popIn {
+		0% { transform: scale(0); opacity: 0; }
+		60% { transform: scale(1.2); }
+		100% { transform: scale(1); opacity: 1; }
+	}
+
+	@keyframes pulse {
+		0%, 100% { opacity: 1; transform: scale(1); }
+		50% { opacity: 0.5; transform: scale(0.8); }
+	}
+
+	@keyframes shake {
+		0%, 100% { transform: translateX(0); }
+		25% { transform: translateX(-3px); }
+		75% { transform: translateX(3px); }
 	}
 </style>

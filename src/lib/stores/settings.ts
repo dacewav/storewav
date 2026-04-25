@@ -546,6 +546,7 @@ async function flushPendingWrites() {
 		try {
 			await base.update({ [write.dotPath]: write.value } as Partial<SettingsData>);
 			pendingWrites.shift();
+			pendingCount.set(pendingWrites.length);
 		} catch {
 			// Still offline, stop trying
 			break;
@@ -580,6 +581,9 @@ export function destroyOfflineQueue() {
 export function getPendingCount(): number {
 	return pendingWrites.length;
 }
+
+/** Reactive pending writes count — updated on queue/flush */
+export const pendingCount = writable(0);
 
 /** Clamp numeric fields to their valid ranges */
 const CLAMP_MAP: Record<string, [number, number]> = {
@@ -653,6 +657,7 @@ async function updateField(dotPath: string, value: unknown) {
 			} catch {
 				// Queue for replay when back online
 				pendingWrites.push({ dotPath, value, timestamp: Date.now() });
+				pendingCount.set(pendingWrites.length);
 				console.warn(`[Settings] Write queued (${pendingWrites.length} pending): ${dotPath}`);
 			}
 		}
@@ -674,15 +679,16 @@ function getNestedValue(dotPath: string): unknown {
 	return current;
 }
 
-/** Undo last change */
-export async function undoField() {
+/** Undo last change — returns entry info for toast display */
+export async function undoField(): Promise<{ dotPath: string; oldValue: unknown; newValue: unknown } | null> {
 	const entry = undoStack.pop();
-	if (!entry) return;
+	if (!entry) return null;
 	redoStack.push(entry);
 	canUndo.set(undoStack.length > 0);
 	canRedo.set(true);
 	try {
 		await base.update({ [entry.dotPath]: entry.oldValue } as Partial<SettingsData>);
+		return entry;
 	} catch (err) {
 		console.error('[Undo] Failed:', err);
 		// Revert stack mutation on failure
@@ -690,18 +696,20 @@ export async function undoField() {
 		undoStack.push(entry);
 		canUndo.set(true);
 		canRedo.set(redoStack.length > 0);
+		return null;
 	}
 }
 
-/** Redo last undone change */
-export async function redoField() {
+/** Redo last undone change — returns entry info for toast display */
+export async function redoField(): Promise<{ dotPath: string; oldValue: unknown; newValue: unknown } | null> {
 	const entry = redoStack.pop();
-	if (!entry) return;
+	if (!entry) return null;
 	undoStack.push(entry);
 	canRedo.set(redoStack.length > 0);
 	canUndo.set(true);
 	try {
 		await base.update({ [entry.dotPath]: entry.newValue } as Partial<SettingsData>);
+		return entry;
 	} catch (err) {
 		console.error('[Redo] Failed:', err);
 		// Revert stack mutation on failure
@@ -709,6 +717,7 @@ export async function redoField() {
 		redoStack.push(entry);
 		canRedo.set(true);
 		canUndo.set(undoStack.length > 0);
+		return null;
 	}
 }
 
