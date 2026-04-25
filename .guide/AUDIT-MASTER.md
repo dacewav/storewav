@@ -1,6 +1,6 @@
 # 📋 AUDIT-MASTER.md — Guía Maestra
 
-> **Última actualización: 2026-04-25 12:41 (Session 25)**
+> **Última actualización: 2026-04-25 13:02 (Session 26)**
 > **Lee este archivo primero en cualquier sesión nueva.**
 
 ---
@@ -54,10 +54,11 @@ Si un audit de 10 minutos te ahorra 30 minutos de fixes incorrectos, el audit ga
 Código:    SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 Repo:      dacewav/storewav
 Firebase:  dacewav-store-3b0f5
-Líneas:    ~15,000 | Archivos: 72 | Commits: 33
+Líneas:    ~15,000 | Archivos: 72 | Commits: 34
 Build:     ✅ 0 errores, 0 warnings (svelte-check)
 Tests:     ✅ 107 pasando (Vitest)
-Deploy:    ✅ https://dacewav-store.daceidk.workers.dev
+Deploy:    ✅ https://dacewav-store.pages.dev (Pages auto-deploy)
+Workers:   ⚠️ https://dacewav-store.daceidk.workers.dev (stale, código viejo)
 Tag:       v1.0.0-solid
 Límite:    50 min por sesión de chat
 ```
@@ -102,34 +103,30 @@ Límite:    50 min por sesión de chat
 | Brand sin upload | 🟡 MED | ✅ FIXEADO | FileUpload component integrado para logo/favicon. Session 25. |
 | Faltan controles básicos | 🟡 ALTO | ✅ FIXEADO | bgColor, surfaceColor, textColor, nav, CTA, container. Session 25. |
 | Workers domain stale | 🔴 CRÍTICO | ⚠️ ACTIVO | Workers domain corre código viejo. Pages deploy OK pero workers no auto-update. |
-| Particles sliders no funcionan | 🔴 CRÍTICO | ⚠️ ACTIVO | Sliders de partículas no tienen efecto visible en tiempo real. |
+| Particles sliders no funcionan | 🔴 CRÍTICO | ✅ FIXEADO | $derived config key para robust reactive tracking. Session 26. |
 | No hay save/cancel buttons | 🟡 ALTO | ⚠️ ACTIVO | Settings auto-guardan pero no hay feedback de estado ni botón explícito. |
 | Admin UX pobre | 🟡 ALTO | ⚠️ ACTIVO | Pocos accionables, sin preview, sin undo visual, sin confirmaciones. |
 | No lazy loading admin | ⚪ BAJA | ⬜ Pendiente | SvelteKit code-splitting |
 | CSS keyframes no usados | ⚪ BAJA | ⬜ Pendiente | 34 keyframes |
 
-### Session 25 — Resumen de cambios
+### Session 26 — Resumen de cambios
 
 | Commit | Qué |
 |--------|-----|
-| `66c99d2` | ThemeSettings +10 campos, CLAMP_MAP 30+ fields, animation timing, brand FileUpload |
-| `05310e6` | Slider labels: opacities → %, blur/intensity → clamped px |
-| `f50eff4` | Slider reactividad: $state local para feedback instantáneo |
-| `acbf0bb` | 12 nuevos controles: bg, surface, text, nav, CTA, button, container |
+| `4568761` | Bloque A: particles reactivity, local state (layout/banner/animations), slider keyboard support |
 
-**Deploy:** Pages `e8f73d6c` (acbf0bb) — Production active
+**Deploy:** Pages `cbddb9c9` (4568761) — Production active
 **Tests:** 107 passing, 0 failures
 **svelte-check:** 8 env var errors (expected), 0 warnings
 
-### ¿Qué falta? (Audit v7 — 2026-04-25 Session 25)
+### ¿Qué falta? (Audit v8 — 2026-04-25 Session 26)
 
-> **Session 25 completada**: ThemeSettings fix, sliders fix, 12 nuevos controles. Ver MEGA-PLAN-ADMIN.md.
+> **Session 26 completada**: Bloque A completo (A1+A2+A3). Ver MEGA-PLAN-ADMIN.md.
 
 | Área | Prioridad | Detalle |
 |------|-----------|---------|
-| Particles sliders rotos | 🔴 | No afectan la tienda en tiempo real |
 | Workers domain stale | 🔴 | Corre código viejo, no auto-update desde Git |
-| Admin UX general | 🟡 | Ver MEGA-PLAN-ADMIN.md para plan completo |
+| Admin UX general (Bloque B+) | 🟡 | Save status, confirmaciones, undo visual, preview — Ver MEGA-PLAN-ADMIN.md |
 | No lazy loading admin | ⚪ Baja | SvelteKit code-splitting |
 | CSS keyframes no usados | ⚪ Baja | 34 keyframes |
 | No CI/CD | ⚪ Baja | Deploy manual |

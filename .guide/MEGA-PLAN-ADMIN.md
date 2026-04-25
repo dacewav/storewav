@@ -15,26 +15,27 @@
 
 ---
 
-## Bloque A — Fix críticos de sliders (Prioridad MAX)
+## Bloque A — Fix críticos de sliders (Prioridad MAX) ✅ COMPLETADO Session 26
 
 **Objetivo**: Que TODOS los sliders funcionen y tengan feedback visual inmediato.
 
-### A1. Particles sliders no afectan la tienda
-- [ ] Verificar que `Particles.svelte` recibe props reactivas del store
-- [ ] Verificar que el store layout pasa `settingsData.theme.particles*` como props
-- [ ] Testear: cambiar count/speed/type desde admin → verificar en store page
-- [ ] Si el problema es que el canvas no re-init al cambiar props → fixear el `$effect` en Particles.svelte
+### A1. Particles sliders no afectan la tienda ✅
+- [x] Verificar que `Particles.svelte` recibe props reactivas del store
+- [x] Verificar que el store layout pasa `settingsData.theme.particles*` como props
+- [x] Fix: $derived config key para robust reactive tracking (reemplaza void pattern)
+- [x] Si el problema es que el canvas no re-init al cambiar props → fixeado con $derived key
 
-### A2. Todos los sliders con local state pattern
-- [ ] Aplicar el patrón `$state` local a PÁGINA HERO (ya hecho)
-- [ ] Aplicar a PÁGINA LAYOUT
-- [ ] Aplicar a PÁGINA BANNER
-- [ ] Aplicar a PÁGINA ANIMATIONS
-- [ ] Cada slider debe: actualizar label instantáneamente + guardar en Firebase
+### A2. Todos los sliders con local state pattern ✅
+- [x] Aplicar el patrón `$state` local a PÁGINA HERO (ya hecho Session 25)
+- [x] Aplicar a PÁGINA LAYOUT (cardsPerRow, logoScale, logoRotation, navHeight)
+- [x] Aplicar a PÁGINA BANNER (speed, delay)
+- [x] Aplicar a PÁGINA ANIMATIONS (animDuration, animDelay)
+- [x] Cada slider debe: actualizar label instantáneamente + guardar en Firebase
 
-### A3. Slider keyboard support
-- [ ] Todos los sliders responden a ← → (step 1) y Shift+← → (step 10)
-- [ ] Focus visible en sliders (outline accent)
+### A3. Slider keyboard support ✅
+- [x] Todos los sliders responden a ← → (step 1) y Shift+← → (step 10)
+- [x] Focus visible en sliders (outline accent)
+- [x] 36 sliders across 5 admin pages
 
 **Archivos**: `Particles.svelte`, `(store)/+layout.svelte`, admin pages
 
