@@ -417,7 +417,7 @@
 
 						<div class="field">
 							<label for="cse-she">Tipo de efecto</label>
-							<select id="cse-she" onchange={(e) => set('siblingHoverEffect', e.currentTarget.value !== 'blur' ? e.currentTarget.value : undefined)}>
+							<select id="cse-she" onchange={(e) => set('siblingHoverEffect', e.currentTarget.value !== 'blur' ? e.currentTarget.value as 'blur' | 'dim' | 'scale-down' | 'none' : undefined)}>
 								<option value="blur" selected={!value.siblingHoverEffect || value.siblingHoverEffect === 'blur'}>Blur</option>
 								<option value="dim" selected={value.siblingHoverEffect === 'dim'}>Dim (opacidad)</option>
 								<option value="scale-down" selected={value.siblingHoverEffect === 'scale-down'}>Scale down</option>

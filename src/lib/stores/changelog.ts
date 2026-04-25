@@ -24,11 +24,12 @@ function createChangelogStore() {
 	let _unsub: (() => void) | null = null;
 	let _initialized = false;
 
-	function init() {
+	async function init() {
 		if (_initialized) return;
 		_initialized = true;
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return;
 			const q = query(ref(db, 'changelog'), orderByChild('date'), limitToLast(100));
 			_unsub = onValue(q, (snap) => {
 				const val = snap.val();
@@ -56,7 +57,8 @@ function createChangelogStore() {
 
 	async function log(entry: Omit<ChangelogEntry, 'id' | 'date'>): Promise<void> {
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return;
 			const newRef = push(ref(db, 'changelog'));
 			await set(newRef, {
 				...entry,

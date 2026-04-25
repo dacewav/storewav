@@ -43,28 +43,6 @@ export const tilt: Action<HTMLElement, { max?: number; scale?: number }> = (node
 	};
 };
 
-/** Parallax translate on scroll */
-export const parallax: Action<HTMLElement, { speed?: number }> = (node, params = {}) => {
-	const speed = params.speed ?? 0.3;
-
-	function onScroll() {
-		const rect = node.getBoundingClientRect();
-		const center = rect.top + rect.height / 2;
-		const viewCenter = window.innerHeight / 2;
-		const offset = (center - viewCenter) * speed;
-		node.style.transform = `translateY(${offset}px)`;
-	}
-
-	window.addEventListener('scroll', onScroll, { passive: true });
-	onScroll();
-
-	return {
-		destroy() {
-			window.removeEventListener('scroll', onScroll);
-		}
-	};
-};
-
 /** Stagger reveal children on scroll (IntersectionObserver) */
 export const staggerReveal: Action<HTMLElement, { delay?: number; threshold?: number }> = (node, params = {}) => {
 	const delay = params.delay ?? 80;
@@ -216,44 +194,6 @@ export const siblingBlur: Action<HTMLElement, {
 			node.removeEventListener('mouseout', onMouseOut);
 			node.removeEventListener('mouseleave', onMouseLeave);
 			clearAll();
-		}
-	};
-};
-
-/** Click ripple effect (requires @keyframes rippleExpand in global CSS) */
-export const ripple: Action<HTMLElement> = (node) => {
-	let rippleTimer: ReturnType<typeof setTimeout> | null = null;
-
-	function onClick(e: MouseEvent) {
-		const rect = node.getBoundingClientRect();
-		const x = e.clientX - rect.left;
-		const y = e.clientY - rect.top;
-
-		const span = document.createElement('span');
-		span.style.cssText = `
-			position: absolute;
-			left: ${x}px;
-			top: ${y}px;
-			width: 0;
-			height: 0;
-			border-radius: 50%;
-			background: rgba(var(--accent-rgb), 0.2);
-			transform: translate(-50%, -50%);
-			pointer-events: none;
-			animation: rippleExpand 0.6s ease-out forwards;
-		`;
-		node.style.position = node.style.position || 'relative';
-		node.style.overflow = 'hidden';
-		node.appendChild(span);
-		rippleTimer = setTimeout(() => span.remove(), 600);
-	}
-
-	node.addEventListener('click', onClick);
-
-	return {
-		destroy() {
-			if (rippleTimer) clearTimeout(rippleTimer);
-			node.removeEventListener('click', onClick);
 		}
 	};
 };

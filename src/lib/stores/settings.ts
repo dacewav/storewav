@@ -356,6 +356,7 @@ export type SettingsData = {
 	cardStyle: CardStyleConfig;
 	animations: AnimationSettings;
 	labels: LabelSettings;
+	features?: Record<string, boolean>;
 };
 
 const DEFAULT: SettingsData = {

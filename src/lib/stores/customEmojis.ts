@@ -22,11 +22,12 @@ function createCustomEmojisStore() {
 	let _unsub: (() => void) | null = null;
 	let _initialized = false;
 
-	function init() {
+	async function init() {
 		if (_initialized) return;
 		_initialized = true;
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return;
 			const r = ref(db, 'customEmojis');
 			_unsub = onValue(r, (snap) => {
 				const val = snap.val();
@@ -51,7 +52,8 @@ function createCustomEmojisStore() {
 
 	async function addEmoji(name: string, url: string): Promise<boolean> {
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return false;
 			const newRef = push(ref(db, 'customEmojis'));
 			await set(newRef, { name: name.trim(), url: url.trim(), createdAt: Date.now() });
 			toast.success(`Emoji :${name}: agregado`);
@@ -65,7 +67,8 @@ function createCustomEmojisStore() {
 
 	async function deleteEmoji(id: string): Promise<boolean> {
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return false;
 			await remove(ref(db, `customEmojis/${id}`));
 			toast.success('Emoji eliminado');
 			return true;

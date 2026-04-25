@@ -24,11 +24,12 @@ function createThemePresetsStore() {
 	let _unsub: (() => void) | null = null;
 	let _initialized = false;
 
-	function init() {
+	async function init() {
 		if (_initialized) return;
 		_initialized = true;
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return;
 			const r = ref(db, 'themePresets');
 			_unsub = onValue(r, (snap) => {
 				const val = snap.val();
@@ -53,7 +54,8 @@ function createThemePresetsStore() {
 
 	async function savePreset(name: string): Promise<string | null> {
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return null;
 			const currentSettings = get(settings).data;
 			if (!currentSettings?.theme) {
 				toast.error('No hay tema para guardar');
@@ -96,7 +98,8 @@ function createThemePresetsStore() {
 
 	async function deletePreset(id: string): Promise<boolean> {
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return false;
 			await remove(ref(db, `themePresets/${id}`));
 			toast.success('Preset eliminado');
 			return true;
@@ -109,7 +112,8 @@ function createThemePresetsStore() {
 
 	async function renamePreset(id: string, newName: string): Promise<boolean> {
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return false;
 			const current = get(presets);
 			const preset = current.find((p) => p.id === id);
 			if (!preset) return false;

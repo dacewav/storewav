@@ -26,12 +26,13 @@ function createGalleryStore() {
 	let _unsub: (() => void) | null = null;
 	let _initialized = false;
 
-	function init() {
+	async function init() {
 		if (_initialized) return;
 		_initialized = true;
 		loading.set(true);
 		try {
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return;
 			const r = ref(db, 'gallery');
 			_unsub = onValue(r, (snap) => {
 				const val = snap.val();
@@ -81,7 +82,8 @@ function createGalleryStore() {
 					},
 					async () => {
 						const url = await getDownloadURL(task.snapshot.ref);
-						const db = getDb();
+						const db = await getDb();
+			if (!db) return;
 						const newRef = push(ref(db, 'gallery'));
 						const image: Omit<GalleryImage, 'id'> = {
 							url,
@@ -120,7 +122,8 @@ function createGalleryStore() {
 			}
 
 			// Delete from RTDB
-			const db = getDb();
+			const db = await getDb();
+			if (!db) return false;
 			await remove(ref(db, `gallery/${id}`));
 			toast.success('Imagen eliminada');
 			return true;
