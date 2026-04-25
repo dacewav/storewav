@@ -151,6 +151,7 @@
 				{ href: '/admin/content', label: 'Contenido', icon: '✏️' },
 				{ href: '/admin/links', label: 'Links', icon: '🔗' },
 				{ href: '/admin/testimonials', label: 'Testimonios', icon: '💬' },
+				{ href: '/admin/media', label: 'Media', icon: '🖼️' },
 			]
 		},
 		{
