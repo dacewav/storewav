@@ -22,6 +22,7 @@
 	let particles: { x: number; y: number; vx: number; vy: number; size: number; life: number }[] = [];
 	let canvasW = 0;
 	let canvasH = 0;
+	let ctxRef: CanvasRenderingContext2D | null = null;
 
 	const resolvedColor = $derived(color || getComputedAccent());
 
@@ -43,7 +44,9 @@
 		}));
 	}
 
-	function draw(ctx: CanvasRenderingContext2D) {
+	function draw() {
+		if (!ctxRef || canvasW === 0 || canvasH === 0) return;
+		const ctx = ctxRef;
 		const w = canvasW;
 		const h = canvasH;
 		ctx.clearRect(0, 0, w, h);
@@ -81,7 +84,6 @@
 				ctx.font = `${p.size * 3}px sans-serif`;
 				ctx.fillText(text || '✦', p.x, p.y);
 			} else if (type === 'image' && imgUrl) {
-				// Image particles handled separately
 				ctx.fillStyle = resolvedColor;
 				ctx.beginPath();
 				ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -90,13 +92,32 @@
 		}
 
 		ctx.globalAlpha = 1;
-		animId = requestAnimationFrame(() => draw(ctx));
+		animId = requestAnimationFrame(draw);
 	}
 
+	// Re-initialize particles when config changes
+	$effect(() => {
+		// Read all particle props to create dependencies
+		void count;
+		void speed;
+		void type;
+		void color;
+		void opacity;
+		void text;
+		void imgUrl;
+		void resolvedColor;
+
+		if (canvasW > 0 && canvasH > 0) {
+			initParticles(canvasW, canvasH);
+		}
+	});
+
+	// Canvas setup — runs once when canvas mounts
 	$effect(() => {
 		if (!canvas) return;
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
+		ctxRef = ctx;
 
 		const resize = () => {
 			const dpr = window.devicePixelRatio || 1;
@@ -112,12 +133,13 @@
 		};
 
 		resize();
-		draw(ctx);
+		draw();
 
 		window.addEventListener('resize', resize);
 		return () => {
 			cancelAnimationFrame(animId);
 			window.removeEventListener('resize', resize);
+			ctxRef = null;
 		};
 	});
 </script>

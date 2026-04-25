@@ -52,17 +52,30 @@
 
 	// Keyboard shortcuts: Ctrl+Z / Ctrl+Shift+Z
 	function handleKeydown(e: KeyboardEvent) {
-		// Skip if user is typing in an input
 		const tag = (e.target as HTMLElement)?.tagName;
 		const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
 
+		// Shortcuts that work even inside inputs
 		if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
 			e.preventDefault();
 			if (undoEnabled) undoField();
 		} else if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
 			e.preventDefault();
 			if (redoEnabled) redoField();
-		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'b') {
+		} else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+			e.preventDefault();
+			// Settings auto-save, just confirm
+			if (currentSaveStatus === 'saving') {
+				toast.show('Guardando...');
+			} else if (currentSaveStatus === 'error') {
+				toast.error('Error al guardar — reintentá');
+			} else {
+				toast.success('Guardado ✓');
+			}
+		}
+
+		// Navigation shortcuts (only when not in input)
+		if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'b') {
 			e.preventDefault();
 			goto('/admin/beats');
 		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'h') {
@@ -139,7 +152,7 @@
 			⚠️ Error de autenticación: {authState.error}
 		</div>
 	{/if}
-	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => {}} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar}>
+	<AdminTopbar {brandName} saveStatus={currentSaveStatus} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar}>
 		<span class="admin-section-label">{sectionLabel}</span>
 	</AdminTopbar>
 
