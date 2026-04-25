@@ -44,8 +44,10 @@
 	}
 
 	let recentActivity = $derived<{ action: string; time: string; type: 'success' | 'warning' | 'default' }[]>([
-		{ action: authState.user ? `Sesión: ${authState.user.email}` : 'Sin sesión', time: 'Ahora', type: authState.user ? 'success' : 'warning' },
-		{ action: settingsData ? 'Settings Firebase conectado' : 'Settings pendiente', time: 'Ahora', type: settingsData ? 'success' : 'warning' }
+		{ action: authState.user ? (authState.user.email ? `Sesión: ${authState.user.email}` : `Sesión: anónimo (${authState.user.uid.slice(0, 8)}…)`) : 'Sin sesión', time: 'Ahora', type: authState.user ? 'success' : 'warning' },
+		{ action: settingsData ? 'Firebase conectado' : 'Settings pendiente', time: 'Ahora', type: settingsData ? 'success' : 'warning' },
+		{ action: `${stats.total} beats · ${stats.active} activos`, time: 'Ahora', type: 'default' },
+		{ action: beats.length > 0 ? `Último: ${beats[0]?.name ?? '—'}` : 'Sin beats', time: beats.length > 0 ? 'Hoy' : '—', type: 'default' }
 	]);
 
 	// ── Export: include beats + settings (with theme) ──
@@ -327,6 +329,33 @@
 		</Card>
 	</div>
 
+	<!-- Recent beats -->
+	{#if beats.length > 0}
+		<Card>
+			<div class="card-section">
+				<h3 class="section-label">Últimos beats</h3>
+				<div class="recent-beats">
+					{#each beats.slice(0, 5) as beat}
+						<a href="/admin/beats/{beat.id}" class="recent-beat">
+							<div class="rb-cover">
+								{#if beat.imageUrl}
+									<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" />
+								{:else}
+									<span class="rb-ph">♦</span>
+								{/if}
+							</div>
+							<div class="rb-info">
+								<span class="rb-name">{beat.name || '(Sin nombre)'}</span>
+								<span class="rb-meta">{beat.genre} · {beat.bpm} BPM</span>
+							</div>
+							<span class="rb-edit">✏️</span>
+						</a>
+					{/each}
+				</div>
+			</div>
+		</Card>
+	{/if}
+
 	<!-- System info -->
 	<div class="system-info">
 		<div class="info-row">
@@ -558,6 +587,51 @@
 	.qa-icon {
 		font-size: var(--text-base);
 	}
+
+	/* Recent beats */
+	.recent-beats {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		background: var(--border);
+	}
+
+	.recent-beat {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-3) var(--space-4);
+		background: var(--surface);
+		text-decoration: none;
+		transition: background var(--duration-fast);
+	}
+
+	.recent-beat:hover { background: var(--surface-hover); }
+
+	.rb-cover {
+		width: 36px;
+		height: 36px;
+		border-radius: var(--radius-sm);
+		overflow: hidden;
+		flex-shrink: 0;
+		background: var(--surface-hover);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.rb-cover img { width: 100%; height: 100%; object-fit: cover; }
+	.rb-ph { font-size: var(--text-sm); color: var(--text-muted); }
+
+	.rb-info { flex: 1; min-width: 0; }
+	.rb-name { display: block; font-size: var(--text-sm); font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.rb-meta { display: block; font-size: var(--text-2xs); color: var(--text-muted); font-family: var(--font-mono); }
+
+	.rb-edit { font-size: var(--text-sm); opacity: 0.4; transition: opacity var(--duration-fast); }
+	.recent-beat:hover .rb-edit { opacity: 1; }
 
 	/* System info */
 	.system-info {

@@ -222,6 +222,9 @@
 					>
 						<span class="si-icon">{item.icon}</span>
 						<span class="si-label">{item.label}</span>
+						{#if item.shortcut}
+							<span class="si-shortcut">{item.shortcut}</span>
+						{/if}
 					</a>
 				{/each}
 			{/each}
@@ -245,9 +248,16 @@
 		{/if}
 	</div>
 
-	<!-- Mobile bottom nav -->
+	<!-- Mobile bottom nav (reduced to key sections) -->
 	<nav class="bottom-nav">
-		{#each navGroups.flatMap((g) => g.items) as item}
+		{#each [
+			{ href: '/admin', label: 'Home', icon: '📊' },
+			{ href: '/admin/beats', label: 'Beats', icon: '🎵' },
+			{ href: '/admin/hero', label: 'Hero', icon: '🏠' },
+			{ href: '/admin/theme', label: 'Tema', icon: '🎨' },
+			{ href: '/admin/content', label: 'Contenido', icon: '✏️' },
+			{ href: '/admin/brand', label: 'Brand', icon: '🏢' }
+		] as item}
 			<a
 				href={item.href}
 				class="bn-item"
@@ -426,6 +436,24 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+	.si-shortcut {
+		margin-left: auto;
+		font-family: var(--font-mono);
+		font-size: 9px;
+		color: var(--text-hint);
+		opacity: 0;
+		transition: opacity var(--duration-fast);
+		padding: 1px 4px;
+		border-radius: 3px;
+		background: var(--surface-hover);
+		border: 1px solid var(--border);
+		white-space: nowrap;
+	}
+
+	.si:hover .si-shortcut {
+		opacity: 1;
 	}
 
 	@media (max-width: 768px) {
