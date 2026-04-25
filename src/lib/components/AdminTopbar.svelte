@@ -7,6 +7,7 @@
 		saveStatus = 'saved',
 		pendingCount = 0,
 		previewOpen = false,
+		adminTheme = 'dark',
 		onSave,
 		onExport,
 		onImport,
@@ -15,12 +16,15 @@
 		onLogout,
 		onToggleSidebar,
 		onTogglePreview,
+		onToggleTheme,
+		onOpenPalette,
 		children
 	}: {
 		brandName?: string;
 		saveStatus?: 'saved' | 'saving' | 'unsaved' | 'error';
 		pendingCount?: number;
 		previewOpen?: boolean;
+		adminTheme?: 'dark' | 'light';
 		onSave?: () => void;
 		onExport?: () => void;
 		onImport?: () => void;
@@ -29,6 +33,8 @@
 		onLogout?: () => void;
 		onToggleSidebar?: () => void;
 		onTogglePreview?: () => void;
+		onToggleTheme?: () => void;
+		onOpenPalette?: () => void;
 		children?: Snippet;
 	} = $props();
 </script>
@@ -60,6 +66,11 @@
 	</div>
 
 	<div class="topbar-center">
+		<button class="palette-trigger" onclick={onOpenPalette} title="Buscar (Ctrl+K)">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+			<span class="palette-placeholder">Buscar…</span>
+			<kbd class="palette-kbd">⌘K</kbd>
+		</button>
 		{#if children}
 			{@render children()}
 		{/if}
@@ -83,6 +94,13 @@
 			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
 		</button>
 		<div class="tb-sep"></div>
+		<button class="tb-btn" onclick={onToggleTheme} title="Tema admin ({adminTheme === 'dark' ? 'oscuro' : 'claro'})" aria-label="Toggle admin theme">
+			{#if adminTheme === 'dark'}
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+			{:else}
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+			{/if}
+		</button>
 		<button class="tb-btn tb-save" onclick={onSave} title="Guardar (Ctrl+S)" aria-label="Guardar">
 			<Icon name="save" size={14} />
 		</button>
@@ -281,6 +299,43 @@
 
 	.hamburger {
 		display: none;
+	}
+
+	/* Command palette trigger */
+	.palette-trigger {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		background: var(--bg-secondary, rgba(255,255,255,0.03));
+		color: var(--text-muted);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		min-height: 32px;
+		font-size: var(--text-sm);
+	}
+
+	.palette-trigger:hover {
+		border-color: rgba(var(--accent-rgb), 0.3);
+		color: var(--text-secondary);
+		background: rgba(var(--accent-rgb), 0.05);
+	}
+
+	.palette-placeholder {
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+	}
+
+	.palette-kbd {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		padding: 1px 5px;
+		border-radius: 4px;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		margin-left: var(--space-4);
 	}
 
 	@media (max-width: 900px) {

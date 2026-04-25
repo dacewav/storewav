@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
-	import { AdminTopbar } from '$lib/components';
+	import { AdminTopbar, CommandPalette } from '$lib/components';
 	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField, pendingCount } from '$lib/stores';
+	import { adminTheme } from '$lib/stores/adminTheme';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { toast } from '$lib/toastStore';
@@ -49,6 +50,13 @@
 	// Preview panel (split view)
 	let previewOpen = $state(false);
 	function togglePreview() { previewOpen = !previewOpen; }
+
+	// Command palette
+	let paletteOpen = $state(false);
+
+	// Admin theme
+	let currentAdminTheme = $state<'dark' | 'light'>('dark');
+	onMount(() => adminTheme.subscribe((t) => (currentAdminTheme = t)));
 
 	// Toast on save status changes
 	let lastStatus = $state('');
@@ -114,9 +122,12 @@
 		} else if (!isInput && (e.ctrlKey || e.metaKey) && e.key === 'p') {
 			e.preventDefault();
 			togglePreview();
+		} else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+			e.preventDefault();
+			paletteOpen = !paletteOpen;
 		} else if (!isInput && e.key === '/') {
 			e.preventDefault();
-			document.querySelector<HTMLInputElement>('.search-input')?.focus();
+			paletteOpen = true;
 		}
 	}
 
@@ -127,9 +138,9 @@
 		{
 			label: 'Contenido',
 			items: [
-				{ href: '/admin', label: 'Dashboard', icon: '📊' },
-				{ href: '/admin/beats', label: 'Beats', icon: '🎵' },
-				{ href: '/admin/hero', label: 'Hero', icon: '🏠' },
+				{ href: '/admin', label: 'Dashboard', icon: '📊', shortcut: 'Ctrl+D' },
+				{ href: '/admin/beats', label: 'Beats', icon: '🎵', shortcut: 'Ctrl+B' },
+				{ href: '/admin/hero', label: 'Hero', icon: '🏠', shortcut: 'Ctrl+H' },
 				{ href: '/admin/content', label: 'Contenido', icon: '✏️' },
 				{ href: '/admin/links', label: 'Links', icon: '🔗' },
 				{ href: '/admin/testimonials', label: 'Testimonios', icon: '💬' },
@@ -138,7 +149,7 @@
 		{
 			label: 'Apariencia',
 			items: [
-				{ href: '/admin/theme', label: 'Tema', icon: '🎨' },
+				{ href: '/admin/theme', label: 'Tema', icon: '🎨', shortcut: 'Ctrl+T' },
 				{ href: '/admin/cardstyle', label: 'Card Style', icon: '🃏' },
 				{ href: '/admin/brand', label: 'Brand', icon: '🏢' },
 				{ href: '/admin/banner', label: 'Banner', icon: '📢' },
@@ -176,9 +187,11 @@
 			⚠️ Error de autenticación: {authState.error}
 		</div>
 	{/if}
-	<AdminTopbar {brandName} saveStatus={currentSaveStatus} pendingCount={pendingWritesCount} {previewOpen} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar} onTogglePreview={togglePreview}>
+	<AdminTopbar {brandName} saveStatus={currentSaveStatus} pendingCount={pendingWritesCount} {previewOpen} adminTheme={currentAdminTheme} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar} onTogglePreview={togglePreview} onToggleTheme={() => adminTheme.toggle()} onOpenPalette={() => (paletteOpen = true)}>
 		<span class="admin-section-label">{sectionLabel}</span>
 	</AdminTopbar>
+
+	<CommandPalette bind:open={paletteOpen} />
 
 	<div class="admin-body">
 		{#if sidebarOpen}
@@ -464,5 +477,19 @@
 		font-size: var(--text-sm);
 		text-align: center;
 		font-family: var(--font-mono);
+	}
+
+	/* Admin light theme overrides */
+	:global(.admin-light) {
+		--bg: #f8f9fa;
+		--bg-secondary: #f0f1f3;
+		--surface: #ffffff;
+		--surface-hover: rgba(0, 0, 0, 0.04);
+		--border: rgba(0, 0, 0, 0.1);
+		--text: #1a1a2e;
+		--text-secondary: #4a4a6a;
+		--text-muted: #8888a0;
+		--text-hint: #aaaabc;
+		--accent-rgb: 220, 38, 38;
 	}
 </style>

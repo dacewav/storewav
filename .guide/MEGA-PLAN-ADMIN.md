@@ -11,9 +11,9 @@
 
 - **~80 controles** de personalización con timing per-element
 - **117 tests** passing
-- **Admin profesional**: sliders reactivos, keyboard support, save status animado, preview split, undo con field name, brand media management
+- **Admin profesional**: sliders reactivos, keyboard support, save status animado, preview split, undo con field name, brand media management, command palette, admin theme toggle
 - **Bugs activos**: workers domain stale (código viejo en workers.dev)
-- **Bloques completados**: A ✅ B ✅ C ✅ D ✅ E ✅ (F, G pendientes)
+- **Bloques completados**: A ✅ B ✅ C ✅ D ✅ E ✅ F parcial (F1 ✅ F3 ✅, F2 F4 pendientes), G pendientes
 
 ---
 
@@ -134,15 +134,15 @@
 
 ---
 
-## Bloque F — Admin UX polish
+## Bloque F — Admin UX polish ✅ PARCIAL Session 27 (F1, F3)
 
 **Objetivo**: Que el admin se sienta profesional y fluido.
 
-### F1. Búsqueda y navegación
-- [ ] Command palette (Ctrl+K) → buscar settings por nombre
-- [ ] Breadcrumb navigation en topbar
-- [ ] "Última edición" indicator por sección
-- [ ] Keyboard shortcuts visibles en tooltips
+### F1. Búsqueda y navegación ✅
+- [x] Command palette (Ctrl+K / /) → buscar secciones por nombre, keywords
+- [x] Keyboard navigation (↑↓ + Enter + Esc)
+- [x] Breadcrumb-like section label en topbar (ya existía)
+- [x] Keyboard shortcuts visibles en sidebar (Ctrl+B, Ctrl+H, Ctrl+T, Ctrl+D, Ctrl+P)
 
 ### F2. Responsive admin
 - [ ] Admin 100% usable en mobile (no solo "no roto")
@@ -150,17 +150,18 @@
 - [ ] Swipe entre secciones en mobile
 - [ ] Touch-friendly: sliders con thumb más grande en mobile
 
-### F3. Dark/light admin theme
-- [ ] Admin theme independiente del store theme
-- [ ] Toggle en topbar para cambiar admin theme
-- [ ] Respeta preferencia del sistema
+### F3. Dark/light admin theme ✅
+- [x] Admin theme independiente del store theme
+- [x] Toggle en topbar (☀️/🌙 icon) para cambiar admin theme
+- [x] Respeta preferencia del sistema (prefers-color-scheme)
+- [x] Persiste en localStorage
 
 ### F4. Onboarding
 - [ ] Tour guiado la primera vez que se entra al admin
 - [ ] Tooltips explicativos en cada sección
 - [ ] "¿Qué hace esto?" help icons
 
-**Archivos**: múltiples
+**Archivos**: `CommandPalette.svelte`, `adminTheme.ts`, `AdminTopbar.svelte`, `+layout.svelte`
 
 ---
 
