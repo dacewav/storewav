@@ -7,7 +7,8 @@
 		label = '',
 		showValue = true,
 		unit = '',
-		disabled = false
+		disabled = false,
+		onSlide
 	}: {
 		value?: number;
 		min?: number;
@@ -17,6 +18,7 @@
 		showValue?: boolean;
 		unit?: string;
 		disabled?: boolean;
+		onSlide?: (value: number) => void;
 	} = $props();
 
 	const pct = $derived(max > min ? ((value - min) / (max - min)) * 100 : 0);
@@ -39,6 +41,7 @@
 			type="range"
 			class="range"
 			bind:value
+			oninput={() => onSlide?.(value)}
 			{min}
 			{max}
 			{step}

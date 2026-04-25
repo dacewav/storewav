@@ -86,7 +86,7 @@ export const trashedBeatsList = derived(beats, ($beats) => {
 	return Object.entries($beats.data)
 		.filter(([, b]) => b.deleted === true)
 		.map(([id, beat]) => ({ id, ...beat }))
-		.sort(([, a], [, b]) => (b.deletedAt ?? 0) - (a.deletedAt ?? 0));
+		.sort((a, b) => (b.deletedAt ?? 0) - (a.deletedAt ?? 0));
 });
 
 /** Stats rápidas */

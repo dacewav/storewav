@@ -804,9 +804,11 @@ async function updateField(dotPath: string, value: unknown) {
 	}
 
 	saveStatus.set('saving');
+	const isTheme = isThemePath(dotPath);
+	const flatPath = isTheme ? '' : flattenSettingsPath(dotPath);
 	try {
 		// Determine target Firebase path: theme/heroVisual/animations writes go to theme/, settings writes go to settings/
-		if (isThemePath(dotPath)) {
+		if (isTheme) {
 			// Theme writes: convert to flat key, write to theme/ path
 			const themeKey = getThemeKey(dotPath);
 			const { ref, update: fbUpdate } = await import('firebase/database');
@@ -816,13 +818,12 @@ async function updateField(dotPath: string, value: unknown) {
 			}
 		} else {
 			// Settings writes: flatten nested paths to match deployed rules (flat keys)
-			const flatPath = flattenSettingsPath(dotPath);
 			await base.update({ [flatPath]: value } as Partial<SettingsData>);
 		}
 		saveStatus.set('saved');
 	} catch (err) {
 		// Log the actual error for debugging
-		console.error(`[Settings] Write failed: ${isThemePath(dotPath) ? 'theme/' : 'settings/'}${isThemePath(dotPath) ? getThemeKey(dotPath) : flatPath}`, err);
+		console.error(`[Settings] Write failed: ${isTheme ? 'theme/' : 'settings/'}${isTheme ? getThemeKey(dotPath) : flatPath}`, err);
 
 		// Retry once on network error, then queue for later
 		const isNetwork = err instanceof Error && (
@@ -832,7 +833,7 @@ async function updateField(dotPath: string, value: unknown) {
 			console.warn('[Settings] Network error, retrying in 1s...');
 			await new Promise((r) => setTimeout(r, 1000));
 			try {
-				if (isThemePath(dotPath)) {
+				if (isTheme) {
 					const themeKey = getThemeKey(dotPath);
 					const { ref, update: fbUpdate } = await import('firebase/database');
 					const db = await (await import('$lib/firebase')).getDb();
