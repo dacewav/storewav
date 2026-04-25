@@ -26,12 +26,28 @@
 
 	const resolvedColor = $derived(color || getComputedAccent());
 
-	/** Resolve CSS variable --accent to actual hex for canvas */
 	function getComputedAccent(): string {
 		if (typeof document === 'undefined') return '#dc2626';
 		const val = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
 		return val || '#dc2626';
 	}
+
+	/** Boost dark colors so particles are always visible on dark backgrounds */
+	function brighten(hex: string): string {
+		const m = hex.match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i);
+		if (!m) return hex;
+		const r = parseInt(m[1], 16);
+		const g = parseInt(m[2], 16);
+		const b = parseInt(m[3], 16);
+		const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+		if (lum < 150) {
+			const s = 150 / Math.max(lum, 1);
+			return `rgb(${Math.min(255, Math.round(r * s + 50))},${Math.min(255, Math.round(g * s + 50))},${Math.min(255, Math.round(b * s + 50))})`;
+		}
+		return `rgb(${r},${g},${b})`;
+	}
+
+	const drawColor = $derived(brighten(resolvedColor));
 
 	function initParticles(w: number, h: number) {
 		particles = Array.from({ length: count }, () => ({
@@ -39,7 +55,7 @@
 			y: Math.random() * h,
 			vx: (Math.random() - 0.5) * speed,
 			vy: (Math.random() - 0.5) * speed,
-			size: 2 + Math.random() * 3,
+			size: 3 + Math.random() * 5,
 			life: Math.random()
 		}));
 	}
@@ -61,30 +77,29 @@
 			if (p.y < 0) p.y = h;
 			if (p.y > h) p.y = 0;
 
-			const alpha = opacity * (0.5 + 0.5 * Math.sin(p.life * Math.PI * 2));
-			ctx.globalAlpha = alpha;
+			const breathe = 0.5 + 0.5 * Math.sin(p.life * Math.PI * 2);
+			ctx.globalAlpha = opacity + (1 - opacity) * breathe;
+			ctx.fillStyle = drawColor;
 
 			if (type === 'circle') {
 				ctx.beginPath();
 				ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-				ctx.fillStyle = resolvedColor;
 				ctx.fill();
 			} else if (type === 'square') {
-				ctx.fillStyle = resolvedColor;
 				ctx.fillRect(p.x - p.size, p.y - p.size, p.size * 2, p.size * 2);
 			} else if (type === 'line') {
+				ctx.strokeStyle = drawColor;
+				ctx.lineWidth = 1.5;
 				ctx.beginPath();
 				ctx.moveTo(p.x, p.y);
-				ctx.lineTo(p.x + p.vx * 8, p.y + p.vy * 8);
-				ctx.strokeStyle = resolvedColor;
-				ctx.lineWidth = 1;
+				ctx.lineTo(p.x + p.vx * 12, p.y + p.vy * 12);
 				ctx.stroke();
 			} else if (type === 'text') {
-				ctx.fillStyle = resolvedColor;
-				ctx.font = `${p.size * 3}px sans-serif`;
+				// Use a large font to ensure visibility — min 18px
+				const fontSize = Math.max(p.size * 4, 18);
+				ctx.font = `bold ${fontSize}px sans-serif`;
 				ctx.fillText(text || '✦', p.x, p.y);
 			} else if (type === 'image' && imgUrl) {
-				ctx.fillStyle = resolvedColor;
 				ctx.beginPath();
 				ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
 				ctx.fill();
@@ -95,9 +110,8 @@
 		animId = requestAnimationFrame(draw);
 	}
 
-	// Re-initialize particles when config changes
+	// Re-init when config changes
 	$effect(() => {
-		// Read all particle props to create dependencies
 		void count;
 		void speed;
 		void type;
@@ -106,13 +120,12 @@
 		void text;
 		void imgUrl;
 		void resolvedColor;
-
 		if (canvasW > 0 && canvasH > 0) {
 			initParticles(canvasW, canvasH);
 		}
 	});
 
-	// Canvas setup — runs once when canvas mounts
+	// Canvas setup
 	$effect(() => {
 		if (!canvas) return;
 		const ctx = canvas.getContext('2d');
@@ -121,7 +134,6 @@
 
 		const resize = () => {
 			const dpr = window.devicePixelRatio || 1;
-			// Canvas is position:fixed → always use viewport dimensions
 			canvasW = window.innerWidth;
 			canvasH = window.innerHeight;
 			canvas.width = canvasW * dpr;
@@ -135,7 +147,6 @@
 		resize();
 		draw();
 
-		// Re-check after first paint — canvas may not be laid out yet
 		const rafId = requestAnimationFrame(() => {
 			if (canvasW === 0 || canvasH === 0) resize();
 		});
@@ -156,7 +167,7 @@
 	.particles-canvas {
 		position: fixed;
 		inset: 0;
-		z-index: 0;
+		z-index: 10;
 		pointer-events: none;
 		width: 100%;
 		height: 100%;
