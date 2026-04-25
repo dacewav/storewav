@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-26 03:45 (Session 28 — Schema Fix + New Customization)**
+> **Última actualización: 2026-04-26 05:09 (Session 29 — Presets + Soft Delete + Rules)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -8,8 +8,8 @@ repo:          https://github.com/dacewav/storewav.git
 framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
-sesiones:      28 completadas
-commits:       38+
+sesiones:      29 completadas
+commits:       42+
 tests:         117 passing
 build:         0 errors, 0 warnings (svelte-check limpio)
 ```

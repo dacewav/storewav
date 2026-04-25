@@ -3,67 +3,68 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 28 — Schema Fix + New Customization Options
+## Sesión Actual: 29 — Theme Presets + Soft Delete + Rules Deploy
 
 ```yaml
-sesión: "28"
-bloque: "Firebase schema mismatch fix + 18 nuevas opciones de personalización"
-objetivo: "Fix writes a Firebase, agregar controles de Card Style y Tienda"
-tiempo: "~60 min"
-estado: "✅ COMPLETADO — pending push"
-último_commit: "pending"
+sesión: "29"
+bloque: "Theme Presets + Soft Delete/Restore + Firebase Rules + Audit"
+objetivo: "Portar features del catalog, verificar admin→store flow"
+tiempo: "~50 min"
+estado: "✅ COMPLETADO"
+último_commit: "d5f14ff"
 tests_total: 117
 svelte_check: "0 errors, 0 warnings"
 ```
 
-### Session 28 — Resumen
+### Session 29 — Resumen
 
-**Fix crítico: Schema mismatch**
-- Firebase rules esperan flat keys, código escribía nested paths
-- `NESTED_TO_FLAT` mapping: ~70 paths mapeados
-- `isThemePath()`: theme/heroVisual/animations van a `theme/`
-- `getThemeKey()`: convierte `heroVisual.glowOn` → `heroGlowOn`
-- Batch writes separados: settings + theme por separado
-- Flush pending writes también usa flat paths
+**Theme Presets (NUEVO)**
+- Store: `themePresets.ts` — CRUD con Firebase RTDB
+- UI: Sección "💾 Presets de Tema" en admin/theme
+- Guardar tema actual, aplicar, renombrar, eliminar
+- 3 dots de color como preview
+- Init lifecycle en stores/init.ts
 
-**Nuevas opciones Card Style (10)**
-- Fondo card (color + opacidad)
-- Tipografía título (size, weight, color, align)
-- Precio (size, color)
-- Tags (bg, color, radius, size)
-- Imagen (aspect ratio, hover zoom, object fit)
-- Layout (padding, info bg)
+**Soft Delete / Restore (NUEVO)**
+- Beat type: campos `deleted` + `deletedAt`
+- `trashBeat()` / `restoreBeat()` / `permanentDelete()`
+- `trashedBeatsList` derived store
+- Admin beats: tabs "🎵 Beats / 🗑️ Papelera"
+- Papelera: restaurar o eliminar permanente con confirmación
 
-**Nuevas opciones Tienda (8)**
-- Hero min-height (vh slider)
-- Section titles (size, weight, align, color)
-- Background pattern (dots/lines/grid + color + opacity)
-- Scrollbar (thin + color)
+**Card Style Fix (Session 28 follow-up)**
+- CardStyleEditor: prop `onchange` + notify en cada set/reset
+- cardstyle admin: `bind:value` + `onchange` para persistir
+- BeatEditor: `cardStyle` en auto-save snapshot
+- BeatCard: `layoutCSS` wired a `.beat-info`
+- cardStyleEngine: `cardBg` + `cardBgOpacity` generan CSS
 
-**Dev mode admin bypass**
-- `auth.ts`: en dev, cualquier usuario autenticado es admin
-- Futuros chats: login anónimo → acceso directo al admin
+**Firebase Rules**
+- `themePresets/` — read (auth) + write (admin)
+- `beats/$beatId/deleted` — boolean
+- `beats/$beatId/deletedAt` — number
+- `settings/cardStyle/$key` — primitives
+- Rules en `firebase.rules.json` — usuario debe deployar desde Firebase Console
 
-**Archivos modificados**
-- `src/lib/stores/settings.ts` — NESTED_TO_FLAT, isThemePath, getThemeKey, flushBatch, flushPendingWrites, CLAMP_MAP, ThemeSettings, LayoutSettings, DEFAULT
-- `src/lib/cardStyleEngine.ts` — CardStyleConfig + 7 funciones CSS
-- `src/lib/components/BeatCard.svelte` — imports + computed styles + template
-- `src/lib/components/CardStyleEditor.svelte` — 5 nuevas secciones UI
-- `src/routes/(admin)/admin/theme/+page.svelte` — 4 nuevas Cards (Hero, Títulos, Fondo, Scrollbar)
-- `src/routes/(store)/+page.svelte` — heroMinHeight, sectionTitleStyle
-- `src/routes/(store)/+layout.svelte` — bgPattern, scrollbar CSS
-- `src/lib/stores/auth.ts` — dev mode bypass
-- `.guide/PROJECT_STATE.md` — actualizado
+**Guías actualizadas**
+- `MEGA-REBUILD-PLAN.md` — 8 sesiones planificadas
+- `PROJECT_STATE.md` — actualizado a Session 29
+
+## Próxima sesión: 30 — Floating Elements + Scroll-aware Nav
+
+Ver `MEGA-REBUILD-PLAN.md` Session 2.
 
 ## Estado de Sesiones
 
 | Sesión | Bloque | Estado |
 |--------|--------|--------|
-| 1-27 | Anteriores | ✅ |
-| 28 | Schema fix + new customization | ✅ pending push |
+| 1-28 | Anteriores | ✅ |
+| 29 | Presets + Soft Delete + Rules | ✅ |
+| 30 | Floating Elements + Scroll Nav | ⬜ Siguiente |
 
 ## Datos clave
 - Deploy: Cloudflare Pages auto-deploy desde Git push
-- Firebase: `dacewav-store-3b0f5`
-- Cloudflare Account ID: `b9915d52e9ac118230931e40d46ab3ce`
-- Admin access: dev mode bypass (cualquier usuario autenticado)
+- Firebase: dacewav-store-3b0f5
+- Dev server: `npm run dev -- --host 0.0.0.0 --port 5173`
+- Login: `/login` → "🧪 Entrar como tester (anónimo)" (dev bypass)
+- Firebase rules: usuario debe deployar manualmente desde Console

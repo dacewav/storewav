@@ -1397,6 +1397,22 @@
     "team": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
+    "themePresets": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child(\"adminWhitelist/approved\").child(auth.uid).exists()",
+      "$id": {
+        ".validate": "newData.hasChildren([\"name\", \"theme\", \"createdAt\"])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length <= 100"
+        },
+        "theme": {
+          ".validate": "newData.hasChildren()"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        }
+      }
     }
   }
 }
