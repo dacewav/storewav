@@ -19,6 +19,24 @@ export interface ThemeConfig {
 	text?: string;
 	textSecondary?: string;
 
+	// Background & surfaces (new)
+	bgColor?: string;
+	surfaceColor?: string;
+	textColor?: string;
+
+	// Navigation (new)
+	navBgColor?: string;
+	navBlur?: number;
+
+	// CTA button (new)
+	ctaBtnBg?: string;
+	ctaBtnClr?: string;
+	ctaBtnHoverBg?: string;
+	ctaBtnRadius?: number;
+
+	// Container (new)
+	containerMaxWidth?: number;
+
 	// Glow
 	glowColor?: string;       // base color for glow presets (default: accent)
 	glowIntensity?: number;   // 0-1 multiplier
@@ -101,6 +119,20 @@ const THEME_MAP: Record<string, string> = {
 	logoHeight: '--logo-height',
 	logoWidth: '--logo-width',
 	logoScale: '--logo-scale',
+	// Background & surfaces (new)
+	bgColor: '--bg',
+	surfaceColor: '--surface',
+	textColor: '--text',
+	// Navigation (new)
+	navBgColor: '--nav-bg',
+	navBlur: '--nav-blur',
+	// CTA button (new)
+	ctaBtnBg: '--cta-btn-bg',
+	ctaBtnClr: '--cta-btn-clr',
+	ctaBtnHoverBg: '--cta-btn-hover-bg',
+	ctaBtnRadius: '--cta-btn-radius',
+	// Container (new)
+	containerMaxWidth: '--max-width',
 };
 
 /**
@@ -191,7 +223,7 @@ export function applyTheme(config: ThemeConfig) {
 			// Values that need 'rem' suffix
 			const needsRem = ['sectionPadding', 'heroPadTop', 'padSection'];
 			// Values that need 'px' suffix
-			const needsPx = ['beatGap', 'wbarHeight', 'wbarRadius', 'blurBg', 'cardShadowIntensity'];
+			const needsPx = ['beatGap', 'wbarHeight', 'wbarRadius', 'blurBg', 'cardShadowIntensity', 'navBlur', 'ctaBtnRadius', 'containerMaxWidth'];
 			if (needsRem.includes(key) && typeof value === 'number') {
 				vars[cssVar] = `${value}rem`;
 			} else if (needsPx.includes(key) && typeof value === 'number') {

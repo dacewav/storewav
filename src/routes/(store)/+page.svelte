@@ -688,10 +688,10 @@
 		font-family: var(--font-mono);
 		font-size: var(--text-xs);
 		padding: var(--space-3) var(--space-6);
-		border-radius: var(--radius-lg);
+		border-radius: var(--cta-btn-radius, var(--radius-lg));
 		border: 1px solid rgba(var(--accent-rgb), 0.5);
-		background: rgba(var(--accent-rgb), 0.1);
-		color: var(--accent);
+		background: var(--cta-btn-bg, rgba(var(--accent-rgb), 0.1));
+		color: var(--cta-btn-clr, var(--accent));
 		text-decoration: none;
 		letter-spacing: 0.04em;
 		transition: all var(--duration-normal) var(--ease-out);
@@ -701,7 +701,7 @@
 	}
 
 	.cta-btn:hover {
-		background: var(--accent);
+		background: var(--cta-btn-hover-bg, var(--accent));
 		color: var(--bg);
 		box-shadow: var(--glow-sm);
 		opacity: var(--btn-opacity-hover);

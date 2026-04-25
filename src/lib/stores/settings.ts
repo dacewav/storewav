@@ -213,6 +213,24 @@ export type ThemeSettings = {
 	btnLicClr: string;
 	btnLicBdr: string;
 
+	// Background & surfaces
+	bgColor: string; // main background hex
+	surfaceColor: string; // card/panel background hex
+	textColor: string; // main text color hex
+
+	// Navigation
+	navBgColor: string; // nav background (hex, opacity via navOpacity)
+	navBlur: number; // px, backdrop-filter blur
+
+	// CTA button
+	ctaBtnBg: string;
+	ctaBtnClr: string;
+	ctaBtnHoverBg: string;
+	ctaBtnRadius: number; // px
+
+	// Container
+	containerMaxWidth: number; // px, default 1200
+
 	// Custom CSS injection
 	customCSS: string;
 };
@@ -386,6 +404,16 @@ const DEFAULT: SettingsData = {
 		btnLicBg: '',
 		btnLicClr: '',
 		btnLicBdr: '',
+		bgColor: '',
+		surfaceColor: '',
+		textColor: '',
+		navBgColor: '',
+		navBlur: 24,
+		ctaBtnBg: '',
+		ctaBtnClr: '',
+		ctaBtnHoverBg: '',
+		ctaBtnRadius: 12,
+		containerMaxWidth: 1200,
 		customCSS: ''
 	},
 	section: {
@@ -582,6 +610,9 @@ const CLAMP_MAP: Record<string, [number, number]> = {
 	'theme.particlesOpacity': [0, 1],
 	'banner.speed': [5, 60],
 	'banner.delay': [0, 10],
+	'theme.navBlur': [0, 40],
+	'theme.ctaBtnRadius': [0, 50],
+	'theme.containerMaxWidth': [800, 1800],
 };
 
 /** Helper para actualizar un campo por dot-path (ej: 'heroVisual.glowOn') */

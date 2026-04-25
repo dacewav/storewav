@@ -49,6 +49,9 @@
 				particlesSizeMin: t.particlesSizeMin ?? 3,
 				particlesSizeMax: t.particlesSizeMax ?? 8,
 				particlesOpacity: t.particlesOpacity ?? 0.3,
+				navBlur: t.navBlur ?? 24,
+				ctaBtnRadius: t.ctaBtnRadius ?? 12,
+				containerMaxWidth: t.containerMaxWidth ?? 1200,
 			};
 			localInit = true;
 		}
@@ -166,6 +169,16 @@
 						['theme.btnLicClr', ''],
 						['theme.btnLicBdr', ''],
 						['theme.customCSS', ''],
+						['theme.bgColor', ''],
+						['theme.surfaceColor', ''],
+						['theme.textColor', ''],
+						['theme.navBgColor', ''],
+						['theme.navBlur', 24],
+						['theme.ctaBtnBg', ''],
+						['theme.ctaBtnClr', ''],
+						['theme.ctaBtnHoverBg', ''],
+						['theme.ctaBtnRadius', 12],
+						['theme.containerMaxWidth', 1200],
 					];
 					for (const [path, val] of defaults) {
 						settings.updateField(path, val);
@@ -200,6 +213,98 @@
 					<input type="text" value={t.glowColor ?? ''} placeholder="(usa accent)" oninput={(e) => update('theme.glowColor', e.currentTarget.value)} />
 				</div>
 			</div>
+		</div>
+	</Card>
+
+	<!-- Background & Surfaces -->
+	<Card>
+		<h3 class="section-title">Fondo y Superficies</h3>
+		<p class="field-desc">Colores base de la tienda. Vacío = default del tema (dark/light).</p>
+		<div class="row">
+			<div class="field">
+				<label for="t-bgc">Background principal</label>
+				<div class="color-row">
+					<input id="t-bgc" type="color" value={t.bgColor || '#060404'} oninput={(e) => update('theme.bgColor', e.currentTarget.value)} />
+					<input type="text" value={t.bgColor ?? ''} placeholder="(#060404)" oninput={(e) => update('theme.bgColor', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-sfc">Superficie (cards/paneles)</label>
+				<div class="color-row">
+					<input id="t-sfc" type="color" value={t.surfaceColor || '#0f0808'} oninput={(e) => update('theme.surfaceColor', e.currentTarget.value)} />
+					<input type="text" value={t.surfaceColor ?? ''} placeholder="(#0f0808)" oninput={(e) => update('theme.surfaceColor', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-txc">Texto principal</label>
+				<div class="color-row">
+					<input id="t-txc" type="color" value={t.textColor || '#f5eeee'} oninput={(e) => update('theme.textColor', e.currentTarget.value)} />
+					<input type="text" value={t.textColor ?? ''} placeholder="(#f5eeee)" oninput={(e) => update('theme.textColor', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+	</Card>
+
+	<!-- Navigation -->
+	<Card>
+		<h3 class="section-title">Navegación</h3>
+		<div class="row">
+			<div class="field">
+				<label for="t-nbc">Color fondo nav</label>
+				<div class="color-row">
+					<input id="t-nbc" type="color" value={t.navBgColor || '#060404'} oninput={(e) => update('theme.navBgColor', e.currentTarget.value)} />
+					<input type="text" value={t.navBgColor ?? ''} placeholder="(auto)" oninput={(e) => update('theme.navBgColor', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-nbl">Blur nav ({fmt("navBlur", 40, "px")})</label>
+				<input id="t-nbl" type="range" min="0" max="40" step="2" value={local.navBlur ?? 24} oninput={(e) => onSlide('theme.navBlur', 'navBlur', +e.currentTarget.value)} />
+			</div>
+		</div>
+	</Card>
+
+	<!-- CTA Button -->
+	<Card>
+		<h3 class="section-title">Botón CTA (WhatsApp)</h3>
+		<div class="row">
+			<div class="field">
+				<label for="t-ctbg">Fondo botón</label>
+				<div class="color-row">
+					<input id="t-ctbg" type="color" value={t.ctaBtnBg || '#25d366'} oninput={(e) => update('theme.ctaBtnBg', e.currentTarget.value)} />
+					<input type="text" value={t.ctaBtnBg ?? ''} placeholder="(default)" oninput={(e) => update('theme.ctaBtnBg', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-ctbc">Texto botón</label>
+				<div class="color-row">
+					<input id="t-ctbc" type="color" value={t.ctaBtnClr || '#ffffff'} oninput={(e) => update('theme.ctaBtnClr', e.currentTarget.value)} />
+					<input type="text" value={t.ctaBtnClr ?? ''} placeholder="(default)" oninput={(e) => update('theme.ctaBtnClr', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-cthh">Hover fondo</label>
+				<div class="color-row">
+					<input id="t-cthh" type="color" value={t.ctaBtnHoverBg || '#1da851'} oninput={(e) => update('theme.ctaBtnHoverBg', e.currentTarget.value)} />
+					<input type="text" value={t.ctaBtnHoverBg ?? ''} placeholder="(default)" oninput={(e) => update('theme.ctaBtnHoverBg', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-ctr">Radio ({fmt("ctaBtnRadius", 50, "px")})</label>
+				<input id="t-ctr" type="range" min="0" max="50" step="2" value={local.ctaBtnRadius ?? 12} oninput={(e) => onSlide('theme.ctaBtnRadius', 'ctaBtnRadius', +e.currentTarget.value)} />
+			</div>
+		</div>
+	</Card>
+
+	<!-- Container -->
+	<Card>
+		<h3 class="section-title">Contenedor</h3>
+		<div class="field">
+			<label for="t-cmw">Ancho máximo ({fmt("containerMaxWidth", 1800, "px")})</label>
+			<input id="t-cmw" type="range" min="800" max="1800" step="50" value={local.containerMaxWidth ?? 1200} oninput={(e) => onSlide('theme.containerMaxWidth', 'containerMaxWidth', +e.currentTarget.value)} />
 		</div>
 	</Card>
 
