@@ -96,8 +96,8 @@
 
 {#if open}
 	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-	<div class="palette-backdrop" onclick={close}>
-		<div class="palette-modal" onclick={(e) => e.stopPropagation()}>
+	<div class="palette-backdrop" onclick={close} role="presentation">
+		<div class="palette-modal" onclick={(e) => e.stopPropagation()} role="dialog" aria-label="Command palette" tabindex="-1">
 			<div class="palette-input-row">
 				<span class="palette-icon">🔍</span>
 				<input

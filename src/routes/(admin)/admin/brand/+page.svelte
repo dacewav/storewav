@@ -152,7 +152,7 @@
 					<span class="preview-label">Nav / Header</span>
 					<div class="preview-frame nav-preview">
 						{#if brand.logo}
-							<img src={brand.logo} alt="Logo nav" class="preview-logo-sm" />
+							<img src={brand.logo} alt="Logo nav" class="preview-logo-sm" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
 						{:else}
 							<span class="no-logo">{brand.name || 'Tu Marca'}</span>
 						{/if}
@@ -162,7 +162,7 @@
 					<span class="preview-label">Favicon</span>
 					<div class="preview-frame favicon-preview">
 						{#if brand.favicon}
-							<img src={brand.favicon} alt="Favicon" class="preview-favicon" />
+							<img src={brand.favicon} alt="Favicon" class="preview-favicon" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
 						{:else}
 							<span class="no-logo">?</span>
 						{/if}
@@ -172,7 +172,7 @@
 					<span class="preview-label">Footer</span>
 					<div class="preview-frame footer-preview">
 						{#if brand.logo}
-							<img src={brand.logo} alt="Logo footer" class="preview-logo-xs" />
+							<img src={brand.logo} alt="Logo footer" class="preview-logo-xs" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
 							<span class="footer-text">{brand.footerText || '© 2026'}</span>
 						{:else}
 							<span class="no-logo">{brand.footerText || 'Footer'}</span>

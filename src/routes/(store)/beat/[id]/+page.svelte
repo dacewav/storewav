@@ -158,7 +158,7 @@
 				<!-- Cover -->
 				<div class="beat-cover">
 					{#if beat.imageUrl}
-						<img src={beat.imageUrl} alt={beat.name} decoding="async" />
+						<img src={beat.imageUrl} alt={beat.name} decoding="async" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
 					{:else}
 						<div class="beat-cover-placeholder">
 							<Icon name="music" size={64} />

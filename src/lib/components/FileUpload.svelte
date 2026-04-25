@@ -108,7 +108,7 @@
 
 	async function handleRemove() {
 		if (value) {
-			try { await deleteFile(value); } catch {}
+			try { await deleteFile(value); } catch (err) { console.warn('[FileUpload] Delete failed:', err); }
 		}
 		value = '';
 		previewUrl = '';

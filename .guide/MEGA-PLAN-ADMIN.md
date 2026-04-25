@@ -7,13 +7,13 @@
 
 ---
 
-## Estado actual (Session 27)
+## Estado actual (Session 27 — FINAL)
 
 - **~80 controles** de personalización con timing per-element
 - **117 tests** passing
-- **Admin profesional**: sliders reactivos, keyboard support, save status animado, preview split, undo con field name, brand media management, command palette, admin theme toggle, debounced writes, skeleton loading, mobile responsive
+- **Admin completo**: sliders reactivos, keyboard support, save status animado, preview split, undo con field name, brand media management, command palette, admin theme toggle, debounced writes, skeleton loading, mobile responsive, onboarding tour, help tooltips
 - **Bugs activos**: workers domain stale (código viejo en workers.dev)
-- **Bloques completados**: A ✅ B ✅ C ✅ D ✅ E ✅ F ✅ G ✅ (F4 onboarding deferred)
+- **Bloques completados**: A ✅ B ✅ C ✅ D ✅ E ✅ F ✅ G ✅
 
 ---
 
@@ -159,10 +159,11 @@
 - [x] Respeta preferencia del sistema (prefers-color-scheme)
 - [x] Persiste en localStorage
 
-### F4. Onboarding
-- [ ] Tour guiado la primera vez que se entra al admin
-- [ ] Tooltips explicativos en cada sección
-- [ ] "¿Qué hace esto?" help icons
+### F4. Onboarding ✅
+- [x] Tour guiado la primera vez que se entra al admin (4 pasos: bienvenida, preview, shortcuts, listo)
+- [x] Tooltips explicativos en cada sección (HelpTip component — Colores, Glow, Paleta)
+- [x] Auto-show on first visit, persist seen state in localStorage
+- [ ] "¿Qué hace esto?" help icons en todas las secciones (parcial — 3 secciones)
 
 **Archivos**: `CommandPalette.svelte`, `adminTheme.ts`, `AdminTopbar.svelte`, `+layout.svelte`
 

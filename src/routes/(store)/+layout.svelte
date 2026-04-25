@@ -312,7 +312,7 @@
 	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled} aria-label="Navegación principal" style="min-height: {navHeight}px">
 		<a href="/" class="nav-brand{animLogo && animLogo !== 'none' ? ` anim-${animLogo}` : ''}" onclick={closeMenu}>
 			{#if brandLogo}
-				<img class="nav-logo" src={brandLogo} alt={brandName} decoding="async" style="height: {logoHeight > 0 ? logoHeight : 28}px" />
+				<img class="nav-logo" src={brandLogo} alt={brandName} decoding="async" style="height: {logoHeight > 0 ? logoHeight : 28}px" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
 			{:else if brandSplit.last}
 				<span>{brandSplit.first}</span><em>{brandSplit.last}</em>.
 			{:else}

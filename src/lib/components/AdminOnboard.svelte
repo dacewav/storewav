@@ -68,8 +68,8 @@
 
 {#if open}
 	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-	<div class="onboard-backdrop" onclick={skip}>
-		<div class="onboard-modal" onclick={(e) => e.stopPropagation()}>
+	<div class="onboard-backdrop" onclick={skip} role="presentation">
+		<div class="onboard-modal" onclick={(e) => e.stopPropagation()} role="dialog" aria-label="Onboarding" tabindex="-1">
 			<div class="onboard-progress">
 				{#each steps as _, i}
 					<div class="progress-dot" class:active={i === step} class:done={i < step}></div>
