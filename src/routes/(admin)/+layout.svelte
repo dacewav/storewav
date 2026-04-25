@@ -277,6 +277,12 @@
 		flex-shrink: 0;
 	}
 
+	.si-label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
 	@media (max-width: 768px) {
 		.admin-content {
 			padding: var(--space-4);

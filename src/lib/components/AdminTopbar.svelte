@@ -190,6 +190,16 @@
 		display: none;
 	}
 
+	@media (max-width: 900px) {
+		.topbar-center {
+			display: none;
+		}
+
+		.status-text {
+			display: none;
+		}
+	}
+
 	@media (max-width: 768px) {
 		.hamburger {
 			display: flex;

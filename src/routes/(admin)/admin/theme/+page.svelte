@@ -90,6 +90,8 @@
 						['theme.glowAnim', 'none'],
 						['theme.glowAnimSpeed', 2],
 						['theme.btnOpacityHover', 1],
+						['theme.bgOpacity', 1],
+						['theme.wbarRadius', 0],
 						['theme.waveOpacityOff', 0.3],
 						['theme.waveOpacityOn', 0.8],
 						['theme.btnLicBg', ''],
@@ -135,6 +137,12 @@
 	<!-- Glow System -->
 	<Card>
 		<h3 class="section-title">Sistema de Glow</h3>
+		<div class="field">
+			<label>
+				<input type="checkbox" checked={t.glowActive === true} onchange={(e) => update('theme.glowActive', e.currentTarget.checked)} />
+				Glow global activado
+			</label>
+		</div>
 		<div class="row">
 			<div class="field">
 				<label for="t-gi">Intensidad ({t.glowIntensity ?? 1})</label>
@@ -270,6 +278,16 @@
 				<input id="t-bo" type="range" min="0" max="1" step="0.05" value={t.btnOpacityNormal ?? 1} oninput={(e) => update('theme.btnOpacityNormal', +e.currentTarget.value)} />
 			</div>
 		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-bh">Btn hover ({t.btnOpacityHover ?? 1})</label>
+				<input id="t-bh" type="range" min="0" max="1" step="0.05" value={t.btnOpacityHover ?? 1} oninput={(e) => update('theme.btnOpacityHover', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-bgo">Background ({t.bgOpacity ?? 1})</label>
+				<input id="t-bgo" type="range" min="0" max="1" step="0.05" value={t.bgOpacity ?? 1} oninput={(e) => update('theme.bgOpacity', +e.currentTarget.value)} />
+			</div>
+		</div>
 	</Card>
 
 	<!-- Player Bar -->
@@ -295,6 +313,20 @@
 				<input id="t-wh" type="range" min="48" max="100" step="4" value={t.wbarHeight ?? 64} oninput={(e) => update('theme.wbarHeight', +e.currentTarget.value)} />
 			</div>
 		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-wr">Border radius ({t.wbarRadius ?? 0}px)</label>
+				<input id="t-wr" type="range" min="0" max="30" step="1" value={t.wbarRadius ?? 0} oninput={(e) => update('theme.wbarRadius', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-woo">Wave off ({t.waveOpacityOff ?? 0.3})</label>
+				<input id="t-woo" type="range" min="0" max="1" step="0.05" value={t.waveOpacityOff ?? 0.3} oninput={(e) => update('theme.waveOpacityOff', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-won">Wave on ({t.waveOpacityOn ?? 0.8})</label>
+				<input id="t-won" type="range" min="0" max="1" step="0.05" value={t.waveOpacityOn ?? 0.8} oninput={(e) => update('theme.waveOpacityOn', +e.currentTarget.value)} />
+			</div>
+		</div>
 	</Card>
 
 	<!-- Blend Modes -->
@@ -312,6 +344,62 @@
 				<select id="t-gbm" value={t.grainBlendMode ?? 'overlay'} onchange={(e) => update('theme.grainBlendMode', e.currentTarget.value)}>
 					{#each BLEND_MODES as m}<option value={m}>{m}</option>{/each}
 				</select>
+			</div>
+		</div>
+	</Card>
+
+	<!-- Hero Glow -->
+	<Card>
+		<h3 class="section-title">Hero Glow (fondo)</h3>
+		<div class="field">
+			<label>
+				<input type="checkbox" checked={t.heroGlowOn === true} onchange={(e) => update('theme.heroGlowOn', e.currentTarget.checked)} />
+				Hero glow activado
+			</label>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-hgi">Intensidad ({t.heroGlowInt ?? 1})</label>
+				<input id="t-hgi" type="range" min="0" max="3" step="0.1" value={t.heroGlowInt ?? 1} oninput={(e) => update('theme.heroGlowInt', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-hgb">Blur ({t.heroGlowBlur ?? 20}px)</label>
+				<input id="t-hgb" type="range" min="0" max="60" step="1" value={t.heroGlowBlur ?? 20} oninput={(e) => update('theme.heroGlowBlur', +e.currentTarget.value)} />
+			</div>
+		</div>
+		<div class="field">
+			<label for="t-hgc">Color glow hero</label>
+			<div class="color-row">
+				<input id="t-hgc" type="color" value={t.heroGlowClr || t.accent || '#dc2626'} oninput={(e) => update('theme.heroGlowClr', e.currentTarget.value)} />
+				<input type="text" value={t.heroGlowClr ?? ''} placeholder="(usa accent)" oninput={(e) => update('theme.heroGlowClr', e.currentTarget.value)} />
+			</div>
+		</div>
+	</Card>
+
+	<!-- License Buttons -->
+	<Card>
+		<h3 class="section-title">Botones de Licencia</h3>
+		<div class="row">
+			<div class="field">
+				<label for="t-lbg">Fondo</label>
+				<div class="color-row">
+					<input id="t-lbg" type="color" value={t.btnLicBg || '#1a1a1a'} oninput={(e) => update('theme.btnLicBg', e.currentTarget.value)} />
+					<input type="text" value={t.btnLicBg ?? ''} placeholder="(default)" oninput={(e) => update('theme.btnLicBg', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-lbc">Texto</label>
+				<div class="color-row">
+					<input id="t-lbc" type="color" value={t.btnLicClr || '#ffffff'} oninput={(e) => update('theme.btnLicClr', e.currentTarget.value)} />
+					<input type="text" value={t.btnLicClr ?? ''} placeholder="(default)" oninput={(e) => update('theme.btnLicClr', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-lbb">Border</label>
+				<div class="color-row">
+					<input id="t-lbb" type="color" value={t.btnLicBdr || '#333333'} oninput={(e) => update('theme.btnLicBdr', e.currentTarget.value)} />
+					<input type="text" value={t.btnLicBdr ?? ''} placeholder="(default)" oninput={(e) => update('theme.btnLicBdr', e.currentTarget.value)} />
+				</div>
 			</div>
 		</div>
 	</Card>

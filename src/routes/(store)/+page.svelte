@@ -709,6 +709,12 @@
 		}
 	}
 
+	@media (max-width: 600px) {
+		.beat-grid {
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		}
+	}
+
 	@media (max-width: 480px) {
 		.beat-grid {
 			grid-template-columns: 1fr;

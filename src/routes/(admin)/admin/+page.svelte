@@ -627,8 +627,9 @@
 		padding: var(--space-6);
 		max-width: 560px;
 		width: 100%;
-		max-height: 80vh;
+		max-height: min(80vh, 80dvh);
 		overflow-y: auto;
+		margin-bottom: env(safe-area-inset-bottom, 0);
 	}
 
 	.modal-title {
