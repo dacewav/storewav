@@ -49,4 +49,17 @@
 
 ---
 
-*Prioridad: #1 → #4 → #2 → #3 → #8*
+## 🟡 HOVER CUSTOMIZATION (Session 5 — MEGA-REBUILD-PLAN)
+
+### Card Hover Effects (global + per-beat)
+- **Problema:** siblingBlur hardcodeado, bug de blur persistente, sin control de tipo de efecto
+- **Solución:** Nueva sección "Hover Global" en CardStyleEditor con:
+  - Tipo de efecto hermanas: blur / dim / scale-down / none
+  - Slider blur (0-10px), opacidad (0-100%), scale (0.8-1), duración
+- **Fix bug:** mouseout handler no limpia bien al mover entre cards
+- **Archivos:** `actions.ts`, `cardStyleEngine.ts`, `CardStyleEditor.svelte`, `+page.svelte` (store)
+- **Spec completa:** `.guide/MEGA-REBUILD-PLAN.md` → Session 5 → Bloque B
+
+---
+
+*Prioridad: #1 → #4 → #2 → #3 → #8 → Hover (Session 5)*

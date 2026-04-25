@@ -86,18 +86,19 @@ Firebase Auth persiste en el browser del usuario (no en el servidor).
 | 6 | Scroll progress bar | ~20 | Baja | 3 |
 | 7 | Image gallery | 301 | Alta | 4 |
 | 8 | Beat presets (card style presets) | 274 | Media | 5 |
+| 9 | **Card hover customization** | — | Media | 5 |
 
 ### ⚪ POLISH (Session 6-8)
 
 | # | Feature | Catalog líneas | Complejidad | Sesión |
 |---|---------|---------------|-------------|--------|
-| 9 | QR generator | ~50 | Baja | 6 |
-| 10 | Feature toggles | ~40 | Baja | 6 |
-| 11 | Changelog | ~60 | Baja | 6 |
-| 12 | Custom emojis | ~80 | Baja | 7 |
-| 13 | Preview resize panel | ~40 | Baja | 7 |
-| 14 | Dead code cleanup | — | Baja | 8 |
-| 15 | Final audit + guide update | — | Baja | 8 |
+| 10 | QR generator | ~50 | Baja | 6 |
+| 11 | Feature toggles | ~40 | Baja | 6 |
+| 12 | Changelog | ~60 | Baja | 6 |
+| 13 | Custom emojis | ~80 | Baja | 7 |
+| 14 | Preview resize panel | ~40 | Baja | 7 |
+| 15 | Dead code cleanup | — | Baja | 8 |
+| 16 | Final audit + guide update | — | Baja | 8 |
 
 ---
 
@@ -301,7 +302,7 @@ Firebase Auth persiste en el browser del usuario (no en el servidor).
 
 ---
 
-### Session 5 — Beat Card Style Presets
+### Session 5 — Beat Card Style Presets + Hover Customization
 **Tiempo**: ~50 min | **Prioridad**: 🟡 IMPORTANTE
 
 #### Bloque A: Card Style Presets
@@ -333,6 +334,50 @@ Firebase Auth persiste en el browser del usuario (no en el servidor).
 - Seleccionar preset "neon" → cards en store cambian
 - Guardar custom preset → aparece en lista
 - Aplicar a beat individual → solo ese beat cambia
+
+#### Bloque B: Card Hover Customization
+**Qué**: Control total sobre qué pasa al hover de las cards — tanto la card hovereada como las hermanas
+
+**Problema actual:**
+- `siblingBlur` action está hardcodeado (blur 3px, opacity 0.5)
+- El blur se queda activo aunque el cursor salga de la card (bug)
+- No hay forma de cambiar el tipo de efecto (blur, dim, scale-down, none)
+- No hay control individual por beat vs global
+
+**Archivos a modificar:**
+- `src/lib/actions.ts` — fix siblingBlur bug + hacer configurable
+- `src/lib/cardStyleEngine.ts` — agregar `siblingHoverEffect`, `siblingHoverBlur`, `siblingHoverOpacity`, `siblingHoverScale`
+- `src/lib/components/CardStyleEditor.svelte` — nueva sección "Hover Global"
+- `src/routes/(store)/+page.svelte` — usar config en vez de hardcodeado
+- `src/lib/stores/settings.ts` — defaults para sibling hover
+
+**Campos nuevos en CardStyleConfig:**
+```typescript
+siblingHoverEffect?: 'blur' | 'dim' | 'scale-down' | 'none';
+siblingHoverBlur?: number;      // px, default: 3
+siblingHoverOpacity?: number;   // 0-1, default: 0.5
+siblingHoverScale?: number;     // e.g. 0.95
+siblingHoverDuration?: string;  // default: '0.3s'
+```
+
+**UI en CardStyleEditor (sección Hover):**
+- Toggle: Efecto hermanas (blur / dim / scale-down / none)
+- Slider: Blur hermanas (0-10px)
+- Slider: Opacidad hermanas (0-100%)
+- Slider: Scale hermanas (0.8-1)
+- Slider: Duración transición (0.1-1s)
+
+**Fix del bug:**
+- `siblingBlur` action: `mouseout` no limpia bien cuando el cursor va de una card a otra
+- Agregar `mouseleave` listener al grid container
+- Track de `activeCard` para evitar re-aplicar blur innecesariamente
+
+**Verificación admin→store:**
+- Cambiar efecto hermanas a "dim" → store aplica dim en vez de blur
+- Cambiar a "none" → no hay efecto hermanas
+- Poner scale-down → hermanas se encogen al hover
+- Mouse sale del grid → blur/dim se limpia inmediatamente
+- Slider de opacidad → hermanas se atenúan más/menos
 
 **Commit + push**
 
