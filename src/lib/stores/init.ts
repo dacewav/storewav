@@ -8,6 +8,7 @@ import { initTheme } from './theme';
 import { initAuth } from './auth';
 import { beats } from './beats';
 import { initConnection } from './connection';
+import { initOfflineQueue, destroyOfflineQueue } from './settings';
 import { dev } from '$app/environment';
 
 let initialized = false;
@@ -24,11 +25,12 @@ export async function initStores() {
 		initTheme(),
 		initAuth(),
 		beats.subscribeFirebase(),
-		initConnection()
+		initConnection(),
+		initOfflineQueue()
 	]);
 
 	if (dev) console.log('[Init] Stores initialized:', results.map((r, i) => {
-		const names = ['settings', 'theme', 'auth', 'beats', 'connection'];
+		const names = ['settings', 'theme', 'auth', 'beats', 'connection', 'offlineQueue'];
 		return `${names[i]}: ${r.status}`;
 	}));
 }
@@ -36,5 +38,6 @@ export async function initStores() {
 export function destroyStores() {
 	settings.unsubscribe();
 	beats.unsubscribe();
+	destroyOfflineQueue();
 	// theme y auth se destruyen en sus propios módulos
 }

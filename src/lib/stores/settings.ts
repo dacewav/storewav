@@ -442,6 +442,58 @@ const redoStack: UndoEntry[] = [];
 export const canUndo = writable(false);
 export const canRedo = writable(false);
 
+/** Offline write queue — stores failed writes for replay on reconnect */
+type PendingWrite = { dotPath: string; value: unknown; timestamp: number };
+const pendingWrites: PendingWrite[] = [];
+let flushScheduled = false;
+
+/** Flush pending writes when back online */
+async function flushPendingWrites() {
+	if (pendingWrites.length === 0 || flushScheduled) return;
+	flushScheduled = true;
+	// Small delay to let connection stabilize
+	await new Promise((r) => setTimeout(r, 500));
+
+	while (pendingWrites.length > 0) {
+		const write = pendingWrites[0];
+		try {
+			await base.update({ [write.dotPath]: write.value } as Partial<SettingsData>);
+			pendingWrites.shift();
+		} catch {
+			// Still offline, stop trying
+			break;
+		}
+	}
+
+	if (pendingWrites.length === 0) {
+		saveStatus.set('saved');
+	}
+	flushScheduled = false;
+}
+
+/** Watch connection state and flush on reconnect */
+let unsubConnection: (() => void) | null = null;
+export async function initOfflineQueue() {
+	try {
+		const { isFullyConnected } = await import('./connection');
+		unsubConnection = isFullyConnected.subscribe((connected) => {
+			if (connected && pendingWrites.length > 0) {
+				flushPendingWrites();
+			}
+		});
+	} catch { /* connection store not available */ }
+}
+
+export function destroyOfflineQueue() {
+	unsubConnection?.();
+	unsubConnection = null;
+}
+
+/** Get pending writes count (for UI indicator) */
+export function getPendingCount(): number {
+	return pendingWrites.length;
+}
+
 /** Helper para actualizar un campo por dot-path (ej: 'heroVisual.glowOn') */
 async function updateField(dotPath: string, value: unknown) {
 	// Get current value for undo
@@ -460,7 +512,7 @@ async function updateField(dotPath: string, value: unknown) {
 		await base.update({ [dotPath]: value } as Partial<SettingsData>);
 		saveStatus.set('saved');
 	} catch (err) {
-		// Retry once on network error
+		// Retry once on network error, then queue for later
 		const isNetwork = err instanceof Error && (
 			err.message.includes('network') || err.message.includes('fetch') || err.message.includes('unavailable')
 		);
@@ -471,7 +523,11 @@ async function updateField(dotPath: string, value: unknown) {
 				await base.update({ [dotPath]: value } as Partial<SettingsData>);
 				saveStatus.set('saved');
 				return;
-			} catch { /* fall through */ }
+			} catch {
+				// Queue for replay when back online
+				pendingWrites.push({ dotPath, value, timestamp: Date.now() });
+				console.warn(`[Settings] Write queued (${pendingWrites.length} pending): ${dotPath}`);
+			}
 		}
 		saveStatus.set('error');
 	}

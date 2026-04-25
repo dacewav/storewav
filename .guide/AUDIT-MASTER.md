@@ -51,11 +51,14 @@ Si un audit de 10 minutos te ahorra 30 minutos de fixes incorrectos, el audit ga
 ## Estado del Proyecto
 
 ```
-Código:    SvelteKit + Cloudflare Pages + Firebase RTDB
+Código:    SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 Repo:      dacewav/storewav
 Firebase:  dacewav-store-3b0f5
-Líneas:    ~14,000 | Archivos: 69 | Commits: 27
+Líneas:    ~15,000 | Archivos: 72 | Commits: 33
 Build:     ✅ 0 errores, 0 warnings (svelte-check)
+Tests:     ✅ 107 pasando (Vitest)
+Deploy:    ✅ https://dacewav-store.daceidk.workers.dev
+Tag:       v1.0.0-solid
 Límite:    50 min por sesión de chat
 ```
 
@@ -87,47 +90,44 @@ Límite:    50 min por sesión de chat
 | Card style engine | ✅ | Glow, filters, border, shadow, hover, shimmer, 40+ animation presets |
 | Actions | ✅ | tilt, parallax, staggerReveal, reveal, siblingBlur, ripple, countUp |
 
-### 🐛 Bugs Activos (Audit v2 — 2026-04-25)
+### 🐛 Bugs Activos (Audit v3 — 2026-04-25)
 
-| Bug | Severidad | Archivo | Línea | Descripción |
-|-----|-----------|---------|-------|-------------|
-| `effect_update_depth_exceeded` | 🔴 CRÍTICO | `(admin)/+layout.svelte` | 37 | `$effect` lee+escribe `lastStatus` → loop infinito. Fix: `untrack()` |
-| XSS `{@html dividerTitle}` | 🔴 CRÍTICO | `(store)/+page.svelte` | 248 | HTML crudo desde Firebase sin sanitizar |
-| `$effect` lee+escribe `autoSaveTimer` | 🟡 ALTO | `BeatEditor.svelte` | 102 | Mismo patrón que bug crítico |
-| Bulk ops sin try/catch | 🟡 ALTO | `admin/beats/+page.svelte` | 76-121 | `bulkSetActive`, `bulkDelete`, `moveBeat`, `handleDuplicate` |
-| `confirmDelete` sin try/catch | 🟡 ALTO | `admin/beats/+page.svelte` | 98 | `deleteBeat` sin manejo de errores |
-| `undoField`/`redoField` sin error handling | 🟡 ALTO | `settings.ts` | — | Stacks se mutan antes del update; si falla, estado inconsistente |
-| `$app/stores` deprecated | 🟡 MED | `(store)/beat/[id]/+page.svelte` | 2 | Usa `$app/stores` en vez de `$app/state` |
-| `as any` en Icon name | 🟡 MED | `(store)/+page.svelte` | 205 | Bypass de type safety |
-| `getComputedStyle` por BeatCard | 🟡 MED | `BeatCard.svelte` | 31 | N cards × `$effect` = N calls. Debería ser shared |
-| `JSON.stringify(beat)` cada keystroke | 🟡 MED | `BeatEditor.svelte` | 103 | Serialización completa como trigger |
-| 14× `Record<string, any>` | 🟡 MED | Admin pages | — | Tipos propios no usados |
-| No offline write queue | 🟡 MED | `settings.ts` | — | Updates fallidos se pierden |
-| Mobile overlay `onkeydown` vacío | 🟡 MED | `(store)/+layout.svelte` | 195 | Supresión a11y sin handler real |
-| Delete modals sin keyboard handler | 🟡 MED | Múltiples | — | `svelte-ignore` en vez de Escape handler |
-| Import errors solo console.log | 🟡 MED | `admin/+page.svelte` | 64 | Errores de import no se muestran al usuario |
-| `alt=""` en player cover | 🟢 BAJA | `Player.svelte` | 45 | Alt vacío en imagen del beat actual |
-| Sin `aria-pressed` en wishlist | 🟢 BAJA | `BeatCard.svelte` | 100 | Botón sin estado pressed accesible |
-| No lazy loading admin | 🟢 BAJA | Admin layout | — | Todas las páginas se cargan eagerly |
-| 40+ keyframes no usados | 🟢 BAJA | `cardStyleEngine.ts` | — | CSS bloat |
-| `AdminSidebar` dead code | 🟢 BAJA | `AdminSidebar.svelte` | — | Componente nunca importado |
-| Version mismatch | 🟢 BAJA | `admin/+page.svelte` | — | Muestra v0.7.0 y v0.6.0 |
+> **Nota**: Audit v3 verificó cada bug del audit v2 contra el código real.
+> 16 de 21 bugs ya estaban fixeados. Se fixearon los 2 restantes.
 
-### ¿Qué falta? (Ver SOLIDIFICATION-PLAN.md)
+| Bug | Severidad | Estado | Detalle |
+|-----|-----------|--------|---------|
+| `effect_update_depth_exceeded` | 🔴 CRÍTICO | ✅ FIXEADO | `untrack()` en admin layout |
+| XSS `{@html dividerTitle}` | 🔴 CRÍTICO | ✅ FIXEADO | `sanitizeHtml()` con whitelist |
+| `$effect` autoSaveTimer loop | 🟡 ALTO | ✅ FIXEADO | Version counter reemplazó JSON.stringify |
+| Bulk ops sin try/catch | 🟡 ALTO | ✅ FIXEADO | try/catch + toast en todas |
+| `confirmDelete` sin try/catch | 🟡 ALTO | ✅ FIXEADO | try/catch + toast |
+| `undoField`/`redoField` | 🟡 ALTO | ✅ FIXEADO | try/catch con revert de stack |
+| `$app/stores` deprecated | 🟡 MED | ✅ FIXEADO | Migrado a `$app/state` |
+| `as any` en Icon name | 🟡 MED | ✅ FIXEADO | Eliminado |
+| `getComputedStyle` por BeatCard | 🟡 MED | ✅ FIXEADO | Eliminado |
+| `JSON.stringify(beat)` trigger | 🟡 MED | ✅ FIXEADO | Version counter |
+| 14× `Record<string, any>` | 🟡 MED | ✅ FIXEADO | 0 instancias |
+| No offline write queue | 🟡 MED | ✅ FIXEADO | Queue + auto-flush on reconnect |
+| Mobile overlay onkeydown vacío | 🟡 MED | ✅ FIXEADO | Escape handler presente |
+| Delete modals sin keyboard | 🟡 MED | ✅ FIXEADO | Escape handler en todos |
+| Import errors solo console.log | 🟡 MED | ✅ FIXEADO | Failed counter + toast con desglose |
+| `alt=""` en player cover | 🟢 BAJA | ✅ FIXEADO | Alt text correcto |
+| Sin `aria-pressed` en wishlist | 🟢 BAJA | ✅ FIXEADO | `aria-pressed={$inWishlist}` |
+| No lazy loading admin | 🟢 BAJA | ⬜ Bajo | SvelteKit code-splitting lo maneja |
+| 40+ keyframes no usados | 🟢 BAJA | ⬜ Bajo | CSS bloat menor, no afecta runtime |
+| `AdminSidebar` dead code | 🟢 BAJA | ✅ FIXEADO | Archivo eliminado |
+| Version mismatch | 🟢 BAJA | ✅ FIXEADO | v1.0.0 consistente |
+
+### ¿Qué falta? (Audit v3 — 2026-04-25)
+
+> Todos los bugs críticos y altos están fixeados. Solo quedan 2 items de baja prioridad.
 
 | Área | Prioridad | Detalle |
 |------|-----------|---------|
-| Fix `effect_update_depth_exceeded` | 🔴 Crítico | `untrack()` en admin layout |
-| Sanitize `{@html dividerTitle}` | 🔴 Crítico | XSS vector desde Firebase |
-| Fix BeatEditor `$effect` loop | 🟡 Alto | `untrack()` para `autoSaveTimer` |
-| Error handling en bulk ops | 🟡 Alto | try/catch + toast feedback |
-| Toast notifications | 🟡 Media | Sistema existe pero no se usa — save errors/successes sin feedback |
-| Plays counter | 🟡 Media | Campo `plays` en Beat type pero nunca se incrementa |
-| Connection state | 🟡 Media | No hay detección de desconexión ni "reconnecting" indicator |
-| Testimonials fix | 🟡 Media | Firebase tiene {name,role,text} — componente soporta ambos pero migration no transforma |
-| globalCardStyle | 🟡 Media | Migration existe pero puede no cubrir todos los casos de Firebase |
-| No tests | 🔴 Alta | 0 tests unitarios, 0 e2e |
-| No CI/CD | 🟡 Media | No hay GitHub Actions, no hay auto-deploy |
+| No lazy loading admin | ⚪ Baja | SvelteKit code-splitting ya lo maneja parcialmente |
+| CSS keyframes no usados | ⚪ Baja | 34 keyframes en cardStyleEngine, no afecta runtime |
+| No CI/CD | ⚪ Baja | No hay GitHub Actions, deploy manual |
 | No PWA | ⚪ Baja | Solo funciona online |
 | No i18n | ⚪ Baja | Todo hardcodeado en español |
 | No rate limiting | ⚪ Baja | Analytics writes sin throttle |

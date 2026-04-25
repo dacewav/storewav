@@ -164,6 +164,7 @@
 		importing = true;
 		let imported = 0;
 		let skipped = 0;
+		let failed = 0;
 
 		try {
 			// Import settings
@@ -190,6 +191,7 @@
 						imported++;
 					} catch (err) {
 						console.error('[Import] Error updating beat:', beatPreview.id, err);
+						failed++;
 					}
 				} else {
 					// New beat
@@ -199,14 +201,20 @@
 						imported++;
 					} catch (err) {
 						console.error('[Import] Error creando beat:', err);
+						failed++;
 					}
 				}
 			}
 
-			const msg = skipped > 0
-				? `Importados: ${imported} · Omitidos: ${skipped}`
-				: `Importados: ${imported} elemento(s)`;
-			toast.success(msg);
+			const parts: string[] = [`Importados: ${imported}`];
+			if (skipped > 0) parts.push(`Omitidos: ${skipped}`);
+			if (failed > 0) parts.push(`Fallidos: ${failed}`);
+			const msg = parts.join(' · ');
+			if (failed > 0) {
+				toast.error(msg);
+			} else {
+				toast.success(msg);
+			}
 		} catch (err) {
 			toast.error(`Error al importar: ${err instanceof Error ? err.message : String(err)}`);
 		} finally {

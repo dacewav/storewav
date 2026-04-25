@@ -1,4 +1,4 @@
-export { settings, saveStatus, canUndo, canRedo, undoField, redoField, type SaveStatus, type SettingsData, type HeroSettings, type LayoutSettings, type LinkItem, type BrandSettings } from './settings';
+export { settings, saveStatus, canUndo, canRedo, undoField, redoField, initOfflineQueue, destroyOfflineQueue, getPendingCount, type SaveStatus, type SettingsData, type HeroSettings, type LayoutSettings, type LinkItem, type BrandSettings } from './settings';
 export { theme, initTheme, destroyTheme, updateThemeField } from './theme';
 export { auth, initAuth, loginWithGoogle, loginAnonymously, logout, destroyAuth, type AuthState, type AuthUser } from './auth';
 export {
