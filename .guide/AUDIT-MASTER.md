@@ -116,6 +116,7 @@ Límite:    50 min por sesión de chat
 | `4568761` | Bloque A: particles reactivity, local state (layout/banner/animations), slider keyboard support |
 | `d5c3bfc` | Bloque B: save status animation, undo toast with field name, pending writes indicator |
 | `d613aea` | Bloque C: live preview split view (Ctrl+P), quick preview buttons (new tab + mobile popup) |
+| `6d7f9d4` | Bloque D: per-element animation timing, cards/buttons animation, custom keyframes editor |
 
 **Deploy:** Pages auto-deploy from Git push
 **Tests:** 107 passing, 0 failures

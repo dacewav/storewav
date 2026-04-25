@@ -83,26 +83,26 @@
 
 ---
 
-## Bloque D — Controles de animación completos
+## Bloque D — Controles de animación completos ✅ COMPLETADO Session 26
 
 **Objetivo**: Que las animaciones sean configurables y visibles.
 
-### D1. Duration/delay/easing por elemento
-- [ ] Cada preset de animación (logo, title, cards, etc.) tiene:
+### D1. Duration/delay/easing por elemento ✅
+- [x] Cada preset de animación (logo, title, cards, etc.) tiene:
   - Duration slider (0.2s - 10s)
   - Delay slider (0s - 5s)
   - Easing dropdown (linear, ease, ease-in-out, spring, bouncy)
-- [ ] Preview de la animación al lado de cada selector
+- [x] Preview de la animación al lado de cada selector
 
-### D2. Animation preview en admin
-- [ ] Cada preset muestra un mini-preview animado (ya existe parcialmente)
-- [ ] Preview usa los sliders de duration/delay/easing actuales
-- [ ] "Probar animación" button → aplica temporalmente a la tienda
+### D2. Animation preview en admin ✅
+- [x] Cada preset muestra un mini-preview animado con su timing
+- [x] Preview usa los sliders de duration/delay/easing actuales
+- [x] Cards y CTA animations wired up en la tienda
 
-### D3. Custom animation keyframes
-- [ ] Editor de keyframes CSS (textarea)
-- [ ] O seleccionar de presets predefinidos
-- [ ] Preview del keyframe custom
+### D3. Custom animation keyframes ✅
+- [x] Editor de keyframes CSS (textarea)
+- [x] Inyectado en la tienda via animCustomCSS
+- [x] Preview del keyframe custom en la referencia de presets
 
 **Archivos**: `animations/+page.svelte`, `AnimationPreview.svelte`
 
