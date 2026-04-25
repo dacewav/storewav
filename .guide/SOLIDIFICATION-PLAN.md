@@ -73,7 +73,7 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 
 ### Tareas
 
-- [ ] **Wire up toast notifications** (20 min)
+- [x] **Wire up toast notifications** (20 min)
   - `saveStatus` → toast automático: "Guardado ✓" / "Error al guardar"
   - Beat created → toast "Beat creado"
   - Beat deleted → toast "Beat eliminado"
@@ -82,20 +82,20 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
   - Seed → toast "8 beats creados"
   - File upload → toast "Archivo subido" / "Error al subir"
 
-- [ ] **Add toast to key user flows** (15 min)
+- [x] **Add toast to key user flows** (15 min)
   - Wishlist toggle → toast "Añadido a favoritos" / "Quitado de favoritos"
   - Copy beat link (si existe) → toast "Link copiado"
   - Theme reset → toast "Tema restaurado"
 
-- [ ] **Toast auto-dismiss + manual dismiss** (5 min)
+- [x] **Toast auto-dismiss + manual dismiss** (5 min)
   - Ya existe en ToastContainer — verificar que funciona
 
-- [ ] **Test all toast flows** (5 min)
+- [x] **Test all toast flows** (5 min)
   - Crear beat → ver toast
   - Borrar beat → ver toast
   - Cambiar theme → ver toast
 
-- [ ] **Build + svelte-check + commit** (5 min)
+- [x] **Build + svelte-check + commit** (5 min)
 
 ### Archivos a tocar
 - `src/lib/stores/settings.ts` — toast en updateField
@@ -106,9 +106,9 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 - `src/routes/(store)/+page.svelte` — toast en wishlist
 
 ### Criterio de éxito
-- [ ] Cada acción del admin muestra un toast con resultado
-- [ ] Toast desaparece automáticamente después de 3s
-- [ ] 0 errores en build + svelte-check
+- [x] Cada acción del admin muestra un toast con resultado
+- [x] Toast desaparece automáticamente después de 3s
+- [x] 0 errores en build + svelte-check
 
 ---
 
@@ -133,9 +133,9 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 - `src/routes/(admin)/admin/+page.svelte` — real stats
 
 ### Criterio de éxito
-- [ ] Plays se incrementan al reproducir un beat
-- [ ] Plays se muestran en la tienda y en admin
-- [ ] Dashboard muestra stats reales (no hardcoded)
+- [x] Plays se incrementan al reproducir un beat
+- [x] Plays se muestran en la tienda y en admin
+- [x] Dashboard muestra stats reales (no hardcoded)
 
 ---
 
@@ -145,7 +145,7 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 
 ### Tareas
 
-- [ ] **Connection state indicator** (15 min)
+- [x] **Connection state indicator** (15 min)
   - Detectar desconexión de Firebase (`.info/connected`)
   - Banner amarillo "Sin conexión — los cambios se guardarán cuando vuelva"
   - Badge en nav: 🟢 Conectado / 🔴 Desconectado
@@ -200,9 +200,9 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 - `src/lib/components/Testimonials.svelte` — verify rendering
 
 ### Criterio de éxito
-- [ ] Testimonials de Firebase se muestran correctamente
-- [ ] globalCardStyle de Firebase se aplica a todas las cards
-- [ ] Per-beat cardStyle overrides funcionan
+- [x] Testimonials de Firebase se muestran correctamente
+- [x] globalCardStyle de Firebase se aplica a todas las cards
+- [x] Per-beat cardStyle overrides funcionan
 
 ---
 
@@ -226,9 +226,9 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 - `src/routes/(store)/+layout.svelte` — mobile nav
 
 ### Criterio de éxito
-- [ ] No horizontal scroll en mobile
-- [ ] Animaciones suaves en mobile (60fps)
-- [ ] Touch targets ≥ 44px
+- [x] No horizontal scroll en mobile
+- [x] Animaciones suaves en mobile (60fps)
+- [x] Touch targets ≥ 44px
 
 ---
 
@@ -253,9 +253,9 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 - `src/lib/components/*.svelte` — aria fixes
 
 ### Criterio de éxito
-- [ ] Lighthouse a11y ≥ 90
-- [ ] Lighthouse SEO ≥ 90
-- [ ] Structured data válido (Google Rich Results test)
+- [x] Lighthouse a11y ≥ 90
+- [x] Lighthouse SEO ≥ 90
+- [x] Structured data válido (Google Rich Results test)
 
 ---
 
@@ -265,28 +265,28 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 
 ### Tareas
 
-- [ ] **Setup testing** (10 min)
+- [x] **Setup testing** (10 min)
   - Instalar Vitest + @sveltejs/kit adapter
   - Configurar `vitest.config.ts`
   - Test runner funciona
 
-- [ ] **Unit tests: stores** (15 min)
+- [x] **Unit tests: stores** (15 min)
   - `beats.ts` — `emptyBeat()` retorna campos correctos
   - `beats.ts` — `createBeat` tiene los campos requeridos
   - `settings.ts` — migration layer transforma flat → nested
   - `settings.ts` — migration layer preserva nested
   - `wishlist.ts` — toggle, has, clear
 
-- [ ] **Unit tests: utilities** (10 min)
+- [x] **Unit tests: utilities** (10 min)
   - `cardStyleEngine.ts` — `mergeCardStyles` mergea correctamente
   - `cardStyleEngine.ts` — `cardStyleToCSS` genera CSS válido
   - `actions.ts` — countUp actualiza valor
 
-- [ ] **Integration test: beat CRUD** (10 min)
+- [x] **Integration test: beat CRUD** (10 min)
   - Test de integración simple: crear beat → verificar estructura
   - Test de integración: duplicar beat → verificar nombre
 
-- [ ] **Build + svelte-check + commit** (5 min)
+- [x] **Build + svelte-check + commit** (5 min)
 
 ### Archivos a crear
 - `vitest.config.ts`
@@ -296,9 +296,9 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 - `src/lib/__tests__/cardStyleEngine.test.ts`
 
 ### Criterio de éxito
-- [ ] `npm test` corre sin errores
-- [ ] ≥ 15 tests pasando
-- [ ] Tests cubren lógica crítica (migration, CRUD, card style)
+- [x] `npm test` corre sin errores
+- [x] ≥ 15 tests (107 actual) pasando
+- [x] Tests cubren lógica crítica (migration, CRUD, card style)
 
 ---
 
@@ -308,23 +308,23 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 
 ### Tareas
 
-- [ ] **Dead code removal** (10 min)
+- [x] **Dead code removal** (10 min)
   - `console.log` → 0 en producción
   - `TODO` / `FIXME` → 0
   - Imports no usados → 0
   - CSS no usado → revisar
 
-- [ ] **Build optimization** (10 min)
+- [x] **Build optimization** (10 min)
   - Bundle size check — no chunks > 100KB
   - Tree shaking verification
   - Lazy loading de admin pages (ya lo hace SvelteKit)
 
-- [ ] **Deploy a Cloudflare** (10 min)
+- [x] **Deploy a Cloudflare** (10 min)
   - Push a GitHub
   - Verificar que Cloudflare Pages build funciona
   - Verificar que el deploy está live
 
-- [ ] **Smoke test en producción** (15 min)
+- [x] **Smoke test en producción** (15 min)
   - Store page carga con beats
   - Beat page carga con datos
   - Player reproduce audio
@@ -334,7 +334,7 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
   - Theme changes se reflejan
   - Mobile responsive
 
-- [ ] **Commit final + tag** (5 min)
+- [x] **Commit final + tag** (5 min)
   - Tag: `v1.0.0-solid`
   - Update CHANGELOG.md
 
@@ -344,10 +344,10 @@ La tienda ya **funciona** — tiene beats, player, admin, auth, theme engine. Pe
 - `CHANGELOG.md` — update
 
 ### Criterio de éxito
-- [ ] Deploy live en Cloudflare
-- [ ] Smoke test pasa en producción
-- [ ] 0 console.log, 0 TODO, 0 FIXME
-- [ ] Tag v1.0.0-solid creado
+- [x] Deploy live en Cloudflare
+- [x] Smoke test pasa en producción
+- [x] 0 console.log (todos son dev-only), 0 TODO, 0 FIXME
+- [x] Tag v1.0.0-solid creado creado
 
 ---
 
