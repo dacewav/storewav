@@ -90,31 +90,29 @@ Límite:    50 min por sesión de chat
 | Card style engine | ✅ | Glow, filters, border, shadow, hover, shimmer, 40+ animation presets |
 | Actions | ✅ | tilt, parallax, staggerReveal, reveal, siblingBlur, ripple, countUp |
 
-### 🐛 Bugs Activos (Audit v4 — 2026-04-25)
+### 🐛 Bugs Activos (Audit v5 — 2026-04-25)
 
-> **Audit v4**: Usuario confirma que los fixes de session 22 NO funcionan.
-> Los bugs se marcaron como fixeados pero no fueron verificados en producción.
+> **Session 23**: Root cause encontrado — Firebase dummy config en deployment. Todos los bugs fixeados.
 
 | Bug | Severidad | Estado | Detalle |
 |-----|-----------|--------|---------|
-| Particles no visibles | 🔴 CRÍTICO | ❌ NO FIXEADO | Migration fix + reactive $effect no resolvieron. Diagnosticar data flow real. |
-| Shimmer diseño | 🟡 MED | ⚠️ NO VERIFICADO | CSS mejorado pero no confirmado visualmente |
-| Save button vacío | 🟡 ALTO | ❌ NO FIXEADO | onSave cambiado a toast pero usuario dice que no hay save |
-| Shortcuts rotos | 🟡 ALTO | ❌ NO FIXEADO | Ctrl+S agregado pero usuario dice que no funcionan |
+| Particles no visibles | 🔴 CRÍTICO | ✅ FIXEADO | Firebase dummy + canvas sizing fix (viewport dims) |
+| Shimmer diseño | 🟡 MED | ✅ VERIFICADO | "Noche Oscura" tiene shimmer overlay activo |
+| Save button vacío | 🟡 ALTO | ✅ FIXEADO | Firebase dummy — writes ahora funcionan |
+| Shortcuts rotos | 🟡 ALTO | ✅ FIXEADO | Firebase dummy — handlers ya estaban correctos |
 | No lazy loading admin | ⚪ BAJA | ⬜ Pendiente | SvelteKit code-splitting |
 | CSS keyframes no usados | ⚪ BAJA | ⬜ Pendiente | 34 keyframes |
 
-### ¿Qué falta? (Audit v4 — 2026-04-25)
+### ¿Qué falta? (Audit v5 — 2026-04-25)
 
-> **Session 22 intentó fixear 4 bugs pero NINGUNO fue confirmado como funcional.**
-> La próxima sesión DEBE diagnosticar en el browser antes de codear.
+> **Session 23 completada**: 4/4 bugs principales fixeados. Firebase config real restaurado.
 
 | Área | Prioridad | Detalle |
 |------|-----------|---------|
-| Particles no visibles | 🔴 Crítico | Diagnosticar si `settingsData.theme.particlesOn` llega como `true` al componente |
-| Shimmer no verificado | 🟡 Medio | Verificar si algún beat tiene shimmer activado y si se ve |
-| Save button no funcional | 🟡 Alto | Verificar si el AdminTopbar renderiza y si onSave se ejecuta |
-| Shortcuts no funcionan | 🟡 Alto | Verificar si `svelte:window onkeydown` captura eventos |
+| ~~Particles~~ | ~~🔴~~ | ✅ Fixeado — canvas sizing + Firebase config |
+| ~~Shimmer~~ | ~~🟡~~ | ✅ Verificado en browser |
+| ~~Save button~~ | ~~🟡~~ | ✅ Fixeado — Firebase config |
+| ~~Shortcuts~~ | ~~🟡~~ | ✅ Fixeado — handlers correctos |
 | No lazy loading admin | ⚪ Baja | SvelteKit code-splitting ya lo maneja parcialmente |
 | CSS keyframes no usados | ⚪ Baja | 34 keyframes en cardStyleEngine, no afecta runtime |
 | No CI/CD | ⚪ Baja | No hay GitHub Actions, deploy manual |
@@ -250,6 +248,13 @@ firebase-deployed-rules.json     Firebase rules (referencia)
 6. **`Record<string, any>` en vez de tipos propios** — Cuando el store ya define tipos (`ThemeSettings`, `HeroVisualSettings`), castear a `any` pierde toda la seguridad. Siempre usar los tipos exportados.
 7. **async sin try/catch en UI** — Toda función async que muestra feedback al usuario necesita try/catch con toast. Sin esto, los errores son silenciosos.
 8. **`svelte-check` no detecta todo** — No detecta: dependency cycles en `$effect`, XSS via `{@html}`, dead code, runtime type mismats. Hay que auditar manualmente.
+
+### Sesión 2026-04-25 (Session 23 — Firebase Config + Particles)
+
+1. **Credenciales dummy en deployment = TODO roto** — Si el build de Cloudflare Workers no tiene las env vars `PUBLIC_FIREBASE_*`, SvelteKit inlinca strings vacías o placeholders. El resultado: Firebase conecta a `dummy.firebaseio.com`, todos los stores usan defaults, nada persiste. Los "bugs" eran síntomas, no causas.
+2. **`position: fixed` + `parentElement.getBoundingClientRect()` = 0x0** — Un canvas con `position: fixed; inset: 0` se posiciona relativo al viewport, pero su `parentElement` puede tener dimensiones 0. Usar `window.innerWidth/Height` directamente.
+3. **Verificar en browser ANTES de codear** — Session 22 intentó fixear 4 bugs con cambios de código, pero el root cause era infraestructura (Firebase config). 10 minutos de diagnóstico en browser habrían salvado horas de código innecesario.
+4. **`CLOUDFLARE_ACCOUNT_ID` necesario** — Wrangler necesita `CLOUDFLARE_ACCOUNT_ID` además de `CLOUDFLARE_API_TOKEN` para evitar el error de `/memberships`.
 
 ---
 

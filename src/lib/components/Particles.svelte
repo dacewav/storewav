@@ -121,9 +121,9 @@
 
 		const resize = () => {
 			const dpr = window.devicePixelRatio || 1;
-			const rect = canvas.parentElement?.getBoundingClientRect() ?? { width: window.innerWidth, height: window.innerHeight };
-			canvasW = rect.width;
-			canvasH = rect.height;
+			// Canvas is position:fixed → always use viewport dimensions
+			canvasW = window.innerWidth;
+			canvasH = window.innerHeight;
 			canvas.width = canvasW * dpr;
 			canvas.height = canvasH * dpr;
 			canvas.style.width = `${canvasW}px`;
@@ -135,9 +135,15 @@
 		resize();
 		draw();
 
+		// Re-check after first paint — canvas may not be laid out yet
+		const rafId = requestAnimationFrame(() => {
+			if (canvasW === 0 || canvasH === 0) resize();
+		});
+
 		window.addEventListener('resize', resize);
 		return () => {
 			cancelAnimationFrame(animId);
+			cancelAnimationFrame(rafId);
 			window.removeEventListener('resize', resize);
 			ctxRef = null;
 		};
