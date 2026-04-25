@@ -162,6 +162,7 @@
 				{ href: '/admin/banner', label: 'Banner', icon: '📢' },
 				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
 				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
+				{ href: '/admin/floating', label: 'Floating', icon: '✨' },
 			]
 		}
 	];

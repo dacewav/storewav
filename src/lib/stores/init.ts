@@ -10,6 +10,7 @@ import { beats } from './beats';
 import { initConnection } from './connection';
 import { initOfflineQueue, destroyOfflineQueue } from './settings';
 import { initThemePresets, destroyThemePresets } from './themePresets';
+import { initFloating, destroyFloating } from './floating';
 import { dev } from '$app/environment';
 
 let initialized = false;
@@ -28,11 +29,12 @@ export async function initStores() {
 		beats.subscribeFirebase(),
 		initConnection(),
 		initOfflineQueue(),
-		initThemePresets()
+		initThemePresets(),
+		initFloating()
 	]);
 
 	if (dev) console.log('[Init] Stores initialized:', results.map((r, i) => {
-		const names = ['settings', 'theme', 'auth', 'beats', 'connection', 'offlineQueue', 'themePresets'];
+		const names = ['settings', 'theme', 'auth', 'beats', 'connection', 'offlineQueue', 'themePresets', 'floating'];
 		return `${names[i]}: ${r.status}`;
 	}));
 }
@@ -42,5 +44,6 @@ export function destroyStores() {
 	beats.unsubscribe();
 	destroyOfflineQueue();
 	destroyThemePresets();
+	destroyFloating();
 	// theme y auth se destruyen en sus propios módulos
 }

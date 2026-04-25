@@ -39,6 +39,7 @@
 		{ id: 'banner', label: 'Banner', description: 'Banner superior', icon: '📢', action: () => goto('/admin/banner'), keywords: ['scroll', 'marquee', 'alert'] },
 		{ id: 'layout', label: 'Layout', description: 'Grid, spacing, nav', icon: '📐', action: () => goto('/admin/layout'), keywords: ['grid', 'cards', 'rows', 'padding', 'nav'] },
 		{ id: 'animations', label: 'Animaciones', description: 'Timing y presets', icon: '🎬', action: () => goto('/admin/animations'), keywords: ['animation', 'duration', 'easing', 'keyframes'] },
+		{ id: 'floating', label: 'Floating Elements', description: 'Elementos flotantes', icon: '✨', action: () => goto('/admin/floating'), keywords: ['floating', 'emoji', 'overlay', 'flotante'] },
 		{ id: 'preview', label: 'Toggle Preview', description: 'Abrir/cerrar preview split', icon: '👁', action: () => { /* handled by parent */ }, keywords: ['preview', 'split', 'vista'] },
 		{ id: 'store', label: 'Abrir Tienda', description: 'En nueva pestaña', icon: '↗️', action: () => window.open('/', '_blank'), keywords: ['store', 'tienda', 'open'] },
 	];

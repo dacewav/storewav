@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { settings, wishlist, auth, player } from '$lib/stores';
-	import { ToastContainer, Player, WishlistPanel, Particles } from '$lib/components';
+	import { settings, wishlist, auth, player, visibleFloatingElements } from '$lib/stores';
+	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 
 	let { children } = $props();
@@ -70,6 +70,9 @@
 
 	// Check if current user is admin
 	let isAdmin = $derived($auth.isAdmin);
+
+	// Floating elements
+	let floatingEls = $derived($visibleFloatingElements);
 
 	// Banner
 	let bannerEnabled = $derived(settingsData?.banner?.enabled && settingsData?.banner?.text && settingsData?.layout?.showBanner !== false);
@@ -307,6 +310,11 @@
 
 <!-- Cursor glow (position set by lerp in JS) -->
 <div id="cursor-glow"></div>
+
+<!-- Floating elements (admin-configured) -->
+{#each floatingEls as flEl (flEl.id)}
+	<FloatingElement element={flEl} />
+{/each}
 
 <!-- Floating orbs -->
 <div class="orb orb1"></div>
