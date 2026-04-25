@@ -25,6 +25,7 @@ tests_total: 107
 **Save/Shortcuts**: ⚠️ Pendiente verificar con admin login.
 
 ### Siguiente sesión: verificar errores restantes
+- 🔴 **Particles z-index**: están saliendo AL FRENTE del contenido (z-index:10). Necesita estar entre fondo y contenido. Probar z-index:1 o mover el canvas dentro del .app antes del contenido.
 - Habilitar Anonymous Auth en Firebase Console para poder testear admin
 - Verificar save button y shortcuts en admin
 - Buscar otros bugs visuales o funcionales
