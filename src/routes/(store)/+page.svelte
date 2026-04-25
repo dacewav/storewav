@@ -3,6 +3,7 @@
 	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { beatsList, genres, settings, player, analytics } from '$lib/stores';
+	import { sanitizeHtml } from '$lib/sanitize';
 	import type { HeroVisualSettings, LabelSettings } from '$lib/stores/settings';
 	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
@@ -155,14 +156,7 @@
 	}
 
 	/** Sanitize HTML from Firebase — only allow safe inline tags */
-	function sanitizeHtml(raw: string): string {
-		if (!raw) return '';
-		// Strip all tags except whitelisted inline formatting
-		return raw.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/gi, (match, tag) => {
-			const allowed = ['em', 'strong', 'b', 'i', 'span'];
-			return allowed.includes(tag.toLowerCase()) ? match : '';
-		});
-	}
+	// sanitizeHtml imported from $lib/sanitize
 </script>
 
 <svelte:head>

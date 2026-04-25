@@ -25,22 +25,22 @@
 
 **Objetivo**: Framework de tests funcionando + tests unitarios para stores críticos.
 
-- [ ] Instalar Vitest + dependencias
-- [ ] Configurar `vitest.config.ts`
-- [ ] Test: `emptyBeat()` retorna campos correctos
-- [ ] Test: `migrateOldData()` transforma flat → nested correctamente
-- [ ] Test: `migrateOldData()` preserva nested existente
-- [ ] Test: `mergeCardStyles()` mergea correctamente
-- [ ] Test: `cardStyleToCSS()` genera CSS válido
-- [ ] Test: `validateBeat()` detecta campos faltantes
-- [ ] `npm test` corre sin errores, ≥ 10 tests pasando
+- [x] Instalar Vitest + dependencias
+- [x] Configurar `vitest.config.ts` con aliases para mocks
+- [x] Test: `emptyBeat()` retorna campos correctos (5 tests)
+- [x] Test: `migrateOldData()` transforma flat → nested correctamente (14 tests)
+- [x] Test: `mergeCardStyles()` mergea correctamente (5 tests)
+- [x] Test: `cardStyleToCSS()` genera CSS válido (5 tests)
+- [x] Test: `validateBeat()` detecta campos faltantes (10 tests)
+- [x] `npm test` corre sin errores, 39 tests pasando ✅
 
-**Archivos a crear**:
+**Archivos creados**:
 - `vitest.config.ts`
 - `src/lib/stores/__tests__/beats.test.ts`
 - `src/lib/stores/__tests__/settings.test.ts`
 - `src/lib/__tests__/cardStyleEngine.test.ts`
 - `src/routes/(admin)/admin/__tests__/import-validation.test.ts`
+- `src/lib/__tests__/mocks/` (firebase, env-public, app-environment)
 
 ---
 
