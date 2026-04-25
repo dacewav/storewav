@@ -1,5 +1,55 @@
 # Changelog
 
+## v1.0.0 — 2026-04-25 (Audit Complete + Integration Tests + A11Y)
+
+### 🧪 Testing
+- **28 integration tests** — Firebase mock completo (database, auth, env)
+- **Settings migration tests** — flat→nested, globalCardStyle, animations, labels, CTA
+- **Beats derived stores tests** — allBeatsList, beatsList, beatsStats, genres, allTags
+- **Beats CRUD tests** — create, update, delete, reorder, swap
+- **Wishlist tests** — toggle, has, clear, isIn reactive
+- **Auth tests** — initAuth, loginAnonymously, logout, destroyAuth
+- **80 tests total, 6 test files, all passing**
+
+### 🔧 Type Safety Overhaul
+- **0 `Record<string, any>`** — replaced with proper types (ThemeSettings, HeroSettings, etc.) in all 7 admin pages + root layout
+- **0 `as any`** — LinkItem.icon typed as IconName, store page uses proper type
+- **`shimmerOpacity` added to CardStyleConfig** — was created by migration but missing from type
+- **`lightMode` added to ThemeSettings** — was used in theme page but missing from type
+- **Package version aligned** — 0.5.0 → 1.0.0
+
+### ♿ Accessibility
+- **11/13 `svelte-ignore` a11y eliminated** — proper ARIA roles, keyboard handlers, tabindex
+- **BeatCard**: removed ignore (already had role=button + keyboard)
+- **Modal.svelte**: removed ignore (already had role=dialog + keyboard)
+- **FileUpload.svelte**: removed ignore (already had role=button + keyboard)
+- **WishlistPanel**: role=button + aria-label
+- **Store layout mobile overlay**: proper Escape handler
+- **Admin layout sidebar**: keyboard + role=button + aria-label
+- **BeatEditor + beats list delete modals**: role=alertdialog + keyboard + aria-modal
+- **Beats [id] wrapper**: role=form + aria-label
+- **Admin import modal**: role=dialog + aria-modal
+- **aria-pressed** on wishlist toggle button
+- **Meaningful alt text** on Player cover + WishlistPanel images
+
+### 🐛 Bug Fixes
+- **`shimmerOpacity` dead field** — added to CardStyleConfig type + cardStyleEngine + BeatCard CSS var
+- **console.log in production** — gated behind `dev` in auth.ts, init.ts
+- **Empty `onkeydown` handler** — replaced with proper Escape handler
+
+### 🧹 Cleanup
+- **AdminSidebar.svelte deleted** — 118 lines dead code (exported but never imported)
+- **`getComputedStyle` → shared store** — cssVars.ts with MutationObserver (1 read vs N)
+- **console.log gated** — auth.ts, init.ts info logs behind `dev` flag
+
+### 📊 Final Status
+- svelte-check: **0 errors, 0 warnings**
+- Tests: **80 passing, 6 files**
+- Build: **clean**
+- svelte-ignore a11y: **2** (legitimate modal overlay backdrops)
+
+---
+
 ## v0.8.0 — 2026-04-25 (Deep Audit v2 — Full Codebase)
 
 ### 🔍 Comprehensive Audit Results (25 findings)
@@ -38,12 +88,14 @@
 - **Version mismatch** — `admin/+page.svelte`: Shows "v0.7.0" in badge but "v0.6.0" in system info.
 
 ### 📋 Fix Priority Order
-1. `untrack()` for `lastStatus` in admin layout (fixes `effect_update_depth_exceeded`)
-2. Sanitize `{@html dividerTitle}` (XSS vector)
-3. `untrack()` for `autoSaveTimer` in BeatEditor
-4. try/catch for all bulk admin operations
-5. Use `$app/state` consistently
-6. Replace `Record<string, any>` with proper types
+> **v1.0.0 update: 19/22 findings fixed.** Remaining: offline write queue, lazy loading admin, unused keyframes (low priority).
+
+1. ✅ `untrack()` for `lastStatus` in admin layout — **FIXED in v0.8.0**
+2. ✅ Sanitize `{@html dividerTitle}` — **FIXED in v0.8.0**
+3. ✅ `untrack()` for `autoSaveTimer` in BeatEditor — **FIXED in v0.8.0** (version counter)
+4. ✅ try/catch for all bulk admin operations — **FIXED in v0.8.0**
+5. ✅ Use `$app/state` consistently — **FIXED in v0.8.0**
+6. ✅ Replace `Record<string, any>` with proper types — **FIXED in v1.0.0**
 
 ---
 
