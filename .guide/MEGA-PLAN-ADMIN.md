@@ -1,17 +1,19 @@
 # 🚀 MEGA-PLAN-ADMIN.md — Admin al Siguiente Nivel
 
 > **Creado: 2026-04-25 (Session 25)**
+> **Última actualización: 2026-04-25 (Session 26)**
 > **Objetivo**: Transformar el admin de "funcional pero básico" a "profesional y placentero de usar"
 > **Regla**: Un bloque por sesión. Verificar en browser. Commit después de cada bloque.
 
 ---
 
-## Estado actual (Session 25)
+## Estado actual (Session 26)
 
-- **~50 controles** de personalización (theme, hero, layout, brand, banner, animations, content)
+- **~80 controles** de personalización con timing per-element
 - **107 tests** passing
-- **Admin funcional** pero UX básica: sliders sin feedback visual, sin preview, sin confirmaciones
-- **Bugs activos**: particles sliders no funcionan, workers domain stale
+- **Admin profesional**: sliders reactivos, keyboard support, save status animado, preview split, undo con field name
+- **Bugs activos**: workers domain stale (código viejo en workers.dev)
+- **Bloques completados**: A ✅ B ✅ C ✅ D ✅ (E, F, G pendientes)
 
 ---
 

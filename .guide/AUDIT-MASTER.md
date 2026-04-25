@@ -1,6 +1,6 @@
 # 📋 AUDIT-MASTER.md — Guía Maestra
 
-> **Última actualización: 2026-04-25 13:02 (Session 26)**
+> **Última actualización: 2026-04-25 13:29 (Session 26)**
 > **Lee este archivo primero en cualquier sesión nueva.**
 
 ---
@@ -54,12 +54,13 @@ Si un audit de 10 minutos te ahorra 30 minutos de fixes incorrectos, el audit ga
 Código:    SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 Repo:      dacewav/storewav
 Firebase:  dacewav-store-3b0f5
-Líneas:    ~15,000 | Archivos: 72 | Commits: 34
+Líneas:    ~15,500 | Archivos: 72 | Commits: 38
 Build:     ✅ 0 errores, 0 warnings (svelte-check)
 Tests:     ✅ 107 pasando (Vitest)
 Deploy:    ✅ https://dacewav-store.pages.dev (Pages auto-deploy)
 Workers:   ⚠️ https://dacewav-store.daceidk.workers.dev (stale, código viejo)
 Tag:       v1.0.0-solid
+Bloques:   A ✅ B ✅ C ✅ D ✅ (E, F, G pendientes)
 Límite:    50 min por sesión de chat
 ```
 
@@ -90,6 +91,10 @@ Límite:    50 min por sesión de chat
 | Labels editables | ✅ | 25+ labels configurables desde admin |
 | Card style engine | ✅ | Glow, filters, border, shadow, hover, shimmer, 40+ animation presets |
 | Actions | ✅ | tilt, parallax, staggerReveal, reveal, siblingBlur, ripple, countUp |
+| Slider keyboard | ✅ | Shift+← → step×10, focus-visible accent on all 36 sliders (Session 26) |
+| Save status UX | ✅ | Animated ✓/pulse/shake+↻, pending badge, undo toast with field name (Session 26) |
+| Live preview | ✅ | Split view (Ctrl+P), open in new tab, mobile popup (Session 26) |
+| Per-element animation | ✅ | Duration/delay/easing per element, cards staggered, custom @keyframes (Session 26) |
 
 ### 🐛 Bugs Activos (Audit v7 — 2026-04-25 Session 25)
 
@@ -104,8 +109,8 @@ Límite:    50 min por sesión de chat
 | Faltan controles básicos | 🟡 ALTO | ✅ FIXEADO | bgColor, surfaceColor, textColor, nav, CTA, container. Session 25. |
 | Workers domain stale | 🔴 CRÍTICO | ⚠️ ACTIVO | Workers domain corre código viejo. Pages deploy OK pero workers no auto-update. |
 | Particles sliders no funcionan | 🔴 CRÍTICO | ✅ FIXEADO | $derived config key para robust reactive tracking. Session 26. |
-| No hay save/cancel buttons | 🟡 ALTO | ⚠️ ACTIVO | Settings auto-guardan pero no hay feedback de estado ni botón explícito. |
-| Admin UX pobre | 🟡 ALTO | ⚠️ ACTIVO | Pocos accionables, sin preview, sin undo visual, sin confirmaciones. |
+| No hay save/cancel buttons | 🟡 ALTO | ✅ FIXEADO | Save status animado (✓/pulse/shake+↻), pending badge, Ctrl+S feedback. Session 26. |
+| Admin UX pobre | 🟡 ALTO | ✅ FIXEADO | Preview split, undo con field name, keyboard support, per-element timing. Session 26. |
 | No lazy loading admin | ⚪ BAJA | ⬜ Pendiente | SvelteKit code-splitting |
 | CSS keyframes no usados | ⚪ BAJA | ⬜ Pendiente | 34 keyframes |
 
@@ -122,17 +127,16 @@ Límite:    50 min por sesión de chat
 **Tests:** 107 passing, 0 failures
 **svelte-check:** 8 env var errors (expected), 0 warnings
 
-### ¿Qué falta? (Audit v8 — 2026-04-25 Session 26)
+### ¿Qué falta? (Audit v9 — 2026-04-25 Session 26)
 
-> **Session 26 completada**: Bloque A completo (A1+A2+A3). Ver MEGA-PLAN-ADMIN.md.
+> **Session 26 completada**: Bloques A+B+C+D. Ver MEGA-PLAN-ADMIN.md para E, F, G.
 
 | Área | Prioridad | Detalle |
 |------|-----------|---------|
 | Workers domain stale | 🔴 | Corre código viejo, no auto-update desde Git |
-| Admin UX general (Bloque B+) | 🟡 | Save status, confirmaciones, undo visual, preview — Ver MEGA-PLAN-ADMIN.md |
-| No lazy loading admin | ⚪ Baja | SvelteKit code-splitting |
-| CSS keyframes no usados | ⚪ Baja | 34 keyframes |
-| No CI/CD | ⚪ Baja | Deploy manual |
+| Bloque E — Brand & Media | 🟡 | Logo crop, color palette generator, font preview |
+| Bloque F — Admin UX polish | 🟡 | Command palette, responsive admin, dark/light admin theme, onboarding |
+| Bloque G — Performance | ⚪ | Lazy loading, debounce, batch Firebase writes, CI/CD |
 | No PWA | ⚪ Baja | Solo online |
 
 ---
