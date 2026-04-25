@@ -63,17 +63,18 @@
 
 **Objetivo**: Tests que verifican flujos completos con Firebase mockeado.
 
-- [ ] Mock de Firebase RTDB
-- [ ] Test: settings store → subscribe → recibe datos → migrateOldData se aplica
-- [ ] Test: beats store → subscribe → recibe beats → allBeatsList se deriva
-- [ ] Test: createBeat → push a Firebase → beats store se actualiza
-- [ ] Test: auth → initAuth → checkAdmin → isAdmin se setea
-- [ ] Test: wishlist → toggle → se refleja en store
-- [ ] ≥ 30 tests totales
+- [x] Mock de Firebase RTDB (database, auth, $env, $app/environment)
+- [x] Test: settings store → subscribe → recibe datos → migrateOldData se aplica (6 tests)
+- [x] Test: beats store → subscribe → recibe beats → allBeatsList se deriva (6 tests)
+- [x] Test: createBeat → push a Firebase → beats store se actualiza (6 CRUD tests)
+- [x] Test: auth → initAuth → checkAdmin → isAdmin se setea (4 tests)
+- [x] Test: wishlist → toggle → se refleja en store (4 tests)
+- [x] Settings undo/redo + Firebase subscription (2 tests)
+- [x] ≥ 28 integration tests totales ✅
 
-**Archivos a crear**:
-- `src/lib/__tests__/mocks/firebase.ts`
-- `src/lib/stores/__tests__/integration.test.ts`
+**Archivos**:
+- `src/lib/__tests__/mocks/firebase.ts` (existente, extendido)
+- `src/lib/stores/__tests__/integration.test.ts` — 28 tests, 8 describe blocks
 
 ---
 

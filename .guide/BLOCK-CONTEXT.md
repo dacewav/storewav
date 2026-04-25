@@ -3,27 +3,32 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 16 — Final Audit
+## Sesión Actual: 17 — Integration Tests (Bloque 3)
 
 ```yaml
-sesión: "16"
-bloque: "6 — Final Audit"
-objetivo: "Comprehensive audit: build, a11y, SEO, security, performance"
+sesión: "17"
+bloque: "3 — Integration Tests (Firebase Mock)"
+objetivo: "Integration tests con Firebase mockeado"
 tiempo: "50 min"
 estado: "COMPLETADO"
-último_commit: "147099d"
+último_commit: "pendiente"
 último_push: "pendiente"
 deploy_url: "https://dacewav-store.daceidk.workers.dev"
+tests_total: 80
+tests_integration: 28
 ```
 
-### Session 16 — Final Audit (50 min)
-1. ✅ Build — clean, no errors
-2. ✅ A11Y — all images have alt, buttons have aria-label or visible text
-3. ✅ SEO — canonical, OG, JSON-LD, robots.txt, sitemap
-4. ✅ Security — sanitizeHtml whitelist, no raw innerHTML, JSON-LD safe
-5. ✅ Performance — decoding="async", lazy loading, touch targets, CSS variables
-6. ✅ Mobile — responsive breakpoints, focus trap, touch-friendly
-7. ⬜ Push
+### Session 17 — Integration Tests (50 min)
+1. ✅ Firebase mock completo (database, auth, $env/static/public, $app/environment)
+2. ✅ Settings migration: flat→nested, globalCardStyle, animations, labels, CTA, realistic payload
+3. ✅ Beats derived stores: allBeatsList, beatsList, beatsStats, genres, allTags, empty state
+4. ✅ Beats CRUD: emptyBeat, createBeat, updateBeat, deleteBeat, reorderBeat, swapBeatOrders
+5. ✅ Wishlist: toggle, has, clear, isIn reactive
+6. ✅ Auth: initAuth, loginAnonymously, logout, destroyAuth
+7. ✅ Settings: Firebase subscription, canUndo/canRedo state
+8. ✅ Build — 0 errores
+9. ✅ 80 tests pasando (6 archivos)
+10. ⬜ Push
 
 ### Session 6 — Accessibility + SEO (50 min)
 1. ⬜ aria-label en botones sin texto
@@ -79,6 +84,7 @@ deploy_url: "https://dacewav-store.daceidk.workers.dev"
 | 14 | 4 — Effects | ✅ |
 | 15 | 5 — Labels + Polish | ✅ |
 | 16 | 6 — Final Audit | ✅ |
+| 17 | 3 — Integration Tests | ✅ |
 
 ## Referencia
 
