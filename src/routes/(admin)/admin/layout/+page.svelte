@@ -9,6 +9,12 @@
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
 	}
+
+	/** Format slider value for display */
+	function fmt(val: unknown, max: number, unit = ''): string {
+		const n = typeof val === 'number' ? val : Number(val) || 0;
+		return unit ? `${Math.min(n, max)}${unit}` : String(Math.min(n, max));
+	}
 </script>
 
 <div class="editor">
@@ -35,7 +41,7 @@
 		<h3 class="section-title">Logo</h3>
 		<div class="row">
 			<div class="field">
-				<label for="ly-ls">Escala ({layout.logoScale ?? 1}x)</label>
+				<label for="ly-ls">Escala ({fmt(layout.logoScale, 3)}x)</label>
 				<input id="ly-ls" type="range" min="0.3" max="3" step="0.1" value={layout.logoScale ?? 1} oninput={(e) => update('layout.logoScale', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
@@ -49,7 +55,7 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="ly-lr">Rotación ({layout.logoRotation ?? 0}°)</label>
+				<label for="ly-lr">Rotación ({fmt(layout.logoRotation, 180)}°)</label>
 				<input id="ly-lr" type="range" min="-180" max="180" step="5" value={layout.logoRotation ?? 0} oninput={(e) => update('layout.logoRotation', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
@@ -81,7 +87,7 @@
 		<h3 class="section-title">Navegación</h3>
 		<div class="row">
 			<div class="field">
-				<label for="ly-nh">Altura nav ({layout.navHeight ?? 64}px)</label>
+				<label for="ly-nh">Altura nav ({fmt(layout.navHeight, 100, "px")})</label>
 				<input id="ly-nh" type="range" min="40" max="100" step="4" value={layout.navHeight ?? 64} oninput={(e) => update('layout.navHeight', +e.currentTarget.value)} />
 			</div>
 			<div class="field">

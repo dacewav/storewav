@@ -12,6 +12,15 @@
 		settings.updateField(path, value);
 	}
 
+	/** Format slider value for display */
+	function fmt(val: unknown, max: number, unit = '', pct = false): string {
+		const n = typeof val === 'number' ? val : Number(val) || 0;
+		const clamped = Math.min(n, max);
+		if (pct) return `${Math.round(clamped * 100)}%`;
+		if (unit) return `${clamped}${unit}`;
+		return String(clamped);
+	}
+
 	// Color segments editor
 	let segments = $derived((hv.segments ?? []) as HeroColorSegment[]);
 
@@ -87,12 +96,12 @@
 				</label>
 			</div>
 			<div class="field">
-				<label for="hv-gi">Intensidad ({hv.glowInt ?? 1})</label>
-				<input id="hv-gi" type="range" min="0" max="3" step="0.1" value={hv.glowInt ?? 1} oninput={(e) => update('heroVisual.glowInt', +e.currentTarget.value)} />
+				<label for="hv-gi">Intensidad ({fmt(hv.glowInt, 3)})</label>
+				<input id="hv-gi" type="range" min="0" max="3" step="0.1" value={Math.min(hv.glowInt ?? 1, 3)} oninput={(e) => update('heroVisual.glowInt', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="hv-gb">Blur ({hv.glowBlur ?? 20}px)</label>
-				<input id="hv-gb" type="range" min="0" max="60" step="1" value={hv.glowBlur ?? 20} oninput={(e) => update('heroVisual.glowBlur', +e.currentTarget.value)} />
+				<label for="hv-gb">Blur ({fmt(hv.glowBlur, 60, "px")})</label>
+				<input id="hv-gb" type="range" min="0" max="60" step="1" value={Math.min(hv.glowBlur ?? 20, 60)} oninput={(e) => update('heroVisual.glowBlur', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
@@ -106,12 +115,12 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="hv-wb">Word blur ({hv.wordBlur ?? 10}px)</label>
-				<input id="hv-wb" type="range" min="0" max="40" step="1" value={hv.wordBlur ?? 10} oninput={(e) => update('heroVisual.wordBlur', +e.currentTarget.value)} />
+				<label for="hv-wb">Word blur ({fmt(hv.wordBlur, 40, "px")})</label>
+				<input id="hv-wb" type="range" min="0" max="40" step="1" value={Math.min(hv.wordBlur ?? 10, 40)} oninput={(e) => update('heroVisual.wordBlur', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="hv-wo">Word opacity ({hv.wordOp ?? 0.35})</label>
-				<input id="hv-wo" type="range" min="0" max="1" step="0.05" value={hv.wordOp ?? 0.35} oninput={(e) => update('heroVisual.wordOp', +e.currentTarget.value)} />
+				<label for="hv-wo">Word opacity ({fmt(hv.wordOp, 1, "", true)})</label>
+				<input id="hv-wo" type="range" min="0" max="1" step="0.05" value={Math.min(hv.wordOp ?? 0.35, 1)} oninput={(e) => update('heroVisual.wordOp', +e.currentTarget.value)} />
 			</div>
 		</div>
 	</Card>
@@ -127,8 +136,8 @@
 				</label>
 			</div>
 			<div class="field">
-				<label for="hv-sw">Grosor ({hv.strokeW ?? 1}px)</label>
-				<input id="hv-sw" type="range" min="0.5" max="5" step="0.5" value={hv.strokeW ?? 1} oninput={(e) => update('heroVisual.strokeW', +e.currentTarget.value)} />
+				<label for="hv-sw">Grosor ({fmt(hv.strokeW, 5, "px")})</label>
+				<input id="hv-sw" type="range" min="0.5" max="5" step="0.5" value={Math.min(hv.strokeW ?? 1, 5)} oninput={(e) => update('heroVisual.strokeW', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="hv-sc">Color stroke</label>
@@ -205,15 +214,15 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="hv-go">Opacidad ({hv.gradOp ?? 0.14})</label>
-				<input id="hv-go" type="range" min="0" max="1" step="0.01" value={hv.gradOp ?? 0.14} oninput={(e) => update('heroVisual.gradOp', +e.currentTarget.value)} />
+				<label for="hv-go">Opacidad ({fmt(hv.gradOp, 1, "", true)})</label>
+				<input id="hv-go" type="range" min="0" max="1" step="0.01" value={Math.min(hv.gradOp ?? 0.14, 1)} oninput={(e) => update('heroVisual.gradOp', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="hv-gw">Ancho ({hv.gradW ?? 80}%)</label>
+				<label for="hv-gw">Ancho ({fmt(hv.gradW, 100)}%)</label>
 				<input id="hv-gw" type="range" min="10" max="100" step="5" value={hv.gradW ?? 80} oninput={(e) => update('heroVisual.gradW', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="hv-gh">Alto ({hv.gradH ?? 60}%)</label>
+				<label for="hv-gh">Alto ({fmt(hv.gradH, 100)}%)</label>
 				<input id="hv-gh" type="range" min="10" max="100" step="5" value={hv.gradH ?? 60} oninput={(e) => update('heroVisual.gradH', +e.currentTarget.value)} />
 			</div>
 		</div>

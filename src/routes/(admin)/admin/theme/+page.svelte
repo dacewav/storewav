@@ -10,6 +10,16 @@
 		settings.updateField(path, value);
 	}
 
+	/** Format slider value for display. pct=true → show as % */
+	function fmt(val: unknown, max: number, unit = '', pct = false): string {
+		const n = typeof val === 'number' ? val : Number(val) || 0;
+		const clamped = Math.min(n, max);
+		if (pct) return `${Math.round(clamped * 100)}%`;
+		if (unit === 's') return `${clamped}s`;
+		if (unit) return `${clamped}${unit}`;
+		return String(clamped);
+	}
+
 	const ANIMS = ['none', 'float', 'pulse', 'bounce', 'spin', 'shake', 'glow', 'slide-up', 'slide-down', 'fade-in'];
 	const PARTICLE_TYPES = ['circle', 'square', 'line', 'text', 'image'];
 	const BLEND_MODES = ['normal', 'screen', 'overlay', 'multiply', 'soft-light', 'hard-light', 'color-dodge'];
@@ -150,12 +160,12 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-gi">Intensidad ({t.glowIntensity ?? 1})</label>
-				<input id="t-gi" type="range" min="0" max="3" step="0.1" value={t.glowIntensity ?? 1} oninput={(e) => update('theme.glowIntensity', +e.currentTarget.value)} />
+				<label for="t-gi">Intensidad ({fmt(t.glowIntensity, 3)})</label>
+				<input id="t-gi" type="range" min="0" max="3" step="0.1" value={Math.min(t.glowIntensity ?? 1, 3)} oninput={(e) => update('theme.glowIntensity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-gb">Blur ({t.glowBlur ?? 20}px)</label>
-				<input id="t-gb" type="range" min="0" max="60" step="1" value={t.glowBlur ?? 20} oninput={(e) => update('theme.glowBlur', +e.currentTarget.value)} />
+				<label for="t-gb">Blur ({fmt(t.glowBlur, 60, 'px')})</label>
+				<input id="t-gb" type="range" min="0" max="60" step="1" value={Math.min(t.glowBlur ?? 20, 60)} oninput={(e) => update('theme.glowBlur', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
@@ -166,7 +176,7 @@
 				</select>
 			</div>
 			<div class="field">
-				<label for="t-gas">Velocidad anim ({t.glowAnimSpeed ?? 2}s)</label>
+				<label for="t-gas">Velocidad anim ({fmt(t.glowAnimSpeed, 10, 's')})</label>
 				<input id="t-gas" type="range" min="0.5" max="10" step="0.5" value={t.glowAnimSpeed ?? 2} oninput={(e) => update('theme.glowAnimSpeed', +e.currentTarget.value)} />
 			</div>
 		</div>
@@ -187,7 +197,7 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-fw">Font weight ({t.fontWeight ?? 400})</label>
+				<label for="t-fw">Font weight ({fmt(t.fontWeight, 900)})</label>
 				<input id="t-fw" type="range" min="100" max="900" step="100" value={t.fontWeight ?? 400} oninput={(e) => update('theme.fontWeight', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
@@ -225,7 +235,7 @@
 		<h3 class="section-title">Efectos de Card</h3>
 		<div class="row">
 			<div class="field">
-				<label for="t-co">Card opacity ({t.cardOpacity ?? 0.85})</label>
+				<label for="t-co">Card opacity ({fmt(t.cardOpacity, 1, "", true)})</label>
 				<input id="t-co" type="range" min="0" max="1" step="0.05" value={t.cardOpacity ?? 0.85} oninput={(e) => update('theme.cardOpacity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
@@ -233,13 +243,13 @@
 				<input id="t-blr" type="range" min="0" max="40" step="1" value={t.blurBg ?? 20} oninput={(e) => update('theme.blurBg', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-gr">Grain ({t.grainOpacity ?? 0.03})</label>
-				<input id="t-gr" type="range" min="0" max="0.2" step="0.01" value={t.grainOpacity ?? 0.03} oninput={(e) => update('theme.grainOpacity', +e.currentTarget.value)} />
+				<label for="t-gr">Grain ({fmt(t.grainOpacity, 0.2, "", true)})</label>
+				<input id="t-gr" type="range" min="0" max="0.2" step="0.01" value={Math.min(t.grainOpacity ?? 0.03, 0.2)} oninput={(e) => update('theme.grainOpacity', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-csi">Shadow intensidad ({t.cardShadowIntensity ?? 0.3})</label>
+				<label for="t-csi">Shadow intensidad ({fmt(t.cardShadowIntensity, 1, "", true)})</label>
 				<input id="t-csi" type="range" min="0" max="1" step="0.05" value={t.cardShadowIntensity ?? 0.3} oninput={(e) => update('theme.cardShadowIntensity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
@@ -257,39 +267,39 @@
 		<h3 class="section-title">Opacidades</h3>
 		<div class="row">
 			<div class="field">
-				<label for="t-no">Nav ({t.navOpacity ?? 0.95})</label>
+				<label for="t-no">Nav ({fmt(t.navOpacity, 1, "", true)})</label>
 				<input id="t-no" type="range" min="0" max="1" step="0.05" value={t.navOpacity ?? 0.95} oninput={(e) => update('theme.navOpacity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-ho">Hero bg ({t.heroBgOpacity ?? 1})</label>
+				<label for="t-ho">Hero bg ({fmt(t.heroBgOpacity, 1, "", true)})</label>
 				<input id="t-ho" type="range" min="0" max="1" step="0.05" value={t.heroBgOpacity ?? 1} oninput={(e) => update('theme.heroBgOpacity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-so">Sections ({t.sectionOpacity ?? 1})</label>
+				<label for="t-so">Sections ({fmt(t.sectionOpacity, 1, "", true)})</label>
 				<input id="t-so" type="range" min="0" max="1" step="0.05" value={t.sectionOpacity ?? 1} oninput={(e) => update('theme.sectionOpacity', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-bio">Beat images ({t.beatImgOpacity ?? 1})</label>
+				<label for="t-bio">Beat images ({fmt(t.beatImgOpacity, 1, "", true)})</label>
 				<input id="t-bio" type="range" min="0" max="1" step="0.05" value={t.beatImgOpacity ?? 1} oninput={(e) => update('theme.beatImgOpacity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-to">Text ({t.textOpacity ?? 1})</label>
+				<label for="t-to">Text ({fmt(t.textOpacity, 1, "", true)})</label>
 				<input id="t-to" type="range" min="0" max="1" step="0.05" value={t.textOpacity ?? 1} oninput={(e) => update('theme.textOpacity', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-bo">Btn normal ({t.btnOpacityNormal ?? 1})</label>
+				<label for="t-bo">Btn normal ({fmt(t.btnOpacityNormal, 1, "", true)})</label>
 				<input id="t-bo" type="range" min="0" max="1" step="0.05" value={t.btnOpacityNormal ?? 1} oninput={(e) => update('theme.btnOpacityNormal', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-bh">Btn hover ({t.btnOpacityHover ?? 1})</label>
+				<label for="t-bh">Btn hover ({fmt(t.btnOpacityHover, 1, "", true)})</label>
 				<input id="t-bh" type="range" min="0" max="1" step="0.05" value={t.btnOpacityHover ?? 1} oninput={(e) => update('theme.btnOpacityHover', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-bgo">Background ({t.bgOpacity ?? 1})</label>
+				<label for="t-bgo">Background ({fmt(t.bgOpacity, 1, "", true)})</label>
 				<input id="t-bgo" type="range" min="0" max="1" step="0.05" value={t.bgOpacity ?? 1} oninput={(e) => update('theme.bgOpacity', +e.currentTarget.value)} />
 			</div>
 		</div>
@@ -314,21 +324,21 @@
 				</div>
 			</div>
 			<div class="field">
-				<label for="t-wh">Alto ({t.wbarHeight ?? 64}px)</label>
+				<label for="t-wh">Alto ({fmt(t.wbarHeight, 100, "px")})</label>
 				<input id="t-wh" type="range" min="48" max="100" step="4" value={t.wbarHeight ?? 64} oninput={(e) => update('theme.wbarHeight', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-wr">Border radius ({t.wbarRadius ?? 0}px)</label>
+				<label for="t-wr">Border radius ({fmt(t.wbarRadius, 30, "px")})</label>
 				<input id="t-wr" type="range" min="0" max="30" step="1" value={t.wbarRadius ?? 0} oninput={(e) => update('theme.wbarRadius', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-woo">Wave off ({t.waveOpacityOff ?? 0.3})</label>
+				<label for="t-woo">Wave off ({fmt(t.waveOpacityOff, 1, "", true)})</label>
 				<input id="t-woo" type="range" min="0" max="1" step="0.05" value={t.waveOpacityOff ?? 0.3} oninput={(e) => update('theme.waveOpacityOff', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-won">Wave on ({t.waveOpacityOn ?? 0.8})</label>
+				<label for="t-won">Wave on ({fmt(t.waveOpacityOn, 1, "", true)})</label>
 				<input id="t-won" type="range" min="0" max="1" step="0.05" value={t.waveOpacityOn ?? 0.8} oninput={(e) => update('theme.waveOpacityOn', +e.currentTarget.value)} />
 			</div>
 		</div>
@@ -364,12 +374,12 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-hgi">Intensidad ({t.heroGlowInt ?? 1})</label>
-				<input id="t-hgi" type="range" min="0" max="3" step="0.1" value={t.heroGlowInt ?? 1} oninput={(e) => update('theme.heroGlowInt', +e.currentTarget.value)} />
+				<label for="t-hgi">Intensidad ({fmt(t.heroGlowInt, 3)})</label>
+				<input id="t-hgi" type="range" min="0" max="3" step="0.1" value={Math.min(t.heroGlowInt ?? 1, 3)} oninput={(e) => update('theme.heroGlowInt', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-hgb">Blur ({t.heroGlowBlur ?? 20}px)</label>
-				<input id="t-hgb" type="range" min="0" max="60" step="1" value={t.heroGlowBlur ?? 20} oninput={(e) => update('theme.heroGlowBlur', +e.currentTarget.value)} />
+				<label for="t-hgb">Blur ({fmt(t.heroGlowBlur, 60, "px")})</label>
+				<input id="t-hgb" type="range" min="0" max="60" step="1" value={Math.min(t.heroGlowBlur ?? 20, 60)} oninput={(e) => update('theme.heroGlowBlur', +e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="field">
@@ -392,7 +402,7 @@
 				</label>
 			</div>
 			<div class="field">
-				<label for="t-hsw">Grosor ({t.heroStrokeW ?? 1}px)</label>
+				<label for="t-hsw">Grosor ({fmt(t.heroStrokeW, 5, "px")})</label>
 				<input id="t-hsw" type="range" min="0.5" max="5" step="0.5" value={t.heroStrokeW ?? 1} oninput={(e) => update('theme.heroStrokeW', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
@@ -444,11 +454,11 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-pc">Cantidad ({t.particlesCount ?? 50})</label>
+				<label for="t-pc">Cantidad ({fmt(t.particlesCount, 200)})</label>
 				<input id="t-pc" type="range" min="10" max="200" step="10" value={t.particlesCount ?? 50} oninput={(e) => update('theme.particlesCount', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-ps">Velocidad ({t.particlesSpeed ?? 1})</label>
+				<label for="t-ps">Velocidad ({fmt(t.particlesSpeed, 5)})</label>
 				<input id="t-ps" type="range" min="0.1" max="5" step="0.1" value={t.particlesSpeed ?? 1} oninput={(e) => update('theme.particlesSpeed', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
@@ -460,11 +470,11 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-psn">Tamaño min ({t.particlesSizeMin ?? 3}px)</label>
+				<label for="t-psn">Tamaño min ({fmt(t.particlesSizeMin, 20, "px")})</label>
 				<input id="t-psn" type="range" min="1" max="20" step="1" value={t.particlesSizeMin ?? 3} oninput={(e) => update('theme.particlesSizeMin', +e.currentTarget.value)} />
 			</div>
 			<div class="field">
-				<label for="t-psx">Tamaño max ({t.particlesSizeMax ?? 8}px)</label>
+				<label for="t-psx">Tamaño max ({fmt(t.particlesSizeMax, 40, "px")})</label>
 				<input id="t-psx" type="range" min="2" max="40" step="1" value={t.particlesSizeMax ?? 8} oninput={(e) => update('theme.particlesSizeMax', +e.currentTarget.value)} />
 			</div>
 		</div>
@@ -477,7 +487,7 @@
 				</div>
 			</div>
 			<div class="field">
-				<label for="t-pop">Opacidad ({t.particlesOpacity ?? 0.3})</label>
+				<label for="t-pop">Opacidad ({fmt(t.particlesOpacity, 1, "", true)})</label>
 				<input id="t-pop" type="range" min="0" max="1" step="0.05" value={t.particlesOpacity ?? 0.3} oninput={(e) => update('theme.particlesOpacity', +e.currentTarget.value)} />
 			</div>
 		</div>
