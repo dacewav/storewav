@@ -5,8 +5,6 @@
  * Dev: Firebase Storage (si está configurado)
  */
 
-import { browser } from '$app/environment';
-
 export type UploadResult = {
 	url: string;
 	path: string;
@@ -24,19 +22,23 @@ export type UploadProgress = {
  * @param file - File object
  * @param onProgress - Callback de progreso
  */
+/**
+ * Upload: POST /api/upload → R2 (con progreso real via XHR)
+ * Siempre intenta R2 primero. Fallback a Firebase solo si falla.
+ */
 export async function uploadFile(
 	path: string,
 	file: File,
 	onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
-	// Detect: if we have an API route, use R2; otherwise fallback to Firebase
-	const useR2 = await isR2Available();
-
-	if (useR2) {
-		return uploadToR2(path, file, onProgress);
+	// Intentar R2 primero
+	try {
+		return await uploadToR2(path, file, onProgress);
+	} catch (r2Err) {
+		console.warn('[Upload] R2 falló, intentando Firebase Storage:', r2Err);
 	}
 
-	// Dev fallback: Firebase Storage
+	// Fallback: Firebase Storage
 	return uploadToFirebase(path, file, onProgress);
 }
 
@@ -154,22 +156,6 @@ async function uploadToFirebase(
 			}
 		);
 	});
-}
-
-/**
- * Check if R2 upload endpoint is available (binding configured)
- */
-async function isR2Available(): Promise<boolean> {
-	if (!browser) return false;
-	try {
-		// Just check if the /api/upload route exists (any response = route exists)
-		const res = await fetch('/api/upload', { method: 'HEAD' });
-		// Any response means the route exists → R2 is available (prod)
-		// Network error or no response → fallback to Firebase (dev)
-		return true;
-	} catch {
-		return false;
-	}
 }
 
 /**
