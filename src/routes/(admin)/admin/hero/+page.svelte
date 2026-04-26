@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card, EmojiInput , Collapsible} from '$lib/components';
-	import type { HeroVisualSettings, HeroSettings, ThemeSettings, HeroColorSegment } from '$lib/stores/settings';
+	import type { HeroVisualSettings, HeroSettings, ThemeSettings, HeroColorSegment, SectionSettings, CtaSettings, LabelSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
 	let hv = $derived((s?.heroVisual ?? {}) as HeroVisualSettings);
 	let hero = $derived((s?.hero ?? {}) as HeroSettings);
 	let theme = $derived((s?.theme ?? {}) as ThemeSettings);
+	let section = $derived((s?.section ?? {}) as SectionSettings);
+	let cta = $derived((s?.cta ?? {}) as CtaSettings);
+	let labels = $derived((s?.labels ?? {}) as LabelSettings);
 
 	let local = $state<Record<string, number>>({});
 	let localInit = false;

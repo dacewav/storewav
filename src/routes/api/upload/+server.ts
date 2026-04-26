@@ -47,7 +47,7 @@ async function verifyFirebaseToken(idToken: string): Promise<{ uid: string; emai
 		const binaryDer = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
 
 		const cryptoKey = await crypto.subtle.importKey(
-			'x509', binaryDer,
+			'x509' as any, binaryDer,
 			{ name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
 			false, ['verify']
 		);
