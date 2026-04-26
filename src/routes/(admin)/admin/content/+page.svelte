@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card, EmojiInput } from '$lib/components';
+	import { Card, EmojiInput, Collapsible } from '$lib/components';
 	import type { SectionSettings, CtaSettings, LabelSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -55,8 +55,7 @@
 	<p class="editor-desc">Textos de secciones, CTAs y labels editables.</p>
 
 	<!-- Section -->
-	<Card>
-		<h3 class="section-title">Sección Catálogo</h3>
+	<Collapsible id="catalog-section" icon="📋" title="Sección Catálogo" open={true}>
 		<div class="field">
 			<label for="sec-title">Título sección</label>
 			<input id="sec-title" type="text" value={section.title ?? ''} oninput={(e) => update('section.title', e.currentTarget.value)} />
@@ -79,11 +78,10 @@
 				oninput={(val) => update('section.dividerSub', val)}
 			/>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Divider Styling -->
-	<Card>
-		<h3 class="section-title">🎨 Estilo del Divider</h3>
+	<Collapsible id="divider-style" icon="🎨" title="Estilo del Divider" open={false}>
 		<p class="field-desc">Personaliza la apariencia del divider entre secciones.</p>
 		<div class="row">
 			<div class="field">
@@ -133,11 +131,10 @@
 				<input id="div-gb" type="range" min="0" max="200" step="5" value={section.dividerGlowBlur ?? 20} oninput={(e) => update('section.dividerGlowBlur', +e.currentTarget.value)} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- CTA -->
-	<Card>
-		<h3 class="section-title">CTA (Call to Action)</h3>
+	<Collapsible id="cta" icon="💬" title="CTA (Call to Action)" open={true}>
 		<div class="field">
 			<label for="cta-t">Título</label>
 			<input id="cta-t" type="text" value={cta.title ?? ''} oninput={(e) => update('cta.title', e.currentTarget.value)} />
@@ -161,19 +158,18 @@
 				<input id="cta-u" type="text" value={cta.buttonUrl ?? ''} oninput={(e) => update('cta.buttonUrl', e.currentTarget.value)} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Labels -->
 	{#each Object.entries(labelGroups) as [group, fields]}
-		<Card>
-			<h3 class="section-title">Labels — {group}</h3>
+		<Collapsible id="labels-{group.toLowerCase().replace(/\s/g, '-')}" icon="🏷️" title="Labels — {group}" open={false}>
 			{#each fields as f}
 				<div class="field">
 					<label for="lbl-{f.key}">{f.label}</label>
 					<input id="lbl-{f.key}" type="text" value={(labels as Record<string, unknown>)[f.key] ?? ''} oninput={(e) => update(`labels.${f.key}`, e.currentTarget.value)} />
 				</div>
 			{/each}
-		</Card>
+		</Collapsible>
 	{/each}
 </div>
 
