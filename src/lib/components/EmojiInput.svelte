@@ -35,6 +35,20 @@
 	let inputEl: HTMLTextAreaElement | HTMLInputElement | undefined = $state();
 	let emojis = $derived($customEmojis);
 
+	// LOCAL VALUE: independent from parent's Firebase-derived prop.
+	// The parent passes `value` from a Firebase store that may not update
+	// if writes fail (e.g. anonymous users without permissions). We manage
+	// our own `inputValue` so the DOM never reverts typed text.
+	let inputValue = $state(value);
+
+	// Sync parent → local ONLY when input is not focused (e.g. Firebase update)
+	$effect(() => {
+		const parentVal = value;
+		if (inputEl && inputEl !== document.activeElement) {
+			inputValue = parentVal;
+		}
+	});
+
 	// Picker state
 	let pickerVisible = $state(false);
 	let pickerQuery = $state('');
@@ -45,15 +59,15 @@
 	let lastSelectTime = $state(0); // debounce double-fire from pointerdown+click
 
 	// Preview — show whenever text has ":" (potential shortcode being typed)
-	let hasShortcodes = $derived(/:[a-zA-Z0-9_+-]+:?/.test(value));
+	let hasShortcodes = $derived(/:[a-zA-Z0-9_+-]+:?/.test(inputValue));
 	let renderedPreview = $derived(
-		hasShortcodes && emojis.length > 0 ? renderEmojis(value, emojis) : ''
+		hasShortcodes && emojis.length > 0 ? renderEmojis(inputValue, emojis) : ''
 	);
 
 	// Show raw text with styled shortcodes when emojis aren't loaded yet
 	let previewHtml = $derived(
 		renderedPreview || (hasShortcodes
-			? value.replace(/:([a-zA-Z0-9_+-]+):?/g, '<span class="emoji-pending">:$1:</span>')
+			? inputValue.replace(/:([a-zA-Z0-9_+-]+):?/g, '<span class="emoji-pending">:$1:</span>')
 			: '')
 	);
 
@@ -66,14 +80,16 @@
 	});
 
 	function handleInput() {
-		oninput?.(value);
+		// Sync local → parent
+		value = inputValue;
+		oninput?.(inputValue);
 		updatePicker();
 	}
 
 	function updatePicker() {
 		if (!inputEl) return;
 		const pos = inputEl.selectionStart ?? 0;
-		const query = findEmojiQuery(value, pos);
+		const query = findEmojiQuery(inputValue, pos);
 
 		if (query && emojis.length > 0) {
 			pickerQuery = query.query;
@@ -104,9 +120,9 @@
 			font: ${style.font}; padding: ${style.padding}; width: ${style.width};
 			line-height: ${style.lineHeight}; border: ${style.border};
 		`;
-		mirror.textContent = value.slice(0, colonPos);
+		mirror.textContent = inputValue.slice(0, colonPos);
 		const span = document.createElement('span');
-		span.textContent = value.slice(colonPos, colonPos + 1) || '.';
+		span.textContent = inputValue.slice(colonPos, colonPos + 1) || '.';
 		mirror.appendChild(span);
 		document.body.appendChild(mirror);
 
@@ -135,10 +151,11 @@
 		// Block blur handler from closing picker during selection
 		isSelecting = true;
 
-		// Save the value and query state BEFORE any reactivity resets them.
-		// The picker fires onpointerdown which prevents blur, but just in case,
-		// we use the saved lastColonPos/lastQueryEnd as primary source.
-		const currentText = value;
+		// CRITICAL: Read from DOM directly, not from `inputValue` state.
+		// The `inputValue` may be stale if the parent's Firebase write failed
+		// (no optimistic update) — but the DOM textarea/input always has the
+		// user's actual typed text.
+		const currentText = inputEl?.value ?? inputValue;
 		const colonPos = lastColonPos;
 		const queryEnd = lastQueryEnd >= 0 ? lastQueryEnd : (inputEl?.selectionStart ?? currentText.length);
 
@@ -163,9 +180,12 @@
 		}
 
 		const result = insertEmoji(currentText, query.end, query, emoji.name);
+		// Update both the local state AND the DOM directly
+		inputValue = result.text;
 		value = result.text;
+		if (inputEl) inputEl.value = result.text;
 		closePicker();
-		oninput?.(value);
+		oninput?.(result.text);
 
 		// Refocus input and set cursor position
 		requestAnimationFrame(() => {
@@ -212,7 +232,7 @@
 {#if multiline}
 	<textarea
 		bind:this={inputEl as HTMLTextAreaElement}
-		bind:value
+		bind:value={inputValue}
 		{placeholder}
 		{rows}
 		{disabled}
@@ -224,7 +244,7 @@
 	<input
 		type="text"
 		bind:this={inputEl as HTMLInputElement}
-		bind:value
+		bind:value={inputValue}
 		{placeholder}
 		{disabled}
 		oninput={handleInput}

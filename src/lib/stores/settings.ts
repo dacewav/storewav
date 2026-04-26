@@ -593,7 +593,9 @@ const DEFAULT: SettingsData = {
 		direction: 'normal',
 		delay: 0,
 		bgColor: '#7f1d1d',
-		textColor: '#ffffff'
+		textColor: '#ffffff',
+		bgImage: '',
+		bgImageOpacity: 0.3
 	},
 	testimonials: [],
 	cardStyle: { glow: 'none', animation: 'none', shimmer: false, hoverScale: 1.02, brightness: 1, saturate: 1 },
