@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card, EmojiInput } from '$lib/components';
 	import type { BannerSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -78,7 +78,12 @@
 		</div>
 		<div class="field">
 			<label for="bn-text">Texto del banner</label>
-			<input id="bn-text" type="text" value={b.text ?? ''} oninput={(e) => update('banner.text', e.currentTarget.value)} placeholder="🔥 Nuevo beat disponible" />
+			<EmojiInput
+				value={b.text ?? ''}
+				placeholder="🔥 Nuevo beat disponible (usa :emoji_name:)"
+				multiline={false}
+				oninput={(val) => update('banner.text', val)}
+			/>
 		</div>
 		<div class="field">
 			<label for="bn-url">URL (opcional, clickeable)</label>

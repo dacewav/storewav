@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { settings, wishlist, auth, player, visibleFloatingElements } from '$lib/stores';
-	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement } from '$lib/components';
+	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis } from '$lib/stores';
+	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 
 	let { children } = $props();
@@ -146,6 +146,9 @@
 	});
 
 	onMount(() => {
+		// Initialize custom emojis for store rendering
+		initCustomEmojis();
+
 		// Loader: wait for settings OR timeout at 3s
 		function startLoaderFade() {
 			if (loaderFading) return;
@@ -223,6 +226,7 @@
 		// Reveal handled by use:reveal action per-element
 
 		return () => {
+			destroyCustomEmojis();
 			clearTimeout(timeout);
 			unsubSettings();
 			mq.removeEventListener('change', onThemeChange);
@@ -277,12 +281,12 @@
 			class="banner-inner"
 			style="color: {bannerTxtClr}; {bannerAnim !== 'static' ? `animation: banner-${bannerAnim} ${bannerDuration} ${bannerEasing} ${bannerDelay}s infinite ${bannerDir}` : ''}"
 			target="_blank" rel="noopener"
-		>{bannerText}</a>
+		><InlineEmoji text={bannerText} /></a>
 	{:else}
 		<div
 			class="banner-inner"
 			style="color: {bannerTxtClr}; {bannerAnim !== 'static' ? `animation: banner-${bannerAnim} ${bannerDuration} ${bannerEasing} ${bannerDelay}s infinite ${bannerDir}` : ''}"
-		>{bannerText}</div>
+		><InlineEmoji text={bannerText} /></div>
 	{/if}
 </div>
 {/if}

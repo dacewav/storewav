@@ -1189,3 +1189,24 @@ body:hover #cursor-glow {
     gap: var(--space-3);
   }
 }
+
+/* ════════════════════════════════════════════
+   INLINE EMOJIS — :shortcode: → <img>
+   ════════════════════════════════════════════ */
+
+.inline-emoji {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.15em;
+  object-fit: contain;
+  margin: 0 0.05em;
+}
+
+.beat-description .inline-emoji,
+.banner-text .inline-emoji,
+.cta-sub .inline-emoji,
+.divider-text .inline-emoji {
+  width: 1.4em;
+  height: 1.4em;
+}

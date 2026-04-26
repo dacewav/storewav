@@ -35,4 +35,7 @@ export { default as AdminOnboard } from './AdminOnboard.svelte';
 export { default as HelpTip } from './HelpTip.svelte';
 export { default as FloatingElement } from './FloatingElement.svelte';
 export { default as ThemePresetCard } from './ThemePresetCard.svelte';
+export { default as EmojiPicker } from './EmojiPicker.svelte';
+export { default as EmojiInput } from './EmojiInput.svelte';
+export { default as InlineEmoji } from './InlineEmoji.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

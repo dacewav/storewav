@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card, EmojiInput } from '$lib/components';
 	import type { SectionSettings, CtaSettings, LabelSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -62,12 +62,22 @@
 			<input id="sec-title" type="text" value={section.title ?? ''} oninput={(e) => update('section.title', e.currentTarget.value)} />
 		</div>
 		<div class="field">
-			<label for="sec-div">Divider título (HTML permitido)</label>
-			<input id="sec-div" type="text" value={section.dividerTitle ?? ''} oninput={(e) => update('section.dividerTitle', e.currentTarget.value)} />
+			<label for="sec-div">Divider título (HTML + emojis permitido)</label>
+			<EmojiInput
+				value={section.dividerTitle ?? ''}
+				placeholder="Todo fire. :fire: Zero filler."
+				multiline={false}
+				oninput={(val) => update('section.dividerTitle', val)}
+			/>
 		</div>
 		<div class="field">
 			<label for="sec-divs">Divider subtítulo</label>
-			<input id="sec-divs" type="text" value={section.dividerSub ?? ''} oninput={(e) => update('section.dividerSub', e.currentTarget.value)} />
+			<EmojiInput
+				value={section.dividerSub ?? ''}
+				placeholder="Subtítulo del divider (usa :emoji_name:)"
+				multiline={false}
+				oninput={(val) => update('section.dividerSub', val)}
+			/>
 		</div>
 	</Card>
 
@@ -80,7 +90,12 @@
 		</div>
 		<div class="field">
 			<label for="cta-s">Subtítulo</label>
-			<input id="cta-s" type="text" value={cta.subtitle ?? ''} oninput={(e) => update('cta.subtitle', e.currentTarget.value)} />
+			<EmojiInput
+				value={cta.subtitle ?? ''}
+				placeholder="Subtítulo del CTA (usa :emoji_name:)"
+				multiline={false}
+				oninput={(val) => update('cta.subtitle', val)}
+			/>
 		</div>
 		<div class="row">
 			<div class="field">

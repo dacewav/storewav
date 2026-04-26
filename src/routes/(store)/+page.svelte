@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials } from '$lib/components';
+	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials, InlineEmoji } from '$lib/components';
+	import { renderEmojis, stripEmojis } from '$lib/emojiUtils';
 	import Icon from '$lib/components/Icon.svelte';
-	import { beatsList, genres, settings, player, analytics } from '$lib/stores';
+	import { beatsList, genres, settings, player, analytics, customEmojis } from '$lib/stores';
 	import { sanitizeHtml } from '$lib/sanitize';
 	import type { HeroVisualSettings, LabelSettings, AnimationSettings } from '$lib/stores/settings';
 	import type { IconName } from '$lib/icons';
@@ -292,11 +293,11 @@
 <div class="section-divider" use:reveal={{}}>
 	<div class="section-divider-text">
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-		{@html sanitizeHtml(dividerTitle)}
+		{@html renderEmojis(sanitizeHtml(dividerTitle), $customEmojis)}
 	</div>
 	{#if dividerSub}
 	<div class="section-divider-sub">
-		{dividerSub}
+		<InlineEmoji text={dividerSub} />
 	</div>
 	{/if}
 </div>
@@ -356,7 +357,7 @@
 <div class="cta-section" use:reveal={{}}>
 	<div class="cta-title">{ctaTitle}</div>
 	{#if ctaSub}
-	<div class="cta-sub">{ctaSub}</div>
+	<div class="cta-sub"><InlineEmoji text={ctaSub} /></div>
 	{/if}
 	<a class="cta-btn{animButtons && animButtons !== 'none' ? ` anim-${animButtons}` : ''}" href={ctaUrl} target="_blank" rel="noopener" style="{animButtons && animButtons !== 'none' ? `animation-duration: ${animButtonsDur}s; animation-delay: ${animButtonsDel}s; animation-timing-function: ${animButtonsEase}` : ''}">
 		<Icon name="whatsapp" size={16} />

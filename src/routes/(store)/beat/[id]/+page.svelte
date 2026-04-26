@@ -3,7 +3,8 @@
 	import { goto } from '$app/navigation';
 	import { beatsList, player, wishlist, settings, analytics, beats as beatsStore, accentRgb as accentRgbStore } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
-	import { Skeleton, Badge, BeatCard, EmptyState } from '$lib/components';
+	import { Skeleton, Badge, BeatCard, EmptyState, InlineEmoji } from '$lib/components';
+	import { stripEmojis } from '$lib/emojiUtils';
 	import Waveform from '$lib/components/Waveform.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { staggerReveal } from '$lib/actions';
@@ -96,9 +97,9 @@
 <svelte:head>
 	{#if beat}
 		<title>{beat.name} — {beat.artist ?? ''}</title>
-		<meta name="description" content={beat.description || `${beat.name}${beat.artist ? ` de ${beat.artist}` : ''}. ${beat.bpm} BPM, ${beat.key}, ${beat.genre}.`} />
+		<meta name="description" content={stripEmojis(beat.description ?? '') || `${beat.name}${beat.artist ? ` de ${beat.artist}` : ''}. ${beat.bpm} BPM, ${beat.key}, ${beat.genre}.`} />
 		<meta property="og:title" content="{beat.name}{beat.artist ? ` — ${beat.artist}` : ''}" />
-		<meta property="og:description" content={beat.description || `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`} />
+		<meta property="og:description" content={stripEmojis(beat.description ?? '') || `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`} />
 		{#if beat.imageUrl}
 			<meta property="og:image" content={beat.imageUrl} />
 		{:else if s?.brand?.logo}
@@ -210,7 +211,7 @@
 
 				<!-- Description -->
 				{#if beat.description}
-					<p class="beat-description">{beat.description}</p>
+					<InlineEmoji text={beat.description} as="p" class="beat-description" />
 				{/if}
 
 				<!-- Platforms -->

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Badge } from '$lib/components';
+	import { Card, Badge, EmojiInput } from '$lib/components';
 	import FileUpload from './FileUpload.svelte';
 	import type { Beat } from '$lib/stores/beats';
 
@@ -310,7 +310,12 @@
 
 			<div class="field">
 				<label for="b-desc">Descripción</label>
-				<textarea id="b-desc" bind:value={beat.description} placeholder="Descripción del beat..." rows="3"></textarea>
+				<EmojiInput
+					bind:value={beat.description}
+					placeholder="Descripción del beat... (usa :emoji_name: para emojis)"
+					rows={3}
+					multiline={true}
+				/>
 			</div>
 
 			<div class="field">
