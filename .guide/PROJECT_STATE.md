@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-26 23:02 (Session 44 — Emoji Fix + FileUpload + Presets + Animations)**
+> **Última actualización: 2026-04-26 23:52 (Session 45 — Security + anim-int + Admin Reorganize)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -8,11 +8,11 @@ repo:          https://github.com/dacewav/storewav.git
 framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
-sesiones:      44 (continuar en sesión 45)
+sesiones:      45 (continuar en sesión 46)
 commits:       72
-tests:         134 passing
+tests:         153 passing
 build:         0 errors, 25 warnings (svelte-check: 0 errors, 25 warnings)
-último_commit: "4cb673c"
+último_commit: "bfc44da"
 
 ## Quick Status
 
@@ -20,7 +20,7 @@ build:         0 errors, 25 warnings (svelte-check: 0 errors, 25 warnings)
 |------|--------|---------|
 | .env | ✅ | Credenciales reales configuradas |
 | Build | ✅ | 0 errors, 0 warnings |
-| Tests | ✅ | 134 passing (Vitest) |
+| Tests | ✅ | 153 passing (Vitest) |
 | svelte-check | ✅ | 0 errors, 25 warnings |
 | Firebase conn | ✅ | Lectura + escritura OK |
 | Settings en DB | ✅ | Flat format, migration layer |
