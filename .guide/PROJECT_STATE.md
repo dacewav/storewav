@@ -40,7 +40,7 @@ build:         0 errors, 0 warnings (svelte-check: 0 errors, 8 warnings)
 
 ## Admin Pages (20)
 
-1. Dashboard (stats, seed, export/import)
+1. Dashboard (stats, seed, export/import) — ahora incluye "Artistas únicos"
 2. Beats (CRUD, bulk, filters, reorder, trash)
 3. Beat Editor (Info, Licencias, Media, Plataformas, Card Style)
 4. Hero (text, glow, stroke, eyebrow, gradient, segments)
@@ -79,10 +79,9 @@ build:         0 errors, 0 warnings (svelte-check: 0 errors, 8 warnings)
 | Prioridad | Item | Detalle |
 |-----------|------|---------|
 | 🔴 | Subir audio/cover | 9 beats sin media — subir desde admin |
-| 🔴 | GitHub Action | Agregar workflow manual + secrets |
-| 🟡 | Firebase rules | Deploy rules para paths nuevos (themePresets, gallery, etc.) |
-| 🟡 | Hero glow default | Color negro → cambiar a accent |
-| ⚪ | Stats productores | Contar artistas únicos |
+| 🔴 | GitHub Action | Workflow creado, falta: (1) agregar desde GitHub UI, (2) configurar secrets |
+| 🟡 | Firebase rules | Rules actualizadas con gallery/ y changelog/ — falta deploy desde Firebase Console |
+| 🟡 | Hero glow default | Código ya usa accent como fallback — verificar Firebase data no tenga #000000 |
 | ⚪ | PWA | No implementado |
 
 ## Commands útiles
