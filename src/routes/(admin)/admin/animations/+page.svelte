@@ -177,18 +177,81 @@
 		</div>
 	</Card>
 
+	<!-- Live Preview: each element with its assigned animation -->
 	<Card>
-		<h3 class="section-title">Referencia de presets</h3>
-		<p class="field-desc">Cada preview usa el timing de su elemento (o el global si no tiene custom).</p>
-		<div class="preset-grid">
+		<h3 class="section-title">👁️ Preview en Vivo</h3>
+		<p class="field-desc">Cada elemento muestra la animación que tiene asignada. Ajustá timing arriba y se actualiza acá.</p>
+		<div class="live-grid">
 			{#each ANIM_ITEMS as item}
-				{#if (anim as Record<string, unknown>)[item.key] && (anim as Record<string, unknown>)[item.key] !== 'none'}
-					<div class="preset-card">
-						<div class="preset-demo anim-{(anim as Record<string, unknown>)[item.key]}" style="animation-duration: {local[item.durKey] ?? local.animDuration ?? 2}s; animation-delay: {local[item.delKey] ?? local.animDelay ?? 0}s; animation-timing-function: {getEase(item.easeKey)}">♦</div>
-						<span class="preset-name">{item.label}</span>
-					</div>
-				{/if}
+				{@const animType = (anim as Record<string, unknown>)[item.key] as string}
+				<div class="live-card">
+					<span class="live-label">{item.icon} {item.label}</span>
+					{#if animType && animType !== 'none'}
+						<div class="live-demo-wrap">
+							{#if item.key === 'animLogo'}
+								<div class="live-logo anim-{animType}" style="animation-duration: {local[item.durKey] ?? local.animDuration ?? 2}s; animation-delay: {local[item.delKey] ?? local.animDelay ?? 0}s; animation-timing-function: {getEase(item.easeKey)}">
+									<span class="live-logo-icon">🎵</span>
+									<span class="live-logo-text">storewav</span>
+								</div>
+							{:else if item.key === 'animTitle'}
+								<div class="live-title anim-{animType}" style="animation-duration: {local[item.durKey] ?? local.animDuration ?? 2}s; animation-delay: {local[item.delKey] ?? local.animDelay ?? 0}s; animation-timing-function: {getEase(item.easeKey)}">
+									Beats que suenan diferente
+								</div>
+							{:else if item.key === 'animCards'}
+								<div class="live-card-row">
+									<div class="live-beat-card anim-{animType}" style="animation-duration: {local[item.durKey] ?? local.animDuration ?? 2}s; animation-delay: {local[item.delKey] ?? local.animDelay ?? 0}s; animation-timing-function: {getEase(item.easeKey)}">
+										<div class="live-beat-img"></div>
+										<div class="live-beat-info">
+											<div class="live-beat-name">Midnight Flow</div>
+											<div class="live-beat-meta">Trap · 140 BPM</div>
+										</div>
+									</div>
+									<div class="live-beat-card anim-{animType}" style="animation-duration: {local[item.durKey] ?? local.animDuration ?? 2}s; animation-delay: {(local[item.delKey] ?? local.animDelay ?? 0) + 0.15}s; animation-timing-function: {getEase(item.easeKey)}">
+										<div class="live-beat-img"></div>
+										<div class="live-beat-info">
+											<div class="live-beat-name">Neon Dreams</div>
+											<div class="live-beat-meta">Lo-Fi · 85 BPM</div>
+										</div>
+									</div>
+								</div>
+							{:else if item.key === 'animButtons'}
+								<div class="live-btn-row">
+									<button class="live-cta anim-{animType}" style="animation-duration: {local[item.durKey] ?? local.animDuration ?? 2}s; animation-delay: {local[item.delKey] ?? local.animDelay ?? 0}s; animation-timing-function: {getEase(item.easeKey)}">
+										💬 Pedir por WhatsApp
+									</button>
+								</div>
+							{:else if item.key === 'animPlayer'}
+								<div class="live-player anim-{animType}" style="animation-duration: {local[item.durKey] ?? local.animDuration ?? 2}s; animation-delay: {local[item.delKey] ?? local.animDelay ?? 0}s; animation-timing-function: {getEase(item.easeKey)}">
+									<div class="live-player-btn">▶</div>
+									<div class="live-player-bars">
+										{#each Array(12) as _, i}
+											<div class="live-bar" style="height: {10 + Math.sin(i * 0.8) * 14}px"></div>
+										{/each}
+									</div>
+									<div class="live-player-time">1:23</div>
+								</div>
+							{:else if item.key === 'animWaveform'}
+								<div class="live-waveform anim-{animType}" style="animation-duration: {local[item.durKey] ?? local.animDuration ?? 2}s; animation-delay: {local[item.delKey] ?? local.animDelay ?? 0}s; animation-timing-function: {getEase(item.easeKey)}">
+									{#each Array(20) as _, i}
+										<div class="live-wave-bar" style="height: {8 + Math.sin(i * 0.6) * 16}px; opacity: {i < 8 ? 0.8 : 0.3}"></div>
+									{/each}
+								</div>
+							{/if}
+						</div>
+						<span class="live-anim-name">{animType}</span>
+					{:else}
+						<div class="live-empty">Sin animación</div>
+					{/if}
+				</div>
 			{/each}
+		</div>
+	</Card>
+
+	<!-- All Presets Gallery -->
+	<Card>
+		<h3 class="section-title">📚 Galería de Presets</h3>
+		<p class="field-desc">Todos los presets disponibles — click para ver la animación en loop.</p>
+		<div class="preset-grid">
 			{#each PRESETS.filter(p => p.value !== 'none') as p}
 				<div class="preset-card">
 					<div class="preset-demo anim-{p.value}">♦</div>
@@ -233,6 +296,45 @@
 	.preset-card { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
 	.preset-demo { font-size: var(--text-2xl); color: var(--accent); }
 	.preset-name { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; }
+
+	/* Live Preview Grid */
+	.live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-3); }
+	.live-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); min-height: 140px; }
+	.live-label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: var(--space-2); }
+	.live-anim-name { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--accent); text-align: center; }
+	.live-empty { font-size: var(--text-xs); color: var(--text-muted); text-align: center; padding: var(--space-4); }
+	.live-demo-wrap { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+
+	/* Logo preview */
+	.live-logo { display: flex; align-items: center; gap: var(--space-2); }
+	.live-logo-icon { font-size: var(--text-xl); }
+	.live-logo-text { font-family: var(--font-display, sans-serif); font-size: var(--text-sm); font-weight: 700; color: var(--text); }
+
+	/* Title preview */
+	.live-title { font-family: var(--font-display, sans-serif); font-size: var(--text-sm); font-weight: 800; color: var(--text); text-align: center; line-height: 1.3; }
+
+	/* Beat cards preview */
+	.live-card-row { display: flex; gap: var(--space-2); }
+	.live-beat-card { width: 80px; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-hover); border: 1px solid var(--border); flex-shrink: 0; }
+	.live-beat-img { width: 100%; height: 50px; background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.3), rgba(var(--accent-rgb), 0.1)); }
+	.live-beat-info { padding: 4px; }
+	.live-beat-name { font-size: 8px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.live-beat-meta { font-size: 7px; color: var(--text-muted); }
+
+	/* Button preview */
+	.live-btn-row { display: flex; justify-content: center; }
+	.live-cta { padding: var(--space-2) var(--space-3); background: var(--accent, #25d366); border: none; border-radius: var(--radius-md); color: #fff; font-size: var(--text-2xs); font-weight: 600; cursor: default; white-space: nowrap; }
+
+	/* Player preview */
+	.live-player { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2); background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); width: 100%; }
+	.live-player-btn { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+	.live-player-bars { display: flex; align-items: flex-end; gap: 2px; flex: 1; height: 24px; }
+	.live-bar { width: 4px; background: var(--accent); border-radius: 1px; min-height: 3px; }
+	.live-player-time { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); flex-shrink: 0; }
+
+	/* Waveform preview */
+	.live-waveform { display: flex; align-items: flex-end; gap: 2px; height: 36px; width: 100%; justify-content: center; }
+	.live-wave-bar { width: 5px; background: var(--accent); border-radius: 1px; min-height: 3px; }
 
 	/* Animation demos */
 	@keyframes anim-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }

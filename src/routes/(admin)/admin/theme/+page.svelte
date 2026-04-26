@@ -132,6 +132,45 @@
 		else input.value = String(newVal);
 		input.dispatchEvent(new Event('input', { bubbles: true }));
 	}
+
+	// Preview panel toggle
+	let showPreview = $state(true);
+
+	/** Build live preview CSS vars from current theme state */
+	let previewStyle = $derived.by(() => {
+		const accent = t.accent || '#dc2626';
+		const bg = t.bgColor || (t.lightMode ? '#f5f5f5' : '#060404');
+		const surface = t.surfaceColor || (t.lightMode ? '#ffffff' : '#0f0808');
+		const text = t.textColor || (t.lightMode ? '#1a1a1a' : '#f5eeee');
+		return [
+			`--accent: ${accent}`,
+			`--accent-rgb: ${hexToRgb(accent)}`,
+			`--pbg: ${bg}`,
+			`--psurface: ${surface}`,
+			`--ptext: ${text}`,
+			`--ptext-secondary: ${t.lightMode ? '#666' : '#999'}`,
+			`--radius: ${t.radiusGlobal ?? 12}px`,
+			`--card-opacity: ${t.cardOpacity ?? 0.85}`,
+			`--blur: ${t.blurBg ?? 20}px`,
+			`--shadow-intensity: ${t.cardShadowIntensity ?? 0.3}`,
+			`--shadow-color: ${t.cardShadowColor || '#000'}`,
+			`--btn-radius: ${t.ctaBtnRadius ?? 12}px`,
+			`--btn-bg: ${t.ctaBtnBg || '#25d366'}`,
+			`--btn-color: ${t.ctaBtnClr || '#fff'}`,
+			`--glow-color: ${t.glowColor || accent}`,
+			`--glow-intensity: ${t.glowIntensity ?? 1}`,
+			`--glow-blur: ${t.glowBlur ?? 20}px`,
+		].join('; ');
+	});
+
+	function hexToRgb(hex: string): string {
+		const h = hex.replace('#', '');
+		if (h.length !== 6) return '220, 38, 38';
+		const r = parseInt(h.substring(0, 2), 16);
+		const g = parseInt(h.substring(2, 4), 16);
+		const b = parseInt(h.substring(4, 6), 16);
+		return `${r}, ${g}, ${b}`;
+	}
 </script>
 
 {#if $settings.loading}
@@ -139,9 +178,17 @@
 		<AdminSkeleton variant="full" />
 	</div>
 {:else}
+<div class="theme-layout">
 <div class="editor">
-	<h2 class="editor-title">🎨 Tema Global</h2>
-	<p class="editor-desc">Colores, glow, tipografía y efectos visuales de toda la tienda.</p>
+	<div class="editor-header">
+		<div>
+			<h2 class="editor-title">🎨 Tema Global</h2>
+			<p class="editor-desc">Colores, glow, tipografía y efectos visuales de toda la tienda.</p>
+		</div>
+		<button class="preview-toggle" onclick={() => showPreview = !showPreview}>
+			{showPreview ? '👁️ Ocultar preview' : '👁️‍🗨️ Ver preview'}
+		</button>
+	</div>
 
 	<!-- Quick Actions -->
 	<Card>
@@ -871,6 +918,55 @@
 		{/if}
 	</Card>
 </div>
+
+<!-- Live Preview Panel -->
+{#if showPreview}
+<div class="preview-panel" style={previewStyle}>
+	<div class="preview-header">
+		<span class="preview-label">📱 Preview en Vivo</span>
+		<button class="preview-close" onclick={() => showPreview = false}>✕</button>
+	</div>
+	<div class="preview-device" style="background: var(--pbg); color: var(--ptext);">
+		<!-- Mini Nav -->
+		<div class="pv-nav" style="background: var(--pbg); border-color: rgba(var(--accent-rgb), 0.2);">
+			<span class="pv-logo" style="color: var(--accent);">🎵 storewav</span>
+			<span class="pv-nav-links">
+				<span>Beats</span>
+				<span style="color: var(--accent);">Contacto</span>
+			</span>
+		</div>
+		<!-- Mini Hero -->
+		<div class="pv-hero">
+			<div class="pv-hero-glow" style="background: var(--glow-color); opacity: {t.glowActive ? 0.3 : 0}; filter: blur({t.glowBlur ?? 20}px);"></div>
+			<h1 class="pv-hero-title" style="font-size: {Math.min((t.fontSize ?? 14) * 1.8, 24)}px;">Beats que suenan diferente</h1>
+			<p class="pv-hero-sub" style="color: var(--ptext-secondary);">Producción profesional para tu próximo hit</p>
+		</div>
+		<!-- Mini Cards -->
+		<div class="pv-section">
+			<h2 class="pv-section-title" style="color: var(--ptext);">Catálogo</h2>
+			<div class="pv-cards">
+				{#each [{name: 'Midnight Flow', genre: 'Trap', bpm: 140}, {name: 'Neon Dreams', genre: 'Lo-Fi', bpm: 85}, {name: 'Dark Matter', genre: 'Drill', bpm: 145}] as beat}
+					<div class="pv-card" style="background: var(--psurface); opacity: {t.cardOpacity ?? 0.85}; border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0, {t.cardShadowIntensity ?? 0.3});">
+						<div class="pv-card-img" style="background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.4), rgba(var(--accent-rgb), 0.1)); border-radius: var(--radius) var(--radius) 0 0;"></div>
+						<div class="pv-card-info">
+							<span class="pv-card-name">{beat.name}</span>
+							<span class="pv-card-meta" style="color: var(--ptext-secondary);">{beat.genre} · {beat.bpm} BPM</span>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+		<!-- Mini CTA Button -->
+		<div class="pv-cta-wrap">
+			<button class="pv-cta" style="background: var(--btn-bg); color: var(--btn-color); border-radius: var(--btn-radius);">
+				💬 Pedir por WhatsApp
+			</button>
+		</div>
+	</div>
+</div>
+{/if}
+
+</div><!-- /theme-layout -->
 {/if}
 
 <style>
@@ -917,4 +1013,46 @@
 	.preset-save-btn { padding: var(--space-2) var(--space-4); min-height: var(--touch-min); background: var(--accent); border: none; border-radius: var(--radius-md); color: #fff; font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all var(--duration-fast); white-space: nowrap; }
 	.preset-save-btn:hover:not(:disabled) { opacity: 0.9; }
 	.preset-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+	/* Theme Layout — Split View */
+	.theme-layout { display: flex; gap: var(--space-4); max-width: 1200px; margin: 0 auto; align-items: flex-start; }
+	.theme-layout > .editor { flex: 1; min-width: 0; max-width: none; margin: 0; }
+
+	.editor-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+	.preview-toggle { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-secondary); font-size: var(--text-xs); cursor: pointer; transition: all var(--duration-fast); white-space: nowrap; min-height: var(--touch-min); }
+	.preview-toggle:hover { border-color: var(--accent); color: var(--text); }
+
+	/* Preview Panel */
+	.preview-panel { position: sticky; top: var(--space-4); width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); }
+	.preview-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) var(--space-3); background: var(--surface-hover); border-bottom: 1px solid var(--border); }
+	.preview-label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+	.preview-close { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm); font-size: 12px; }
+	.preview-close:hover { background: var(--surface-hover); color: var(--text); }
+
+	/* Preview Device Mockup */
+	.preview-device { padding: 0; overflow: hidden; font-size: 10px; line-height: 1.4; }
+	.pv-nav { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid; font-size: 9px; }
+	.pv-logo { font-weight: 700; font-size: 10px; }
+	.pv-nav-links { display: flex; gap: 8px; font-size: 8px; opacity: 0.7; }
+	.pv-hero { position: relative; padding: 16px 10px; text-align: center; overflow: hidden; }
+	.pv-hero-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 80px; border-radius: 50%; pointer-events: none; transition: all 0.3s; }
+	.pv-hero-title { position: relative; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.02em; }
+	.pv-hero-sub { position: relative; font-size: 9px; margin: 0; }
+	.pv-section { padding: 8px 10px; }
+	.pv-section-title { font-size: 11px; font-weight: 700; margin: 0 0 6px; }
+	.pv-cards { display: flex; flex-direction: column; gap: 6px; }
+	.pv-card { overflow: hidden; transition: all 0.2s; }
+	.pv-card-img { height: 36px; }
+	.pv-card-info { padding: 5px 6px; display: flex; flex-direction: column; gap: 1px; }
+	.pv-card-name { font-size: 9px; font-weight: 600; }
+	.pv-card-meta { font-size: 7px; }
+	.pv-cta-wrap { padding: 8px 10px; display: flex; justify-content: center; }
+	.pv-cta { padding: 5px 12px; font-size: 9px; font-weight: 600; border: none; cursor: default; }
+
+	/* Responsive: hide preview on small screens */
+	@media (max-width: 1100px) {
+		.preview-panel { display: none; }
+		.theme-layout { max-width: 800px; }
+		.preview-toggle { display: none; }
+	}
 </style>
