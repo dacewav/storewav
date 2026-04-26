@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings, themePresets as themePresetsStore, savePreset, loadPreset, deletePreset, renamePreset } from '$lib/stores';
-	import { Card, AdminSkeleton, HelpTip } from '$lib/components';
+	import { Card, AdminSkeleton, HelpTip, Collapsible } from '$lib/components';
 	import type { ThemeSettings } from '$lib/stores/settings';
 	import type { ThemePreset } from '$lib/stores';
 
@@ -324,8 +324,42 @@
 	</Card>
 
 	<!-- Colors -->
-	<Card>
-		<h3 class="section-title">Colores <HelpTip text="El accent es el color principal de toda la tienda — botones, links, highlights. El glow es el resplandor que lo acompaña." /></h3>
+	<Collapsible id="colors" icon="🎨" title="Colores" badge={t.accent || '#dc2626'} badgeVariant="active" open={true}>
+		{#snippet preview()}
+			<div class="color-swatches-row">
+				<span class="mini-swatch" style="background:{t.accent || '#dc2626'}" title="Accent"></span>
+				<span class="mini-swatch" style="background:{t.glowColor || t.accent || '#dc2626'}" title="Glow"></span>
+				<span class="mini-swatch" style="background:{t.bgColor || '#060404'}" title="BG"></span>
+				<span class="mini-swatch" style="background:{t.surfaceColor || '#0f0808'}" title="Surface"></span>
+				<span class="mini-swatch" style="background:{t.textColor || '#f5eeee'}" title="Text"></span>
+			</div>
+		{/snippet}
+		<p class="field-desc">El accent es el color principal — botones, links, highlights. El glow es el resplandor.</p>
+		<!-- Live Palette Preview -->
+		<div class="palette-preview">
+			<div class="palette-strip">
+				<div class="palette-chip" style="background:{t.accent || '#dc2626'}">
+					<span class="chip-label">Accent</span>
+					<span class="chip-hex">{t.accent || '#dc2626'}</span>
+				</div>
+				<div class="palette-chip" style="background:{t.glowColor || t.accent || '#dc2626'}">
+					<span class="chip-label">Glow</span>
+					<span class="chip-hex">{t.glowColor || 'auto'}</span>
+				</div>
+				<div class="palette-chip" style="background:{t.bgColor || '#060404'}">
+					<span class="chip-label">BG</span>
+					<span class="chip-hex">{t.bgColor || '#060404'}</span>
+				</div>
+				<div class="palette-chip" style="background:{t.surfaceColor || '#0f0808'}">
+					<span class="chip-label">Surface</span>
+					<span class="chip-hex">{t.surfaceColor || '#0f0808'}</span>
+				</div>
+				<div class="palette-chip" style="background:{t.textColor || '#f5eeee'}; color:{t.bgColor || '#060404'}">
+					<span class="chip-label">Text</span>
+					<span class="chip-hex">{t.textColor || '#f5eeee'}</span>
+				</div>
+			</div>
+		</div>
 		<div class="row">
 			<div class="field">
 				<label for="t-accent">Accent (color principal)</label>
@@ -342,11 +376,19 @@
 				</div>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Background & Surfaces -->
-	<Card>
-		<h3 class="section-title">Fondo y Superficies</h3>
+	<Collapsible id="surfaces" icon="🖼️" title="Fondo y Superficies" open={false}>
+		{#snippet preview()}
+			<div class="mini-surface-preview">
+				<div class="msp-bg" style="background:{t.bgColor || '#060404'}">
+					<div class="msp-card" style="background:{t.surfaceColor || '#0f0808'}; border-color:{t.accent || '#dc2626'}33">
+						<span class="msp-text" style="color:{t.textColor || '#f5eeee'}">Aa</span>
+					</div>
+				</div>
+			</div>
+		{/snippet}
 		<p class="field-desc">Colores base de la tienda. Vacío = default del tema (dark/light).</p>
 		<div class="row">
 			<div class="field">
@@ -373,11 +415,10 @@
 				</div>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Advanced Colors -->
-	<Card>
-		<h3 class="section-title">🎨 Colores Avanzados</h3>
+	<Collapsible id="advanced-colors" icon="🎨" title="Colores Avanzados" open={false}>
 		<p class="field-desc">Colores secundarios, bordes y estados. Vacío = default del tema.</p>
 		<div class="row">
 			<div class="field">
@@ -475,11 +516,10 @@
 				</div>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Transitions & Shadows -->
-	<Card>
-		<h3 class="section-title">⚡ Transiciones y Sombras</h3>
+	<Collapsible id="transitions" icon="⚡" title="Transiciones y Sombras" open={false}>
 		<p class="field-desc">Controla la velocidad de las transiciones y sombras globales.</p>
 		<div class="row">
 			<div class="field">
@@ -520,11 +560,10 @@
 			<label for="t-shlg">Sombra grande</label>
 			<input id="t-shlg" type="text" value={t.shadowLg ?? ''} placeholder="0 8px 32px rgba(0,0,0,0.5)" oninput={(e) => update('theme.shadowLg', e.currentTarget.value)} />
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Navigation -->
-	<Card>
-		<h3 class="section-title">Navegación</h3>
+	<Collapsible id="navigation" icon="🧭" title="Navegación" open={false}>
 		<div class="row">
 			<div class="field">
 				<label for="t-nbc">Color fondo nav</label>
@@ -538,11 +577,10 @@
 				<input id="t-nbl" type="range" min="0" max="40" step="2" value={local.navBlur ?? 24} oninput={(e) => onSlide('theme.navBlur', 'navBlur', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- CTA Button -->
-	<Card>
-		<h3 class="section-title">Botón CTA (WhatsApp)</h3>
+	<Collapsible id="cta-btn" icon="💬" title="Botón CTA (WhatsApp)" open={false}>
 		<div class="row">
 			<div class="field">
 				<label for="t-ctbg">Fondo botón</label>
@@ -572,20 +610,22 @@
 				<input id="t-ctr" type="range" min="0" max="50" step="2" value={local.ctaBtnRadius ?? 12} oninput={(e) => onSlide('theme.ctaBtnRadius', 'ctaBtnRadius', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Container -->
-	<Card>
-		<h3 class="section-title">Contenedor</h3>
+	<Collapsible id="container" icon="📐" title="Contenedor" open={false}>
 		<div class="field">
 			<label for="t-cmw">Ancho máximo ({fmt("containerMaxWidth", 1800, "px")})</label>
 			<input id="t-cmw" type="range" min="800" max="1800" step="50" value={local.containerMaxWidth ?? 1200} oninput={(e) => onSlide('theme.containerMaxWidth', 'containerMaxWidth', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Glow System -->
-	<Card>
-		<h3 class="section-title">Sistema de Glow <HelpTip text="El glow crea un resplandor alrededor de elementos importantes. Actívalo para un look más llamativo, desactívalo para uno más limpio." /></h3>
+	<Collapsible id="glow-system" icon="✨" title="Sistema de Glow" open={true}>
+		{#snippet preview()}
+			<div class="glow-preview-mini" style="box-shadow: 0 0 {(t.glowBlur ?? 20) / 3}px {(t.glowIntensity ?? 1) * 2}px {t.glowColor || t.accent || '#dc2626'}40; border-radius: 50%; width: 20px; height: 20px; background: {t.glowActive ? (t.glowColor || t.accent || '#dc2626') : 'var(--surface)'}; opacity: {t.glowActive ? 1 : 0.3}"></div>
+		{/snippet}
+		<HelpTip text="El glow crea un resplandor alrededor de elementos importantes. Actívalo para un look más llamativo, desactívalo para uno más limpio." />
 		<div class="field">
 			<label>
 				<input type="checkbox" checked={t.glowActive === true} onchange={(e) => update('theme.glowActive', e.currentTarget.checked)} />
@@ -614,11 +654,19 @@
 				<input id="t-gas" type="range" min="0.5" max="10" step="0.5" value={t.glowAnimSpeed ?? 2} oninput={(e) => update('theme.glowAnimSpeed', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Typography -->
-	<Card>
-		<h3 class="section-title">Tipografía</h3>
+	<Collapsible id="typography" icon="🔤" title="Tipografía" open={true}>
+		{#snippet preview()}
+			<span class="typo-preview" style="font-family:'{t.fontDisplay || 'Syne'}',sans-serif; font-weight:{t.fontWeight ?? 400}">Aa</span>
+		{/snippet}
+		<!-- Font Preview -->
+		<div class="font-preview-box" style="font-family:'{t.fontDisplay || 'Syne'}',sans-serif; font-weight:{t.fontWeight ?? 400}; font-size:{Math.min((local.fontSize ?? 14) * 1.5, 28)}px; line-height:{local.lineHeight ?? 1.6}">
+			<span class="fp-display">Display: {t.fontDisplay || 'Syne'}</span>
+			<span class="fp-body" style="font-family:'{t.fontBody || 'DM Mono'}',monospace; font-size:{local.fontSize ?? 14}px">Body: {t.fontBody || 'DM Mono'}</span>
+			<span class="fp-sample" style="font-family:'{t.fontBody || 'DM Mono'}',monospace; font-size:{local.fontSize ?? 14}px">Beats que suenan diferente</span>
+		</div>
 		<div class="row">
 			<div class="field">
 				<label for="t-fd">Font display (Google Font)</label>
@@ -643,11 +691,10 @@
 				<input id="t-flh" type="range" min="1" max="2.5" step="0.1" value={local.lineHeight ?? 1.6} oninput={(e) => onSlide('theme.lineHeight', 'lineHeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Spacing & Shape -->
-	<Card>
-		<h3 class="section-title">Espaciado y Forma</h3>
+	<Collapsible id="spacing" icon="📏" title="Espaciado y Forma" open={false}>
 		<div class="row">
 			<div class="field">
 				<label for="t-r">Border radius ({t.radiusGlobal ?? 12}px)</label>
@@ -662,11 +709,15 @@
 				<input id="t-bg" type="range" min="4" max="40" step="2" value={local.beatGap ?? 16} oninput={(e) => onSlide('theme.beatGap', 'beatGap', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Card Effects -->
-	<Card>
-		<h3 class="section-title">Efectos de Card</h3>
+	<Collapsible id="card-effects" icon="🃏" title="Efectos de Card" open={true}>
+		{#snippet preview()}
+			<div class="mini-card-preview" style="opacity:{local.cardOpacity ?? 0.85}; backdrop-filter:blur({local.blurBg ?? 20}px); box-shadow:0 4px 12px rgba(0,0,0,{local.cardShadowIntensity ?? 0.3}); border-radius:{local.radiusGlobal ?? 12}px; background:{t.surfaceColor || '#0f0808'}; width:44px; height:32px; border:1px solid {t.accent || '#dc2626'}33">
+				<div style="width:100%;height:8px;background:linear-gradient(90deg,{t.accent || '#dc2626'}66,transparent);border-radius:{local.radiusGlobal ?? 12}px {local.radiusGlobal ?? 12}px 0 0"></div>
+			</div>
+		{/snippet}
 		<div class="row">
 			<div class="field">
 				<label for="t-co">Card opacity ({fmt("cardOpacity", 1, "", true)})</label>
@@ -694,11 +745,10 @@
 				</div>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Opacities -->
-	<Card>
-		<h3 class="section-title">Opacidades</h3>
+	<Collapsible id="opacities" icon="🔲" title="Opacidades" open={false}>
 		<div class="row">
 			<div class="field">
 				<label for="t-no">Nav ({fmt("navOpacity", 1, "", true)})</label>
@@ -737,11 +787,10 @@
 				<input id="t-bgo" type="range" min="0" max="1" step="0.05" value={local.bgOpacity ?? 1} oninput={(e) => onSlide('theme.bgOpacity', 'bgOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Player Bar -->
-	<Card>
-		<h3 class="section-title">Player Bar</h3>
+	<Collapsible id="player-bar" icon="🎵" title="Player Bar" open={false}>
 		<div class="row">
 			<div class="field">
 				<label for="t-wc">Color barra</label>
@@ -776,11 +825,10 @@
 				<input id="t-won" type="range" min="0" max="1" step="0.05" value={local.waveOpacityOn ?? 0.8} oninput={(e) => onSlide('theme.waveOpacityOn', 'waveOpacityOn', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Blend Modes -->
-	<Card>
-		<h3 class="section-title">Blend Modes</h3>
+	<Collapsible id="blend-modes" icon="🎨" title="Blend Modes" open={false}>
 		<div class="row">
 			<div class="field">
 				<label for="t-obm">Orbs blend</label>
@@ -795,11 +843,10 @@
 				</select>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Hero Glow -->
-	<Card>
-		<h3 class="section-title">Hero Glow (fondo)</h3>
+	<Collapsible id="hero-glow" icon="💫" title="Hero Glow" open={false}>
 		<div class="field">
 			<label>
 				<input type="checkbox" checked={t.heroGlowOn === true} onchange={(e) => update('theme.heroGlowOn', e.currentTarget.checked)} />
@@ -823,11 +870,10 @@
 				<input type="text" value={t.heroGlowClr ?? ''} placeholder="(usa accent)" oninput={(e) => update('theme.heroGlowClr', e.currentTarget.value)} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Hero Stroke -->
-	<Card>
-		<h3 class="section-title">Hero Stroke (outline título)</h3>
+	<Collapsible id="hero-stroke" icon="✏️" title="Hero Stroke" open={false}>
 		<div class="row">
 			<div class="field">
 				<label>
@@ -847,11 +893,10 @@
 				</div>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- License Buttons -->
-	<Card>
-		<h3 class="section-title">Botones de Licencia</h3>
+	<Collapsible id="license-btns" icon="🔘" title="Botones de Licencia" open={false}>
 		<div class="row">
 			<div class="field">
 				<label for="t-lbg">Fondo</label>
@@ -875,11 +920,10 @@
 				</div>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Particles -->
-	<Card>
-		<h3 class="section-title">✨ Partículas</h3>
+	<Collapsible id="particles" icon="✨" title="Partículas" open={true}>
 		<p class="field-desc">Efecto de partículas flotantes sobre el fondo de la tienda.</p>
 
 		<!-- Toggle + Preview side by side -->
@@ -1016,18 +1060,16 @@
 				{/if}
 			</div>
 		{/if}
-	</Card>
+	</Collapsible>
 	<!-- Hero Height -->
-	<Card>
-		<h3 class="section-title">🏠 Hero</h3>
+	<Collapsible id="hero-height" icon="🏠" title="Hero" open={false}>
 		<div class="field">
 			<label for="t-hmh">Altura mínima ({t.heroMinHeight ?? 60}vh)</label>
 			<input id="t-hmh" type="range" min="30" max="100" step="1" value={t.heroMinHeight ?? 60} oninput={(e) => update('theme.heroMinHeight', +e.currentTarget.value)} />
 		</div>
-	</Card>
+	</Collapsible>
 	<!-- Section Titles -->
-	<Card>
-		<h3 class="section-title">📝 Títulos de Sección</h3>
+	<Collapsible id="section-titles" icon="📝" title="Títulos de Sección" open={false}>
 		<p class="field-desc">Personaliza la apariencia de los títulos de sección (Destacados, Catálogo, etc.)</p>
 		<div class="field">
 			<label for="t-sts">Tamaño</label>
@@ -1058,10 +1100,9 @@
 				<input type="text" value={t.sectionTitleColor ?? ''} placeholder="(default)" oninput={(e) => update('theme.sectionTitleColor', e.currentTarget.value)} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 	<!-- Background Pattern -->
-	<Card>
-		<h3 class="section-title">🎨 Fondo</h3>
+	<Collapsible id="bg-pattern" icon="🎨" title="Fondo" open={false}>
 		<div class="field">
 			<label for="t-bgp">Patrón de fondo</label>
 			<select id="t-bgp" onchange={(e) => update('theme.bgPattern', e.currentTarget.value)}>
@@ -1084,10 +1125,9 @@
 				<input id="t-bgo" type="range" min="0" max="0.3" step="0.01" value={t.bgPatternOpacity ?? 0.05} oninput={(e) => update('theme.bgPatternOpacity', +e.currentTarget.value)} />
 			</div>
 		{/if}
-	</Card>
+	</Collapsible>
 	<!-- Scrollbar -->
-	<Card>
-		<h3 class="section-title">📏 Scrollbar</h3>
+	<Collapsible id="scrollbar" icon="📏" title="Scrollbar" open={false}>
 		<div class="field">
 			<label>
 				<input type="checkbox" checked={t.scrollbarThin ?? false} onchange={(e) => update('theme.scrollbarThin', e.currentTarget.checked)} />
@@ -1101,10 +1141,9 @@
 				<input type="text" value={t.scrollbarColor ?? ''} placeholder="(default)" oninput={(e) => update('theme.scrollbarColor', e.currentTarget.value)} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 	<!-- Custom CSS -->
-	<Card>
-		<h3 class="section-title">CSS Personalizado</h3>
+	<Collapsible id="custom-css" icon="💻" title="CSS Personalizado" open={false}>
 		<p class="field-desc">Inyecta CSS custom que se aplica a toda la tienda. Úsalo para overrides avanzados.</p>
 		<div class="field">
 			<label for="t-css">CSS</label>
@@ -1116,11 +1155,10 @@
 				rows={6}
 			></textarea>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Theme Presets -->
-	<Card>
-		<h3 class="section-title">💾 Presets de Tema</h3>
+	<Collapsible id="presets" icon="💾" title="Presets de Tema" open={false}>
 		<p class="field-desc">Guarda y carga configuraciones completas de tema.</p>
 
 		<!-- Save current as preset -->
@@ -1167,7 +1205,7 @@
 		{:else}
 			<p class="field-desc">No hay presets guardados. Guarda tu tema actual para poder cargarlo después.</p>
 		{/if}
-	</Card>
+	</Collapsible>
 </div>
 
 <!-- Live Preview Panel -->
@@ -1221,6 +1259,33 @@
 {/if}
 
 <style>
+	/* === Admin UX: Visual Preview Elements === */
+	.color-swatches-row { display: flex; gap: 3px; align-items: center; }
+	.mini-swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0; }
+
+	.palette-preview { margin-bottom: var(--space-4); padding: var(--space-3); background: var(--surface-hover); border-radius: var(--radius-md); border: 1px solid var(--border); }
+	.palette-strip { display: flex; gap: 2px; border-radius: var(--radius-sm); overflow: hidden; }
+	.palette-chip { flex: 1; padding: var(--space-2) var(--space-3); display: flex; flex-direction: column; gap: 2px; min-height: 48px; justify-content: center; }
+	.chip-label { font-family: var(--font-mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.8; }
+	.chip-hex { font-family: var(--font-mono); font-size: 9px; opacity: 0.9; word-break: break-all; }
+
+	.mini-surface-preview { width: 44px; height: 32px; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); }
+	.msp-bg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 4px; }
+	.msp-card { width: 100%; height: 100%; border-radius: 3px; border: 1px solid; display: flex; align-items: center; justify-content: center; }
+	.msp-text { font-size: 10px; font-weight: 700; }
+
+	.typo-preview { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1; }
+
+	.font-preview-box { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); background: var(--surface-hover); border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: var(--space-4); }
+	.fp-display { font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+	.fp-body { color: var(--text-secondary); }
+	.fp-sample { color: var(--accent); font-weight: 500; margin-top: var(--space-1); }
+
+	.mini-card-preview { border: 1px solid var(--border); overflow: hidden; }
+
+	.glow-preview-mini { transition: all 0.3s; }
+
+	/* === Existing styles === */
 	.editor { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }
 	.editor-title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
 	.editor-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; }
