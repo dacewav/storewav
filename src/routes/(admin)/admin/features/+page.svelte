@@ -39,7 +39,7 @@
 	<title>Features — Admin</title>
 </svelte:head>
 
-<div class="features-page">
+<div class="features-page" role="form" aria-label="Editor de features">
 	<div class="page-header">
 		<div>
 			<h2 class="page-title">⚡ Feature Toggles</h2>
@@ -133,4 +133,9 @@
 	.info-card ul { margin: 0; padding-left: var(--space-5); }
 	.info-card li { margin-bottom: var(--space-1); }
 	.info-card code { font-family: var(--font-mono); font-size: var(--text-xs); background: var(--surface2); padding: 1px 5px; border-radius: 3px; }
+
+	@media (max-width: 768px) {
+		.feature-grid { grid-template-columns: 1fr; }
+		.bulk-actions { flex-direction: column; }
+	}
 </style>

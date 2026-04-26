@@ -100,7 +100,7 @@
 	}
 </script>
 
-<div class="editor">
+<div class="editor" role="form" aria-label="Editor de animations">
 	<h2 class="editor-title">🎬 Animaciones</h2>
 	<p class="editor-desc">Asigna animaciones preset a cada elemento de la tienda. <HelpTip text="Cada elemento (hero, logo, cards, botones) puede tener una animación diferente. 'none' = sin animación. Los presets usan CSS @keyframes con loop infinito." /></p>
 
@@ -352,4 +352,13 @@
 	.anim-slide-up { animation: anim-slide-up 1s ease-out infinite; }
 	.anim-slide-down { animation: anim-slide-down 1s ease-out infinite; }
 	.anim-fade-in { animation: anim-fade-in 2s ease-in-out infinite; }
+
+	@media (max-width: 768px) {
+		.editor-title { font-size: var(--text-xl); }
+		.anim-row { flex-direction: column; align-items: stretch; gap: var(--space-2); }
+		.timing-row { flex-direction: column; gap: var(--space-2); }
+		.live-grid { grid-template-columns: 1fr; }
+		.preset-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+		.row { flex-direction: column; }
+	}
 </style>

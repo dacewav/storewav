@@ -122,7 +122,7 @@
 	}
 </script>
 
-<div class="editor">
+<div class="editor" role="form" aria-label="Editor de hero">
 	<h2 class="editor-title">🎨 Hero — Visual</h2>
 	<p class="editor-desc">Personaliza la apariencia del título hero. Todos los cambios se guardan en Firebase en tiempo real.</p>
 
@@ -178,7 +178,7 @@
 	</Collapsible>
 
 	<!-- Glow Word -->
-	<Collapsible id="hero-stroke" icon="✏️" title="Glow de la palabra" open={false}>
+	<Collapsible id="hero-glow-word" icon="✏️" title="Glow de la palabra" open={false}>
 				<div class="row">
 			<div class="field">
 				<label>
@@ -217,7 +217,7 @@
 	</Collapsible>
 
 	<!-- Stroke Mode -->
-	<Collapsible id="hero-eyebrow" icon="👁️" title="Stroke mode (outline)" open={false}>
+	<Collapsible id="hero-stroke" icon="👁️" title="Stroke mode (outline)" open={false}>
 				<div class="row">
 			<div class="field">
 				<label>
@@ -240,7 +240,7 @@
 	</Collapsible>
 
 	<!-- Color Segments -->
-	<Collapsible id="hero-gradient" icon="🌈" title="Colores por palabra" open={false}>
+	<Collapsible id="hero-segments" icon="🌈" title="Colores por palabra" open={false}>
 				<p class="field-desc">Define segmentos de texto con colores individuales. Si hay segmentos, reemplaza el título normal.</p>
 		{#each segments as seg, i}
 			<div class="row segment-row">
@@ -260,7 +260,7 @@
 	</Collapsible>
 
 	<!-- Eyebrow -->
-	<Collapsible id="hero-segments" icon="📊" title="Eyebrow badge" open={false}>
+	<Collapsible id="hero-eyebrow" icon="📊" title="Eyebrow badge" open={false}>
 				<div class="row">
 			<div class="field">
 				<label>
@@ -621,5 +621,12 @@
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
 		white-space: nowrap;
+	}
+
+	@media (max-width: 768px) {
+		.editor-title { font-size: var(--text-xl); }
+		.row { flex-direction: column; }
+		.segment-row { flex-direction: column; }
+		.color-row { flex-direction: column; }
 	}
 </style>

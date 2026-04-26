@@ -33,7 +33,7 @@ Sesión larga con múltiples fixes:
 1. **Stats countUp** — Hero stats (beats, géneros, licencias) muestran "0" al cargar y luego animan. Se ve roto si los datos tardan.
 2. **HelpTips incompletos** — solo Effects tiene HelpTips. Falta: theme, cardstyle, animations, brand, floating.
 3. **Mobile sidebar** — hamburger menu no funcional en mobile (abre CommandPalette en vez de sidebar).
-4. **Firebase Storage rules** — bypass anónimo en código pero deploy manual pendiente desde Firebase Console.
+4. **Firebase Storage rules** — deployeadas ✅.
 
 ## ✅ COMPLETADO (sesiones 45-48)
 

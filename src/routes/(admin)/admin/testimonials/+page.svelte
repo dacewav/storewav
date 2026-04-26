@@ -37,7 +37,7 @@
 	}
 </script>
 
-<div class="editor">
+<div class="editor" role="form" aria-label="Editor de testimonials">
 	<h2 class="editor-title">💬 Testimonios</h2>
 	<p class="editor-desc">Reseñas y opiniones de clientes. Se muestran en la página principal.</p>
 
@@ -269,5 +269,11 @@
 		border-color: rgba(var(--accent-rgb), 0.5);
 		color: var(--accent);
 		background: rgba(var(--accent-rgb), 0.05);
+	}
+
+	@media (max-width: 768px) {
+		.testimonial-row { flex-direction: column; }
+		.testimonial-actions { flex-direction: row; }
+		.row { flex-direction: column; }
 	}
 </style>

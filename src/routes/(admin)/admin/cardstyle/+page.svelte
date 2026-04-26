@@ -120,4 +120,9 @@
 	.info-card ul { margin: 0; padding-left: var(--space-5); }
 	.info-card li { margin-bottom: var(--space-1); }
 	.info-card code { font-family: var(--font-mono); font-size: var(--text-xs); background: var(--surface2); padding: 1px 5px; border-radius: 3px; }
+
+	@media (max-width: 768px) {
+		.page-header { flex-direction: column; gap: var(--space-2); }
+		.presets-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+	}
 </style>

@@ -39,7 +39,7 @@
 	<title>Emojis — Admin</title>
 </svelte:head>
 
-<div class="emojis-page">
+<div class="emojis-page" role="form" aria-label="Editor de emojis">
 	<div class="page-header">
 		<div>
 			<h2 class="page-title">😀 Custom Emojis</h2>

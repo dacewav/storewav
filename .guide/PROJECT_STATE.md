@@ -83,7 +83,7 @@ build:         0 errors, 25 warnings (svelte-check: 0 errors, 25 warnings)
 
 | Prioridad | Item | Detalle |
 |-----------|------|---------|
-| 🟡 | Firebase rules | Rules actualizadas — falta deploy desde Firebase Console |
+| ✅ | Firebase rules | RTDB + Storage rules deployeadas |
 | 🟡 | GitHub secrets | 9 secrets necesarios para Workers deploy |
 | 🔴 | Beats sin audio | 11/11 beats sin audioUrl, solo 1 con previewUrl |
 | 🟢 | Hover sound effects | Opcional, toggleable |

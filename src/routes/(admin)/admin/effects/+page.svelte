@@ -73,11 +73,11 @@
 </script>
 
 {#if $settings.loading}
-	<div class="editor">
+	<div class="editor" role="form" aria-label="Editor de effects">
 		<AdminSkeleton variant="full" />
 	</div>
 {:else}
-<div class="editor">
+<div class="editor" role="form" aria-label="Editor de effects">
 	<h2 class="editor-title">✨ Efectos Visuales</h2>
 	<p class="editor-desc">Glow, partículas, hero effects y efectos de card. Todo lo que da vida a la tienda.</p>
 
@@ -459,5 +459,9 @@
 	@media (max-width: 700px) {
 		.particles-layout { flex-direction: column-reverse; }
 		.particles-preview-wrap { width: 100%; }
+	}
+
+	@media (max-width: 768px) {
+		.row { flex-direction: column; }
 	}
 </style>
