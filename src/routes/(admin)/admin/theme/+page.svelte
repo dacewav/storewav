@@ -879,82 +879,142 @@
 
 	<!-- Particles -->
 	<Card>
-		<h3 class="section-title">Partículas</h3>
-		<div class="field">
-			<label>
-				<input type="checkbox" checked={t.particlesOn === true} onchange={(e) => update('theme.particlesOn', e.currentTarget.checked)} />
-				Partículas activadas
-			</label>
-		</div>
-		<div class="row">
-			<div class="field">
-				<label for="t-pc">Cantidad ({fmt("particlesCount", 200)})</label>
-				<input id="t-pc" type="range" min="10" max="200" step="10" value={local.particlesCount ?? 50} oninput={(e) => onSlide('theme.particlesCount', 'particlesCount', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-			<div class="field">
-				<label for="t-ps">Velocidad ({fmt("particlesSpeed", 5)})</label>
-				<input id="t-ps" type="range" min="0.1" max="5" step="0.1" value={local.particlesSpeed ?? 1} oninput={(e) => onSlide('theme.particlesSpeed', 'particlesSpeed', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-			<div class="field">
-				<label for="t-pt">Tipo</label>
-				<select id="t-pt" value={t.particlesType ?? 'circle'} onchange={(e) => update('theme.particlesType', e.currentTarget.value)}>
-					{#each PARTICLE_TYPES as p}<option value={p}>{p}</option>{/each}
-				</select>
-			</div>
-		</div>
-		<div class="row">
-			<div class="field">
-				<label for="t-psn">Tamaño min ({fmt("particlesSizeMin", 20, "px")})</label>
-				<input id="t-psn" type="range" min="1" max="20" step="1" value={local.particlesSizeMin ?? 3} oninput={(e) => onSlide('theme.particlesSizeMin', 'particlesSizeMin', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-			<div class="field">
-				<label for="t-psx">Tamaño max ({fmt("particlesSizeMax", 40, "px")})</label>
-				<input id="t-psx" type="range" min="2" max="40" step="1" value={local.particlesSizeMax ?? 8} oninput={(e) => onSlide('theme.particlesSizeMax', 'particlesSizeMax', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-		</div>
-		<div class="row">
-			<div class="field">
-				<label for="t-pcl">Color</label>
-				<div class="color-row">
-					<input id="t-pcl" type="color" value={t.particlesColor || '#dc2626'} oninput={(e) => update('theme.particlesColor', e.currentTarget.value)} />
-					<input type="text" value={t.particlesColor ?? ''} placeholder="(accent)" oninput={(e) => update('theme.particlesColor', e.currentTarget.value)} />
+		<h3 class="section-title">✨ Partículas</h3>
+		<p class="field-desc">Efecto de partículas flotantes sobre el fondo de la tienda.</p>
+
+		<!-- Toggle + Preview side by side -->
+		<div class="particles-layout">
+			<div class="particles-controls">
+				<div class="toggle-row">
+					<label class="toggle-label">
+						<input type="checkbox" checked={t.particlesOn === true} onchange={(e) => update('theme.particlesOn', e.currentTarget.checked)} />
+						<span class="toggle-text">Partículas {t.particlesOn === true ? 'activadas' : 'desactivadas'}</span>
+					</label>
+					<span class="toggle-badge" class:active={t.particlesOn === true}>{t.particlesOn === true ? 'ON' : 'OFF'}</span>
+				</div>
+
+				<!-- Type selector as visual pills -->
+				<div class="field">
+					<label>Tipo de partícula</label>
+					<div class="type-pills">
+						{#each PARTICLE_TYPES as pt}
+							<button
+								class="type-pill"
+								class:active={t.particlesType === pt}
+								onclick={() => update('theme.particlesType', pt)}
+								title={pt}
+							>
+								<span class="pill-icon">
+									{#if pt === 'circle'}●{:else if pt === 'square'}■{:else if pt === 'line'}╱{:else if pt === 'text'}Aa{:else if pt === 'image'}🖼️{/if}
+								</span>
+								<span class="pill-name">{pt}</span>
+							</button>
+						{/each}
+					</div>
 				</div>
 			</div>
-			<div class="field">
-				<label for="t-pop">Opacidad ({fmt("particlesOpacity", 1, "", true)})</label>
-				<input id="t-pop" type="range" min="0" max="1" step="0.05" value={local.particlesOpacity ?? 0.3} oninput={(e) => onSlide('theme.particlesOpacity', 'particlesOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+
+			<!-- Live Preview -->
+			<div class="particles-preview-wrap">
+				<span class="preview-label">Preview en vivo</span>
+				{#await import('$lib/components/ParticlesPreview.svelte') then mod}
+					<mod.default
+						count={local.particlesCount ?? 50}
+						speed={local.particlesSpeed ?? 1}
+						type={t.particlesType ?? 'circle'}
+						color={t.particlesColor ?? ''}
+						opacity={local.particlesOpacity ?? 0.3}
+						text={t.particlesText ?? ''}
+						imgUrl={t.particlesImgUrl ?? ''}
+						sizeMin={local.particlesSizeMin ?? 3}
+						sizeMax={local.particlesSizeMax ?? 8}
+						accent={t.accent ?? '#dc2626'}
+					/>
+				{/await}
 			</div>
 		</div>
+
+		<!-- Size & Speed -->
+		<div class="control-group">
+			<span class="group-label">📏 Tamaño y Movimiento</span>
+			<div class="row">
+				<div class="field">
+					<label for="t-pc">Cantidad ({fmt("particlesCount", 200)})</label>
+					<input id="t-pc" type="range" min="10" max="200" step="10" value={local.particlesCount ?? 50} oninput={(e) => onSlide('theme.particlesCount', 'particlesCount', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+				</div>
+				<div class="field">
+					<label for="t-ps">Velocidad ({fmt("particlesSpeed", 5)})</label>
+					<input id="t-ps" type="range" min="0.1" max="5" step="0.1" value={local.particlesSpeed ?? 1} oninput={(e) => onSlide('theme.particlesSpeed', 'particlesSpeed', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+				</div>
+			</div>
+			<div class="row">
+				<div class="field">
+					<label for="t-psn">Tamaño min ({fmt("particlesSizeMin", 20, "px")})</label>
+					<input id="t-psn" type="range" min="1" max="20" step="1" value={local.particlesSizeMin ?? 3} oninput={(e) => onSlide('theme.particlesSizeMin', 'particlesSizeMin', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+				</div>
+				<div class="field">
+					<label for="t-psx">Tamaño max ({fmt("particlesSizeMax", 40, "px")})</label>
+					<input id="t-psx" type="range" min="2" max="40" step="1" value={local.particlesSizeMax ?? 8} oninput={(e) => onSlide('theme.particlesSizeMax', 'particlesSizeMax', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+				</div>
+			</div>
+		</div>
+
+		<!-- Color & Opacity -->
+		<div class="control-group">
+			<span class="group-label">🎨 Color y Transparencia</span>
+			<div class="row">
+				<div class="field">
+					<label for="t-pcl">Color</label>
+					<div class="color-row">
+						<input id="t-pcl" type="color" value={t.particlesColor || '#dc2626'} oninput={(e) => update('theme.particlesColor', e.currentTarget.value)} />
+						<input type="text" value={t.particlesColor ?? ''} placeholder="(usa accent)" oninput={(e) => update('theme.particlesColor', e.currentTarget.value)} />
+					</div>
+				</div>
+				<div class="field">
+					<label for="t-pop">Opacidad ({fmt("particlesOpacity", 1, "", true)})</label>
+					<input id="t-pop" type="range" min="0" max="1" step="0.05" value={local.particlesOpacity ?? 0.3} oninput={(e) => onSlide('theme.particlesOpacity', 'particlesOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+				</div>
+			</div>
+		</div>
+
+		<!-- Type-specific options -->
 		{#if t.particlesType === 'text'}
-			<div class="field">
-				<label for="t-ptx">Texto partícula</label>
-				<input id="t-ptx" type="text" value={t.particlesText ?? ''} oninput={(e) => update('theme.particlesText', e.currentTarget.value)} />
+			<div class="control-group">
+				<span class="group-label">Aa Texto</span>
+				<div class="field">
+					<label for="t-ptx">Texto de la partícula</label>
+					<input id="t-ptx" type="text" value={t.particlesText ?? ''} oninput={(e) => update('theme.particlesText', e.currentTarget.value)} placeholder="✦" />
+				</div>
 			</div>
 		{/if}
+
 		{#if t.particlesType === 'image'}
-			<div class="field">
-				<label for="t-piu">URL imagen partícula</label>
-				<input id="t-piu" type="text" value={t.particlesImgUrl ?? ''} oninput={(e) => update('theme.particlesImgUrl', e.currentTarget.value)} placeholder="https://cdn.dacewav.store/..." />
-			</div>
-			<div class="field">
-				<label>O subir imagen local</label>
-				<label class="upload-zone" class:uploading={particleUploading}>
-					<input type="file" accept="image/*" onchange={handleParticleImageUpload} disabled={particleUploading} />
-					{#if particleUploading}
-						<span class="upload-icon">⏳</span>
-						<span class="upload-text">Subiendo... {particleUploadProgress}%</span>
-					{:else}
-						<span class="upload-icon">📁</span>
-						<span class="upload-text">Click o arrastrar imagen</span>
-					{/if}
-				</label>
-			</div>
-			{#if t.particlesImgUrl}
-				<div class="particle-preview">
-					<img src={t.particlesImgUrl} alt="Preview partícula" />
-					<button class="btn-clear" onclick={() => update('theme.particlesImgUrl', '')}>✕ Quitar imagen</button>
+			<div class="control-group">
+				<span class="group-label">🖼️ Imagen</span>
+				<div class="field">
+					<label for="t-piu">URL de la imagen</label>
+					<input id="t-piu" type="text" value={t.particlesImgUrl ?? ''} oninput={(e) => update('theme.particlesImgUrl', e.currentTarget.value)} placeholder="https://cdn.dacewav.store/..." />
 				</div>
-			{/if}
+				<div class="field">
+					<label>O subir imagen local</label>
+					<label class="upload-zone" class:uploading={particleUploading}>
+						<input type="file" accept="image/*" onchange={handleParticleImageUpload} disabled={particleUploading} />
+						{#if particleUploading}
+							<span class="upload-icon">⏳</span>
+							<span class="upload-text">Subiendo... {particleUploadProgress}%</span>
+						{:else}
+							<span class="upload-icon">📁</span>
+							<span class="upload-text">Click o arrastrar imagen aquí</span>
+						{/if}
+					</label>
+				</div>
+				{#if t.particlesImgUrl}
+					<div class="particle-preview">
+						<img src={t.particlesImgUrl} alt="Preview partícula" />
+						<button class="btn-clear" onclick={() => update('theme.particlesImgUrl', '')}>✕ Quitar</button>
+					</div>
+				{/if}
+			</div>
 		{/if}
 	</Card>
 	<!-- Hero Height -->
@@ -1258,4 +1318,31 @@
 	.particle-preview img { width: 48px; height: 48px; object-fit: contain; border-radius: var(--radius-sm); background: rgba(0,0,0,0.2); }
 	.btn-clear { padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: transparent; color: var(--text-muted); font-size: var(--text-xs); cursor: pointer; transition: all var(--duration-fast); }
 	.btn-clear:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-glow); }
+
+	/* Particles visual layout */
+	.particles-layout { display: flex; gap: var(--space-4); margin-bottom: var(--space-4); align-items: flex-start; }
+	.particles-controls { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+	.particles-preview-wrap { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+	.preview-label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+	.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3); background: var(--surface-hover); border-radius: var(--radius-md); border: 1px solid var(--border); }
+	.toggle-label { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; }
+	.toggle-text { font-size: var(--text-sm); font-weight: 600; color: var(--text); }
+	.toggle-badge { font-family: var(--font-mono); font-size: var(--text-2xs); font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full); background: rgba(255,255,255,0.06); color: var(--text-muted); letter-spacing: 0.06em; }
+	.toggle-badge.active { background: rgba(var(--accent-rgb), 0.15); color: var(--accent); }
+	.type-pills { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+	.type-pill { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text-secondary); cursor: pointer; transition: all var(--duration-fast); min-width: 52px; }
+	.type-pill:hover { border-color: rgba(var(--accent-rgb), 0.4); color: var(--text); }
+	.type-pill.active { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); color: var(--accent); box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.15); }
+	.pill-icon { font-size: var(--text-lg); line-height: 1; }
+	.pill-name { font-family: var(--font-mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+	.control-group { padding: var(--space-3); background: var(--surface-hover); border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: var(--space-3); }
+	.group-label { display: block; font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: var(--space-3); }
+	.control-group .row { margin-bottom: 0; }
+	.control-group .field { margin-bottom: var(--space-2); }
+	.control-group .field:last-child { margin-bottom: 0; }
+
+	@media (max-width: 700px) {
+		.particles-layout { flex-direction: column-reverse; }
+		.particles-preview-wrap { width: 100%; }
+	}
 </style>
