@@ -64,8 +64,13 @@ export type CardAnimation =
 export type CardStyleConfig = {
 	// Glow
 	glow?: GlowType;
+	glowEnabled?: boolean;
 	glowColor?: string;
-	glowIntensity?: number; // 0-1
+	glowSpeed?: number;        // seconds
+	glowIntensity?: number;    // 0-1
+	glowBlur?: number;         // px
+	glowOpacity?: number;      // 0-1
+	glowHoverOnly?: boolean;
 
 	// Filters
 	brightness?: number;    // 0-2, default 1
@@ -77,6 +82,7 @@ export type CardStyleConfig = {
 	invert?: number;        // 0-1
 
 	// Border
+	borderEnabled?: boolean;
 	borderWidth?: string;
 	borderStyle?: string;
 	borderColor?: string;
@@ -84,6 +90,14 @@ export type CardStyleConfig = {
 
 	// Shadow
 	boxShadow?: string;
+	shadowEnabled?: boolean;
+	shadowColor?: string;
+	shadowOpacity?: number;    // 0-1
+	shadowX?: number;          // px
+	shadowY?: number;          // px
+	shadowBlur?: number;       // px
+	shadowSpread?: number;     // px
+	shadowInset?: boolean;
 
 	// Transform
 	rotate?: number;        // deg
@@ -96,11 +110,22 @@ export type CardStyleConfig = {
 	hoverBrightness?: number;
 	hoverBlur?: number;
 	hoverSaturate?: number;
+	hoverShadowBlur?: number;      // px
+	hoverTransition?: number;      // seconds
+	hoverBorderColor?: string;
+	hoverGlowIntensify?: boolean;
+	hoverSiblingsBlur?: number;    // px
+	hoverHueRotate?: number;       // deg
+	hoverOpacity?: number;         // 0-1
 
 	// Animation
 	animation?: CardAnimation;
 	animationDuration?: string;  // e.g. "3s"
 	animationDelay?: string;
+	animType?: string;           // catalog anim type (holograma, flotar, glitch, respirar)
+	animDur?: number;            // seconds
+	animDelay?: number;          // seconds
+	animEasing?: string;         // CSS easing
 
 	// Cover effects
 	coverOverlay?: string;  // CSS gradient/overlay
@@ -109,6 +134,7 @@ export type CardStyleConfig = {
 	// Shimmer
 	shimmer?: boolean;
 	shimmerColor?: string;
+	shimmerSpeed?: number;       // seconds
 	shimmerDuration?: string;
 	shimmerOpacity?: number; // 0-1, controls shimmer overlay intensity
 
@@ -164,6 +190,226 @@ const DEFAULT: CardStyleConfig = {
 	hoverBrightness: 1.05,
 	animation: 'none',
 };
+
+// ═══ Premium Card Effect Presets ═══
+// Imported from catalog's 13 premium presets (Limpio, Cine, Noir, Retiro, Brasa, Escarcha, Cristal, Holo, Flota, Glitch, Eco, Pop, Abismo)
+
+export type PresetId = 'none' | 'film' | 'noir' | 'vintage' | 'ember' | 'frost' | 'crystal' | 'hologram' | 'float' | 'glitch' | 'ghost' | 'pop' | 'deep';
+
+export interface CardPreset {
+	id: PresetId;
+	name: string;
+	desc: string;
+	config: CardStyleConfig;
+}
+
+export const PRESETS: Record<PresetId, CardPreset> = {
+	none: {
+		id: 'none',
+		name: 'Limpio',
+		desc: 'Sin efectos',
+		config: {
+			brightness: 1, contrast: 1, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0,
+			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
+			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '0px', cardBgOpacity: 1,
+			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: false, shadowColor: '#000000', shadowOpacity: 0.35, shadowX: 0, shadowY: 4, shadowBlur: 12, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1, hoverBrightness: 1, hoverSaturate: 1, hoverShadowBlur: 0, hoverTransition: 0.3, hoverBorderColor: '#dc2626', hoverGlowIntensify: false, hoverBlur: 0, hoverSiblingsBlur: 0, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	film: {
+		id: 'film',
+		name: 'Cine',
+		desc: 'Desaturación sutil, contraste cinematográfico, grano orgánico',
+		config: {
+			brightness: 0.97, contrast: 1.15, saturate: 0.75, grayscale: 0.3, sepia: 0.1, hueRotate: 0,
+			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
+			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '4px', cardBgOpacity: 1,
+			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#1c1917', shadowOpacity: 0.6, shadowX: 0, shadowY: 8, shadowBlur: 24, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.02, hoverBrightness: 1.12, hoverSaturate: 0.85, hoverShadowBlur: 30, hoverTransition: 0.4, hoverBorderColor: '#78716c', hoverGlowIntensify: false, hoverBlur: 0, hoverSiblingsBlur: 2, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	noir: {
+		id: 'noir',
+		name: 'Noir',
+		desc: 'Alto contraste B&W, sombras profundas, elegancia clásica',
+		config: {
+			brightness: 0.9, contrast: 1.4, saturate: 0, grayscale: 1, sepia: 0, hueRotate: 0,
+			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
+			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '2px', cardBgOpacity: 1,
+			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#0c0a09', shadowOpacity: 0.7, shadowX: 0, shadowY: 10, shadowBlur: 28, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.03, hoverBrightness: 1.2, hoverSaturate: 0, hoverShadowBlur: 35, hoverTransition: 0.35, hoverBorderColor: '#d6d3d1', hoverGlowIntensify: false, hoverBlur: 0, hoverSiblingsBlur: 3, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	vintage: {
+		id: 'vintage',
+		name: 'Retiro',
+		desc: 'Sepia cálido, bordes suaves, atmósfera nostálgica',
+		config: {
+			brightness: 0.95, contrast: 1.05, saturate: 0.85, grayscale: 0, sepia: 0.6, hueRotate: 0,
+			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
+			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '8px', cardBgOpacity: 1,
+			borderEnabled: true, borderColor: '#78716c', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#44403c', shadowOpacity: 0.4, shadowX: 0, shadowY: 6, shadowBlur: 20, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.02, hoverBrightness: 1.1, hoverSaturate: 1, hoverShadowBlur: 24, hoverTransition: 0.45, hoverBorderColor: '#a68a64', hoverGlowIntensify: false, hoverBlur: 0, hoverSiblingsBlur: 2, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	ember: {
+		id: 'ember',
+		name: 'Brasa',
+		desc: 'Glow cálido contenido, profundidad sin saturación excesiva',
+		config: {
+			brightness: 1.05, contrast: 1.1, saturate: 1.2, grayscale: 0, sepia: 0.05, hueRotate: 0,
+			glowEnabled: true, glow: 'pulse', glowColor: '#c2410c', glowSpeed: 2.5, glowIntensity: 1.1, glowBlur: 25, glowOpacity: 0.55, glowHoverOnly: false,
+			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '6px', cardBgOpacity: 1,
+			borderEnabled: true, borderColor: '#9a3412', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#431407', shadowOpacity: 0.5, shadowX: 0, shadowY: 8, shadowBlur: 22, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.03, hoverBrightness: 1.2, hoverSaturate: 1.3, hoverShadowBlur: 0, hoverTransition: 0.3, hoverBorderColor: '#f97316', hoverGlowIntensify: true, hoverBlur: 0, hoverSiblingsBlur: 4, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	frost: {
+		id: 'frost',
+		name: 'Escarcha',
+		desc: 'Tinte frío, glow tenue solo en hover, pulido helado',
+		config: {
+			brightness: 1.08, contrast: 1.05, saturate: 0.85, grayscale: 0, sepia: 0, hueRotate: -5,
+			glowEnabled: true, glow: 'breathe', glowColor: '#0e7490', glowSpeed: 5, glowIntensity: 0.8, glowBlur: 28, glowOpacity: 0.4, glowHoverOnly: true,
+			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			shimmer: true, shimmerSpeed: 3, shimmerOpacity: 0.04,
+			borderRadius: '10px', cardBgOpacity: 1,
+			borderEnabled: true, borderColor: '#155e75', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#083344', shadowOpacity: 0.45, shadowX: 0, shadowY: 6, shadowBlur: 18, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.03, hoverBrightness: 1.15, hoverSaturate: 1, hoverShadowBlur: 0, hoverTransition: 0.4, hoverBorderColor: '#67e8f9', hoverGlowIntensify: false, hoverBlur: 0, hoverSiblingsBlur: 3, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	crystal: {
+		id: 'crystal',
+		name: 'Cristal',
+		desc: 'Glassmorphism con refracción interior, bordes iluminados',
+		config: {
+			brightness: 1.1, contrast: 1.05, saturate: 1.1, grayscale: 0, sepia: 0, hueRotate: 0,
+			glowEnabled: true, glow: 'breathe', glowColor: '#6366f1', glowSpeed: 4, glowIntensity: 0.7, glowBlur: 30, glowOpacity: 0.35, glowHoverOnly: true,
+			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			shimmer: true, shimmerSpeed: 3, shimmerOpacity: 0.04,
+			borderRadius: '14px', cardBgOpacity: 0.92,
+			borderEnabled: true, borderColor: 'rgba(255,255,255,0.08)', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#1e1b4b', shadowOpacity: 0.4, shadowX: 0, shadowY: 10, shadowBlur: 30, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.04, hoverBrightness: 1.2, hoverSaturate: 1.15, hoverShadowBlur: 0, hoverTransition: 0.35, hoverBorderColor: 'rgba(255,255,255,0.2)', hoverGlowIntensify: true, hoverBlur: 0, hoverSiblingsBlur: 5, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	hologram: {
+		id: 'hologram',
+		name: 'Holo',
+		desc: 'Ciclo de tono iridiscente, brillo orgánico, no neón genérico',
+		config: {
+			brightness: 1.05, contrast: 1.08, saturate: 1.2, grayscale: 0, sepia: 0, hueRotate: 0,
+			glowEnabled: true, glow: 'rgb', glowColor: '#7c2d12', glowSpeed: 6, glowIntensity: 0.8, glowBlur: 22, glowOpacity: 0.45, glowHoverOnly: false,
+			animation: 'hologram', animType: 'holograma', animDur: 5, animDelay: 0, animEasing: 'ease-in-out',
+			shimmer: true, shimmerSpeed: 3, shimmerOpacity: 0.04,
+			borderRadius: '10px', cardBgOpacity: 1,
+			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#1c1917', shadowOpacity: 0.35, shadowX: 0, shadowY: 6, shadowBlur: 20, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.04, hoverBrightness: 1.2, hoverSaturate: 1.3, hoverShadowBlur: 0, hoverTransition: 0.3, hoverBorderColor: '#fbbf24', hoverGlowIntensify: true, hoverBlur: 0, hoverSiblingsBlur: 4, hoverHueRotate: 15, hoverOpacity: 1,
+		},
+	},
+	float: {
+		id: 'float',
+		name: 'Flota',
+		desc: 'Flotación sutil, sombra difusa, sensación etérea',
+		config: {
+			brightness: 1.05, contrast: 1, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0,
+			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
+			animation: 'float', animType: 'flotar', animDur: 4, animDelay: 0, animEasing: 'ease-in-out',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '12px', cardBgOpacity: 1,
+			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#1c1917', shadowOpacity: 0.25, shadowX: 0, shadowY: 12, shadowBlur: 30, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.04, hoverBrightness: 1.1, hoverSaturate: 1, hoverShadowBlur: 40, hoverTransition: 0.4, hoverBorderColor: '#a8a29e', hoverGlowIntensify: false, hoverBlur: 0, hoverSiblingsBlur: 3, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	glitch: {
+		id: 'glitch',
+		name: 'Glitch',
+		desc: 'Distorsión controlada, aberración cromática sutil',
+		config: {
+			brightness: 1.05, contrast: 1.2, saturate: 1.5, grayscale: 0, sepia: 0, hueRotate: 0,
+			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
+			animation: 'glitch', animType: 'glitch', animDur: 0.4, animDelay: 0, animEasing: 'steps(2)',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '0px', cardBgOpacity: 1,
+			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: false, shadowColor: '#000000', shadowOpacity: 0.35, shadowX: 0, shadowY: 4, shadowBlur: 12, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1, hoverBrightness: 1.3, hoverSaturate: 1.8, hoverShadowBlur: 0, hoverTransition: 0.1, hoverBorderColor: '#ef4444', hoverGlowIntensify: false, hoverBlur: 0, hoverSiblingsBlur: 0, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	ghost: {
+		id: 'ghost',
+		name: 'Eco',
+		desc: 'Translucidez etérea, respiración lenta, aura índigo',
+		config: {
+			brightness: 1, contrast: 0.92, saturate: 0.7, grayscale: 0.2, sepia: 0, hueRotate: 0,
+			glowEnabled: true, glow: 'breathe', glowColor: '#6366f1', glowSpeed: 6, glowIntensity: 0.6, glowBlur: 32, glowOpacity: 0.3, glowHoverOnly: false,
+			animation: 'breathe', animType: 'respirar', animDur: 6, animDelay: 0, animEasing: 'ease-in-out',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '14px', cardBgOpacity: 0.75,
+			borderEnabled: true, borderColor: 'rgba(99,102,241,0.2)', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: false, shadowColor: '#4338ca', shadowOpacity: 0.35, shadowX: 0, shadowY: 4, shadowBlur: 12, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.02, hoverBrightness: 1.25, hoverSaturate: 1, hoverShadowBlur: 0, hoverTransition: 0.5, hoverBorderColor: 'rgba(99,102,241,0.4)', hoverGlowIntensify: true, hoverBlur: 0, hoverSiblingsBlur: 4, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+	pop: {
+		id: 'pop',
+		name: 'Pop',
+		desc: 'Saturación alta con bordes marcados, estilo editorial',
+		config: {
+			brightness: 1.05, contrast: 1.25, saturate: 2.5, grayscale: 0, sepia: 0, hueRotate: 0,
+			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
+			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '2px', cardBgOpacity: 1,
+			borderEnabled: true, borderColor: '#1c1917', borderWidth: '2px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#1c1917', shadowOpacity: 0.25, shadowX: 4, shadowY: 4, shadowBlur: 0, shadowSpread: 0, shadowInset: false,
+			hoverScale: 1.05, hoverBrightness: 1.15, hoverSaturate: 2.8, hoverShadowBlur: 0, hoverTransition: 0.18, hoverBorderColor: '#e11d48', hoverGlowIntensify: false, hoverBlur: 0, hoverSiblingsBlur: 3, hoverHueRotate: 10, hoverOpacity: 1,
+		},
+	},
+	deep: {
+		id: 'deep',
+		name: 'Abismo',
+		desc: 'Oscuridad profunda con sombra interna, volumen dramático',
+		config: {
+			brightness: 0.85, contrast: 1.2, saturate: 0.9, grayscale: 0, sepia: 0, hueRotate: 0,
+			glowEnabled: true, glow: 'active', glowColor: '#dc2626', glowSpeed: 4, glowIntensity: 0.6, glowBlur: 30, glowOpacity: 0.25, glowHoverOnly: true,
+			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
+			borderRadius: '8px', cardBgOpacity: 1,
+			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
+			shadowEnabled: true, shadowColor: '#000000', shadowOpacity: 0.7, shadowX: 0, shadowY: 12, shadowBlur: 35, shadowSpread: -5, shadowInset: true,
+			hoverScale: 1.02, hoverBrightness: 1.3, hoverSaturate: 1.1, hoverShadowBlur: 0, hoverTransition: 0.4, hoverBorderColor: '#dc2626', hoverGlowIntensify: true, hoverBlur: 0, hoverSiblingsBlur: 6, hoverHueRotate: 0, hoverOpacity: 1,
+		},
+	},
+};
+
+/** Get a preset config by ID, falls back to 'none' */
+export function getPreset(id: string): CardStyleConfig {
+	return PRESETS[id as PresetId]?.config ?? PRESETS.none.config;
+}
+
+/** Get all preset entries for UI listing */
+export function getAllPresets(): CardPreset[] {
+	return Object.values(PRESETS);
+}
 
 /** Keyframe definitions for animation presets */
 const ANIMATION_KEYFRAMES: Record<string, string> = {
