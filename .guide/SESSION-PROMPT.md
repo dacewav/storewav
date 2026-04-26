@@ -1,30 +1,33 @@
-# 🚀 SESSION PROMPT — Copiar y pegar en chat nuevo
+# Session 42 Prompt — Emoji Picker Fix
+
+Pegar esto al inicio del próximo chat:
 
 ---
 
-Lee estos archivos en orden:
+Leé estos archivos en orden:
 1. .guide/INDEX.md
-2. .guide/PROJECT_STATE.md
+2. .guide/PROJECT_STATE.md  
 3. .guide/BLOCK-CONTEXT.md
 
 Contexto rápido:
 - SvelteKit 2 + Firebase RTDB + Cloudflare Pages + Workers
-- Tienda de beats — 9 beats en Firebase, 117 tests, build limpio, svelte-check 0 errors
-- MEGA-REBUILD-PLAN Sessions 1-8 completadas (media gallery, presets, feature toggles, emojis, changelog, cleanup)
+- Tienda de beats — uploads migrados a R2 (cdn.dacewav.store), 134 tests, build limpio
 - Admin: 20 páginas, 100+ controles
-- GitHub Action listo para deploy Workers (agregar manual + secrets)
-- Firebase UID whitelist activa
+- Sesión 41 completada: FileUpload + emoji system + audio fix
 
-Pendientes principales:
-1. Subir audio/cover a los 9 beats desde admin
-2. GitHub Action: agregar workflow + secrets desde GitHub UI
-3. Deploy Firebase rules para paths nuevos (themePresets/, gallery/, customEmojis/, changelog/)
-4. Hero glow default color (negro → accent)
-5. Stats productores (contar artistas únicos)
+BUGS A ARREGLAR:
+1. **Emoji picker click no inserta** — al escribir `:` y clickear un emoji, NO se autorellena el texto. 3 intentos fallidos (click → mousedown → container preventDefault). Solución: usar `onmousedown` directamente en cada botón de emoji con preventDefault + llamar a onselect.
+2. **Preview del emoji no se muestra** — después de seleccionar, la preview renderizada no aparece debajo del input. Verificar que `$customEmojis` tiene datos.
+3. **Preview de emojis en picker** — verificar que las imágenes cargan correctamente.
+
+Archivos clave:
+- `src/lib/components/EmojiPicker.svelte`
+- `src/lib/components/EmojiInput.svelte`
+- `src/lib/emojiUtils.ts`
+- `src/lib/stores/customEmojis.ts`
 
 Para acceder al admin:
 npm install && npm run dev
 → http://localhost:5173/login → "🧪 Entrar como tester (anónimo)"
-→ UID anónimo debe estar en adminWhitelist/approved/ en Firebase
 
-Lee la guía, verifica el estado, y espera mi OK antes de codear.
+Leé la guía, verifica el estado, y espera mi OK antes de codear.
