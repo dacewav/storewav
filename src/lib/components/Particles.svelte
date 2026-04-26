@@ -97,7 +97,7 @@
 			if (p.y > h) p.y = 0;
 
 			const breathe = 0.5 + 0.5 * Math.sin(p.life * Math.PI * 2);
-			ctx.globalAlpha = op * breathe;
+			ctx.globalAlpha = op * (0.3 + 0.7 * breathe);
 			ctx.fillStyle = drawColor;
 
 			if (tp === 'circle') {

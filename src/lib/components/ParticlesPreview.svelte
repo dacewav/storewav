@@ -82,7 +82,7 @@
 			if (p.y > h) p.y = 0;
 
 			const breathe = 0.5 + 0.5 * Math.sin(p.life * Math.PI * 2);
-			ctx.globalAlpha = opacity * breathe;
+			ctx.globalAlpha = opacity * (0.3 + 0.7 * breathe);
 			ctx.fillStyle = drawColor;
 
 			if (type === 'circle') {
