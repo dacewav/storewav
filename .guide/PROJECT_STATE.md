@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-26 08:00 (Session 38 — MEGA-REBUILD-PLAN completo)**
+> **Última actualización: 2026-04-26 09:05 (Session 41 — FileUpload + GitHub Action)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -8,11 +8,11 @@ repo:          https://github.com/dacewav/storewav.git
 framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
-sesiones:      38 completadas
-commits:       51+
+sesiones:      41 completadas
+commits:       53+
 tests:         117 passing
-build:         0 errors, 0 warnings (svelte-check: 0 errors, 8 warnings)
-```
+build:         0 errors, 0 warnings (svelte-check: 0 errors, 10 warnings)
+último_commit: "eb80aa9"
 
 ## Quick Status
 
@@ -73,6 +73,8 @@ build:         0 errors, 0 warnings (svelte-check: 0 errors, 8 warnings)
 | 6 | Feature Toggles + Changelog | ✅ | `18c0af9` |
 | 7 | Custom Emojis | ✅ | `dda2bcd` |
 | 8 | Dead Code Cleanup + Type Fixes | ✅ | `b24130a` |
+| 9 | Upload R2 + Success Indicator + Mobile Fix | ✅ | `4ce13e1` |
+| 10 | FileUpload en URL fields + GitHub Action | ✅ | `eb80aa9` |
 
 ## Pendientes conocidos
 
