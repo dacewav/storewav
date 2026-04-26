@@ -374,9 +374,19 @@ export function cardStyleToCSS(style: CardStyleConfig, accentRgb: string): strin
 	const parts: string[] = [];
 
 	// Filter
-	// Card background
-	if (style.cardBg) parts.push(`background: ${style.cardBg};`);
-	if (style.cardBgOpacity !== undefined && style.cardBgOpacity < 1) parts.push(`opacity: ${style.cardBgOpacity};`);
+	// Card background — apply opacity only to background, not entire element
+	if (style.cardBg) {
+		if (style.cardBgOpacity !== undefined && style.cardBgOpacity < 1) {
+			parts.push(`background: ${style.cardBg}; opacity: ${style.cardBgOpacity};`);
+		} else {
+			parts.push(`background: ${style.cardBg};`);
+		}
+	} else if (style.cardBgOpacity !== undefined && style.cardBgOpacity < 1) {
+		// No custom bg — darken the surface with a semi-transparent overlay
+		// This keeps text/images fully opaque while making the card glass-like
+		parts.push(`background: rgba(0, 0, 0, ${(1 - style.cardBgOpacity) * 0.7});`);
+		parts.push(`backdrop-filter: blur(var(--blur-bg, 20px));`);
+	}
 
 	const filters: string[] = [];
 	if (style.brightness !== undefined && style.brightness !== 1) filters.push(`brightness(${style.brightness})`);
