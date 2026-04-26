@@ -3,49 +3,27 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 41 — FileUpload en campos URL + GitHub Action
+## Sesión Actual: 41 — FileUpload + Emoji System + Audio Fix
 
 ```yaml
 sesión: "41"
-bloque: "FileUpload integration + CI/CD"
-objetivo: "Añadir FileUpload a campos URL y crear GitHub Action"
+bloque: "FileUpload + Emoji autocomplete + Audio player fix"
+objetivo: "FileUpload en URL fields, emoji system estilo Discord/TTV, fix audio playback"
 tiempo: "~50 min"
 estado: "✅ COMPLETADO"
-último_commit: "(pendiente)"
-tests_total: 117
-svelte_check: "0 errors, 10 warnings"
+último_commit: "3309bd4"
+tests_total: 134
+svelte_check: "0 errors, 13 warnings"
 ```
 
-### Session 41 — Resumen
+## Pendientes para próxima sesión
 
-**FileUpload en Testimonios**
-- Avatar URL: input URL → FileUpload + URL fallback
-- Folder: `testimonials/avatars/`
-- Max: 5MB, accepts images
-
-**FileUpload en Emojis**
-- Emoji image URL: input URL → FileUpload + URL fallback
-- Folder: `emojis/custom/`
-- Max: 2MB, accepts images
-
-**GitHub Action — Workers Deploy**
-- Workflow: `.github/workflows/deploy-workers.yml`
-- Trigger: push to main + manual dispatch
-- Secrets necesarios en GitHub UI:
-  - `CF_API_TOKEN` — Cloudflare API token
-  - `CF_ACCOUNT_ID` — Cloudflare account ID
-  - `PUBLIC_FIREBASE_*` — todas las vars de Firebase
-  - `PUBLIC_ADMIN_UIDS`
-
-**TypeScript fix**
-- `upload.ts`: `deleteFile` return type `void` → `Promise<void>`
-
-## Pendientes restantes
-
-1. **Firebase rules** — deploy `firebase.rules.json` desde Firebase Console (themePresets/, gallery/, customEmojis/, changelog/ ya están en el archivo)
-2. **Brand logoUrl** — ya tiene FileUpload (verificar que funciona)
-3. **Links** — URLs externas, probablemente no necesitan upload
-4. **Verificar stats productores** — dashboard ya muestra "Artistas únicos"
+1. **Firebase rules** — deploy `firebase.rules.json` desde Firebase Console
+2. **GitHub secrets** — CF_API_TOKEN, CF_ACCOUNT_ID, PUBLIC_FIREBASE_*, PUBLIC_ADMIN_UIDS
+3. **Beat grid** — no aparece en la tienda (necesita debug con browser console)
+4. **Cloudflare Pages** — verificar que auto-deploy funciona con env vars
+5. **Emoji picker polish** — refinar UX según feedback
+6. **Audio uploads** — primeros 7 beats no tienen audio
 
 ## Datos clave
 - Deploy: Cloudflare Pages auto-deploy (trigger via API)
@@ -55,4 +33,3 @@ svelte_check: "0 errors, 10 warnings"
 - Dev server: `npm run dev -- --host 0.0.0.0 --port 5173`
 - Login: `/login` → "🧪 Entrar como tester (anónimo)"
 - Firebase rules: deploy manual desde Console
-- CF API token: (en Cloudflare Dashboard, no guardar aquí)
