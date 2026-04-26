@@ -1,3 +1,8 @@
+# Firebase RTDB Rules - Definitivas
+
+> Copiar todo el bloque de abajo y pegar en Firebase Console -> Realtime Database -> Rules -> Publish
+
+```json
 {
   "rules": {
     ".read": false,
@@ -1400,3 +1405,4 @@
     }
   }
 }
+```
