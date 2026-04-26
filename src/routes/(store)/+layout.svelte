@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { onNavigate } from '$app/navigation';
 	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
@@ -143,6 +144,17 @@
 			const first = mobileMenuEl.querySelector<HTMLElement>('a, button');
 			first?.focus();
 		}
+	});
+
+	// Page transitions — View Transitions API with CSS fallback
+	onNavigate((navigation) => {
+		if (!document.startViewTransition) return;
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
 	});
 
 	onMount(() => {
@@ -854,6 +866,25 @@
 		.footer {
 			grid-template-columns: 1fr;
 		}
+	}
+
+	/* ── View Transitions ── */
+	::view-transition-old(root) {
+		animation: fadeOut 0.15s ease-in;
+	}
+
+	::view-transition-new(root) {
+		animation: fadeIn 0.2s ease-out;
+	}
+
+	@keyframes fadeOut {
+		from { opacity: 1; transform: scale(1); }
+		to { opacity: 0; transform: scale(0.98); }
+	}
+
+	@keyframes fadeIn {
+		from { opacity: 0; transform: scale(1.01); }
+		to { opacity: 1; transform: scale(1); }
 	}
 
 	/* ── Animation presets ── */

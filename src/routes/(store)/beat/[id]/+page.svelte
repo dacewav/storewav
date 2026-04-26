@@ -8,7 +8,30 @@
 	import Waveform from '$lib/components/Waveform.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { staggerReveal } from '$lib/actions';
+	import type { Action } from 'svelte/action';
 	import type { Beat } from '$lib/stores/beats';
+
+	/** Parallax cover: subtle translateY on scroll */
+	const parallaxCover: Action<HTMLElement> = (node) => {
+		let raf = 0;
+		function onScroll() {
+			cancelAnimationFrame(raf);
+			raf = requestAnimationFrame(() => {
+				const rect = node.getBoundingClientRect();
+				const center = rect.top + rect.height / 2;
+				const viewCenter = window.innerHeight / 2;
+				const offset = (center - viewCenter) * 0.08;
+				node.style.transform = `translateY(${offset}px)`;
+			});
+		}
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return {
+			destroy() {
+				cancelAnimationFrame(raf);
+				window.removeEventListener('scroll', onScroll);
+			}
+		};
+	};
 
 	let beatId = $derived(page.params.id);
 	let beats = $derived($beatsList);
@@ -156,8 +179,8 @@
 		<div class="beat-layout">
 			<!-- Left: Cover + Waveform -->
 			<div class="beat-main">
-				<!-- Cover -->
-				<div class="beat-cover">
+				<!-- Cover with parallax -->
+				<div class="beat-cover" use:parallaxCover>
 					{#if beat.imageUrl}
 						<img src={beat.imageUrl} alt={beat.name} decoding="async" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
 					{:else}
@@ -249,7 +272,7 @@
 								</span>
 							{/if}
 						</div>
-						<div class="licenses-grid">
+						<div class="licenses-grid" use:staggerReveal={{ delay: 80 }}>
 							{#each beat.licenses as lic, i}
 								<button
 									class="license-item"
@@ -361,17 +384,20 @@
 		overflow: hidden;
 		background: var(--surface2);
 		position: relative;
+		will-change: transform;
+		transition: transform 0.1s linear;
 	}
 
 	.beat-cover img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		transform: scale(1.05);
 		transition: transform var(--duration-slow) var(--ease-out);
 	}
 
 	.beat-cover:hover img {
-		transform: scale(1.03);
+		transform: scale(1.08);
 	}
 
 	.beat-cover-placeholder {
@@ -628,7 +654,8 @@
 	.license-item.selected {
 		border-color: var(--accent);
 		background: rgba(var(--accent-rgb), 0.08);
-		box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.15);
+		box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.2), inset 0 0 12px rgba(var(--accent-rgb), 0.04);
+		transform: translateY(-2px);
 	}
 
 	.license-name {
