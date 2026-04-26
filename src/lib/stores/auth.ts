@@ -90,7 +90,17 @@ export async function initAuth() {
 			return;
 		}
 
-		const { onAuthStateChanged } = await import('firebase/auth');
+		const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth');
+
+		// Handle redirect result (for signInWithRedirect flow)
+		try {
+			const result = await getRedirectResult(auth);
+			if (result?.user && dev) {
+				console.log('[Auth] Redirect sign-in successful:', result.user.email);
+			}
+		} catch (redirectErr) {
+			console.error('[Auth] Redirect result error:', redirectErr);
+		}
 
 		unsub = onAuthStateChanged(auth, async (fbUser) => {
 			if (fbUser) {
@@ -115,15 +125,15 @@ export async function initAuth() {
 	}
 }
 
-/** Login con Google */
+/** Login con Google — uses redirect to avoid COOP popup issues */
 export async function loginWithGoogle() {
 	try {
 		const auth = await getAuthInstance();
 		if (!auth) throw new Error('Firebase no inicializado');
 
-		const { GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
+		const { GoogleAuthProvider, signInWithRedirect } = await import('firebase/auth');
 		const provider = new GoogleAuthProvider();
-		await signInWithPopup(auth, provider);
+		await signInWithRedirect(auth, provider);
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
 		store.update((s) => ({ ...s, error: msg }));
