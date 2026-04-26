@@ -5,6 +5,8 @@
  * Dev: Firebase Storage (si está configurado)
  */
 
+import { dev } from '$app/environment';
+
 export type UploadResult = {
 	url: string;
 	path: string;
@@ -31,15 +33,22 @@ async function getAuthToken(): Promise<string | null> {
 }
 
 /**
- * Upload: POST /api/upload → R2 (with auth + real progress via XHR)
- * Siempre intenta R2 primero. Fallback a Firebase solo si falla.
+ * Upload: R2 (prod) / Firebase Storage (dev)
+ * En dev mode, salta R2 y va directo a Firebase Storage.
+ * En prod, intenta R2 primero. Fallback a Firebase solo si falla.
  */
 export async function uploadFile(
 	path: string,
 	file: File,
 	onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
-	// Intentar R2 primero
+	// Dev mode: skip R2, go directly to Firebase Storage
+	if (dev) {
+		console.log('[Upload] Dev mode — usando Firebase Storage directamente');
+		return uploadToFirebase(path, file, onProgress);
+	}
+
+	// Prod: intentar R2 primero
 	try {
 		return await uploadToR2(path, file, onProgress);
 	} catch (r2Err) {
@@ -138,9 +147,11 @@ async function uploadToFirebase(
 
 	return new Promise((resolve, reject) => {
 		let lastProgress = 0;
+		let settled = false;
 		const timeout = setTimeout(() => {
-			if (lastProgress === 0) {
-				reject(new Error('Upload timeout: sin progreso en 30s.'));
+			if (!settled && lastProgress === 0) {
+				settled = true;
+				reject(new Error('Upload timeout: sin progreso en 30s. Verifica las reglas de Firebase Storage.'));
 			}
 		}, 30_000);
 
@@ -158,10 +169,19 @@ async function uploadToFirebase(
 				});
 			},
 			(error) => {
+				if (settled) return;
+				settled = true;
 				clearTimeout(timeout);
-				reject(error);
+				// Provide clear error for permission issues
+				if (error.code === 'storage/unauthorized') {
+					reject(new Error('Sin permiso para subir. Verifica las reglas de Firebase Storage o inicia sesión como admin.'));
+				} else {
+					reject(new Error(`Firebase Storage: ${error.message}`));
+				}
 			},
 			async () => {
+				if (settled) return;
+				settled = true;
 				clearTimeout(timeout);
 				try {
 					const url = await getDownloadURL(task.snapshot.ref);

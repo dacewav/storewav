@@ -17,7 +17,8 @@ service firebase.storage {
       allow read: if true;
       allow write: if request.auth != null
         && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
-            || request.auth.token.admin == true)
+            || request.auth.token.admin == true
+            || request.auth.token.firebase.sign_in_provider == 'anonymous')
         && request.resource.contentType.matches('image/.*')
         && request.resource.size < 10 * 1024 * 1024; // 10MB
     }
@@ -27,7 +28,8 @@ service firebase.storage {
       allow read: if true;
       allow write: if request.auth != null
         && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
-            || request.auth.token.admin == true)
+            || request.auth.token.admin == true
+            || request.auth.token.firebase.sign_in_provider == 'anonymous')
         && request.resource.contentType.matches('audio/.*')
         && request.resource.size < 100 * 1024 * 1024; // 100MB
     }
@@ -37,7 +39,8 @@ service firebase.storage {
       allow read: if true;
       allow write: if request.auth != null
         && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
-            || request.auth.token.admin == true)
+            || request.auth.token.admin == true
+            || request.auth.token.firebase.sign_in_provider == 'anonymous')
         && request.resource.contentType.matches('audio/.*')
         && request.resource.size < 20 * 1024 * 1024; // 20MB
     }
@@ -47,7 +50,8 @@ service firebase.storage {
       allow read: if true;
       allow write: if request.auth != null
         && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
-            || request.auth.token.admin == true)
+            || request.auth.token.admin == true
+            || request.auth.token.firebase.sign_in_provider == 'anonymous')
         && request.resource.contentType.matches('image/.*')
         && request.resource.size < 10 * 1024 * 1024;
     }
@@ -57,7 +61,8 @@ service firebase.storage {
       allow read: if true;
       allow write: if request.auth != null
         && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
-            || request.auth.token.admin == true)
+            || request.auth.token.admin == true
+            || request.auth.token.firebase.sign_in_provider == 'anonymous')
         && request.resource.contentType.matches('image/.*')
         && request.resource.size < 2 * 1024 * 1024; // 2MB
     }

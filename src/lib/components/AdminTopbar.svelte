@@ -119,7 +119,7 @@
 
 <style>
 	.topbar {
-		position: sticky;
+		position: relative;
 		top: 0;
 		z-index: var(--z-nav);
 		display: flex;
@@ -129,6 +129,7 @@
 		background: var(--surface);
 		border-bottom: 1px solid var(--border);
 		min-height: 52px;
+		flex-shrink: 0;
 	}
 
 	.topbar-brand {

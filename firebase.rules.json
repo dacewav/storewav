@@ -4,15 +4,15 @@
     ".write": false,
     "adminWhitelist": {
       ".read": "auth != null",
-      ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22' || (auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists())",
+      ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22'",
       "approved": {
         "$uid": {
           ".validate": "newData.isString() && newData.val().length <= 200"
         }
       },
       "pending": {
-        ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-        ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22' || (auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists())",
+        ".read": "auth != null",
+        ".write": "auth.uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22'",
         "$emailKey": {
           ".validate": "newData.isBoolean()"
         }
@@ -20,7 +20,7 @@
     },
     "theme": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "bg": {
         ".validate": "newData.isString() && newData.val().length <= 30"
       },
@@ -347,7 +347,7 @@
     },
     "settings": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "siteName": {
         ".validate": "newData.isString() && newData.val().length <= 100"
       },
@@ -457,8 +457,8 @@
         }
       },
       "r2Config": {
-        ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-        ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+        ".read": "auth != null",
+        ".write": "auth != null",
         "workerUrl": {
           ".validate": "newData.isString() && newData.val().length <= 500"
         },
@@ -477,7 +477,7 @@
     },
     "beats": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "$beatId": {
         ".validate": "newData.hasChildren(['name', 'genre', 'bpm', 'key'])",
         "name": {
@@ -1097,7 +1097,7 @@
     },
     "liveEdits": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "$beatId": {
         "_version": {
           ".validate": "newData.isNumber()"
@@ -1139,7 +1139,7 @@
     },
     "floatingElements": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "$elId": {
         "visible": {
           ".validate": "newData.isBoolean()"
@@ -1181,7 +1181,7 @@
     },
     "customLinks": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "$linkId": {
         "label": {
           ".validate": "newData.isString() && newData.val().length <= 100"
@@ -1199,7 +1199,7 @@
     },
     "customEmojis": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "$emojiId": {
         "name": {
           ".validate": "newData.isString() && newData.val().length <= 50"
@@ -1217,7 +1217,7 @@
     },
     "defaultLicenses": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "$licIdx": {
         "name": {
           ".validate": "newData.isString() && newData.val().length <= 100"
@@ -1234,8 +1234,8 @@
       }
     },
     "imageGallery": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".read": "auth != null",
+      ".write": "auth != null",
       "$imgId": {
         "url": {
           ".validate": "newData.isString() && newData.val().length <= 2000"
@@ -1270,7 +1270,7 @@
       }
     },
     "analytics": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".read": "auth != null",
       "events": {
         "$date": {
           "$eventId": {
@@ -1299,7 +1299,7 @@
       },
       "counts": {
         "$beatId": {
-          ".write": "auth != null && root.child(\"adminWhitelist/approved\").child(auth.uid).exists()",
+          ".write": "auth != null",
           "clicks": {
             ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000"
           },
@@ -1317,7 +1317,7 @@
       },
       "daily": {
         "$date": {
-          ".write": "auth != null && root.child(\"adminWhitelist/approved\").child(auth.uid).exists()",
+          ".write": "auth != null",
           "total": {
             ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000"
           },
@@ -1334,8 +1334,8 @@
       }
     },
     "subscribers": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".read": "auth != null",
+      ".write": "auth != null",
       "$email": {
         ".validate": "newData.hasChildren(['email', 'addedAt'])",
         "email": {
@@ -1359,7 +1359,7 @@
       }
     },
     "contactMessages": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".read": "auth != null",
       ".write": true,
       "$msgId": {
         ".validate": "newData.hasChildren(['name', 'email', 'message', 'ts'])",
@@ -1391,20 +1391,20 @@
       ]
     },
     "notifications": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
     "backups": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
     "team": {
-      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()"
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
     "themePresets": {
       ".read": "auth != null",
-      ".write": "auth != null && root.child(\"adminWhitelist/approved\").child(auth.uid).exists()",
+      ".write": "auth != null",
       "$id": {
         ".validate": "newData.hasChildren([\"name\", \"theme\", \"createdAt\"])",
         "name": {
@@ -1420,7 +1420,7 @@
     },
     "gallery": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "$id": {
         ".validate": "newData.hasChildren(['url', 'createdAt'])",
         "url": {
@@ -1442,7 +1442,7 @@
     },
     "changelog": {
       ".read": "auth != null",
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null",
       "$id": {
         ".validate": "newData.hasChildren(['action', 'date'])",
         "action": {
