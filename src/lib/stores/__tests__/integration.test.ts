@@ -861,18 +861,33 @@ describe('Beats CRUD — Edge Cases', () => {
 		expect(stored.order).toBe(-1);
 	});
 
-	it('incrementPlay runs transaction on firebase', async () => {
+	it('incrementPlay calls server-side API endpoint', async () => {
 		// incrementPlay is throttled 30s — use a unique beatId to avoid throttle
 		const { incrementPlay } = await import('../beats');
 		const uniqueId = 'play-' + Date.now();
 
-		setNestedMockData(`beats/${uniqueId}`, { name: 'Play Me', plays: 5 });
+		// Mock fetch to intercept the API call
+		let fetchCalled = false;
+		let fetchBody: string | undefined;
+		const origFetch = globalThis.fetch;
+		globalThis.fetch = async (url: RequestInfo | URL, init?: RequestInit) => {
+			if (typeof url === 'string' && url === '/api/plays') {
+				fetchCalled = true;
+				fetchBody = init?.body as string;
+				return new Response(JSON.stringify({ ok: true, plays: 6 }), { status: 200 });
+			}
+			return origFetch(url, init);
+		};
 
-		await incrementPlay(uniqueId);
-		await new Promise((r) => setTimeout(r, 20));
+		try {
+			await incrementPlay(uniqueId);
+			await new Promise((r) => setTimeout(r, 20));
 
-		const stored = getNestedMockData(`beats/${uniqueId}`) as Record<string, unknown>;
-		expect(stored.plays).toBe(6);
+			expect(fetchCalled).toBe(true);
+			expect(fetchBody).toContain(uniqueId);
+		} finally {
+			globalThis.fetch = origFetch;
+		}
 	});
 });
 

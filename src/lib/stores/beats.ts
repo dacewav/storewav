@@ -117,7 +117,7 @@ export const allTags = derived(beatsList, ($list) => {
 const playThrottles = new Map<string, number>();
 const PLAY_THROTTLE_MS = 30_000; // Max 1 increment per beat per 30s
 
-/** Incrementar plays de un beat en Firebase (throttled) */
+/** Incrementar plays de un beat via server-side API (throttled, rate-limited) */
 export async function incrementPlay(beatId: string) {
 	const now = Date.now();
 	const last = playThrottles.get(beatId) ?? 0;
@@ -125,13 +125,16 @@ export async function incrementPlay(beatId: string) {
 	playThrottles.set(beatId, now);
 
 	try {
-		const { getDb } = await import('$lib/firebase');
-		const db = await getDb();
-		if (!db) return;
+		const resp = await fetch('/api/plays', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ beatId })
+		});
 
-		const { ref, runTransaction } = await import('firebase/database');
-		const playsRef = ref(db, `beats/${beatId}/plays`);
-		await runTransaction(playsRef, (current) => (current ?? 0) + 1);
+		if (!resp.ok) {
+			// Silencioso — plays no debe romper la UX
+			console.warn(`[Plays] Failed to increment ${beatId}: ${resp.status}`);
+		}
 	} catch {
 		// Silencioso — plays no debe romper la UX
 	}

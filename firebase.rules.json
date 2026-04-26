@@ -478,6 +478,7 @@
     "beats": {
       ".read": true,
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
+      ".indexOn": ["genre", "date", "order", "active", "featured", "exclusive", "available", "deleted"],
       "$beatId": {
         ".validate": "newData.hasChildren(['name', 'genre', 'bpm', 'key'])",
         "name": {
@@ -552,7 +553,7 @@
         },
         "plays": {
           ".read": true,
-          ".write": "auth != null || auth.token.firebase.sign_in_provider == 'anonymous'",
+          ".write": true,
           ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000"
         },
         "licenses": {
@@ -1271,10 +1272,12 @@
     },
     "analytics": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
+      ".indexOn": ["cat", "act"],
       "events": {
+        ".indexOn": ["ts"],
         "$date": {
           "$eventId": {
-            ".write": true,
+            ".write": "auth != null",
             ".validate": "newData.hasChildren(['ts', 'cat', 'act']) && newData.child('ts').isNumber()",
             "ts": {
               ".validate": "newData.isNumber()"
@@ -1298,8 +1301,9 @@
         }
       },
       "counts": {
+        ".indexOn": ["clicks", "views"],
         "$beatId": {
-          ".write": true,
+          ".write": "auth != null",
           "clicks": {
             ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000"
           },
@@ -1317,7 +1321,7 @@
       },
       "daily": {
         "$date": {
-          ".write": true,
+          ".write": "auth != null",
           "total": {
             ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000"
           },
@@ -1360,7 +1364,7 @@
     },
     "contactMessages": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
-      ".write": true,
+      ".write": "auth != null",
       "$msgId": {
         ".validate": "newData.hasChildren(['name', 'email', 'message', 'ts'])",
         "name": {
@@ -1397,6 +1401,34 @@
     "team": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'"
+    },
+    "changelog": {
+      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
+      ".indexOn": ["date"],
+      "$entryId": {
+        "date": {
+          ".validate": "newData.isNumber()"
+        },
+        "action": {
+          ".validate": "newData.isString() && newData.val().length <= 20"
+        },
+        "field": {
+          ".validate": "newData.isString() && newData.val().length <= 100"
+        },
+        "oldValue": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)"
+        },
+        "newValue": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 2000)"
+        },
+        "user": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
     }
   }
 }
