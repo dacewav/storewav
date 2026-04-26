@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-26 11:42 (Session 43 — Admin Polish + Firebase Deploy)**
+> **Última actualización: 2026-04-26 12:25 (Session 43+ — Personalization + Particles Fix + UX Start)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -8,8 +8,11 @@ repo:          https://github.com/dacewav/storewav.git
 framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
-sesiones:      43 completadas
-commits:       65+
+sesiones:      43+ (continuar en sesión 44)
+commits:       69
+tests:         134 passing
+build:         0 errors, 15 warnings (svelte-check)
+último_commit: "8d9102e"
 tests:         134 passing
 build:         0 errors, 0 warnings (svelte-check: 0 errors, 13 warnings)
 último_commit: "6d52083"

@@ -3,53 +3,98 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 43 — Admin Polish + Firebase Deploy
+## Sesión Actual: 44 — Admin UX Overhaul + Browser Testing
 
 ```yaml
-sesión: "43"
-bloque: "Admin polish + Firebase deploy"
-objetivo: "Pulir admin (animation previews, theme preview) + deploy Firebase rules"
+sesión: "44"
+bloque: "Admin UX overhaul + browser testing + particles polish"
+objetivo: "Hacer el admin más visual e intuitivo, testear en browser, arreglar opacidad"
 tiempo: "~50 min"
-estado: "🟡 PARCIAL — code done, deploy pending"
-último_commit: "6d52083"
+estado: "🔴 PENDIENTE"
+último_commit: "8d9102e"
 tests_total: 134
-svelte_check: "0 errors, 13 warnings"
+svelte_check: "0 errors, 15 warnings"
 ```
 
-## TAREAS SESIÓN 43 (estado)
+## Contexto de sesión 43
 
-### 1. ✅ Admin: Animation Previews en vivo
-- Mini-card previews realistas para cada elemento (logo, title, cards, CTA, player, waveform)
-- Timing por elemento (dur, delay, easing) reflejado en cada preview
-- Galería de presets separada
+Sesión larga — 6 commits, mucho trabajo:
+- Animation live previews + theme split-view preview
+- Phase 1 personalization: 20+ controles nuevos (divider, advanced colors, transitions, shadows)
+- Particles opacity fix (closure bug)
+- Particles image upload
+- Particles visual redesign (preview + type pills + grouped controls)
+- Deep audit + mega plan generado
 
-### 2. ✅ Theme: Live Preview Panel
-- Split-view: controles izquierda, preview derecha (sticky)
-- Mini mockup de tienda: nav, hero, cards, CTA
-- Se actualiza en tiempo real con cada slider
-- Toggle button, responsive (<1100px se oculta)
+## ⚠️ PROBLEMAS CONOCIDOS
 
-### 3. 🟡 Firebase Rules Deploy
-- Rules ya incluyen gallery/, changelog/, customEmojis/ en firebase.rules.json
-- **FALTA**: deploy desde Firebase Console (requiere credenciales)
-- Comando: `firebase deploy --only database`
+### 1. Particles Opacity — NO TESTEADO EN BROWSER
+- El bug del closure fue arreglado en `Particles.svelte` (usa `$state` mutables)
+- PERO: no se pudo testear porque el login anónimo tiene `PERMISSION_DENIED` en Firebase
+- **Acción**: testear en browser con login real de admin (Google auth)
+- Si sigue sin funcionar, revisar: `onSlide('theme.particlesOpacity', 'particlesOpacity', ...)` → ¿llega a Firebase? → ¿llega a Particles component?
 
-### 4. 🟡 GitHub Secrets
-- Workflow necesita 9 secrets:
-  - PUBLIC_FIREBASE_API_KEY, AUTH_DOMAIN, DATABASE_URL, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID
-  - PUBLIC_ADMIN_UIDS
-  - CF_API_TOKEN, CF_ACCOUNT_ID
-- **FALTA**: agregarlos en GitHub repo → Settings → Secrets
+### 2. Particles Visual Redesign — NECESITA BROWSER TEST
+- Nuevo `ParticlesPreview.svelte` — canvas standalone para preview
+- Sección reescrita con type pills, toggle badge, controles agrupados
+- **Acción**: verificar que el preview se renderice, que los type pills funcionen, que los sliders respondan
+- Posible issue: `{#await import(...)}` puede no hidratar bien
 
-### 5. 🔴 Beats sin audio
-- 11/11 beats sin audioUrl (solo 1 tiene previewUrl)
-- Necesitan audio files subidos via admin/media o R2
+### 3. Admin UX General — USER FEEDBACK
+- User dijo: "el sistema que agregaste nuevo es bien pero es muy poco visual e intuitivo"
+- Se refiere a la UX GENERAL del admin, no solo partículas
+- **Acción**: hacer un overhaul de UX en las páginas principales
+- Ideas: previews en vivo, iconos en cada sección, mejor agrupación, micro-interacciones
+
+## TAREAS SESIÓN 44 (prioridad)
+
+### 1. Browser Testing (15 min)
+- Levantar dev server
+- Login con Google (no anónimo — necesita write perms)
+- Testear particles opacity slider
+- Testear particles type pills + preview
+- Testear animation previews
+- Testear theme preview panel
+- Testear divider styling controls
+- Testear advanced colors, transitions, shadows
+
+### 2. Fix Bugs encontrados en browser (15 min)
+- Arreglar cualquier bug que aparezca en el testing
+- Especialmente: ParticlesPreview hydration, type pills reactivity
+
+### 3. Admin UX Overhaul Start (20 min)
+- Empezar por la página de **Theme** (la más usada)
+- Agregar previews visuales en secciones clave:
+  - **Colores**: preview de la paleta actual
+  - **Glow**: mini demo del efecto glow
+  - **Typography**: preview del font actual
+  - **Card Effects**: mini card con los efectos aplicados
+  - **Particles**: ya tiene preview (mejorar si es necesario)
+- Mejorar la jerarquía visual: secciones colapsables, iconos más grandes, badges de estado
+
+## Archivos Clave
+
+### Modificados en sesión 43
+- `src/lib/components/Particles.svelte` — opacity fix + image rendering
+- `src/lib/components/ParticlesPreview.svelte` — NUEVO preview component
+- `src/routes/(admin)/admin/theme/+page.svelte` — particles redesign + advanced colors + transitions + shadows + preview panel
+- `src/routes/(admin)/admin/content/+page.svelte` — divider styling
+- `src/routes/(admin)/admin/hero/+page.svelte` — textClr, logoTextGap
+- `src/routes/(admin)/admin/animations/+page.svelte` — live previews
+- `src/routes/(store)/+page.svelte` — divider styles, hero textClr
+- `src/lib/stores/settings.ts` — 20+ new fields
+- `src/lib/theme.ts` — THEME_MAP additions
+
+### Para leer (contexto)
+- `.guide/AUDIT-CUSTOMIZATION.md` — inventario completo de controles
+- `.guide/MEGA-PLAN-PERSONALIZATION.md` — plan de 4 fases
 
 ## Datos clave
 - Dev: `npm run dev -- --host 0.0.0.0 --port 5173`
-- Login: `/login` → "🧪 Entrar como tester (anónimo)"
+- Login: `/login` → "Continuar con Google" (NO usar tester anónimo — no tiene write perms)
 - Firebase: dacewav-store-3b0f5
 - CDN: https://cdn.dacewav.store
 - Tests: `npm test -- --run` (134 passing)
-- Check: `npx svelte-check` (0 errors)
+- Check: `npx svelte-check` (0 errors, 15 warnings)
 - Repo: https://github.com/dacewav/storewav
+- ⚠️ Token GitHub anterior — REVOCAR si aún está activo
