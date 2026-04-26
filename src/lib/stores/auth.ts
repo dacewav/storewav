@@ -27,7 +27,7 @@ export type AuthState = {
 	error: string | null;
 };
 
-const ADMIN_UIDS: string[] = PUBLIC_ADMIN_UIDS.split(',').map((s: string) => s.trim()).filter(Boolean);
+const ADMIN_UIDS: string[] = (PUBLIC_ADMIN_UIDS ?? '').split(',').map((s: string) => s.trim()).filter(Boolean);
 
 if (dev) console.log('[Auth] Admin UIDs configured:', ADMIN_UIDS.length);
 

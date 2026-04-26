@@ -41,50 +41,66 @@ export async function uploadFile(
 }
 
 /**
- * Upload via /api/upload → R2
+ * Upload via /api/upload → R2 (with real progress via XHR)
  */
 async function uploadToR2(
 	path: string,
 	file: File,
 	onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
-	onProgress?.({ bytesTransferred: 0, totalBytes: file.size, percent: 0 });
+	return new Promise((resolve, reject) => {
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('path', path);
 
-	const formData = new FormData();
-	formData.append('file', file);
-	formData.append('path', path);
+		const xhr = new XMLHttpRequest();
 
-	// Timeout: 60s for upload
-	const controller = new AbortController();
-	const timeout = setTimeout(() => controller.abort(), 60_000);
+		// Real upload progress
+		xhr.upload.onprogress = (e) => {
+			if (e.lengthComputable) {
+				onProgress?.({
+					bytesTransferred: e.loaded,
+					totalBytes: e.total,
+					percent: Math.round((e.loaded / e.total) * 100)
+				});
+			}
+		};
 
-	try {
-		const res = await fetch('/api/upload', {
-			method: 'POST',
-			body: formData,
-			signal: controller.signal
-		});
+		xhr.onload = () => {
+			if (xhr.status >= 200 && xhr.status < 300) {
+				try {
+					const data = JSON.parse(xhr.responseText);
+					if (!data.ok) {
+						reject(new Error(data.error || 'Upload falló'));
+						return;
+					}
+					onProgress?.({ bytesTransferred: file.size, totalBytes: file.size, percent: 100 });
+					resolve({ url: data.url, path: data.path });
+				} catch {
+					reject(new Error('Respuesta inválida del servidor'));
+				}
+			} else {
+				try {
+					const body = JSON.parse(xhr.responseText);
+					reject(new Error(body.error || `Upload falló (${xhr.status})`));
+				} catch {
+					reject(new Error(`Upload falló (HTTP ${xhr.status})`));
+				}
+			}
+		};
 
-		clearTimeout(timeout);
+		xhr.onerror = () => {
+			reject(new Error('Error de red — no se pudo conectar al servidor'));
+		};
 
-		if (!res.ok) {
-			const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-			throw new Error(body.error || `Upload falló (${res.status})`);
-		}
+		xhr.ontimeout = () => {
+			reject(new Error('Upload timeout: el servidor no respondió'));
+		};
 
-		onProgress?.({ bytesTransferred: file.size, totalBytes: file.size, percent: 100 });
-
-		const data = await res.json();
-		if (!data.ok) throw new Error(data.error || 'Upload falló');
-
-		return { url: data.url, path: data.path };
-	} catch (err) {
-		clearTimeout(timeout);
-		if (err instanceof DOMException && err.name === 'AbortError') {
-			throw new Error('Upload timeout: el servidor no respondió en 60s');
-		}
-		throw err;
-	}
+		xhr.open('POST', '/api/upload');
+		xhr.timeout = 120_000; // 2 min
+		xhr.send(formData);
+	});
 }
 
 /**
