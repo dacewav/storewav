@@ -76,7 +76,7 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 
 **CLÁUSULA I. OBJETO DE LA LICENCIA**
 
-> El PRODUCTOR otorga al ARTISTA una licencia no exclusiva, intransferible y no sublicenciable para usar el beat descrito anteriormente con el fin de crear una nueva obra musical (en adelante, la "Nueva Canción"), entendida como una única composición musical vocal o instrumental que incorpore el beat licenciado. Para efectos de este contrato, "Nueva Canción" se refiere exclusivamente a una sola obra; cada obra adicional que utilice el beat requerirá una licencia por separado o una licencia de nivel superior. Bajo las siguientes limitaciones:
+> El PRODUCTOR otorga al ARTISTA una licencia no exclusiva, intransferible y no sublicenciable para usar el beat descrito anteriormente con el fin de crear una nueva obra musical (en adelante, la "Nueva Canción"), entendida como una única composición musical vocal o instrumental que incorpore el beat licenciado. Para efectos de este contrato, "Nueva Canción" se refiere exclusivamente a una sola obra; cada obra adicional que utilice el beat requerirá una licencia por separado o una licencia de nivel superior. Se considera la misma Nueva Canción: versiones, remixes, ediciones acústicas, instrumentales y ediciones de radio de la obra original, siempre que mantengan la misma composición vocal/letra base. Bajo las siguientes limitaciones:
 >
 > 1.1 Formato: El archivo indicado en la sección Descripción del Beat.
 >
@@ -118,6 +118,8 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 
 **\"Prod. by Dace\" o \"Beat by Dace\"**
 
+> El crédito deberá aparecer como mínimo en: (a) los metadatos de distribución digital (título del track, campo de créditos o notas del lanzamiento), y (b) la descripción o título de cualquier contenido de video (YouTube, TikTok, Instagram Reels, etc.) donde se utilice la Nueva Canción.
+>
 > La omisión del crédito constituye una violación a este contrato y puede resultar en la revocación inmediata de la licencia sin derecho a reembolso.
 
 **CLÁUSULA V. RESTRICCIONES Y PROHIBICIONES**
@@ -160,7 +162,7 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 >
 > 8.2  Canal de entrega: La entrega se realizará por: \[ \* \] Email  \[ \] WhatsApp  \[ \] WeTransfer  \[ \* \] Google Drive
 >
-> 8.3 Content ID --- Obligación del PRODUCTOR: El PRODUCTOR se compromete a liberar (whitelist) la grabación maestra de la Nueva Canción del ARTISTA en todos los sistemas de Content ID en que el beat esté registrado a su nombre, dentro de las 24 horas hábiles siguientes a recibir el enlace de distribución por parte del ARTISTA. El incumplimiento da derecho al ARTISTA a solicitar la resolución del contrato y la devolución proporcional del precio pagado.
+> 8.3 Content ID --- Obligación del PRODUCTOR: El PRODUCTOR se compromete a liberar (whitelist) la grabación maestra de la Nueva Canción del ARTISTA en todos los sistemas de Content ID en que el beat esté registrado a su nombre, dentro de las 24 horas hábiles siguientes a recibir el enlace de distribución por parte del ARTISTA. Esta obligación se activa únicamente al recibir dicho enlace; el PRODUCTOR no será responsable de reclamaciones de Content ID si el ARTISTA no ha proporcionado el enlace de distribución. El incumplimiento del plazo da derecho al ARTISTA a solicitar la resolución del contrato y la devolución proporcional del precio pagado.
 
 **CLÁUSULA IX. PAGO Y CONDICIONES ECONÓMICAS**
 
@@ -169,6 +171,8 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 > Comprobante de pago: \[ \] Adjunto  \[ \] Captura enviada por mensaje
 >
 > Este pago no genera regalías ni pagos adicionales futuros al PRODUCTOR, salvo acuerdo escrito. El pago de la licencia no es reembolsable, salvo en los supuestos expresamente previstos en la Cláusula VIII.3 del presente contrato.
+>
+> En caso de chargeback, devolución o reversión del pago por cualquier motivo, la licencia se revocará automáticamente e inmediatamente, sin necesidad de notificación previa. El ARTISTA deberá cesar todo uso del beat y retirar la Nueva Canción de todas las plataformas dentro de los 5 (cinco) días hábiles siguientes a la revocación.
 >
 > El ARTISTA es responsable de todos los impuestos y tasas aplicables derivados de la compra de esta licencia.
 

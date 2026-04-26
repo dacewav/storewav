@@ -113,7 +113,7 @@
 
 **CLÁUSULA I. OTORGAMIENTO DE DERECHOS EXCLUSIVOS**
 
-El PRODUCTOR otorga al ARTISTA una licencia EXCLUSIVA y A PERPETUIDAD para usar el beat descrito anteriormente con el fin de grabar, reproducir, distribuir, monetizar y explotar comercialmente una o varias obras musicales (en adelante, las "Nuevas Canciones"), entendidas como composiciones musicales vocales o instrumentales que incorporen el beat licenciado. A diferencia de las licencias no exclusivas, la licencia exclusiva permite la creación de múltiples Nuevas Canciones con el mismo beat. El ARTISTA tendrá el derecho exclusivo de explotar el beat, sujeto a los términos de este Contrato.
+El PRODUCTOR otorga al ARTISTA una licencia EXCLUSIVA y A PERPETUIDAD para usar el beat descrito anteriormente con el fin de grabar, reproducir, distribuir, monetizar y explotar comercialmente una o varias obras musicales (en adelante, las "Nuevas Canciones"), entendidas como composiciones musicales vocales o instrumentales que incorporen el beat licenciado. A diferencia de las licencias no exclusivas, la licencia exclusiva permite la creación de múltiples Nuevas Canciones con el mismo beat. Se considera la misma Nueva Canción: versiones, remixes, ediciones acústicas, instrumentales y ediciones de radio de una obra original. El ARTISTA tendrá el derecho exclusivo de explotar el beat, sujeto a los términos de este Contrato.
 
 1\.1  Formato entregado: todos los archivos indicados en la sección Descripción del Beat (MP3, WAV, Stems/Trackout en archivo ZIP).
 
@@ -183,7 +183,7 @@ El ARTISTA se compromete a acreditar al PRODUCTOR en todos los lanzamientos y pl
 
 **"Prod. by Dace"   o   "Beat by Dace"**
 
-
+El crédito deberá aparecer como mínimo en: (a) los metadatos de distribución digital (título del track, campo de créditos o notas del lanzamiento), y (b) la descripción o título de cualquier contenido de video (YouTube, TikTok, Instagram Reels, etc.) donde se utilicen las Nuevas Canciones.
 
 La omisión del crédito constituye una violación a este contrato y puede resultar en la revocación inmediata de la licencia sin derecho a reembolso.
 
@@ -218,6 +218,8 @@ El ARTISTA realizó el pago único e irrepetible de: $\_\_\_\_\_\_\_\_\_\_\_\_\_
 Comprobante de pago: [ ] Adjunto  [ ] Captura enviada por mensaje
 
 Este pago único no cubre las regalías del máster (30% para el PRODUCTOR, según Cláusula IV). El pago de la licencia no es reembolsable.
+
+En caso de chargeback, devolución o reversión del pago por cualquier motivo, la licencia se revocará automáticamente e inmediatamente, sin necesidad de notificación previa. El ARTISTA deberá cesar todo uso del beat y retirar todas las Nuevas Canciones de todas las plataformas dentro de los 5 (cinco) días hábiles siguientes a la revocación.
 
 **CLÁUSULA XI. DURACIÓN Y TERMINACIÓN**
 
