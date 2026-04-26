@@ -1,4 +1,8 @@
 <script lang="ts">
+	/**
+	 * EmojiPicker — Discord-style floating emoji picker.
+	 * Uses mousedown to prevent blur race condition.
+	 */
 	import type { CustomEmoji } from '$lib/stores/customEmojis';
 
 	let {
@@ -68,7 +72,9 @@
 		}
 	}
 
-	function handleClick(emoji: CustomEmoji) {
+	// Use mousedown instead of click to prevent blur race condition
+	function handleMousedown(e: MouseEvent, emoji: CustomEmoji) {
+		e.preventDefault(); // Prevents blur on the input
 		onselect?.(emoji);
 	}
 </script>
@@ -91,7 +97,7 @@
 				<button
 					class="picker-emoji"
 					class:selected={i === selectedIndex}
-					onclick={() => handleClick(emoji)}
+					onmousedown={(e) => handleMousedown(e, emoji)}
 					role="option"
 					aria-selected={i === selectedIndex}
 					title=":{emoji.name}:"

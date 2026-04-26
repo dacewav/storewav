@@ -1,10 +1,10 @@
 <script lang="ts">
 	/**
 	 * EmojiInput — textarea/input with Discord-style emoji autocomplete.
-	 * Wraps a native input/textarea and adds :shortcode: picker.
+	 * Wraps a native input/textarea and adds :shortcode: picker + live preview.
 	 */
 	import { customEmojis } from '$lib/stores';
-	import { findEmojiQuery, insertEmoji } from '$lib/emojiUtils';
+	import { findEmojiQuery, insertEmoji, renderEmojis } from '$lib/emojiUtils';
 	import EmojiPicker from './EmojiPicker.svelte';
 	import type { CustomEmoji } from '$lib/stores/customEmojis';
 	import type { Snippet } from 'svelte';
@@ -36,6 +36,12 @@
 	let pickerRect = $state({ top: 0, left: 0, bottom: 0 });
 	let activeEmojiQuery = $state<ReturnType<typeof findEmojiQuery>>(null);
 
+	// Preview: rendered version of the value with emojis
+	let hasShortcodes = $derived(/:[a-zA-Z0-9_+-]+:/.test(value));
+	let renderedPreview = $derived(
+		hasShortcodes ? renderEmojis(value, emojis) : ''
+	);
+
 	function handleInput() {
 		oninput?.(value);
 		updatePicker();
@@ -59,11 +65,9 @@
 	function positionPicker(colonPos: number) {
 		if (!inputEl) return;
 
-		// Create a mirror to measure cursor position
 		const rect = inputEl.getBoundingClientRect();
 		const style = getComputedStyle(inputEl);
 
-		// Create measurement element
 		const mirror = document.createElement('div');
 		mirror.style.cssText = `
 			position: absolute; visibility: hidden; white-space: pre-wrap; word-wrap: break-word;
@@ -83,9 +87,7 @@
 
 		document.body.removeChild(mirror);
 
-		// Calculate line height approximation
 		const lineHeight = parseFloat(style.lineHeight) || 20;
-		const linesBefore = (value.slice(0, colonPos).match(/\n/g) || []).length;
 
 		pickerRect = {
 			top: rect.top + parseFloat(style.paddingTop || '0') + offsetY,
@@ -99,8 +101,8 @@
 		const result = insertEmoji(value, inputEl?.selectionStart ?? 0, activeEmojiQuery, emoji.name);
 		value = result.text;
 		closePicker();
+		oninput?.(value);
 
-		// Restore cursor position
 		requestAnimationFrame(() => {
 			if (inputEl) {
 				inputEl.focus();
@@ -116,9 +118,7 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		// Let the picker handle its own keys when visible
 		if (pickerVisible && ['ArrowDown', 'ArrowUp', 'Enter', 'Tab', 'Escape'].includes(e.key)) {
-			// Picker handles these via svelte:window — but we need to prevent default for Tab/Enter
 			if (e.key === 'Tab' || (e.key === 'Enter' && pickerVisible)) {
 				e.preventDefault();
 			}
@@ -126,8 +126,7 @@
 	}
 
 	function handleBlur() {
-		// Delay to allow click on picker
-		setTimeout(() => { closePicker(); }, 150);
+		setTimeout(() => { closePicker(); }, 200);
 	}
 </script>
 
@@ -159,6 +158,14 @@
 	/>
 {/if}
 
+<!-- Live preview: rendered emojis -->
+{#if hasShortcodes}
+	<div class="emoji-preview">
+		<span class="preview-label">Preview:</span>
+		<span class="preview-text">{@html renderedPreview}</span>
+	</div>
+{/if}
+
 <EmojiPicker
 	emojis={emojis}
 	query={pickerQuery}
@@ -186,5 +193,42 @@
 
 	textarea:focus, input:focus {
 		border-color: rgba(var(--accent-rgb), 0.5);
+	}
+
+	.emoji-preview {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-2);
+		margin-top: var(--space-1);
+		padding: var(--space-2) var(--space-3);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		font-size: var(--text-sm);
+		line-height: 1.5;
+	}
+
+	.preview-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		flex-shrink: 0;
+		padding-top: 2px;
+	}
+
+	.preview-text {
+		color: var(--text);
+		word-break: break-word;
+	}
+
+	.preview-text :global(.inline-emoji) {
+		display: inline-block;
+		width: 1.2em;
+		height: 1.2em;
+		vertical-align: -0.15em;
+		object-fit: contain;
+		margin: 0 0.05em;
 	}
 </style>
