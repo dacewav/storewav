@@ -133,6 +133,28 @@ const THEME_MAP: Record<string, string> = {
 	ctaBtnRadius: '--cta-btn-radius',
 	// Container (new)
 	containerMaxWidth: '--max-width',
+	// Advanced colors
+	bgSecondary: '--bg-secondary',
+	surfaceColor2: '--surface2',
+	surfaceHover: '--surface-hover',
+	surfaceActive: '--surface-active',
+	borderColor: '--border',
+	borderColor2: '--border2',
+	textHint: '--text-hint',
+	textMuted: '--text-muted',
+	dangerColor: '--danger',
+	warningColor: '--warning',
+	selectionBg: '--selection-bg',
+	selectionColor: '--selection-color',
+	// Transitions
+	durationFast: '--duration-fast',
+	durationNormal: '--duration-normal',
+	durationSlow: '--duration-slow',
+	easeDefault: '--ease-out',
+	// Shadows
+	shadowSm: '--shadow-sm',
+	shadowMd: '--shadow-md',
+	shadowLg: '--shadow-lg',
 };
 
 /**
@@ -223,7 +245,7 @@ export function applyTheme(config: ThemeConfig) {
 			// Values that need 'rem' suffix
 			const needsRem = ['sectionPadding', 'heroPadTop', 'padSection'];
 			// Values that need 'px' suffix
-			const needsPx = ['beatGap', 'wbarHeight', 'wbarRadius', 'blurBg', 'cardShadowIntensity', 'navBlur', 'ctaBtnRadius', 'containerMaxWidth'];
+			const needsPx = ['beatGap', 'wbarHeight', 'wbarRadius', 'blurBg', 'cardShadowIntensity', 'navBlur', 'ctaBtnRadius', 'containerMaxWidth', 'durationFast', 'durationNormal', 'durationSlow'];
 			if (needsRem.includes(key) && typeof value === 'number') {
 				vars[cssVar] = `${value}rem`;
 			} else if (needsPx.includes(key) && typeof value === 'number') {

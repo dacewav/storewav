@@ -131,6 +131,8 @@ export type HeroVisualSettings = {
 
 	// Padding
 	padTop: number; // rem
+	textClr: string;            // hero text color override
+	logoTextGap: number;        // px, gap between logo and text
 };
 
 // ── Theme Settings ──
@@ -252,6 +254,31 @@ export type ThemeSettings = {
 	// ── NEW: Scrollbar ──
 	scrollbarThin: boolean;      // thin scrollbar
 	scrollbarColor: string;      // thumb color
+
+	// ── NEW: Advanced Colors ──
+	bgSecondary: string;         // secondary background
+	surfaceColor2: string;       // alternate surface
+	surfaceHover: string;        // surface hover state
+	surfaceActive: string;       // surface active state
+	borderColor: string;         // primary border
+	borderColor2: string;        // secondary border
+	textHint: string;            // hint text color
+	textMuted: string;           // muted text color
+	dangerColor: string;         // error/danger color
+	warningColor: string;        // warning color
+	selectionBg: string;         // text selection background
+	selectionColor: string;      // text selection color
+
+	// ── NEW: Transitions ──
+	durationFast: number;        // ms, default 150
+	durationNormal: number;      // ms, default 300
+	durationSlow: number;        // ms, default 500
+	easeDefault: string;         // CSS easing function
+
+	// ── NEW: Shadows ──
+	shadowSm: string;            // small shadow
+	shadowMd: string;            // medium shadow
+	shadowLg: string;            // large shadow
 };
 
 // ── Layout Settings (expanded) ──
@@ -388,7 +415,9 @@ const DEFAULT: SettingsData = {
 		gradOp: 0.14,
 		gradW: 80,
 		gradH: 60,
-		padTop: 0
+		padTop: 0,
+		textClr: '',
+		logoTextGap: 0
 	},
 	theme: {
 		accent: '#dc2626',
@@ -467,7 +496,29 @@ const DEFAULT: SettingsData = {
 		bgPatternColor: '',
 		bgPatternOpacity: 0.05,
 		scrollbarThin: false,
-		scrollbarColor: ''
+		scrollbarColor: '',
+		// Advanced colors
+		bgSecondary: '',
+		surfaceColor2: '',
+		surfaceHover: '',
+		surfaceActive: '',
+		borderColor: '',
+		borderColor2: '',
+		textHint: '',
+		textMuted: '',
+		dangerColor: '',
+		warningColor: '',
+		selectionBg: '',
+		selectionColor: '',
+		// Transitions
+		durationFast: 150,
+		durationNormal: 300,
+		durationSlow: 500,
+		easeDefault: '',
+		// Shadows
+		shadowSm: '',
+		shadowMd: '',
+		shadowLg: ''
 	},
 	section: {
 		title: 'Catálogo',

@@ -124,6 +124,19 @@
 				<input id="hv-lh" type="number" step="0.05" min="0.5" max="2" value={hv.lineHeight ?? 1} oninput={(e) => update('heroVisual.lineHeight', +e.currentTarget.value)} />
 			</div>
 		</div>
+		<div class="row">
+			<div class="field">
+				<label for="hv-tc">Color texto hero</label>
+				<div class="color-row">
+					<input id="hv-tc" type="color" value={hv.textClr || theme.textColor || '#f5eeee'} oninput={(e) => update('heroVisual.textClr', e.currentTarget.value)} />
+					<input type="text" value={hv.textClr ?? ''} placeholder="(usa texto global)" oninput={(e) => update('heroVisual.textClr', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="hv-ltg">Logo-text gap ({hv.logoTextGap ?? 0}px)</label>
+				<input id="hv-ltg" type="range" min="-20" max="50" step="1" value={hv.logoTextGap ?? 0} oninput={(e) => update('heroVisual.logoTextGap', +e.currentTarget.value)} />
+			</div>
+		</div>
 	</Card>
 
 	<!-- Glow Word -->

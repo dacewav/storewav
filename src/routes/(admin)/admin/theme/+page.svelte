@@ -350,6 +350,153 @@
 		</div>
 	</Card>
 
+	<!-- Advanced Colors -->
+	<Card>
+		<h3 class="section-title">🎨 Colores Avanzados</h3>
+		<p class="field-desc">Colores secundarios, bordes y estados. Vacío = default del tema.</p>
+		<div class="row">
+			<div class="field">
+				<label for="t-bgsec">Background secundario</label>
+				<div class="color-row">
+					<input id="t-bgsec" type="color" value={t.bgSecondary || '#0a0a0a'} oninput={(e) => update('theme.bgSecondary', e.currentTarget.value)} />
+					<input type="text" value={t.bgSecondary ?? ''} placeholder="(#0a0a0a)" oninput={(e) => update('theme.bgSecondary', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-sfc2">Superficie alternativa</label>
+				<div class="color-row">
+					<input id="t-sfc2" type="color" value={t.surfaceColor2 || '#1a0c0c'} oninput={(e) => update('theme.surfaceColor2', e.currentTarget.value)} />
+					<input type="text" value={t.surfaceColor2 ?? ''} placeholder="(#1a0c0c)" oninput={(e) => update('theme.surfaceColor2', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-sfh">Superficie hover</label>
+				<div class="color-row">
+					<input id="t-sfh" type="color" value={t.surfaceHover || '#161010'} oninput={(e) => update('theme.surfaceHover', e.currentTarget.value)} />
+					<input type="text" value={t.surfaceHover ?? ''} placeholder="(#161010)" oninput={(e) => update('theme.surfaceHover', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-sfa">Superficie active</label>
+				<div class="color-row">
+					<input id="t-sfa" type="color" value={t.surfaceActive || '#1e1414'} oninput={(e) => update('theme.surfaceActive', e.currentTarget.value)} />
+					<input type="text" value={t.surfaceActive ?? ''} placeholder="(#1e1414)" oninput={(e) => update('theme.surfaceActive', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-bdr">Borde principal</label>
+				<div class="color-row">
+					<input id="t-bdr" type="color" value={t.borderColor || 'rgba(255,255,255,0.06)'} oninput={(e) => update('theme.borderColor', e.currentTarget.value)} />
+					<input type="text" value={t.borderColor ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.borderColor', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-bdr2">Borde secundario</label>
+				<div class="color-row">
+					<input id="t-bdr2" type="color" value={t.borderColor2 || 'rgba(255,255,255,0.12)'} oninput={(e) => update('theme.borderColor2', e.currentTarget.value)} />
+					<input type="text" value={t.borderColor2 ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.borderColor2', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-txth">Texto hint/sutil</label>
+				<div class="color-row">
+					<input id="t-txth" type="color" value={t.textHint || 'rgba(245,238,238,0.15)'} oninput={(e) => update('theme.textHint', e.currentTarget.value)} />
+					<input type="text" value={t.textHint ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.textHint', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-txtm">Texto muted</label>
+				<div class="color-row">
+					<input id="t-txtm" type="color" value={t.textMuted || 'rgba(245,238,238,0.25)'} oninput={(e) => update('theme.textMuted', e.currentTarget.value)} />
+					<input type="text" value={t.textMuted ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.textMuted', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-danger">Danger (error)</label>
+				<div class="color-row">
+					<input id="t-danger" type="color" value={t.dangerColor || '#ff4444'} oninput={(e) => update('theme.dangerColor', e.currentTarget.value)} />
+					<input type="text" value={t.dangerColor ?? ''} placeholder="(#ff4444)" oninput={(e) => update('theme.dangerColor', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-warning">Warning (advertencia)</label>
+				<div class="color-row">
+					<input id="t-warning" type="color" value={t.warningColor || '#ffaa00'} oninput={(e) => update('theme.warningColor', e.currentTarget.value)} />
+					<input type="text" value={t.warningColor ?? ''} placeholder="(#ffaa00)" oninput={(e) => update('theme.warningColor', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-selbg">Selección texto bg</label>
+				<div class="color-row">
+					<input id="t-selbg" type="color" value={t.selectionBg || '#dc2626'} oninput={(e) => update('theme.selectionBg', e.currentTarget.value)} />
+					<input type="text" value={t.selectionBg ?? ''} placeholder="(accent)" oninput={(e) => update('theme.selectionBg', e.currentTarget.value)} />
+				</div>
+			</div>
+			<div class="field">
+				<label for="t-selcl">Selección texto color</label>
+				<div class="color-row">
+					<input id="t-selcl" type="color" value={t.selectionColor || '#ffffff'} oninput={(e) => update('theme.selectionColor', e.currentTarget.value)} />
+					<input type="text" value={t.selectionColor ?? ''} placeholder="(#ffffff)" oninput={(e) => update('theme.selectionColor', e.currentTarget.value)} />
+				</div>
+			</div>
+		</div>
+	</Card>
+
+	<!-- Transitions & Shadows -->
+	<Card>
+		<h3 class="section-title">⚡ Transiciones y Sombras</h3>
+		<p class="field-desc">Controla la velocidad de las transiciones y sombras globales.</p>
+		<div class="row">
+			<div class="field">
+				<label for="t-df">Duración rápida ({t.durationFast ?? 150}ms)</label>
+				<input id="t-df" type="range" min="50" max="500" step="25" value={t.durationFast ?? 150} oninput={(e) => update('theme.durationFast', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-dn">Duración normal ({t.durationNormal ?? 300}ms)</label>
+				<input id="t-dn" type="range" min="100" max="1000" step="50" value={t.durationNormal ?? 300} oninput={(e) => update('theme.durationNormal', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-ds">Duración lenta ({t.durationSlow ?? 500}ms)</label>
+				<input id="t-ds" type="range" min="200" max="2000" step="100" value={t.durationSlow ?? 500} oninput={(e) => update('theme.durationSlow', +e.currentTarget.value)} />
+			</div>
+		</div>
+		<div class="field">
+			<label for="t-ease">Easing global</label>
+			<select id="t-ease" onchange={(e) => update('theme.easeDefault', e.currentTarget.value)}>
+				<option value="" selected={!t.easeDefault}>Default (ease-out)</option>
+				<option value="ease-out" selected={t.easeDefault === 'ease-out'}>Ease Out</option>
+				<option value="ease-in-out" selected={t.easeDefault === 'ease-in-out'}>Ease In-Out</option>
+				<option value="cubic-bezier(0.16, 1, 0.3, 1)" selected={t.easeDefault?.includes('0.16')}>Spring</option>
+				<option value="cubic-bezier(0.34, 1.56, 0.64, 1)" selected={t.easeDefault?.includes('1.56')}>Bouncy</option>
+				<option value="linear" selected={t.easeDefault === 'linear'}>Linear</option>
+			</select>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="t-shsm">Sombra pequeña</label>
+				<input id="t-shsm" type="text" value={t.shadowSm ?? ''} placeholder="0 2px 8px rgba(0,0,0,0.3)" oninput={(e) => update('theme.shadowSm', e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="t-shmd">Sombra mediana</label>
+				<input id="t-shmd" type="text" value={t.shadowMd ?? ''} placeholder="0 4px 16px rgba(0,0,0,0.4)" oninput={(e) => update('theme.shadowMd', e.currentTarget.value)} />
+			</div>
+		</div>
+		<div class="field">
+			<label for="t-shlg">Sombra grande</label>
+			<input id="t-shlg" type="text" value={t.shadowLg ?? ''} placeholder="0 8px 32px rgba(0,0,0,0.5)" oninput={(e) => update('theme.shadowLg', e.currentTarget.value)} />
+		</div>
+	</Card>
+
 	<!-- Navigation -->
 	<Card>
 		<h3 class="section-title">Navegación</h3>

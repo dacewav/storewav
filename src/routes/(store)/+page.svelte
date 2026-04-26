@@ -49,6 +49,7 @@
 		hv.titleSize > 0 ? `font-size: ${hv.titleSize}rem` : '',
 		`letter-spacing: ${hv.letterSpacing ?? -0.04}em`,
 		`line-height: ${hv.lineHeight ?? 1}`,
+		hv.textClr ? `color: ${hv.textClr}` : '',
 	].filter(Boolean).join(';'));
 
 	let heroGradStyle = $derived(
@@ -83,6 +84,15 @@
 	].filter(Boolean).join('; ') || undefined);
 	let dividerTitle = $derived(s?.section?.dividerTitle ?? '');
 	let dividerSub = $derived(s?.section?.dividerSub ?? '');
+	let dividerTitleStyle = $derived([
+		s?.section?.dividerTitleSize ? `font-size: ${s.section.dividerTitleSize}rem` : '',
+		s?.section?.dividerLetterSpacing ? `letter-spacing: ${s.section.dividerLetterSpacing}em` : '',
+		s?.section?.dividerGlowOn ? `text-shadow: 0 0 ${s.section.dividerGlowBlur ?? 20}px ${accent}` : '',
+	].filter(Boolean).join('; ') || undefined);
+	let dividerSubStyle = $derived([
+		s?.section?.dividerSubColor ? `color: ${s.section.dividerSubColor}` : '',
+		s?.section?.dividerSubSize ? `font-size: ${s.section.dividerSubSize}px` : '',
+	].filter(Boolean).join('; ') || undefined);
 
 	// Hero links
 	let heroLinks = $derived((s?.links ?? []) as Array<{label: string; url: string; icon: IconName}>);
@@ -354,12 +364,12 @@
 <!-- Section divider -->
 {#if dividerTitle}
 <div class="section-divider" use:reveal={{}}>
-	<div class="section-divider-text">
+	<div class="section-divider-text" style={dividerTitleStyle}>
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		{@html renderEmojis(sanitizeHtml(dividerTitle), $customEmojis)}
 	</div>
 	{#if dividerSub}
-	<div class="section-divider-sub">
+	<div class="section-divider-sub" style={dividerSubStyle}>
 		<InlineEmoji text={dividerSub} />
 	</div>
 	{/if}
