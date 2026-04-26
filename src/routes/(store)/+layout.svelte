@@ -367,7 +367,7 @@
 
 		<!-- Desktop links -->
 		<div class="nav-links hide-mobile">
-			<a href="/" class="nav-link">{sectionTitle}</a>
+			<a href="/#beats" class="nav-link" onclick={(e) => { if (page.url.pathname === '/') { e.preventDefault(); document.getElementById('beats')?.scrollIntoView({ behavior: 'smooth' }); closeMenu(); } }}>{sectionTitle}</a>
 			{#if isAdmin}
 				<a href="/admin" class="nav-link">Admin</a>
 			{/if}
@@ -402,7 +402,7 @@
 	{#if menuOpen}
 		<div class="mobile-overlay" onclick={closeMenu} onkeydown={(e) => e.key === 'Escape' && closeMenu()} role="button" tabindex="-1" aria-label="Cerrar menú"></div>
 		<div class="mobile-menu" bind:this={mobileMenuEl}>
-			<a href="/" class="mobile-link" onclick={closeMenu}>{sectionTitle}</a>
+			<a href="/#beats" class="mobile-link" onclick={(e) => { if (page.url.pathname === '/') { e.preventDefault(); document.getElementById('beats')?.scrollIntoView({ behavior: 'smooth' }); } closeMenu(); }}>{sectionTitle}</a>
 			{#if isAdmin}
 				<a href="/admin" class="mobile-link" onclick={closeMenu}>Admin</a>
 			{/if}
