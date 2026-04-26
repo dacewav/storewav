@@ -169,6 +169,7 @@
 			label: 'Visual',
 			items: [
 				{ href: '/admin/theme', label: 'Colores & Fuentes', icon: '🎨', shortcut: 'Ctrl+T' },
+				{ href: '/admin/effects', label: 'Effects & Glow', icon: '✨' },
 				{ href: '/admin/cardstyle', label: 'Cards & Hover', icon: '🃏' },
 				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
 				{ href: '/admin/brand', label: 'Brand & Links', icon: '🏢' },

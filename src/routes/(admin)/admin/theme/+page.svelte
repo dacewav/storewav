@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { settings, themePresets as themePresetsStore, savePreset, loadPreset, deletePreset, renamePreset } from '$lib/stores';
-	import { Card, AdminSkeleton, HelpTip, Collapsible } from '$lib/components';
+	import { Card, AdminSkeleton, Collapsible } from '$lib/components';
 	import type { ThemeSettings } from '$lib/stores/settings';
 	import type { ThemePreset } from '$lib/stores';
+	import { fmt, handleShiftArrows, hexToRgb } from '$lib/themeShared';
 
 	let s = $derived($settings.data);
 	let t = $derived((s?.theme ?? {}) as ThemeSettings);
@@ -17,19 +18,15 @@
 		if (!localInit) {
 			// First load: populate all local values from store
 			local = {
-				glowIntensity: t.glowIntensity ?? 1,
-				glowBlur: t.glowBlur ?? 20,
-				glowAnimSpeed: t.glowAnimSpeed ?? 2,
 				fontWeight: t.fontWeight ?? 400,
 				fontSize: t.fontSize ?? 14,
 				lineHeight: t.lineHeight ?? 1.6,
 				radiusGlobal: t.radiusGlobal ?? 12,
 				sectionPadding: t.sectionPadding ?? 4,
 				beatGap: t.beatGap ?? 16,
-				cardOpacity: t.cardOpacity ?? 0.85,
-				blurBg: t.blurBg ?? 20,
-				grainOpacity: t.grainOpacity ?? 0.03,
-				cardShadowIntensity: t.cardShadowIntensity ?? 0.3,
+				navBlur: t.navBlur ?? 24,
+				ctaBtnRadius: t.ctaBtnRadius ?? 12,
+				containerMaxWidth: t.containerMaxWidth ?? 1200,
 				navOpacity: t.navOpacity ?? 0.95,
 				heroBgOpacity: t.heroBgOpacity ?? 1,
 				sectionOpacity: t.sectionOpacity ?? 1,
@@ -42,17 +39,6 @@
 				wbarRadius: t.wbarRadius ?? 0,
 				waveOpacityOff: t.waveOpacityOff ?? 0.3,
 				waveOpacityOn: t.waveOpacityOn ?? 0.8,
-				heroGlowInt: t.heroGlowInt ?? 1,
-				heroGlowBlur: t.heroGlowBlur ?? 20,
-				heroStrokeW: t.heroStrokeW ?? 1,
-				particlesCount: t.particlesCount ?? 50,
-				particlesSpeed: t.particlesSpeed ?? 1,
-				particlesSizeMin: t.particlesSizeMin ?? 3,
-				particlesSizeMax: t.particlesSizeMax ?? 8,
-				particlesOpacity: t.particlesOpacity ?? 0.3,
-				navBlur: t.navBlur ?? 24,
-				ctaBtnRadius: t.ctaBtnRadius ?? 12,
-				containerMaxWidth: t.containerMaxWidth ?? 1200,
 			};
 			localInit = true;
 		}
@@ -101,65 +87,13 @@
 		settings.updateField(path, value);
 	}
 
-	/** Format slider value for display */
-	function fmt(key: string, max: number, unit = '', pct = false): string {
-		const n = local[key] ?? 0;
-		const clamped = Math.min(n, max);
-		if (pct) return `${Math.round(clamped * 100)}%`;
-		if (unit === 's') return `${clamped}s`;
-		if (unit) return `${clamped}${unit}`;
-		return String(Math.round(clamped * 100) / 100);
-	}
-
-	const ANIMS = ['none', 'float', 'pulse', 'bounce', 'spin', 'shake', 'glow', 'slide-up', 'slide-down', 'fade-in', 'wobble', 'jello', 'heartbeat', 'breathe', 'drift', 'pop', 'swing', 'tada'];
-	const PARTICLE_TYPES = ['circle', 'square', 'line', 'text', 'image'];
-	const BLEND_MODES = ['normal', 'screen', 'overlay', 'multiply', 'soft-light', 'hard-light', 'color-dodge'];
-	const GLOW_ANIMS = ['none', 'pulse', 'breathe', 'spin'];
-
-	/** Shift+Arrow for 10x step on sliders */
-	function handleShiftArrows(e: KeyboardEvent) {
-		if (!e.shiftKey) return;
-		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
-		e.preventDefault();
-		const input = e.currentTarget as HTMLInputElement;
-		const min = parseFloat(input.min);
-		const max = parseFloat(input.max);
-		const step = parseFloat(input.step) || 1;
-		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
-		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
-		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-		if (nativeSetter) nativeSetter.call(input, String(newVal));
-		else input.value = String(newVal);
-		input.dispatchEvent(new Event('input', { bubbles: true }));
+	/** Wrapper for shared fmt with local state */
+	function f(key: string, max: number, unit = '', pct = false): string {
+		return fmt(local, key, max, unit, pct);
 	}
 
 	// Preview panel toggle
 	let showPreview = $state(true);
-
-	// Particle image upload
-	let particleUploading = $state(false);
-	let particleUploadProgress = $state(0);
-
-	async function handleParticleImageUpload(e: Event) {
-		const input = e.currentTarget as HTMLInputElement;
-		const file = input.files?.[0];
-		if (!file) return;
-		particleUploading = true;
-		particleUploadProgress = 0;
-		try {
-			const { uploadFile } = await import('$lib/upload');
-			const ext = file.name.split('.').pop() ?? 'png';
-			const filename = `particles/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-			const result = await uploadFile(filename, file, (p) => { particleUploadProgress = p.percent; });
-			update('theme.particlesImgUrl', result.url);
-		} catch (err) {
-			console.error('Upload failed:', err);
-		} finally {
-			particleUploading = false;
-			particleUploadProgress = 0;
-			input.value = '';
-		}
-	}
 
 	/** Build live preview CSS vars from current theme state */
 	let previewStyle = $derived.by(() => {
@@ -188,14 +122,7 @@
 		].join('; ');
 	});
 
-	function hexToRgb(hex: string): string {
-		const h = hex.replace('#', '');
-		if (h.length !== 6) return '220, 38, 38';
-		const r = parseInt(h.substring(0, 2), 16);
-		const g = parseInt(h.substring(2, 4), 16);
-		const b = parseInt(h.substring(4, 6), 16);
-		return `${r}, ${g}, ${b}`;
-	}
+
 </script>
 
 {#if $settings.loading}
@@ -573,7 +500,7 @@
 				</div>
 			</div>
 			<div class="field">
-				<label for="t-nbl">Blur nav ({fmt("navBlur", 40, "px")})</label>
+				<label for="t-nbl">Blur nav ({f("navBlur", 40, "px")})</label>
 				<input id="t-nbl" type="range" min="0" max="40" step="2" value={local.navBlur ?? 24} oninput={(e) => onSlide('theme.navBlur', 'navBlur', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
@@ -606,7 +533,7 @@
 				</div>
 			</div>
 			<div class="field">
-				<label for="t-ctr">Radio ({fmt("ctaBtnRadius", 50, "px")})</label>
+				<label for="t-ctr">Radio ({f("ctaBtnRadius", 50, "px")})</label>
 				<input id="t-ctr" type="range" min="0" max="50" step="2" value={local.ctaBtnRadius ?? 12} oninput={(e) => onSlide('theme.ctaBtnRadius', 'ctaBtnRadius', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
@@ -615,44 +542,8 @@
 	<!-- Container -->
 	<Collapsible id="container" icon="📐" title="Contenedor" open={false}>
 		<div class="field">
-			<label for="t-cmw">Ancho máximo ({fmt("containerMaxWidth", 1800, "px")})</label>
+			<label for="t-cmw">Ancho máximo ({f("containerMaxWidth", 1800, "px")})</label>
 			<input id="t-cmw" type="range" min="800" max="1800" step="50" value={local.containerMaxWidth ?? 1200} oninput={(e) => onSlide('theme.containerMaxWidth', 'containerMaxWidth', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-		</div>
-	</Collapsible>
-
-	<!-- Glow System -->
-	<Collapsible id="glow-system" icon="✨" title="Sistema de Glow" open={true}>
-		{#snippet preview()}
-			<div class="glow-preview-mini" style="box-shadow: 0 0 {(t.glowBlur ?? 20) / 3}px {(t.glowIntensity ?? 1) * 2}px {t.glowColor || t.accent || '#dc2626'}40; border-radius: 50%; width: 20px; height: 20px; background: {t.glowActive ? (t.glowColor || t.accent || '#dc2626') : 'var(--surface)'}; opacity: {t.glowActive ? 1 : 0.3}"></div>
-		{/snippet}
-		<HelpTip text="El glow crea un resplandor alrededor de elementos importantes. Actívalo para un look más llamativo, desactívalo para uno más limpio." />
-		<div class="field">
-			<label>
-				<input type="checkbox" checked={t.glowActive === true} onchange={(e) => update('theme.glowActive', e.currentTarget.checked)} />
-				Glow global activado
-			</label>
-		</div>
-		<div class="row">
-			<div class="field">
-				<label for="t-gi">Intensidad ({fmt("glowIntensity", 3)})</label>
-				<input id="t-gi" type="range" min="0" max="3" step="0.1" value={local.glowIntensity ?? 1} oninput={(e) => onSlide('theme.glowIntensity', 'glowIntensity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-			<div class="field">
-				<label for="t-gb">Blur ({fmt("glowBlur", 60, "px")})</label>
-				<input id="t-gb" type="range" min="0" max="60" step="1" value={local.glowBlur ?? 20} oninput={(e) => onSlide('theme.glowBlur', 'glowBlur', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-		</div>
-		<div class="row">
-			<div class="field">
-				<label for="t-ga">Animación glow</label>
-				<select id="t-ga" value={t.glowAnim ?? 'none'} onchange={(e) => update('theme.glowAnim', e.currentTarget.value)}>
-					{#each GLOW_ANIMS as a}<option value={a}>{a}</option>{/each}
-				</select>
-			</div>
-			<div class="field">
-				<label for="t-gas">Velocidad anim ({fmt("glowAnimSpeed", 10, "s")})</label>
-				<input id="t-gas" type="range" min="0.5" max="10" step="0.5" value={t.glowAnimSpeed ?? 2} oninput={(e) => update('theme.glowAnimSpeed', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
 		</div>
 	</Collapsible>
 
@@ -679,7 +570,7 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-fw">Font weight ({fmt("fontWeight", 900)})</label>
+				<label for="t-fw">Font weight ({f("fontWeight", 900)})</label>
 				<input id="t-fw" type="range" min="100" max="900" step="100" value={local.fontWeight ?? 400} oninput={(e) => onSlide('theme.fontWeight', 'fontWeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
@@ -711,79 +602,43 @@
 		</div>
 	</Collapsible>
 
-	<!-- Card Effects -->
-	<Collapsible id="card-effects" icon="🃏" title="Efectos de Card" open={true}>
-		{#snippet preview()}
-			<div class="mini-card-preview" style="opacity:{local.cardOpacity ?? 0.85}; backdrop-filter:blur({local.blurBg ?? 20}px); box-shadow:0 4px 12px rgba(0,0,0,{local.cardShadowIntensity ?? 0.3}); border-radius:{local.radiusGlobal ?? 12}px; background:{t.surfaceColor || '#0f0808'}; width:44px; height:32px; border:1px solid {t.accent || '#dc2626'}33">
-				<div style="width:100%;height:8px;background:linear-gradient(90deg,{t.accent || '#dc2626'}66,transparent);border-radius:{local.radiusGlobal ?? 12}px {local.radiusGlobal ?? 12}px 0 0"></div>
-			</div>
-		{/snippet}
-		<div class="row">
-			<div class="field">
-				<label for="t-co">Card opacity ({fmt("cardOpacity", 1, "", true)})</label>
-				<input id="t-co" type="range" min="0" max="1" step="0.05" value={local.cardOpacity ?? 0.85} oninput={(e) => onSlide('theme.cardOpacity', 'cardOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-			<div class="field">
-				<label for="t-blr">Blur fondo ({t.blurBg ?? 20}px)</label>
-				<input id="t-blr" type="range" min="0" max="40" step="1" value={local.blurBg ?? 20} oninput={(e) => onSlide('theme.blurBg', 'blurBg', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-			<div class="field">
-				<label for="t-gr">Grain ({fmt("grainOpacity", 0.2, "", true)})</label>
-				<input id="t-gr" type="range" min="0" max="0.2" step="0.01" value={local.grainOpacity ?? 0.03} oninput={(e) => onSlide('theme.grainOpacity', 'grainOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-		</div>
-		<div class="row">
-			<div class="field">
-				<label for="t-csi">Shadow intensidad ({fmt("cardShadowIntensity", 1, "", true)})</label>
-				<input id="t-csi" type="range" min="0" max="1" step="0.05" value={local.cardShadowIntensity ?? 0.3} oninput={(e) => onSlide('theme.cardShadowIntensity', 'cardShadowIntensity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-			<div class="field">
-				<label for="t-csc">Shadow color</label>
-				<div class="color-row">
-					<input id="t-csc" type="color" value={t.cardShadowColor || '#000000'} oninput={(e) => update('theme.cardShadowColor', e.currentTarget.value)} />
-					<input type="text" value={t.cardShadowColor ?? '#000000'} oninput={(e) => update('theme.cardShadowColor', e.currentTarget.value)} />
-				</div>
-			</div>
-		</div>
-	</Collapsible>
-
 	<!-- Opacities -->
 	<Collapsible id="opacities" icon="🔲" title="Opacidades" open={false}>
 		<div class="row">
 			<div class="field">
-				<label for="t-no">Nav ({fmt("navOpacity", 1, "", true)})</label>
+				<label for="t-no">Nav ({f("navOpacity", 1, "", true)})</label>
 				<input id="t-no" type="range" min="0" max="1" step="0.05" value={local.navOpacity ?? 0.95} oninput={(e) => onSlide('theme.navOpacity', 'navOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-ho">Hero bg ({fmt("heroBgOpacity", 1, "", true)})</label>
+				<label for="t-ho">Hero bg ({f("heroBgOpacity", 1, "", true)})</label>
 				<input id="t-ho" type="range" min="0" max="1" step="0.05" value={local.heroBgOpacity ?? 1} oninput={(e) => onSlide('theme.heroBgOpacity', 'heroBgOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-so">Sections ({fmt("sectionOpacity", 1, "", true)})</label>
+				<label for="t-so">Sections ({f("sectionOpacity", 1, "", true)})</label>
 				<input id="t-so" type="range" min="0" max="1" step="0.05" value={local.sectionOpacity ?? 1} oninput={(e) => onSlide('theme.sectionOpacity', 'sectionOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-bio">Beat images ({fmt("beatImgOpacity", 1, "", true)})</label>
+				<label for="t-bio">Beat images ({f("beatImgOpacity", 1, "", true)})</label>
 				<input id="t-bio" type="range" min="0" max="1" step="0.05" value={local.beatImgOpacity ?? 1} oninput={(e) => onSlide('theme.beatImgOpacity', 'beatImgOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-to">Text ({fmt("textOpacity", 1, "", true)})</label>
+				<label for="t-to">Text ({f("textOpacity", 1, "", true)})</label>
 				<input id="t-to" type="range" min="0" max="1" step="0.05" value={local.textOpacity ?? 1} oninput={(e) => onSlide('theme.textOpacity', 'textOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-bo">Btn normal ({fmt("btnOpacityNormal", 1, "", true)})</label>
+				<label for="t-bo">Btn normal ({f("btnOpacityNormal", 1, "", true)})</label>
 				<input id="t-bo" type="range" min="0" max="1" step="0.05" value={local.btnOpacityNormal ?? 1} oninput={(e) => onSlide('theme.btnOpacityNormal', 'btnOpacityNormal', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-bh">Btn hover ({fmt("btnOpacityHover", 1, "", true)})</label>
+				<label for="t-bh">Btn hover ({f("btnOpacityHover", 1, "", true)})</label>
 				<input id="t-bh" type="range" min="0" max="1" step="0.05" value={local.btnOpacityHover ?? 1} oninput={(e) => onSlide('theme.btnOpacityHover', 'btnOpacityHover', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-bgo">Background ({fmt("bgOpacity", 1, "", true)})</label>
+				<label for="t-bgo">Background ({f("bgOpacity", 1, "", true)})</label>
 				<input id="t-bgo" type="range" min="0" max="1" step="0.05" value={local.bgOpacity ?? 1} oninput={(e) => onSlide('theme.bgOpacity', 'bgOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
@@ -807,267 +662,26 @@
 				</div>
 			</div>
 			<div class="field">
-				<label for="t-wh">Alto ({fmt("wbarHeight", 100, "px")})</label>
+				<label for="t-wh">Alto ({f("wbarHeight", 100, "px")})</label>
 				<input id="t-wh" type="range" min="48" max="100" step="4" value={local.wbarHeight ?? 64} oninput={(e) => onSlide('theme.wbarHeight', 'wbarHeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 		<div class="row">
 			<div class="field">
-				<label for="t-wr">Border radius ({fmt("wbarRadius", 30, "px")})</label>
+				<label for="t-wr">Border radius ({f("wbarRadius", 30, "px")})</label>
 				<input id="t-wr" type="range" min="0" max="30" step="1" value={local.wbarRadius ?? 0} oninput={(e) => onSlide('theme.wbarRadius', 'wbarRadius', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-woo">Wave off ({fmt("waveOpacityOff", 1, "", true)})</label>
+				<label for="t-woo">Wave off ({f("waveOpacityOff", 1, "", true)})</label>
 				<input id="t-woo" type="range" min="0" max="1" step="0.05" value={local.waveOpacityOff ?? 0.3} oninput={(e) => onSlide('theme.waveOpacityOff', 'waveOpacityOff', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-won">Wave on ({fmt("waveOpacityOn", 1, "", true)})</label>
+				<label for="t-won">Wave on ({f("waveOpacityOn", 1, "", true)})</label>
 				<input id="t-won" type="range" min="0" max="1" step="0.05" value={local.waveOpacityOn ?? 0.8} oninput={(e) => onSlide('theme.waveOpacityOn', 'waveOpacityOn', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
 	</Collapsible>
 
-	<!-- Blend Modes -->
-	<Collapsible id="blend-modes" icon="🎨" title="Blend Modes" open={false}>
-		<div class="row">
-			<div class="field">
-				<label for="t-obm">Orbs blend</label>
-				<select id="t-obm" value={t.orbBlendMode ?? 'screen'} onchange={(e) => update('theme.orbBlendMode', e.currentTarget.value)}>
-					{#each BLEND_MODES as m}<option value={m}>{m}</option>{/each}
-				</select>
-			</div>
-			<div class="field">
-				<label for="t-gbm">Grain blend</label>
-				<select id="t-gbm" value={t.grainBlendMode ?? 'overlay'} onchange={(e) => update('theme.grainBlendMode', e.currentTarget.value)}>
-					{#each BLEND_MODES as m}<option value={m}>{m}</option>{/each}
-				</select>
-			</div>
-		</div>
-	</Collapsible>
-
-	<!-- Hero Glow -->
-	<Collapsible id="hero-glow" icon="💫" title="Hero Glow" open={false}>
-		<div class="field">
-			<label>
-				<input type="checkbox" checked={t.heroGlowOn === true} onchange={(e) => update('theme.heroGlowOn', e.currentTarget.checked)} />
-				Hero glow activado
-			</label>
-		</div>
-		<div class="row">
-			<div class="field">
-				<label for="t-hgi">Intensidad ({fmt("heroGlowInt", 3)})</label>
-				<input id="t-hgi" type="range" min="0" max="3" step="0.1" value={local.heroGlowInt ?? 1} oninput={(e) => onSlide('theme.heroGlowInt', 'heroGlowInt', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-			<div class="field">
-				<label for="t-hgb">Blur ({fmt("heroGlowBlur", 60, "px")})</label>
-				<input id="t-hgb" type="range" min="0" max="60" step="1" value={local.heroGlowBlur ?? 20} oninput={(e) => onSlide('theme.heroGlowBlur', 'heroGlowBlur', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-		</div>
-		<div class="field">
-			<label for="t-hgc">Color glow hero</label>
-			<div class="color-row">
-				<input id="t-hgc" type="color" value={t.heroGlowClr || t.accent || '#dc2626'} oninput={(e) => update('theme.heroGlowClr', e.currentTarget.value)} />
-				<input type="text" value={t.heroGlowClr ?? ''} placeholder="(usa accent)" oninput={(e) => update('theme.heroGlowClr', e.currentTarget.value)} />
-			</div>
-		</div>
-	</Collapsible>
-
-	<!-- Hero Stroke -->
-	<Collapsible id="hero-stroke" icon="✏️" title="Hero Stroke" open={false}>
-		<div class="row">
-			<div class="field">
-				<label>
-					<input type="checkbox" checked={t.heroStrokeOn === true} onchange={(e) => update('theme.heroStrokeOn', e.currentTarget.checked)} />
-					Stroke activado
-				</label>
-			</div>
-			<div class="field">
-				<label for="t-hsw">Grosor ({fmt("heroStrokeW", 5, "px")})</label>
-				<input id="t-hsw" type="range" min="0.5" max="5" step="0.5" value={local.heroStrokeW ?? 1} oninput={(e) => onSlide('theme.heroStrokeW', 'heroStrokeW', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-			</div>
-			<div class="field">
-				<label for="t-hsc">Color stroke</label>
-				<div class="color-row">
-					<input id="t-hsc" type="color" value={t.heroStrokeClr || t.accent || '#dc2626'} oninput={(e) => update('theme.heroStrokeClr', e.currentTarget.value)} />
-					<input type="text" value={t.heroStrokeClr ?? ''} placeholder="(usa accent)" oninput={(e) => update('theme.heroStrokeClr', e.currentTarget.value)} />
-				</div>
-			</div>
-		</div>
-	</Collapsible>
-
-	<!-- License Buttons -->
-	<Collapsible id="license-btns" icon="🔘" title="Botones de Licencia" open={false}>
-		<div class="row">
-			<div class="field">
-				<label for="t-lbg">Fondo</label>
-				<div class="color-row">
-					<input id="t-lbg" type="color" value={t.btnLicBg || '#1a1a1a'} oninput={(e) => update('theme.btnLicBg', e.currentTarget.value)} />
-					<input type="text" value={t.btnLicBg ?? ''} placeholder="(default)" oninput={(e) => update('theme.btnLicBg', e.currentTarget.value)} />
-				</div>
-			</div>
-			<div class="field">
-				<label for="t-lbc">Texto</label>
-				<div class="color-row">
-					<input id="t-lbc" type="color" value={t.btnLicClr || '#ffffff'} oninput={(e) => update('theme.btnLicClr', e.currentTarget.value)} />
-					<input type="text" value={t.btnLicClr ?? ''} placeholder="(default)" oninput={(e) => update('theme.btnLicClr', e.currentTarget.value)} />
-				</div>
-			</div>
-			<div class="field">
-				<label for="t-lbb">Border</label>
-				<div class="color-row">
-					<input id="t-lbb" type="color" value={t.btnLicBdr || '#333333'} oninput={(e) => update('theme.btnLicBdr', e.currentTarget.value)} />
-					<input type="text" value={t.btnLicBdr ?? ''} placeholder="(default)" oninput={(e) => update('theme.btnLicBdr', e.currentTarget.value)} />
-				</div>
-			</div>
-		</div>
-	</Collapsible>
-
-	<!-- Particles -->
-	<Collapsible id="particles" icon="✨" title="Partículas" open={true}>
-		<p class="field-desc">Efecto de partículas flotantes sobre el fondo de la tienda.</p>
-
-		<!-- Toggle + Preview side by side -->
-		<div class="particles-layout">
-			<div class="particles-controls">
-				<div class="toggle-row">
-					<label class="toggle-label">
-						<input type="checkbox" checked={t.particlesOn === true} onchange={(e) => update('theme.particlesOn', e.currentTarget.checked)} />
-						<span class="toggle-text">Partículas {t.particlesOn === true ? 'activadas' : 'desactivadas'}</span>
-					</label>
-					<span class="toggle-badge" class:active={t.particlesOn === true}>{t.particlesOn === true ? 'ON' : 'OFF'}</span>
-				</div>
-
-				<!-- Type selector as visual pills -->
-				<div class="field">
-					<label>Tipo de partícula</label>
-					<div class="type-pills">
-						{#each PARTICLE_TYPES as pt}
-							<button
-								class="type-pill"
-								class:active={t.particlesType === pt}
-								onclick={() => update('theme.particlesType', pt)}
-								title={pt}
-							>
-								<span class="pill-icon">
-									{#if pt === 'circle'}●{:else if pt === 'square'}■{:else if pt === 'line'}╱{:else if pt === 'text'}Aa{:else if pt === 'image'}🖼️{/if}
-								</span>
-								<span class="pill-name">{pt}</span>
-							</button>
-						{/each}
-					</div>
-				</div>
-			</div>
-
-			<!-- Live Preview -->
-			<div class="particles-preview-wrap">
-				<span class="preview-label">Preview en vivo</span>
-				{#await import('$lib/components/ParticlesPreview.svelte') then mod}
-					<mod.default
-						count={local.particlesCount ?? 50}
-						speed={local.particlesSpeed ?? 1}
-						type={t.particlesType ?? 'circle'}
-						color={t.particlesColor ?? ''}
-						opacity={local.particlesOpacity ?? 0.3}
-						text={t.particlesText ?? ''}
-						imgUrl={t.particlesImgUrl ?? ''}
-						sizeMin={local.particlesSizeMin ?? 3}
-						sizeMax={local.particlesSizeMax ?? 8}
-						accent={t.accent ?? '#dc2626'}
-					/>
-				{/await}
-			</div>
-		</div>
-
-		<!-- Size & Speed -->
-		<div class="control-group">
-			<span class="group-label">📏 Tamaño y Movimiento</span>
-			<div class="row">
-				<div class="field">
-					<label for="t-pc">Cantidad ({fmt("particlesCount", 200)})</label>
-					<input id="t-pc" type="range" min="10" max="200" step="10" value={local.particlesCount ?? 50} oninput={(e) => onSlide('theme.particlesCount', 'particlesCount', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-				</div>
-				<div class="field">
-					<label for="t-ps">Velocidad ({fmt("particlesSpeed", 5)})</label>
-					<input id="t-ps" type="range" min="0.1" max="5" step="0.1" value={local.particlesSpeed ?? 1} oninput={(e) => onSlide('theme.particlesSpeed', 'particlesSpeed', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-				</div>
-			</div>
-			<div class="row">
-				<div class="field">
-					<label for="t-psn">Tamaño min ({fmt("particlesSizeMin", 20, "px")})</label>
-					<input id="t-psn" type="range" min="1" max="20" step="1" value={local.particlesSizeMin ?? 3} oninput={(e) => onSlide('theme.particlesSizeMin', 'particlesSizeMin', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-				</div>
-				<div class="field">
-					<label for="t-psx">Tamaño max ({fmt("particlesSizeMax", 40, "px")})</label>
-					<input id="t-psx" type="range" min="2" max="40" step="1" value={local.particlesSizeMax ?? 8} oninput={(e) => onSlide('theme.particlesSizeMax', 'particlesSizeMax', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-				</div>
-			</div>
-		</div>
-
-		<!-- Color & Opacity -->
-		<div class="control-group">
-			<span class="group-label">🎨 Color y Transparencia</span>
-			<div class="row">
-				<div class="field">
-					<label for="t-pcl">Color</label>
-					<div class="color-row">
-						<input id="t-pcl" type="color" value={t.particlesColor || '#dc2626'} oninput={(e) => update('theme.particlesColor', e.currentTarget.value)} />
-						<input type="text" value={t.particlesColor ?? ''} placeholder="(usa accent)" oninput={(e) => update('theme.particlesColor', e.currentTarget.value)} />
-					</div>
-				</div>
-				<div class="field">
-					<label for="t-pop">Opacidad ({fmt("particlesOpacity", 1, "", true)})</label>
-					<input id="t-pop" type="range" min="0" max="1" step="0.05" value={local.particlesOpacity ?? 0.3} oninput={(e) => onSlide('theme.particlesOpacity', 'particlesOpacity', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
-				</div>
-			</div>
-		</div>
-
-		<!-- Type-specific options -->
-		{#if t.particlesType === 'text'}
-			<div class="control-group">
-				<span class="group-label">Aa Texto</span>
-				<div class="field">
-					<label for="t-ptx">Texto de la partícula</label>
-					<input id="t-ptx" type="text" value={t.particlesText ?? ''} oninput={(e) => update('theme.particlesText', e.currentTarget.value)} placeholder="✦" />
-				</div>
-			</div>
-		{/if}
-
-		{#if t.particlesType === 'image'}
-			<div class="control-group">
-				<span class="group-label">🖼️ Imagen</span>
-				<div class="field">
-					<label for="t-piu">URL de la imagen</label>
-					<input id="t-piu" type="text" value={t.particlesImgUrl ?? ''} oninput={(e) => update('theme.particlesImgUrl', e.currentTarget.value)} placeholder="https://cdn.dacewav.store/..." />
-				</div>
-				<div class="field">
-					<label>O subir imagen local</label>
-					<label class="upload-zone" class:uploading={particleUploading}>
-						<input type="file" accept="image/*" onchange={handleParticleImageUpload} disabled={particleUploading} />
-						{#if particleUploading}
-							<span class="upload-icon">⏳</span>
-							<span class="upload-text">Subiendo... {particleUploadProgress}%</span>
-						{:else}
-							<span class="upload-icon">📁</span>
-							<span class="upload-text">Click o arrastrar imagen aquí</span>
-						{/if}
-					</label>
-				</div>
-				{#if t.particlesImgUrl}
-					<div class="particle-preview">
-						<img src={t.particlesImgUrl} alt="Preview partícula" />
-						<button class="btn-clear" onclick={() => update('theme.particlesImgUrl', '')}>✕ Quitar</button>
-					</div>
-				{/if}
-			</div>
-		{/if}
-	</Collapsible>
-	<!-- Hero Height -->
-	<Collapsible id="hero-height" icon="🏠" title="Hero" open={false}>
-		<div class="field">
-			<label for="t-hmh">Altura mínima ({t.heroMinHeight ?? 60}vh)</label>
-			<input id="t-hmh" type="range" min="30" max="100" step="1" value={t.heroMinHeight ?? 60} oninput={(e) => update('theme.heroMinHeight', +e.currentTarget.value)} />
-		</div>
-	</Collapsible>
 	<!-- Section Titles -->
 	<Collapsible id="section-titles" icon="📝" title="Títulos de Sección" open={false}>
 		<p class="field-desc">Personaliza la apariencia de los títulos de sección (Destacados, Catálogo, etc.)</p>
@@ -1283,8 +897,6 @@
 
 	.mini-card-preview { border: 1px solid var(--border); overflow: hidden; }
 
-	.glow-preview-mini { transition: all 0.3s; }
-
 	/* === Existing styles === */
 	.editor { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }
 	.editor-title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
@@ -1372,42 +984,5 @@
 		.preview-toggle { display: none; }
 	}
 
-	/* Particle image upload */
-	.upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-6); border: 2px dashed var(--border); border-radius: var(--radius-md); background: var(--surface); cursor: pointer; transition: all var(--duration-fast); min-height: 100px; }
-	.upload-zone:hover { border-color: rgba(var(--accent-rgb), 0.5); background: rgba(var(--accent-rgb), 0.04); }
-	.upload-zone.uploading { opacity: 0.6; pointer-events: none; }
-	.upload-zone input[type="file"] { display: none; }
-	.upload-icon { font-size: var(--text-2xl); }
-	.upload-text { font-size: var(--text-sm); color: var(--text-secondary); }
-	.particle-preview { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
-	.particle-preview img { width: 48px; height: 48px; object-fit: contain; border-radius: var(--radius-sm); background: rgba(0,0,0,0.2); }
-	.btn-clear { padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: transparent; color: var(--text-muted); font-size: var(--text-xs); cursor: pointer; transition: all var(--duration-fast); }
-	.btn-clear:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-glow); }
 
-	/* Particles visual layout */
-	.particles-layout { display: flex; gap: var(--space-4); margin-bottom: var(--space-4); align-items: flex-start; }
-	.particles-controls { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
-	.particles-preview-wrap { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--space-2); }
-	.preview-label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
-	.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3); background: var(--surface-hover); border-radius: var(--radius-md); border: 1px solid var(--border); }
-	.toggle-label { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; }
-	.toggle-text { font-size: var(--text-sm); font-weight: 600; color: var(--text); }
-	.toggle-badge { font-family: var(--font-mono); font-size: var(--text-2xs); font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full); background: rgba(255,255,255,0.06); color: var(--text-muted); letter-spacing: 0.06em; }
-	.toggle-badge.active { background: rgba(var(--accent-rgb), 0.15); color: var(--accent); }
-	.type-pills { display: flex; gap: var(--space-2); flex-wrap: wrap; }
-	.type-pill { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text-secondary); cursor: pointer; transition: all var(--duration-fast); min-width: 52px; }
-	.type-pill:hover { border-color: rgba(var(--accent-rgb), 0.4); color: var(--text); }
-	.type-pill.active { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); color: var(--accent); box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.15); }
-	.pill-icon { font-size: var(--text-lg); line-height: 1; }
-	.pill-name { font-family: var(--font-mono); font-size: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
-	.control-group { padding: var(--space-3); background: var(--surface-hover); border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: var(--space-3); }
-	.group-label { display: block; font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: var(--space-3); }
-	.control-group .row { margin-bottom: 0; }
-	.control-group .field { margin-bottom: var(--space-2); }
-	.control-group .field:last-child { margin-bottom: 0; }
-
-	@media (max-width: 700px) {
-		.particles-layout { flex-direction: column-reverse; }
-		.particles-preview-wrap { width: 100%; }
-	}
 </style>
