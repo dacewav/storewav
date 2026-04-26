@@ -12,7 +12,7 @@ import type { RequestHandler } from './$types';
 
 // R2 public URL base — configure in Cloudflare dashboard or wrangler vars
 // e.g. "https://pub-xxx.r2.dev" or "https://media.dacewav.com"
-const R2_PUBLIC_BASE = 'https://media.dacewav.com';
+const R2_PUBLIC_BASE = 'https://cdn.dacewav.store';
 
 /** OPTIONS — health check for R2 availability */
 export const OPTIONS: RequestHandler = async () => {

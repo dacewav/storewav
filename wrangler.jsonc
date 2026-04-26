@@ -10,7 +10,7 @@
   "r2_buckets": [
     {
       "binding": "MEDIA",
-      "bucket_name": "dacewav-media"
+      "bucket_name": "dace-beats"
     }
   ],
   "compatibility_flags": ["nodejs_compat"],
