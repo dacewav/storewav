@@ -80,10 +80,14 @@ async function verifyFirebaseToken(idToken: string): Promise<{ uid: string; emai
 	}
 }
 
-/** Check if user is admin via Firebase RTDB REST API */
-async function checkIsAdmin(uid: string): Promise<boolean> {
+/** Check if user is admin via Firebase RTDB REST API (with auth token) */
+async function checkIsAdmin(uid: string, idToken?: string): Promise<boolean> {
+	// Hardcoded super-admin
+	if (uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22') return true;
+
 	try {
-		const resp = await fetch(`https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/adminWhitelist/approved/${uid}.json`);
+		const authParam = idToken ? `?auth=${idToken}` : '';
+		const resp = await fetch(`https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/adminWhitelist/approved/${uid}.json${authParam}`);
 		if (!resp.ok) return false;
 		const data = await resp.json();
 		return data !== null;
@@ -148,7 +152,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		}
 
 		// Admin check — only in production
-		const isAdmin = await checkIsAdmin(user.uid);
+		const isAdmin = await checkIsAdmin(user.uid, idToken);
 		if (!isAdmin) {
 			return json({ ok: false, error: 'Prohibido — solo administradores pueden subir archivos' }, { status: 403 });
 		}
