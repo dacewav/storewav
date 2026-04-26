@@ -134,11 +134,14 @@
 			<div class="beat-cover-overlay" style="background: {cardStyle.coverOverlay};"></div>
 		{/if}
 
-		<!-- Waveform bars when playing (stable seed per beat) -->
+		<!-- Waveform bars when playing — organic heights with gradient -->
 		{#if isCurrentBeat}
 			<div class="card-waveform">
 				{#each Array(16) as _, i}
-					<div class="wave-bar" style="--delay: {i * 0.05}s; --h: {20 + (((beat.name?.charCodeAt(i % (beat.name.length || 1)) ?? 0) * (i + 1) * 7) % 60)}%"></div>
+					{@const t = i / 15}
+					{@const seed = (beat.name?.charCodeAt(i % (beat.name.length || 1)) ?? 0) * 7}
+					{@const h = 18 + 15 * Math.sin(t * Math.PI * 2 + seed * 0.1) + (seed % 35)}
+					<div class="wave-bar" style="--delay: {i * 0.06}s; --h: {h}%"></div>
 				{/each}
 			</div>
 		{/if}
@@ -294,10 +297,11 @@
 
 	.wave-bar {
 		flex: 1;
-		background: rgba(var(--accent-rgb), 0.7);
+		background: linear-gradient(to top, rgba(var(--accent-rgb), 0.9), rgba(var(--accent-rgb), 0.3));
 		border-radius: 2px 2px 0 0;
 		height: 30%;
-		animation: waveAnim 0.8s ease-in-out var(--delay, 0s) infinite alternate;
+		animation: waveAnim 0.9s ease-in-out var(--delay, 0s) infinite alternate;
+		filter: drop-shadow(0 0 2px rgba(var(--accent-rgb), 0.3));
 	}
 
 	@keyframes waveAnim {

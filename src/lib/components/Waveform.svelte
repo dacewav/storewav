@@ -5,6 +5,8 @@
 	 * Modes:
 	 *  - "static": pre-generated bars (default, no audio needed)
 	 *  - "live": real-time frequency data from audio via Web Audio API
+	 *
+	 * Visual: gradient active bars, glow at playback position, breathing when playing
 	 */
 
 	import { player } from '$lib/stores';
@@ -16,7 +18,8 @@
 		color = 'var(--accent)',
 		bgColor = 'var(--surface2)',
 		rounded = true,
-		mode = 'static'
+		mode = 'static',
+		compact = false
 	}: {
 		height?: number;
 		bars?: number;
@@ -24,27 +27,40 @@
 		bgColor?: string;
 		rounded?: boolean;
 		mode?: 'static' | 'live';
+		compact?: boolean; // for mini player — thinner bars
 	} = $props();
 
 	let playerState = $derived($player);
+	let isPlaying = $derived(playerState.playing);
 	let progress = $derived(playerState.duration > 0 ? playerState.currentTime / playerState.duration : 0);
 
+	// Bar dimensions — compact mode for mini player
+	let barW = $derived(compact ? 2 : 2.5);
+	let gap = $derived(compact ? 1 : 1.5);
+	let barRadius = $derived(rounded ? barW / 2 : 0);
+	let step = $derived(barW + gap);
+
 	// ── Static mode ──
-	// Pseudo-random bar heights (deterministic per bars count)
+	// Organic heights using overlapping sine waves (more natural than pure hash)
 	const staticHeights: number[] = $derived(
 		Array.from({ length: bars }, (_, i) => {
-			const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453;
-			return 0.2 + (x - Math.floor(x)) * 0.8;
+			const t = i / bars;
+			// Layered sine waves for organic shape — like a real waveform envelope
+			const base = 0.3 + 0.2 * Math.sin(t * Math.PI * 2.3 + 0.5);
+			const mid = 0.15 * Math.sin(t * Math.PI * 5.1 + 1.2);
+			const high = 0.1 * Math.sin(t * Math.PI * 11.7 + 2.8);
+			const detail = 0.08 * Math.sin(t * Math.PI * 23.3 + 0.3);
+			return Math.max(0.12, Math.min(1, base + mid + high + detail));
 		})
 	);
 
 	// ── Live mode ──
 	let liveHeights: number[] = $state([]);
 
-	// Init/reset liveHeights when bars count changes
 	$effect(() => {
 		liveHeights = Array(bars).fill(0.05);
 	});
+
 	let audioCtx: AudioContext | null = null;
 	let analyser: AnalyserNode | null = null;
 	let sourceNode: MediaElementAudioSourceNode | null = null;
@@ -58,7 +74,6 @@
 		if (!audio || audio.src === currentAudioUrl) return;
 		currentAudioUrl = audio.src;
 
-		// Clean previous
 		teardownLive();
 
 		try {
@@ -73,27 +88,23 @@
 
 			tickLive();
 		} catch {
-			// CORS or other error — fallback to static
 			teardownLive();
 		}
 	}
 
 	function tickLive() {
-		// Read current state directly from store (not from captured $derived)
-		let isPlaying = false;
-		player.subscribe((s) => { isPlaying = s.playing; })();
+		let isPlayingNow = false;
+		player.subscribe((s) => { isPlayingNow = s.playing; })();
 
-		if (!analyser || !isPlaying) {
-			// Decay when paused
-			liveHeights = liveHeights.map((h: number) => Math.max(0.05, h * 0.9));
-			if (isPlaying) rafId = requestAnimationFrame(tickLive);
+		if (!analyser || !isPlayingNow) {
+			liveHeights = liveHeights.map((h: number) => Math.max(0.05, h * 0.92));
+			if (isPlayingNow) rafId = requestAnimationFrame(tickLive);
 			return;
 		}
 
 		const data = new Uint8Array(analyser.frequencyBinCount);
 		analyser.getByteFrequencyData(data);
 
-		// Sample evenly across frequency data into bars buckets
 		const step = Math.floor(data.length / bars);
 		liveHeights = Array.from({ length: bars }, (_, i) => {
 			let sum = 0;
@@ -126,7 +137,6 @@
 		currentAudioUrl = null;
 	}
 
-	/** Get the internal Audio element from the player store */
 	function getAudioElement(): HTMLAudioElement | null {
 		if (!browser) return null;
 		try {
@@ -136,25 +146,23 @@
 		}
 	}
 
-	// React to playing state changes
 	$effect(() => {
 		if (mode !== 'live' || !browser) return;
-
 		if (playerState.playing && playerState.audioUrl) {
 			setupLiveAnalysis();
 		}
-
-		return () => {
-			teardownLive();
-		};
+		return () => { teardownLive(); };
 	});
 
 	let barHeights: number[] = $derived(mode === 'live' ? liveHeights : staticHeights);
-	let svgWidth = $derived(bars * 4); // 3px bar + 1px gap
+	let svgWidth = $derived(bars * step);
+	let progressX = $derived(progress * svgWidth);
 </script>
 
 <svg
 	class="waveform"
+	class:playing={isPlaying}
+	class:compact
 	width="100%"
 	height={height}
 	viewBox="0 0 {svgWidth} {height}"
@@ -162,17 +170,38 @@
 	role="img"
 	aria-label="Forma de onda"
 >
+	<defs>
+		<!-- Gradient for active bars: accent → lighter -->
+		<linearGradient id="wf-grad" x1="0" y1="0" x2="1" y2="0">
+			<stop offset="0%" stop-color={color} stop-opacity="1" />
+			<stop offset="100%" stop-color={color} stop-opacity="0.5" />
+		</linearGradient>
+		<!-- Glow filter for playback position -->
+		<filter id="wf-glow" x="-50%" y="-50%" width="200%" height="200%">
+			<feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+			<feMerge>
+				<feMergeNode in="blur" />
+				<feMergeNode in="SourceGraphic" />
+			</feMerge>
+		</filter>
+	</defs>
+
 	{#each barHeights as h, i}
-		{@const barH = h * height}
+		{@const barH = h * height * 0.85}
+		{@const x = i * step}
 		{@const isActive = mode === 'live' ? h > 0.1 : (i / bars) <= progress}
+		{@const isAtCursor = Math.abs(x - progressX) < step * 1.5 && isPlaying}
 		<rect
-			x={i * 4}
+			{x}
 			y={(height - barH) / 2}
-			width="3"
+			width={barW}
 			height={barH}
-			rx={rounded ? 1.5 : 0}
-			fill={isActive ? color : bgColor}
-			class:waveform-active={isActive}
+			rx={barRadius}
+			fill={isActive ? 'url(#wf-grad)' : bgColor}
+			opacity={isActive ? (isAtCursor ? 1 : 0.9) : 0.4}
+			filter={isAtCursor ? 'url(#wf-glow)' : undefined}
+			class:wf-bar-active={isActive}
+			class:wf-bar-cursor={isAtCursor}
 		/>
 	{/each}
 </svg>
@@ -180,10 +209,36 @@
 <style>
 	.waveform {
 		display: block;
-		overflow: hidden;
+		overflow: visible;
 	}
 
-	.waveform-active {
-		transition: fill var(--duration-fast);
+	.waveform.playing .wf-bar-active {
+		animation: wfBreathe 2.5s ease-in-out infinite;
+	}
+
+	.waveform.compact.playing .wf-bar-active {
+		animation-duration: 1.8s;
+	}
+
+	.wf-bar-cursor {
+		animation: wfPulse 0.8s ease-in-out infinite alternate !important;
+	}
+
+	@keyframes wfBreathe {
+		0%, 100% { opacity: 0.85; }
+		50% { opacity: 1; }
+	}
+
+	@keyframes wfPulse {
+		0% { opacity: 0.8; }
+		100% { opacity: 1; }
+	}
+
+	/* Reduced motion */
+	@media (prefers-reduced-motion: reduce) {
+		.waveform.playing .wf-bar-active,
+		.wf-bar-cursor {
+			animation: none !important;
+		}
 	}
 </style>
