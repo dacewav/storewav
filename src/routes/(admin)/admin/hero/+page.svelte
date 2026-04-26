@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card , Collapsible} from '$lib/components';
 	import type { HeroVisualSettings, HeroSettings, ThemeSettings, HeroColorSegment } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -87,9 +87,8 @@
 	<p class="editor-desc">Personaliza la apariencia del título hero. Todos los cambios se guardan en Firebase en tiempo real.</p>
 
 	<!-- Hero Text -->
-	<Card>
-		<h3 class="section-title">Texto</h3>
-		<div class="field">
+	<Collapsible id="hero-text" icon="🏠" title="Texto" open={true}>
+				<div class="field">
 			<label for="hero-title">Título principal</label>
 			<input id="hero-title" type="text" value={hero.title ?? ''} oninput={(e) => update('hero.title', e.currentTarget.value)} />
 		</div>
@@ -105,12 +104,11 @@
 			<label for="hero-eyebrow">Eyebrow (badge superior)</label>
 			<input id="hero-eyebrow" type="text" value={hero.eyebrow ?? ''} oninput={(e) => update('hero.eyebrow', e.currentTarget.value)} />
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Title Visual -->
-	<Card>
-		<h3 class="section-title">Título — Estilo</h3>
-		<div class="row">
+	<Collapsible id="hero-glow" icon="💫" title="Título — Estilo" open={false}>
+				<div class="row">
 			<div class="field">
 				<label for="hv-size">Tamaño (rem, 0=default)</label>
 				<input id="hv-size" type="number" step="0.1" min="0" max="12" value={hv.titleSize ?? 0} oninput={(e) => update('heroVisual.titleSize', +e.currentTarget.value)} />
@@ -137,12 +135,11 @@
 				<input id="hv-ltg" type="range" min="-20" max="50" step="1" value={hv.logoTextGap ?? 0} oninput={(e) => update('heroVisual.logoTextGap', +e.currentTarget.value)} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Glow Word -->
-	<Card>
-		<h3 class="section-title">Glow de la palabra</h3>
-		<div class="row">
+	<Collapsible id="hero-stroke" icon="✏️" title="Glow de la palabra" open={false}>
+				<div class="row">
 			<div class="field">
 				<label>
 					<input type="checkbox" checked={hv.glowOn !== false} onchange={(e) => update('heroVisual.glowOn', e.currentTarget.checked)} />
@@ -177,12 +174,11 @@
 				<input id="hv-wo" type="range" min="0" max="1" step="0.05" value={local.wordOp ?? 0.35} oninput={(e) => onSlide('heroVisual.wordOp', 'wordOp', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Stroke Mode -->
-	<Card>
-		<h3 class="section-title">Stroke mode (outline)</h3>
-		<div class="row">
+	<Collapsible id="hero-eyebrow" icon="👁️" title="Stroke mode (outline)" open={false}>
+				<div class="row">
 			<div class="field">
 				<label>
 					<input type="checkbox" checked={hv.strokeOn === true} onchange={(e) => update('heroVisual.strokeOn', e.currentTarget.checked)} />
@@ -201,12 +197,11 @@
 				</div>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Color Segments -->
-	<Card>
-		<h3 class="section-title">Colores por palabra</h3>
-		<p class="field-desc">Define segmentos de texto con colores individuales. Si hay segmentos, reemplaza el título normal.</p>
+	<Collapsible id="hero-gradient" icon="🌈" title="Colores por palabra" open={false}>
+				<p class="field-desc">Define segmentos de texto con colores individuales. Si hay segmentos, reemplaza el título normal.</p>
 		{#each segments as seg, i}
 			<div class="row segment-row">
 				<div class="field" style="flex:2">
@@ -222,12 +217,11 @@
 			</div>
 		{/each}
 		<button class="btn-add" onclick={addSegment}>+ Añadir segmento</button>
-	</Card>
+	</Collapsible>
 
 	<!-- Eyebrow -->
-	<Card>
-		<h3 class="section-title">Eyebrow badge</h3>
-		<div class="row">
+	<Collapsible id="hero-segments" icon="📊" title="Eyebrow badge" open={false}>
+				<div class="row">
 			<div class="field">
 				<label>
 					<input type="checkbox" checked={hv.eyebrowOn !== false} onchange={(e) => update('heroVisual.eyebrowOn', e.currentTarget.checked)} />
@@ -246,12 +240,11 @@
 				<input id="hv-es" type="number" min="0" max="30" value={hv.eyebrowSize ?? 0} oninput={(e) => update('heroVisual.eyebrowSize', +e.currentTarget.value)} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Background Gradient -->
-	<Card>
-		<h3 class="section-title">Gradiente de fondo</h3>
-		<div class="row">
+	<Collapsible id="hero-visual" icon="🎨" title="Gradiente de fondo" open={false}>
+				<div class="row">
 			<div class="field">
 				<label>
 					<input type="checkbox" checked={hv.gradOn !== false} onchange={(e) => update('heroVisual.gradOn', e.currentTarget.checked)} />
@@ -284,7 +277,7 @@
 			<label for="hv-pt">Padding top (rem, 0=default)</label>
 			<input id="hv-pt" type="number" step="0.5" min="0" max="20" value={hv.padTop ?? 0} oninput={(e) => update('heroVisual.padTop', +e.currentTarget.value)} />
 		</div>
-	</Card>
+	</Collapsible>
 </div>
 
 <style>

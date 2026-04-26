@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card, FileUpload, ImageCropper, FontPreview, HelpTip } from '$lib/components';
+	import { Card, FileUpload, ImageCropper, FontPreview, HelpTip , Collapsible} from '$lib/components';
 	import type { BrandSettings, LoaderSettings, ThemeSettings } from '$lib/stores/settings';
 	import { generatePalette, generateHarmony, contrastRatio, type PaletteShade } from '$lib/colorPalette';
 	import { uploadFile } from '$lib/upload';
@@ -108,9 +108,8 @@
 	<p class="editor-desc">Logo, colores, fuentes — la identidad visual de tu tienda.</p>
 
 	<!-- ═══ E1: Logo Upload + Crop ═══ -->
-	<Card>
-		<h3 class="section-title">🖼️ Logo</h3>
-		<p class="section-desc">Sube tu logo, recórtalo, y genera automáticamente favicon + OG image.</p>
+	<Collapsible id="brand-logo" icon="🖼️" title="🖼️ Logo" open={true}>
+				<p class="section-desc">Sube tu logo, recórtalo, y genera automáticamente favicon + OG image.</p>
 
 		{#if showCropper && cropSrc}
 			<div class="crop-section">
@@ -181,12 +180,11 @@
 				</div>
 			</div>
 		{/if}
-	</Card>
+	</Collapsible>
 
 	<!-- ═══ Identity ═══ -->
-	<Card>
-		<h3 class="section-title">🏷️ Identidad</h3>
-		<div class="field">
+	<Collapsible id="brand-favicon" icon="⭐" title="🏷️ Identidad" open={false}>
+				<div class="field">
 			<label for="b-name">Nombre de marca</label>
 			<input id="b-name" type="text" value={brand.name ?? ''} oninput={(e) => update('brand.name', e.currentTarget.value)} />
 		</div>
@@ -202,12 +200,11 @@
 			<label for="b-meta">Meta description (SEO)</label>
 			<input id="b-meta" type="text" value={brand.metaDescription ?? ''} oninput={(e) => update('brand.metaDescription', e.currentTarget.value)} />
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- ═══ E2: Color Palette Generator ═══ -->
-	<Card>
-		<h3 class="section-title">🎨 Paleta de colores <HelpTip text="Generada automáticamente desde tu color accent. Click en cualquier shade para aplicarlo como accent." /></h3>
-		<p class="section-desc">Generada automáticamente desde tu color accent ({theme.accent || '#dc2626'}). Edita el accent en Theme.</p>
+	<Collapsible id="brand-name" icon="📝" title="🎨 Paleta de colores" open={false}>
+				<p class="section-desc">Generada automáticamente desde tu color accent ({theme.accent || '#dc2626'}). Edita el accent en Theme.</p>
 
 		{#if palette.length}
 			<div class="palette-shades">
@@ -243,12 +240,11 @@
 				</button>
 			{/each}
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- ═══ E3: Font Preview ═══ -->
-	<Card>
-		<h3 class="section-title">🔤 Tipografía</h3>
-		<p class="section-desc">Escribe un Google Font y previsualízalo en tiempo real.</p>
+	<Collapsible id="brand-colors" icon="🎨" title="🔤 Tipografía" open={false}>
+				<p class="section-desc">Escribe un Google Font y previsualízalo en tiempo real.</p>
 
 		<div class="field">
 			<span class="upload-label">Font display (títulos)</span>
@@ -277,12 +273,11 @@
 				</p>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- ═══ Loader ═══ -->
-	<Card>
-		<h3 class="section-title">⏳ Loader</h3>
-		<div class="field">
+	<Collapsible id="brand-fonts" icon="🔤" title="⏳ Loader" open={false}>
+				<div class="field">
 			<label>
 				<input type="checkbox" checked={loader.enabled !== false} onchange={(e) => update('loader.enabled', e.currentTarget.checked)} />
 				Mostrar loader al cargar
@@ -292,7 +287,7 @@
 			<label for="b-lt">Texto loader</label>
 			<input id="b-lt" type="text" value={loader.brandText ?? ''} oninput={(e) => update('loader.brandText', e.currentTarget.value)} />
 		</div>
-	</Card>
+	</Collapsible>
 </div>
 
 <style>

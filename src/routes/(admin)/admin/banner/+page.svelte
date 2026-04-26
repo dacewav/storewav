@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card, EmojiInput } from '$lib/components';
+	import { Card, EmojiInput , Collapsible} from '$lib/components';
 	import type { BannerSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -68,9 +68,8 @@
 	<h2 class="editor-title">📢 Banner</h2>
 	<p class="editor-desc">Banner superior de la tienda. Actívalo, escribe tu mensaje y personaliza la animación.</p>
 
-	<Card>
-		<h3 class="section-title">General</h3>
-		<div class="field">
+	<Collapsible id="banner-main" icon="📢" title="General" open={true}>
+				<div class="field">
 			<label>
 				<input type="checkbox" checked={b.enabled === true} onchange={(e) => update('banner.enabled', e.currentTarget.checked)} />
 				Banner activado
@@ -89,11 +88,10 @@
 			<label for="bn-url">URL (opcional, clickeable)</label>
 			<input id="bn-url" type="text" value={b.url ?? ''} oninput={(e) => update('banner.url', e.currentTarget.value)} placeholder="https://wa.me/..." />
 		</div>
-	</Card>
+	</Collapsible>
 
-	<Card>
-		<h3 class="section-title">Animación</h3>
-		<div class="row">
+	<Collapsible id="banner-style" icon="🎨" title="Animación" open={false}>
+				<div class="row">
 			<div class="field">
 				<label for="bn-anim">Tipo</label>
 				<select id="bn-anim" value={b.animation ?? 'static'} onchange={(e) => update('banner.animation', e.currentTarget.value)}>
@@ -123,11 +121,10 @@
 				<input id="bn-delay" type="range" min="0" max="10" step="0.5" value={local.delay ?? 0} oninput={(e) => onSlide('banner.delay', 'delay', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
-	<Card>
-		<h3 class="section-title">Colores</h3>
-		<div class="row">
+	<Collapsible id="banner-anim" icon="✨" title="Colores" open={false}>
+				<div class="row">
 			<div class="field">
 				<label for="bn-bg">Fondo</label>
 				<div class="color-row">
@@ -143,7 +140,7 @@
 				</div>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 </div>
 
 <style>

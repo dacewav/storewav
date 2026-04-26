@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card , Collapsible} from '$lib/components';
 	import type { LayoutSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -58,9 +58,8 @@
 	<h2 class="editor-title">📐 Layout</h2>
 	<p class="editor-desc">Espaciado, tamaños y disposición de elementos.</p>
 
-	<Card>
-		<h3 class="section-title">Grid</h3>
-		<div class="row">
+	<Collapsible id="layout-container" icon="📐" title="Grid" open={true}>
+				<div class="row">
 			<div class="field">
 				<label for="ly-cards">Cards por fila ({fmt('cardsPerRow', 6)})</label>
 				<input id="ly-cards" type="range" min="1" max="6" step="1" value={local.cardsPerRow ?? 3} oninput={(e) => onSlide('layout.cardsPerRow', 'cardsPerRow', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
@@ -72,11 +71,10 @@
 				</label>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
-	<Card>
-		<h3 class="section-title">Logo</h3>
-		<div class="row">
+	<Collapsible id="layout-spacing" icon="📏" title="Logo" open={false}>
+				<div class="row">
 			<div class="field">
 				<label for="ly-ls">Escala ({fmt('logoScale', 3)}x)</label>
 				<input id="ly-ls" type="range" min="0.3" max="3" step="0.1" value={local.logoScale ?? 1} oninput={(e) => onSlide('layout.logoScale', 'logoScale', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
@@ -102,27 +100,24 @@
 				</label>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
-	<Card>
-		<h3 class="section-title">Espaciado Hero</h3>
-		<div class="field">
+	<Collapsible id="layout-pattern" icon="🎨" title="Espaciado Hero" open={false}>
+				<div class="field">
 			<label for="ly-hpt">Padding top hero (rem, 0=default)</label>
 			<input id="ly-hpt" type="number" min="0" max="20" step="0.5" value={layout.heroPadTop ?? 0} oninput={(e) => update('layout.heroPadTop', +e.currentTarget.value)} />
 		</div>
-	</Card>
+	</Collapsible>
 
-	<Card>
-		<h3 class="section-title">Player Bar</h3>
-		<div class="field">
+	<Collapsible id="layout-grid" icon="📊" title="Player Bar" open={false}>
+				<div class="field">
 			<label for="ly-pb">Bottom offset (px)</label>
 			<input id="ly-pb" type="number" min="0" max="40" step="4" value={layout.playerBottom ?? 0} oninput={(e) => update('layout.playerBottom', +e.currentTarget.value)} />
 		</div>
-	</Card>
+	</Collapsible>
 
-	<Card>
-		<h3 class="section-title">Navegación</h3>
-		<div class="row">
+	<Collapsible id="layout-scroll" icon="🔄" title="Navegación" open={false}>
+				<div class="row">
 			<div class="field">
 				<label for="ly-nh">Altura nav ({fmt('navHeight', 100, 'px')})</label>
 				<input id="ly-nh" type="range" min="40" max="100" step="4" value={local.navHeight ?? 64} oninput={(e) => onSlide('layout.navHeight', 'navHeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
@@ -134,17 +129,16 @@
 				</label>
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
-	<Card>
-		<h3 class="section-title">Footer</h3>
-		<div class="field">
+	<Collapsible id="layout-sections" icon="📋" title="Footer" open={false}>
+				<div class="field">
 			<label>
 				<input type="checkbox" checked={layout.footerVisible !== false} onchange={(e) => update('layout.footerVisible', e.currentTarget.checked)} />
 				Mostrar footer
 			</label>
 		</div>
-	</Card>
+	</Collapsible>
 </div>
 
 <style>

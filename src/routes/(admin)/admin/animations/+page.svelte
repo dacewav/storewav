@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card , Collapsible} from '$lib/components';
 	import type { AnimationSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -105,7 +105,7 @@
 	<p class="editor-desc">Asigna animaciones preset a cada elemento de la tienda.</p>
 
 	{#each ANIM_ITEMS as item}
-		<Card>
+		<Collapsible id="anim-logo" icon="🎬" title="Logo" open={true}>
 			<div class="anim-row">
 				<div class="anim-label">
 					<span class="anim-icon">{item.icon}</span>
@@ -138,13 +138,12 @@
 					</div>
 				</div>
 			{/if}
-		</Card>
+		</Collapsible>
 	{/each}
 
 	<!-- Global timing controls -->
-	<Card>
-		<h3 class="section-title">⏱️ Timing global</h3>
-		<p class="field-desc">Duración, delay y easing aplicados a todas las animaciones.</p>
+	<Collapsible id="anim-title" icon="📝" title="⏱️ Timing global" open={false}>
+				<p class="field-desc">Duración, delay y easing aplicados a todas las animaciones.</p>
 		<div class="row">
 			<div class="field">
 				<label for="anim-dur">Duración ({fmt('animDuration', 10, 's')})</label>
@@ -161,12 +160,11 @@
 				{#each EASINGS as e}<option value={e.value}>{e.label}</option>{/each}
 			</select>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Custom CSS keyframes -->
-	<Card>
-		<h3 class="section-title">🎨 Keyframes personalizados</h3>
-		<p class="field-desc">Define CSS @keyframes custom. Úsalos como nombre de animación en los selectores.</p>
+	<Collapsible id="anim-cards" icon="🃏" title="🎨 Keyframes personalizados" open={false}>
+				<p class="field-desc">Define CSS @keyframes custom. Úsalos como nombre de animación en los selectores.</p>
 		<div class="field">
 			<textarea
 				value={anim.animCustomCSS ?? ''}
@@ -175,12 +173,11 @@
 				rows={8}
 			></textarea>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Live Preview: each element with its assigned animation -->
-	<Card>
-		<h3 class="section-title">👁️ Preview en Vivo</h3>
-		<p class="field-desc">Cada elemento muestra la animación que tiene asignada. Ajustá timing arriba y se actualiza acá.</p>
+	<Collapsible id="anim-cta" icon="💬" title="👁️ Preview en Vivo" open={false}>
+				<p class="field-desc">Cada elemento muestra la animación que tiene asignada. Ajustá timing arriba y se actualiza acá.</p>
 		<div class="live-grid">
 			{#each ANIM_ITEMS as item}
 				{@const animType = (anim as Record<string, unknown>)[item.key] as string}
@@ -245,12 +242,11 @@
 				</div>
 			{/each}
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- All Presets Gallery -->
-	<Card>
-		<h3 class="section-title">📚 Galería de Presets</h3>
-		<p class="field-desc">Todos los presets disponibles — click para ver la animación en loop.</p>
+	<Collapsible id="anim-player" icon="🎵" title="📚 Galería de Presets" open={false}>
+				<p class="field-desc">Todos los presets disponibles — click para ver la animación en loop.</p>
 		<div class="preset-grid">
 			{#each PRESETS.filter(p => p.value !== 'none') as p}
 				<div class="preset-card">
@@ -259,7 +255,7 @@
 				</div>
 			{/each}
 		</div>
-	</Card>
+	</Collapsible>
 </div>
 
 <style>

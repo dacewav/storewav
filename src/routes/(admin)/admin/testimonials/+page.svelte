@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card, FileUpload } from '$lib/components';
+	import { Card, FileUpload , Collapsible} from '$lib/components';
 
 	let s = $derived($settings.data);
 	let testimonials = $derived((s?.testimonials ?? []) as { name: string; text: string; stars?: number; avatar?: string; role?: string }[]);
@@ -41,17 +41,15 @@
 	<h2 class="editor-title">💬 Testimonios</h2>
 	<p class="editor-desc">Reseñas y opiniones de clientes. Se muestran en la página principal.</p>
 
-	<Card>
-		<h3 class="section-title">General</h3>
-		<div class="field">
+	<Collapsible id="test-list" icon="💬" title="General" open={true}>
+				<div class="field">
 			<label for="test-title">Título de la sección</label>
 			<input id="test-title" type="text" value={title} oninput={(e) => updateTitle(e.currentTarget.value)} />
 		</div>
-	</Card>
+	</Collapsible>
 
-	<Card>
-		<h3 class="section-title">Testimonios ({testimonials.length})</h3>
-
+	<Collapsible id="test-settings" icon="⚙️" title="Testimonios ({testimonials.length})" open={false}>
+		
 		{#if testimonials.length === 0}
 			<p class="empty-msg">No hay testimonios. Añade uno para empezar.</p>
 		{/if}
@@ -111,7 +109,7 @@
 		{/each}
 
 		<button class="btn-add" onclick={addTestimonial}>+ Añadir testimonio</button>
-	</Card>
+	</Collapsible>
 </div>
 
 <style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Range, Badge, HelpTip } from '$lib/components';
+	import { Card, Range, Badge, HelpTip , Collapsible} from '$lib/components';
 	import {
 		floatingElements,
 		floatingLoading,
@@ -103,10 +103,9 @@
 	</div>
 
 	<!-- Live preview -->
-	<Card>
+	<Collapsible id="floating-items" icon="✨" title="Preview en vivo" open={true}>
 		<div class="preview-section">
-			<h3 class="section-title">Preview en vivo <HelpTip text="Los elementos aparecen sobre la tienda. Posición en % del viewport." /></h3>
-			<div class="preview-box">
+						<div class="preview-box">
 				{#each previewElements as el}
 					<div
 						class="preview-dot"
@@ -125,24 +124,24 @@
 				{/if}
 			</div>
 		</div>
-	</Card>
+	</Collapsible>
 
 	<!-- Element list -->
 	{#if loading}
 		<p class="loading-text">Cargando...</p>
 	{:else if elements.length === 0 && !showNew}
-		<Card>
+		<Collapsible id="floating-anim" icon="🎬" title="Animaciones" open={false}>
 			<div class="empty-state">
 				<span class="empty-icon">✨</span>
 				<p class="empty-text">No hay elementos flotantes</p>
 				<p class="empty-hint">Creá uno para agregar imágenes o emojis sobre la tienda</p>
 				<button class="btn-primary" onclick={startNew}>+ Crear primer elemento</button>
 			</div>
-		</Card>
+		</Collapsible>
 	{:else}
 		<div class="elements-list">
 			{#each elements as el}
-				<Card>
+				<Collapsible id="floating-settings" icon="⚙️" title="Configuración" open={false}>
 					<div class="element-row">
 						<div class="element-info">
 							<span class="element-icon">{el.type === 'text' ? el.content : '🖼️'}</span>
@@ -170,7 +169,7 @@
 							<button class="btn-icon btn-danger" onclick={() => handleDelete(el.id, el.content)} title="Eliminar" aria-label="Eliminar elemento">🗑️</button>
 						</div>
 					</div>
-				</Card>
+				</Collapsible>
 			{/each}
 		</div>
 	{/if}

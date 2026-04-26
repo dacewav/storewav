@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card , Collapsible} from '$lib/components';
 
 	let s = $derived($settings.data);
 	let links = $derived((s?.links ?? []) as { label: string; url: string; icon?: string }[]);
@@ -49,9 +49,8 @@
 	<h2 class="editor-title">🔗 Links</h2>
 	<p class="editor-desc">Enlaces de redes sociales y footer. Se muestran en la navegación, footer y página de beats.</p>
 
-	<Card>
-		<h3 class="section-title">Enlaces ({links.length})</h3>
-
+	<Collapsible id="links-social" icon="🔗" title="Enlaces ({links.length})" open={true}>
+		
 		{#if links.length === 0}
 			<p class="empty-msg">No hay enlaces. Añade uno para empezar.</p>
 		{/if}
@@ -83,11 +82,10 @@
 		{/each}
 
 		<button class="btn-add" onclick={addLink}>+ Añadir enlace</button>
-	</Card>
+	</Collapsible>
 
-	<Card>
-		<h3 class="section-title">Vista previa</h3>
-		<p class="preview-desc">Así se verán en el footer:</p>
+	<Collapsible id="links-store" icon="🏪" title="Vista previa" open={false}>
+				<p class="preview-desc">Así se verán en el footer:</p>
 		<div class="preview-footer">
 			{#each links as link}
 				{#if link.label && link.url}
@@ -98,7 +96,7 @@
 				<span class="preview-empty">Sin enlaces</span>
 			{/if}
 		</div>
-	</Card>
+	</Collapsible>
 </div>
 
 <style>
