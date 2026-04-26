@@ -110,6 +110,30 @@ function createGalleryStore() {
 		}
 	}
 
+	/** Register an already-uploaded URL in the gallery (for beat editor sync) */
+	async function registerUrl(url: string, name: string, size: number = 0, usedIn?: string): Promise<boolean> {
+		if (!url) return false;
+		try {
+			const db = await getDb();
+			if (!db) return false;
+			// Check if URL already exists in gallery
+			const current = get(images);
+			if (current.some(i => i.url === url)) return true; // Already registered
+			const newRef = push(ref(db, 'gallery'));
+			await set(newRef, {
+				url,
+				name: name || 'Unnamed',
+				size,
+				uploadedAt: Date.now(),
+				usedIn: usedIn || undefined
+			});
+			return true;
+		} catch (e) {
+			console.error('[Gallery] Register URL failed:', e);
+			return false;
+		}
+	}
+
 	function destroy() {
 		_unsub?.();
 		_unsub = null;
@@ -122,6 +146,7 @@ function createGalleryStore() {
 		init,
 		uploadImage,
 		deleteImage,
+		registerUrl,
 		destroy
 	};
 }

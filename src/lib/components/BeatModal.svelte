@@ -29,7 +29,7 @@
 			name: beat.name,
 			artist: beat.artist ?? '',
 			imageUrl: beat.imageUrl ?? '',
-			audioUrl: beat.audioUrl ?? ''
+			audioUrl: beat.audioUrl || beat.previewUrl || ''
 		});
 	}
 

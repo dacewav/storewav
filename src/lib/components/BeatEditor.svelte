@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Card, Badge, EmojiInput } from '$lib/components';
 	import FileUpload from './FileUpload.svelte';
+	import { gallery } from '$lib/stores';
 	import type { Beat } from '$lib/stores/beats';
 
 	let {
@@ -387,6 +388,7 @@
 						accept="image/*"
 						type="image"
 						label="Cover · JPG, PNG, WebP"
+						onUploadComplete={(url) => gallery.registerUrl(url, `cover-${beat.name}`, 0, beatId)}
 					/>
 				</div>
 
@@ -401,6 +403,7 @@
 						type="audio"
 						maxSizeMB={100}
 						label="Audio · MP3, WAV, OGG · máx 100MB"
+						onUploadComplete={(url) => gallery.registerUrl(url, `audio-${beat.name}`, 0, beatId)}
 					/>
 				</div>
 
@@ -415,6 +418,7 @@
 						type="audio"
 						maxSizeMB={20}
 						label="Preview · MP3 (30s tag) · máx 20MB"
+						onUploadComplete={(url) => gallery.registerUrl(url, `preview-${beat.name}`, 0, beatId)}
 					/>
 				</div>
 			</div>

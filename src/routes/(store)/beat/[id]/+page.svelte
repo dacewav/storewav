@@ -67,7 +67,7 @@
 			name: beat.name,
 			artist: beat.artist ?? '',
 			imageUrl: beat.imageUrl ?? '',
-			audioUrl: beat.audioUrl ?? ''
+			audioUrl: beat.audioUrl || beat.previewUrl || ''
 		});
 		analytics.track('beat', 'play', { lbl: beat.id, meta: beat.name });
 	}
@@ -85,7 +85,7 @@
 			name: b.name,
 			artist: b.artist ?? '',
 			imageUrl: b.imageUrl ?? '',
-			audioUrl: b.audioUrl ?? ''
+			audioUrl: b.audioUrl || b.previewUrl || ''
 		});
 	}
 
