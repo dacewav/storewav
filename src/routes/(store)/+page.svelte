@@ -120,14 +120,69 @@
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
 	let filters: FilterState = $state({ search: '', genre: '', key: '', sort: 'newest', tags: [] });
 
+	// ── Show More batching ──
+	const BATCH_SIZE = 8;
+	let visibleCount = $state(BATCH_SIZE);
+	let backToTopVisible = $state(false);
+
+	// ── Genre tabs ──
+	let activeGenre = $state('');
+
+	// Reset visible count when filters change
+	$effect(() => {
+		void filters.search;
+		void filters.genre;
+		void filters.key;
+		void filters.sort;
+		void filters.tags.length;
+		void activeGenre;
+		visibleCount = BATCH_SIZE;
+	});
+
+	// Back to top detection
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+		function onScroll() { backToTopVisible = window.scrollY > 600; }
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
+	});
+
+	function scrollToTop() {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
+
+	// Genre counts for tabs
+	let genreCounts = $derived.by(() => {
+		const counts: Record<string, number> = {};
+		for (const b of beats) {
+			if (b.genre) counts[b.genre] = (counts[b.genre] ?? 0) + 1;
+		}
+		return counts;
+	});
+
+	let sortedGenres = $derived(
+		Object.entries(genreCounts)
+			.sort(([, a], [, b]) => b - a)
+			.map(([genre, count]) => ({ genre, count }))
+	);
+
 	function lowestPrice(beat: Beat & { id: string }): number {
 		if (!beat.licenses?.length) return 0;
 		return Math.min(...beat.licenses.map(l => l.priceMXN));
 	}
 
-	// Filtered + sorted beats
+	// Filtered + sorted beats — excludes featured from main grid
 	let filteredBeats = $derived.by(() => {
 		let list = [...beats];
+
+		// Exclude featured (they have their own section)
+		list = list.filter(b => !b.featured);
+
+		// Genre tabs (takes priority over dropdown filter)
+		const genreFilter = activeGenre || filters.genre;
+		if (genreFilter) {
+			list = list.filter(b => b.genre === genreFilter);
+		}
 
 		// Search
 		if (filters.search?.trim()) {
@@ -137,11 +192,6 @@
 				b.artist?.toLowerCase().includes(q) ||
 				b.genre?.toLowerCase().includes(q)
 			);
-		}
-
-		// Genre
-		if (filters.genre) {
-			list = list.filter(b => b.genre === filters.genre);
 		}
 
 		// Key
@@ -168,6 +218,19 @@
 
 		return list;
 	});
+
+	// Visible beats (batched)
+	let visibleBeats = $derived(filteredBeats.slice(0, visibleCount));
+	let hasMore = $derived(visibleCount < filteredBeats.length);
+	let remainingCount = $derived(filteredBeats.length - visibleCount);
+
+	function showMore() {
+		visibleCount = Math.min(visibleCount + BATCH_SIZE, filteredBeats.length);
+	}
+
+	function showAll() {
+		visibleCount = filteredBeats.length;
+	}
 
 	function handlePlay(beat: Beat & { id: string }) {
 		player.play({
@@ -308,8 +371,22 @@
 	<div class="section-header">
 		<h2 class="section-title" style={sectionTitleStyle}>{sectionTitle}</h2>
 		<div class="section-line"></div>
-		<div class="section-badge">{beats.length ? `${beats.length} beats` : '—'}</div>
+		<div class="section-badge">{filteredBeats.length ? `${filteredBeats.length} beats` : '—'}</div>
 	</div>
+
+	<!-- Genre tabs -->
+	{#if sortedGenres.length > 1}
+		<div class="genre-tabs">
+			<button class="genre-tab" class:active={!activeGenre} onclick={() => { activeGenre = ''; }}>
+				Todos <span class="tab-count">{beats.filter(b => !b.featured).length}</span>
+			</button>
+			{#each sortedGenres as { genre, count }}
+				<button class="genre-tab" class:active={activeGenre === genre} onclick={() => { activeGenre = activeGenre === genre ? '' : genre; }}>
+					{genre} <span class="tab-count">{count}</span>
+				</button>
+			{/each}
+		</div>
+	{/if}
 
 	<!-- Filters -->
 	{#if beats.length > 0}
@@ -327,14 +404,26 @@
 		</div>
 	{/if}
 
-	<!-- Beat grid -->
+	<!-- Beat grid (batched) -->
 	{#if beats.length > 0}
 		{#if filteredBeats.length > 0}
 			<div class="beat-grid{animCards && animCards !== 'none' ? ` anim-${animCards}` : ''}" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ effect: siblingHoverEffect, blur: siblingHoverBlur, opacity: siblingHoverOpacity, scale: siblingHoverScale, duration: siblingHoverDuration }} style="{animCards && animCards !== 'none' ? `--anim-dur: ${animCardsDur}s; --anim-del: ${animCardsDel}s; --anim-ease: ${animCardsEase}` : ''}">
-				{#each filteredBeats as beat (beat.id)}
+				{#each visibleBeats as beat (beat.id)}
 					<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 				{/each}
 			</div>
+
+			<!-- Show more -->
+			{#if hasMore}
+				<div class="show-more">
+					<button class="show-more-btn" onclick={showMore}>
+						Mostrar más <span class="show-more-count">({remainingCount} restantes)</span>
+					</button>
+					<button class="show-all-btn" onclick={showAll}>
+						Mostrar todos
+					</button>
+				</div>
+			{/if}
 		{:else}
 			<EmptyState icon="🔍" title={labels.emptyTitle ?? 'Sin resultados'} subtitle={labels.emptySub ?? ''} />
 		{/if}
@@ -364,6 +453,13 @@
 		{ctaBtn}
 	</a>
 </div>
+{/if}
+
+<!-- Back to top -->
+{#if backToTopVisible}
+	<button class="back-to-top" onclick={scrollToTop} aria-label="Volver arriba">
+		<Icon name="chevronUp" size={18} />
+	</button>
 {/if}
 
 <style>
@@ -658,6 +754,140 @@
 	/* ── Filters ── */
 	.filters-wrap {
 		margin-bottom: var(--space-6);
+	}
+
+	/* ── Genre Tabs ── */
+	.genre-tabs {
+		display: flex;
+		gap: var(--space-2);
+		flex-wrap: wrap;
+		margin-bottom: var(--space-5);
+		padding-bottom: var(--space-4);
+		border-bottom: 1px solid var(--border);
+	}
+
+	.genre-tab {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-4);
+		min-height: 36px;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: transparent;
+		color: var(--text-secondary);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		cursor: pointer;
+		transition: all var(--duration-fast) var(--ease-out);
+		white-space: nowrap;
+	}
+
+	.genre-tab:hover {
+		border-color: rgba(var(--accent-rgb), 0.4);
+		color: var(--text);
+		background: rgba(var(--accent-rgb), 0.04);
+	}
+
+	.genre-tab.active {
+		border-color: var(--accent);
+		background: rgba(var(--accent-rgb), 0.1);
+		color: var(--accent);
+		box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.15);
+	}
+
+	.tab-count {
+		font-size: 10px;
+		opacity: 0.6;
+	}
+
+	/* ── Show More ── */
+	.show-more {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-3);
+		margin-top: var(--space-6);
+		padding-top: var(--space-4);
+		border-top: 1px solid var(--border);
+	}
+
+	.show-more-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-6);
+		border: 1px solid rgba(var(--accent-rgb), 0.4);
+		border-radius: var(--radius-full);
+		background: rgba(var(--accent-rgb), 0.06);
+		color: var(--accent);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		letter-spacing: 0.04em;
+		cursor: pointer;
+		transition: all var(--duration-normal) var(--ease-out);
+		min-height: 44px;
+	}
+
+	.show-more-btn:hover {
+		background: rgba(var(--accent-rgb), 0.12);
+		border-color: var(--accent);
+		box-shadow: var(--glow-sm);
+		transform: translateY(-1px);
+	}
+
+	.show-more-count {
+		opacity: 0.7;
+		font-size: var(--text-2xs);
+	}
+
+	.show-all-btn {
+		padding: var(--space-2) var(--space-4);
+		border: none;
+		border-radius: var(--radius-full);
+		background: transparent;
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		cursor: pointer;
+		transition: color var(--duration-fast);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.show-all-btn:hover {
+		color: var(--text);
+	}
+
+	/* ── Back to Top ── */
+	.back-to-top {
+		position: fixed;
+		bottom: 100px;
+		right: var(--space-6);
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		border: 1px solid var(--border);
+		background: var(--surface);
+		color: var(--text-secondary);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		z-index: var(--z-nav);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		backdrop-filter: blur(8px);
+		transition: all var(--duration-fast) var(--ease-out);
+		animation: fadeInUp 0.2s var(--ease-out);
+	}
+
+	.back-to-top:hover {
+		border-color: var(--accent);
+		color: var(--accent);
+		transform: translateY(-2px);
+		box-shadow: var(--glow-sm);
 	}
 
 	/* ── Beat Grid ── */
