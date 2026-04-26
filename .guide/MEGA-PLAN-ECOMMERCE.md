@@ -22,6 +22,11 @@
 | Discount codes | 🔜 | Fase 2 |
 | Email templates | 🔜 | Fase 2 |
 | Sales analytics | 🔜 | Fase 2 |
+| Customer Auth | 🔜 | Fase 3 — Google + Email |
+| Profile / Account | 🔜 | Fase 3 |
+| Likes / Favorites | 🔜 | Fase 3 |
+| Comments | 🔜 | Fase 3 |
+| Wishlist sync | 🔜 | Fase 3 |
 
 ---
 
@@ -146,6 +151,334 @@
 - [ ] Top beats vendidos
 - [ ] Mapa de ventas por país
 - [ ] Export CSV
+
+---
+
+## 🔜 FASE 3 — Cuenta de Cliente + Social
+
+> **Objetivo**: Convertir visitantes en comunidad. Login de cliente, perfil, likes, comentarios, wishlist persistente.
+> **Prioridad**: Alta — aumenta retención, engagement y datos de usuarios.
+> **UI**: Minimalista, oscura, consistente con la estética YUGEN. Sin sobrecarga visual.
+
+---
+
+### 3.1 Auth de Cliente (Google + Email)
+
+> El login actual (`/login`) es solo para admin. Necesitamos login para compradores.
+
+#### Flujo
+```
+Visitante → Click "Iniciar sesión" → Google One Tap / Email
+  → Cuenta creada en Firebase Auth
+  → Perfil básico (nombre, email, avatar)
+  → Redirect a la página anterior (no a /admin)
+```
+
+#### Implementación
+- [ ] **Botón en nav** — avatar genérico → dropdown con "Iniciar sesión" / "Mi perfil"
+- [ ] **Google One Tap** — usar GIS (Google Identity Services) directo, sin popup/redirect de Firebase. COOP-safe.
+- [ ] **Email link (passwordless)** — alternativa sin contraseña. El usuario pone email → recibe link → logueado.
+- [ ] **Persistencia de sesión** — `onAuthStateChanged` ya existe, solo falta diferenciar admin vs cliente
+- [ ] **Redirect inteligente** — después de login, volver a donde estaba (catálogo, beat detail, etc.)
+
+#### Archivos nuevos
+| Archivo | Propósito |
+|---------|-----------|
+| `src/lib/stores/auth.ts` | Extender: detectar si es admin o cliente |
+| `src/routes/(store)/account/+layout.svelte` | Layout de sección de cuenta |
+| `src/routes/(store)/account/+page.svelte` | Perfil del cliente |
+| `src/routes/(store)/account/orders/+page.svelte` | Ya existe — vincular a uid en vez de email |
+| `src/lib/components/AuthButton.svelte` | Botón de login/avatar en nav |
+
+#### Datos en Firebase RTDB
+```json
+{
+  "users/{uid}": {
+    "email": "artista@email.com",
+    "displayName": "Artista Name",
+    "photoURL": "https://...",
+    "createdAt": 1711500000000,
+    "artistName": "Mi Nombre Artístico",
+    "country": "MX",
+    "socials": {
+      "instagram": "@artista",
+      "youtube": "ArtistaOficial",
+      "spotify": "..."
+    }
+  }
+}
+```
+
+---
+
+### 3.2 Perfil de Cliente (`/account`)
+
+> Página central del comprador. Simple, funcional, sin bloat.
+
+#### Layout
+```
+┌─────────────────────────────────────────────┐
+│  Avatar  │  Nombre Artístico                │
+│  ───────  │  artista@email.com              │
+│           │  🇲🇽 México · Miembro desde 2026 │
+├─────────────────────────────────────────────┤
+│  [Perfil] [Órdenes] [Wishlist] [Favoritos]  │
+├─────────────────────────────────────────────┤
+│                                              │
+│  Contenido del tab seleccionado              │
+│                                              │
+└─────────────────────────────────────────────┘
+```
+
+#### Tabs
+| Tab | Contenido |
+|-----|-----------|
+| **Perfil** | Editar nombre artístico, avatar, redes sociales, país |
+| **Órdenes** | Historial de compras con descargas, contratos, fecha |
+| **Wishlist** | Beats guardados (sync con Firebase, no solo localStorage) |
+| **Favoritos** | Likes dados a beats (ver sección 3.3) |
+
+#### Implementación
+- [ ] `/account` — página principal con tabs
+- [ ] `/account/profile` — editar datos del perfil
+- [ ] `/account/orders` — ya existe, adaptar para uid-authenticated
+- [ ] `/account/wishlist` — migrar de localStorage a Firebase sync
+- [ ] `/account/favorites` — beats con like del usuario
+- [ ] **Avatar upload** — a R2 con crop simple, o usar foto de Google
+- [ ] **Settings** — preferencias de email (marketing on/off), idioma, moneda
+
+---
+
+### 3.3 Likes / Favoritos ❤️
+
+> El like es la señal social más simple. Un click, un dato, un efecto.
+
+#### UX
+```
+BeatCard:
+  ┌──────────────────────────┐
+  │  🎵 Beat Title           │
+  │  BPM · Key · Genre       │
+  │  ┌────┐                  │
+  │  │ ▶  │  $350  ❤️ 24     │ ← corazon con contador
+  │  └────┘                  │
+  └──────────────────────────┘
+
+BeatDetail:
+  ❤️ 24 likes · Guardar en wishlist ♡
+```
+
+#### Comportamiento
+- Click ❤️ → toggle (like / unlike)
+- Si no está logueado → animación suave + tooltip "Iniciá sesión para guardar"
+- Contador público en BeatCard y BeatDetail
+- Feed de "más likeados" en catálogo (ordenar por likes)
+
+#### Datos en Firebase RTDB
+```json
+{
+  "beatLikes/{beatId}/{uid}": true,
+  "userLikes/{uid}/{beatId}": true,
+  "beats/{beatId}/likeCount": 24
+}
+```
+
+#### Implementación
+- [ ] Store `likes.ts` — toggle, subscribe, count
+- [ ] Componente `LikeButton.svelte` — animación heart burst
+- [ ] Integración en `BeatCard.svelte` y `BeatDetail`
+- [ ] Admin: ver top beats por likes en analytics
+- [ ] Ordenar catálogo por "más populares"
+
+---
+
+### 3.4 Comentarios 💬
+
+> Comentarios en beats. Simple, sin hilo (flat), moderación básica.
+
+#### UX
+```
+BeatDetail — debajo del player:
+
+  💬 Comentarios (3)
+
+  ┌─────────────────────────────────────────┐
+  │  🟢 Artista1 · hace 2 días              │
+  │  ¡Este beat está increíble! Necesito    │
+  │  la licencia Premium 🔥                  │
+  │                          ❤️ 5  · Responder│
+  └─────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────┐
+  │  🟢 Artista2 · hace 5 días              │
+  │  ¿Cuándo sale con stems?                │
+  │                          ❤️ 2  · Responder│
+  └─────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────┐
+  │  Escribe un comentario...               │
+  │  [🎤 Enviar]                            │
+  └─────────────────────────────────────────┘
+```
+
+#### Reglas
+- Solo usuarios logueados pueden comentar
+- Un comentario por usuario por beat (evitar spam)
+- Máximo 500 caracteres
+- El admin puede eliminar cualquier comentario
+- El autor puede editar/eliminar el suyo
+- Rate limit: 1 comentario cada 30 segundos
+
+#### Datos en Firebase RTDB
+```json
+{
+  "beatComments/{beatId}/{commentId}": {
+    "uid": "user123",
+    "displayName": "Artista1",
+    "photoURL": "https://...",
+    "text": "¡Este beat está increíble!",
+    "createdAt": 1711500000000,
+    "editedAt": null,
+    "likes": 5
+  }
+}
+```
+
+#### Implementación
+- [ ] Store `comments.ts` — CRUD, subscribe by beatId
+- [ ] Componente `CommentSection.svelte` — lista + input
+- [ ] Componente `Comment.svelte` — avatar, texto, acciones
+- [ ] Firebase rules: auth required, owner can edit/delete
+- [ ] Admin: panel de moderación (ver, eliminar, ban user)
+- [ ] Sanitización de texto (XSS-safe, sin HTML)
+
+---
+
+### 3.5 Wishlist Persistente ♡
+
+> La wishlist actual es localStorage. Con login, se sync con Firebase.
+
+#### Comportamiento
+- **Sin login**: wishlist en localStorage (como ahora)
+- **Con login**: wishlist se sync a Firebase automáticamente
+- **Merge**: al hacer login por primera vez, merge localStorage + Firebase
+- **Cross-device**: wishlist disponible en cualquier dispositivo logueado
+
+#### Datos en Firebase RTDB
+```json
+{
+  "userWishlist/{uid}/{beatId}": {
+    "addedAt": 1711500000000
+  }
+}
+```
+
+#### Implementación
+- [ ] Migrar store de localStorage a Firebase-backed
+- [ ] Fallback localStorage cuando no hay login
+- [ ] Merge strategy: unión (nunca borrar)
+- [ ] UI: ♡ → ♥ con animación al agregar/quitar
+- [ ] Wishlist page con grid de beats guardados
+
+---
+
+### 3.6 Ideas a Futuro 🚀
+
+> Features que valen la pena pero no son prioritarios ahora.
+
+#### Social
+- [ ] **Playlists de usuarios** — "Mis beats favoritos", "Beats para el próximo proyecto"
+- [ ] **Compartir en redes** — botón de compartir beat con preview link
+- [ ] **Feed de actividad** — "Artista1 compró Premium de este beat"
+- [ ] **Notificaciones** — "El beat que guardaste tiene descuento"
+- [ ] **Sistema de seguidores** — seguir a dacewav para notificaciones de nuevos beats
+
+#### Comunidad
+- [ ] **Rating / Estrellas** — 1-5 estrellas por beat (además de likes)
+- [ ] **Tags de usuario** — "Trap", "Lo-Fi", "Drill" como filtros colaborativos
+- [ ] **Featured comments** — admin puede destacar un comentario
+- [ ] **Badge de comprador** — "Compró 5+ beats" → badge especial en perfil
+
+#### Product
+- [ ] **Historial de escucha** — "Escuchados recientemente" (localStorage + Firebase)
+- [ ] **Recomendaciones** — "Basado en lo que escuchaste" (simple: mismo género/bpm)
+- [ ] **Página de artistas** — perfil público de compradores que lo permitan
+- [ ] **Código de referido** — descuento por invitar amigos
+- [ ] **Newsletter integrada** — "Nuevos beats esta semana" automática
+
+#### Gamificación
+- [ ] **Nivel de comprador** — Bronze (1 compra) → Silver (3) → Gold (5) → Platinum (10+)
+- [ ] **Descuentos por fidelidad** — % off según nivel
+- [ ] **Early access** — nuevos beats disponibles primero para Gold+
+- [ ] **Logros** — "Primera compra", "5 beats", "Compartió 3 veces"
+
+---
+
+### 3.7 Firebase Rules — Fase 3
+
+```json
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
+    },
+    "beatLikes": {
+      "$beatId": {
+        "$uid": {
+          ".read": true,
+          ".write": "auth !== null && auth.uid === $uid"
+        }
+      }
+    },
+    "userLikes": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
+    },
+    "beatComments": {
+      "$beatId": {
+        ".read": true,
+        "$commentId": {
+          ".write": "auth !== null && (auth.uid === data.child('uid').val() || root.child('adminWhitelist/approved').child(auth.uid).exists())"
+        }
+      }
+    },
+    "userWishlist": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
+    }
+  }
+}
+```
+
+---
+
+### 3.8 Archivos — Fase 3
+
+| Archivo | Propósito |
+|---------|-----------|
+| `src/lib/stores/auth.ts` | Extender: admin vs cliente, perfil |
+| `src/lib/stores/likes.ts` | Store de likes/favoritos |
+| `src/lib/stores/comments.ts` | Store de comentarios |
+| `src/lib/stores/wishlist.ts` | Wishlist con Firebase sync |
+| `src/lib/stores/profile.ts` | Perfil de usuario |
+| `src/lib/components/AuthButton.svelte` | Login/avatar en nav |
+| `src/lib/components/LikeButton.svelte` | Botón ❤️ con animación |
+| `src/lib/components/CommentSection.svelte` | Sección de comentarios |
+| `src/lib/components/CommentCard.svelte` | Card de comentario individual |
+| `src/lib/components/UserAvatar.svelte` | Avatar reutilizable |
+| `src/routes/(store)/account/+layout.svelte` | Layout de cuenta |
+| `src/routes/(store)/account/+page.svelte` | Dashboard de cuenta |
+| `src/routes/(store)/account/profile/+page.svelte` | Editar perfil |
+| `src/routes/(store)/account/favorites/+page.svelte` | Beats con like |
+| `src/routes/(store)/account/wishlist/+page.svelte` | Wishlist sincronizada |
+| `src/routes/(store)/account/orders/+page.svelte` | Adaptar para uid |
 
 ---
 
