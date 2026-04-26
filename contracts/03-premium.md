@@ -69,7 +69,7 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 | **Link de descarga:** |     |
 |-----------------------|-----|
 
-| **Precio pactado:** | **\$ 1,500** **MXN** / **\$90 USD** |
+| **Precio pactado:** | **\$ 1,400** **MXN** / **\$74.99 USD** |
 |---------------------|----------------------------------------|
 
 **TÉRMINOS Y CONDICIONES**
@@ -164,7 +164,7 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 
 **CLÁUSULA IX. PAGO Y CONDICIONES ECONÓMICAS**
 
-> El ARTISTA realizó el pago único e irrepetible de: \$1,500 MXN (para pagos dentro de México) / \$90 USD (para pagos internacionales). La moneda aplicable será la correspondiente al método de pago seleccionado y al país del ARTISTA, según acuerdo previo entre las partes.
+> El ARTISTA realizó el pago único e irrepetible de: \$1,400 MXN (para pagos dentro de México) / \$74.99 USD (para pagos internacionales). La moneda aplicable será la correspondiente al método de pago seleccionado y al país del ARTISTA, según acuerdo previo entre las partes.
 >
 > Comprobante de pago: \[ \] Adjunto  \[ \] Captura enviada por mensaje
 >
