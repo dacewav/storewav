@@ -63,13 +63,14 @@ build:         0 errors, svelte-check clean (except pre-existing Firebase env va
 
 | Prioridad | Item | Detalle |
 |-----------|------|---------|
-| 🔴 | Firebase rules deploy | paidOrders .read=true + .indexOn (usuario lo hace manual) |
+| 🔴 | Contract Editor | Estilo BeatStars: editar texto, variables, preview, guardar (Session 55) |
+| 🔴 | Discount UI (cart) | No hay input para código de descuento en el cart |
+| 🔴 | Discount tracking (webhook) | Webhook no incrementa `usedCount` del código |
+| 🟡 | Email discount display | Email no muestra descuento aplicado |
+| 🟡 | Success/Orders discount | Success page y orders page no muestran descuento |
 | 🟡 | Zip packaging | Beat + stems + contrato en un zip |
 | 🟡 | R2 signed URLs | Expiring download links |
-| 🟡 | Discount codes | Admin CRUD + checkout validation |
 | 🟡 | Order history improvement | Customer account page |
-| 🟢 | Email templates | Customizable from admin |
-| 🟢 | Sales analytics | Revenue dashboard in admin |
 | 🟢 | Cart abandoned email | Reminder email |
 | 🔴 | Beats sin audio | 11/11 beats sin audioUrl |
 
