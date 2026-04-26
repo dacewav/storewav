@@ -39,9 +39,23 @@
 	let cardStyle = $derived(
 		mergeCardStyles(globalCardStyle as Partial<CardStyleConfig>, (beat.cardStyle ?? {}) as Partial<CardStyleConfig>)
 	);
+	// Hover CSS variables for :hover rule
+	let hoverVars = $derived([
+		cardStyle.hoverScale ? `--hover-scale: ${cardStyle.hoverScale}` : '',
+		cardStyle.hoverScale ? `--hover-translate-y: 0px` : '',
+		cardStyle.hoverBrightness ? `--hover-brightness: ${cardStyle.hoverBrightness}` : '',
+		cardStyle.hoverSaturate ? `--hover-saturate: ${cardStyle.hoverSaturate}` : '',
+		cardStyle.hoverBlur ? `--hover-blur: ${cardStyle.hoverBlur}px` : '',
+		cardStyle.hoverShadowBlur ? `--hover-shadow-blur: ${cardStyle.hoverShadowBlur}px` : '',
+		cardStyle.hoverBorderColor ? `--hover-border-color: ${cardStyle.hoverBorderColor}` : '',
+		cardStyle.hoverOpacity ? `--hover-opacity: ${cardStyle.hoverOpacity}` : '',
+		cardStyle.hoverHueRotate ? `--hover-hue-rotate: ${cardStyle.hoverHueRotate}deg` : '',
+		cardStyle.hoverTransition ? `--hover-transition: ${cardStyle.hoverTransition}s` : '',
+	].filter(Boolean).join('; '));
 	let inlineCSS = $derived([
 		cardStyleToCSS(cardStyle, accentRgb),
-		cardStyle.imageHoverZoom ? `--image-hover-zoom: ${cardStyle.imageHoverZoom}` : ''
+		cardStyle.imageHoverZoom ? `--image-hover-zoom: ${cardStyle.imageHoverZoom}` : '',
+		hoverVars,
 	].filter(Boolean).join('; ') || undefined);
 	let titleCSS = $derived(cardTitleCSS(cardStyle));
 	let priceCSS = $derived(cardPriceCSS(cardStyle));
@@ -179,12 +193,17 @@
 		cursor: pointer;
 		transition: all var(--duration-normal) var(--ease-out);
 		box-shadow: var(--card-shadow);
+		--hover-scale: 1;
+		--hover-translate-y: -3px;
 	}
 
 	.beat-card:hover {
-		border-color: var(--border-hover-accent);
+		border-color: var(--hover-border-color, var(--border-hover-accent));
 		box-shadow: var(--card-shadow-hover);
-		transform: translateY(-3px);
+		transform: scale(var(--hover-scale)) translateY(var(--hover-translate-y));
+		filter: brightness(var(--hover-brightness, 1)) saturate(var(--hover-saturate, 1)) blur(var(--hover-blur, 0px)) hue-rotate(var(--hover-hue-rotate, 0deg));
+		opacity: var(--hover-opacity, 1);
+		transition-duration: var(--hover-transition, var(--duration-normal));
 	}
 
 	/* ── Play Pulse Ring ── */
