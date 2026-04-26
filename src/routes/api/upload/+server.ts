@@ -14,14 +14,19 @@ import type { RequestHandler } from './$types';
 // e.g. "https://pub-xxx.r2.dev" or "https://media.dacewav.com"
 const R2_PUBLIC_BASE = 'https://cdn.dacewav.store';
 
-/** OPTIONS — health check for R2 availability */
-export const OPTIONS: RequestHandler = async ({ platform }) => {
-	// Only report available if R2 binding is actually configured
+/** HEAD — health check for R2 availability */
+export const HEAD: RequestHandler = async ({ platform }) => {
 	const hasR2 = !!platform?.env?.MEDIA;
 	return new Response(null, {
-		status: hasR2 ? 204 : 503,
+		status: hasR2 ? 200 : 503,
 		headers: { 'X-R2-Available': String(hasR2) }
 	});
+};
+
+/** GET — also respond for health checks */
+export const GET: RequestHandler = async ({ platform }) => {
+	const hasR2 = !!platform?.env?.MEDIA;
+	return json({ r2: hasR2 });
 };
 
 /** POST — upload file to R2 */

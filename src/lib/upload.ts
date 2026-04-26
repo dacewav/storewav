@@ -146,9 +146,11 @@ async function uploadToFirebase(
 async function isR2Available(): Promise<boolean> {
 	if (!browser) return false;
 	try {
-		const res = await fetch('/api/upload', { method: 'OPTIONS' });
-		// 204 = R2 binding exists; anything else = no R2 (dev mode)
-		return res.status === 204;
+		// Just check if the /api/upload route exists (any response = route exists)
+		const res = await fetch('/api/upload', { method: 'HEAD' });
+		// Any response means the route exists → R2 is available (prod)
+		// Network error or no response → fallback to Firebase (dev)
+		return true;
 	} catch {
 		return false;
 	}
