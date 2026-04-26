@@ -146,7 +146,7 @@ export async function sendDeliveryEmail(
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
-				from: `${brandName} <onboarding@resend.dev>`,
+				from: `${brandName} <ventas@dacewav.store>`,
 				to: data.buyerEmail,
 				subject: `✅ Tu compra en ${brandName} — ${data.items.map(i => i.beatName).join(', ')}`,
 				html,
