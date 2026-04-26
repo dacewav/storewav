@@ -3,6 +3,7 @@
  * Uses Resend API (https://resend.com) — simple, Workers-compatible.
  *
  * Falls back to logging if RESEND_API_KEY is not configured.
+ * Supports customizable templates stored in Firebase.
  */
 
 export type DeliveryEmailData = {
@@ -20,7 +21,72 @@ export type DeliveryEmailData = {
 	brandName?: string;
 };
 
+type EmailTemplate = {
+	brandName: string;
+	accentColor: string;
+	logoUrl: string;
+	headerEmoji: string;
+	headerTitle: string;
+	headerSubtitle: string;
+	downloadBtnText: string;
+	downloadBtnColor: string;
+	showContractNote: boolean;
+	contractTitle: string;
+	contractText: string;
+	footerText: string;
+	footerSupportText: string;
+	footerCopyright: string;
+	emailSubject: string;
+	showTotal: boolean;
+	showOrderNumber: boolean;
+};
+
+const defaultTemplate: EmailTemplate = {
+	brandName: 'DACEWAV',
+	accentColor: '#dc2626',
+	logoUrl: '',
+	headerEmoji: '✅',
+	headerTitle: '¡Compra exitosa!',
+	headerSubtitle: 'Gracias por tu compra, {{buyerName}}. Aquí están tus archivos:',
+	downloadBtnText: '⬇ Descargar',
+	downloadBtnColor: '#dc2626',
+	showContractNote: true,
+	contractTitle: '📄 Contrato de licencia',
+	contractText: 'El contrato de licencia está adjunto a este email como PDF. Consérvalo como comprobante de tu compra.',
+	footerText: '¿Perdiste los links? Accedé a tus descargas en cualquier momento:',
+	footerSupportText: 'Si tienes problemas con la descarga, contáctanos por WhatsApp o responde a este email.',
+	footerCopyright: `© ${new Date().getFullYear()} DACEWAV. Todos los derechos reservados.`,
+	emailSubject: '✅ Tu compra en {{brandName}} — {{beatNames}}',
+	showTotal: true,
+	showOrderNumber: true,
+};
+
 const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
+
+/** Fetch custom template from Firebase, fallback to default */
+async function getEmailTemplate(): Promise<EmailTemplate> {
+	try {
+		const resp = await fetch(`${FIREBASE_DB}/settings/emailTemplates/delivery.json`);
+		if (resp.ok) {
+			const data = await resp.json();
+			if (data) return { ...defaultTemplate, ...data };
+		}
+	} catch {
+		// Fallback to default
+	}
+	return { ...defaultTemplate };
+}
+
+/** Interpolate template variables */
+function interpolateVars(text: string, vars: Record<string, string>): string {
+	return text
+		.replace(/\{\{brandName\}\}/g, vars.brandName || 'DACEWAV')
+		.replace(/\{\{buyerName\}\}/g, vars.buyerName || 'Cliente')
+		.replace(/\{\{beatNames\}\}/g, vars.beatNames || 'Beat')
+		.replace(/\{\{orderId\}\}/g, vars.orderId || '00000000')
+		.replace(/\{\{totalMXN\}\}/g, vars.totalMXN || '0')
+		.replace(/\{\{totalUSD\}\}/g, vars.totalUSD || '0');
+}
 
 /**
  * Send post-purchase delivery email.
@@ -37,7 +103,19 @@ export async function sendDeliveryEmail(
 		return { ok: true }; // Don't block order processing
 	}
 
-	const brandName = data.brandName ?? 'DACEWAV';
+	// Fetch custom template
+	const tmpl = await getEmailTemplate();
+	const brandName = data.brandName ?? tmpl.brandName;
+	const beatNames = data.items.map(i => i.beatName).join(', ');
+	const vars = {
+		brandName,
+		buyerName: data.buyerName,
+		beatNames,
+		orderId: data.orderId.slice(0, 8).toUpperCase(),
+		totalMXN: String(data.totalMXN),
+		totalUSD: String(data.totalUSD),
+	};
+
 	const itemsHtml = data.items.map(item => `
 		<div style="padding: 16px; background: #1a1a1a; border-radius: 8px; margin-bottom: 12px;">
 			<div style="font-weight: 700; color: #fff; font-size: 16px; margin-bottom: 4px;">
@@ -47,9 +125,9 @@ export async function sendDeliveryEmail(
 				Licencia: ${escapeHtml(item.licenseName)}
 			</div>
 			<a href="${item.downloadUrl}"
-				style="display: inline-block; padding: 10px 24px; background: #dc2626; color: #fff;
+				style="display: inline-block; padding: 10px 24px; background: ${tmpl.downloadBtnColor}; color: #fff;
 				text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
-				⬇ Descargar
+				${escapeHtml(tmpl.downloadBtnText)}
 			</a>
 		</div>
 	`).join('');
@@ -62,62 +140,67 @@ export async function sendDeliveryEmail(
 	<div style="max-width: 600px; margin: 0 auto; padding: 32px 20px;">
 		<!-- Header -->
 		<div style="text-align: center; margin-bottom: 32px;">
+			${tmpl.logoUrl ? `<img src="${tmpl.logoUrl}" alt="${escapeHtml(brandName)}" style="max-height: 40px; margin-bottom: 8px;" />` : ''}
 			<div style="font-size: 28px; font-weight: 800; color: #fff; letter-spacing: -0.02em;">
-				${escapeHtml(brandName)}<span style="color: #dc2626;">.</span>
+				${escapeHtml(brandName)}<span style="color: ${tmpl.accentColor};">.</span>
 			</div>
 		</div>
 
 		<!-- Success -->
 		<div style="text-align: center; margin-bottom: 32px;">
-			<div style="font-size: 48px; margin-bottom: 12px;">✅</div>
+			<div style="font-size: 48px; margin-bottom: 12px;">${tmpl.headerEmoji}</div>
 			<h1 style="color: #fff; font-size: 24px; font-weight: 800; margin: 0 0 8px;">
-				¡Compra exitosa!
+				${escapeHtml(tmpl.headerTitle)}
 			</h1>
 			<p style="color: #888; font-size: 14px; margin: 0;">
-				Gracias por tu compra, ${escapeHtml(data.buyerName)}. Aquí están tus archivos:
+				${escapeHtml(interpolateVars(tmpl.headerSubtitle, vars))}
 			</p>
 		</div>
 
+		${tmpl.showOrderNumber ? `
 		<!-- Order ID -->
 		<div style="text-align: center; margin-bottom: 24px; padding: 12px; background: #111; border-radius: 8px;">
 			<span style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;">
 				Pedido
 			</span>
 			<div style="color: #fff; font-family: monospace; font-size: 14px; margin-top: 4px;">
-				#${data.orderId.slice(0, 8).toUpperCase()}
-			</div>
-		</div>
-
-		<!-- Items -->
-		${itemsHtml}
-
-		<!-- Contract note -->
-		${data.contractPdfBase64 ? `
-		<div style="padding: 16px; background: #111; border-radius: 8px; margin-top: 24px; border-left: 3px solid #dc2626;">
-			<div style="color: #fff; font-weight: 600; font-size: 14px; margin-bottom: 4px;">
-				📄 Contrato de licencia
-			</div>
-			<div style="color: #888; font-size: 13px;">
-				El contrato de licencia está adjunto a este email como PDF. Consérvalo como comprobante de tu compra.
+				#${vars.orderId}
 			</div>
 		</div>
 		` : ''}
 
+		<!-- Items -->
+		${itemsHtml}
+
+		${tmpl.showContractNote && data.contractPdfBase64 ? `
+		<!-- Contract note -->
+		<div style="padding: 16px; background: #111; border-radius: 8px; margin-top: 24px; border-left: 3px solid ${tmpl.accentColor};">
+			<div style="color: #fff; font-weight: 600; font-size: 14px; margin-bottom: 4px;">
+				${escapeHtml(tmpl.contractTitle)}
+			</div>
+			<div style="color: #888; font-size: 13px;">
+				${escapeHtml(tmpl.contractText)}
+			</div>
+		</div>
+		` : ''}
+
+		${tmpl.showTotal ? `
 		<!-- Total -->
 		<div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #222; text-align: right;">
 			<span style="color: #888; font-size: 13px;">Total: </span>
-			<span style="color: #dc2626; font-weight: 800; font-size: 18px;">
+			<span style="color: ${tmpl.accentColor}; font-weight: 800; font-size: 18px;">
 				$${data.totalMXN} MXN
 			</span>
 			<span style="color: #666; font-size: 12px; margin-left: 8px;">
 				($${data.totalUSD} USD)
 			</span>
 		</div>
+		` : ''}
 
 		<!-- Footer -->
 		<div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #1a1a1a; text-align: center;">
 			<p style="color: #888; font-size: 13px; margin-bottom: 12px;">
-				¿Perdiste los links? Accedé a tus descargas en cualquier momento:
+				${escapeHtml(tmpl.footerText)}
 			</p>
 			<a href="https://dacewav.store/account/orders"
 				style="display: inline-block; padding: 10px 24px; background: #222; color: #fff;
@@ -126,12 +209,10 @@ export async function sendDeliveryEmail(
 				📦 Mis órdenes
 			</a>
 			<p style="color: #555; font-size: 12px; line-height: 1.6; margin-top: 16px;">
-				Si tienes problemas con la descarga, contáctanos por
-				<a href="https://wa.me" style="color: #dc2626;">WhatsApp</a>
-				o responde a este email.
+				${escapeHtml(tmpl.footerSupportText)}
 			</p>
 			<p style="color: #333; font-size: 11px; margin-top: 12px;">
-				© ${new Date().getFullYear()} ${escapeHtml(brandName)}. Todos los derechos reservados.
+				${escapeHtml(tmpl.footerCopyright)}
 			</p>
 		</div>
 	</div>
@@ -157,7 +238,7 @@ export async function sendDeliveryEmail(
 			body: JSON.stringify({
 				from: `${brandName} <ventas@dacewav.store>`,
 				to: data.buyerEmail,
-				subject: `✅ Tu compra en ${brandName} — ${data.items.map(i => i.beatName).join(', ')}`,
+				subject: escapeHtml(interpolateVars(tmpl.emailSubject, vars)),
 				html,
 				attachments: attachments.length > 0 ? attachments : undefined,
 			}),
