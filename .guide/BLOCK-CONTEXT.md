@@ -3,55 +3,54 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 39 — Stats + Rules + GitHub Action
+## Sesión Actual: 40 — Upload R2 + Fixes
 
 ```yaml
-sesión: "39"
-bloque: "Quick wins: stats, Firebase rules, GitHub Action"
-objetivo: "Completar pendientes menores"
-tiempo: "~10 min"
+sesión: "40"
+bloque: "R2 upload migration + UX fixes"
+objetivo: "Migrar uploads a R2, mejorar feedback visual"
+tiempo: "~50 min"
 estado: "✅ COMPLETADO"
-último_commit: "e93e51c"
+último_commit: "4ce13e1"
 tests_total: 117
 svelte_check: "0 errors (build), 8 warnings"
 ```
 
-### Session 39 — Resumen
+### Session 40 — Resumen
 
-**Stats Productores**
-- `beatsStats.uniqueArtists`: cuenta artistas únicos (campo `artist` no vacío)
-- Admin dashboard: nueva stat card "Artistas" con 🎤 icon
+**Upload R2 Migration**
+- Firebase Storage → Cloudflare R2 via `/api/upload` endpoint
+- wrangler.jsonc: R2 binding `MEDIA` → bucket `dace-beats`
+- Public URL: `https://cdn.dacewav.store`
+- XHR upload con progress real (barra se mueve)
+- Jurisdiction fix en Pages R2 binding (causaba deploy failure)
 
-**Firebase Rules**
-- `gallery/`: read público, write admin-only, validación de campos (url, filename, alt, beatId, createdAt)
-- `changelog/`: read auth-only, write admin-only, validación de campos (action, date, details, user)
-- ⚠️ Pendiente: deploy desde Firebase Console
+**UX Fixes**
+- ✓ Success flash animation después de subir (2s)
+- Image preview: `object-fit: contain` (no recorta GIFs)
+- Mobile: GIF preview ya no se rompe
+- Always try R2 first, Firebase fallback
 
-**GitHub Action**
-- `.github/workflows/deploy-workers.yml` creado
-- Build + deploy a Cloudflare Workers en push a main
-- ⚠️ Pendiente: agregar workflow + secrets desde GitHub UI
+**Env vars**
+- `$env/static/public` (build-time) — requiere vars en Pages dashboard
+- Firebase vars + `PUBLIC_R2_BASE_URL` configurados en Pages
 
-**Hero Glow**
-- Verificado: código ya usa `accent` como fallback para glowClr, gradClr, strokeClr, eyebrowClr
-- Si el glow se ve negro, es un issue de datos en Firebase (no de código)
+## Próxima sesión: Upload local en campos URL
 
-## Próxima sesión: Ver pendientes en PROJECT_STATE.md
+### Tareas pendientes (Session 41)
 
-## Estado de Sesiones MEGA-REBUILD-PLAN
-
-| Sesión | Bloque | Estado |
-|--------|--------|--------|
-| 1-3 | Pre-existentes | ✅ |
-| 4 | Media Gallery | ✅ |
-| 5 | Card Style Presets + Hover | ✅ |
-| 6 | Feature Toggles + Changelog | ✅ |
-| 7 | Custom Emojis | ✅ |
-| 8 | Cleanup + Audit | ✅ |
+1. **Testimonios** — añadir FileUpload para avatarUrl (subir desde PC)
+2. **Brand** — añadir FileUpload para logoUrl
+3. **Otros campos URL** — revisar todos los inputs type="url" y añadir upload local
+4. **GitHub Action** — agregar workflow + secrets desde GitHub UI
+5. **Firebase rules** — deploy desde Firebase Console
 
 ## Datos clave
-- Deploy: Cloudflare Pages auto-deploy desde Git push
+- Deploy: Cloudflare Pages auto-deploy (trigger via API)
+- R2 bucket: dace-beats (binding: MEDIA)
+- CDN: https://cdn.dacewav.store
 - Firebase: dacewav-store-3b0f5
 - Dev server: `npm run dev -- --host 0.0.0.0 --port 5173`
-- Login: `/login` → "🧪 Entrar como tester (anónimo)" (dev bypass)
+- Login: `/login` → "🧪 Entrar como tester (anónimo)"
 - Firebase rules: deploy manual desde Console
+- CF API token: (en Cloudflare Dashboard, no guardar aquí)

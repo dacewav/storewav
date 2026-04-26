@@ -78,11 +78,21 @@ build:         0 errors, 0 warnings (svelte-check: 0 errors, 8 warnings)
 
 | Prioridad | Item | Detalle |
 |-----------|------|---------|
-| 🔴 | Subir audio/cover | 9 beats sin media — subir desde admin |
+| 🔴 | Subir audio/cover | Upload funcional con R2 — probar y verificar que URLs se guardan en Firebase |
 | 🔴 | GitHub Action | Workflow creado, falta: (1) agregar desde GitHub UI, (2) configurar secrets |
 | 🟡 | Firebase rules | Rules actualizadas con gallery/ y changelog/ — falta deploy desde Firebase Console |
-| 🟡 | Hero glow default | Código ya usa accent como fallback — verificar Firebase data no tenga #000000 |
-| ⚪ | PWA | No implementado |
+| 🟡 | Upload local en todos los campos URL | Testimonios (avatarUrl), Brand (logoUrl), y otros: añadir botón "Subir desde PC" además del campo URL |
+| ⚞ | PWA | No implementado |
+
+### Upload local — campos a migrar (próxima sesión)
+
+| Campo | Página | Archivo |
+|-------|--------|---------|
+| Testimonios: avatarUrl | /admin/testimonials | +page.svelte |
+| Brand: logoUrl | /admin/brand | +page.svelte |
+| Hero: (si aplica) | /admin/hero | +page.svelte |
+
+Cada campo URL debe tener: input URL + botón "Subir desde PC" (FileUpload component)
 
 ## Commands útiles
 
