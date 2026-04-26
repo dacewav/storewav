@@ -154,6 +154,112 @@
 
 ---
 
+## 🔜 EDITOR DE CONTRATOS — Estilo BeatStars
+
+> **Objetivo**: Editor de contratos en el admin para personalizar texto, variables, y preview en vivo.
+> **Prioridad**: Alta — sesión 55
+> **Base**: Ya existe `/admin/contracts` con generador de PDF + preview
+
+### Flujo del editor
+
+```
+/admin/contracts/editor
+├── Selector de licencia (MP3/WAV/Premium/Ilimitada/Exclusiva)
+├── Editor de texto (textarea grande con syntax highlighting)
+│   ├── Variables auto-completadas: {{buyerName}}, {{beatName}}, etc.
+│   └── Preview de variables resaltadas en tiempo real
+├── Panel de variables disponibles (sidebar)
+├── Preview del PDF en vivo (iframe o canvas)
+├── Botón guardar → persiste en Firebase
+└── Botón reset → vuelve al texto original del .md
+```
+
+### Variables disponibles
+
+#### Datos del comprador
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `{{buyerName}}` | Nombre completo | Juan Pérez |
+| `{{buyerEmail}}` | Email | juan@email.com |
+| `{{buyerArtist}}` | Nombre artístico | JP |
+| `{{buyerInstagram}}` | Instagram | @jp |
+| `{{buyerPhone}}` | Teléfono | +52 1234567890 |
+| `{{buyerCountry}}` | País | México |
+
+#### Datos del beat
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `{{beatName}}` | Nombre del beat | Midnight Dreams |
+| `{{beatBpm}}` | BPM | 140 |
+| `{{beatKey}}` | Tonalidad | Am |
+| `{{beatGenre}}` | Género | Trap |
+| `{{beatFormat}}` | Formato entregado | MP3 / WAV + MP3 / Todos |
+
+#### Datos del contrato
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `{{orderId}}` | Número de contrato | ABC12345 |
+| `{{date}}` | Fecha de firma | 27 de abril de 2026 |
+| `{{priceMXN}}` | Precio MXN | $1,500 |
+| `{{priceUSD}}` | Precio USD | $90 |
+| `{{licenseName}}` | Tipo de licencia | Premium |
+| `{{streams}}` | Límite de streams | Hasta 1,000,000 |
+| `{{copies}}` | Límite de copias | Hasta 10,000 |
+
+#### Datos del productor
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `{{producerName}}` | Nombre completo | Daniel Antonio Cebrero Escalante |
+| `{{producerArtist}}` | Nombre artístico | Dace |
+| `{{producerEmail}}` | Email | dace.wav.negocios@gmail.com |
+| `{{producerInstagram}}` | Instagram | dace.wav |
+| `{{producerCity}}` | Ciudad | Heroica Puebla de Zaragoza |
+| `{{producerCountry}}` | País | México |
+
+#### Datos del pago
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `{{paymentMethod}}` | Método de pago | Stripe |
+| `{{transactionId}}` | ID de transacción | pi_abc123... |
+| `{{paidAt}}` | Fecha de pago | 27/04/2026 14:30 |
+
+### Implementación
+
+#### Archivos nuevos
+| Archivo | Propósito |
+|---------|-----------|
+| `src/routes/(admin)/admin/contracts/editor/+page.svelte` | Editor principal |
+| `src/routes/(admin)/admin/contracts/editor/+page.ts` | Load contract template |
+| `src/lib/stores/contractTemplates.ts` | Store de templates custom en Firebase |
+
+#### Firebase RTDB
+```json
+{
+  "contractTemplates": {
+    "01-mp3": {
+      "text": "El PRODUCTOR otorga al ARTISTA...",
+      "updatedAt": 1711500000000,
+      "updatedBy": "admin"
+    },
+    "02-wav": { ... },
+    "03-premium": { ... },
+    "04-ilimitada": { ... },
+    "05-exclusiva": { ... }
+  }
+}
+```
+
+#### Flujo
+1. Admin abre `/admin/contracts/editor`
+2. Selecciona licencia → carga template desde Firebase (o fallback al .md original)
+3. Editor muestra texto con variables resaltadas
+4. Admin edita texto, agrega/quita cláusulas
+5. Preview se actualiza en vivo
+6. Guardar → persiste en Firebase
+7. Reset → vuelve al texto original del .md
+
+---
+
 ## 🔜 FASE 3 — Cuenta de Cliente + Social
 
 > **Objetivo**: Convertir visitantes en comunidad. Login de cliente, perfil, likes, comentarios, wishlist persistente.
