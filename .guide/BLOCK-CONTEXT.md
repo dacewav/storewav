@@ -10,8 +10,8 @@ sesión: "49"
 bloque: "Stats fix + HelpTips + Mobile sidebar + Polish"
 objetivo: "Fix stats countUp, agregar HelpTips, arreglar mobile sidebar, polish general"
 tiempo: "~50 min"
-estado: "🔴 PENDIENTE"
-último_commit: "1d00636"
+estado: "✅ COMPLETADA"
+último_commit: "95c42e6"
 tests_total: 153
 svelte_check: "0 errors (22 warnings)"
 ```
@@ -35,7 +35,7 @@ Sesión larga con múltiples fixes:
 3. **Mobile sidebar** — hamburger menu no funcional en mobile (abre CommandPalette en vez de sidebar).
 4. **Firebase Storage rules** — deployeadas ✅.
 
-## ✅ COMPLETADO (sesiones 45-48)
+## ✅ COMPLETADO (sesiones 45-49)
 
 - Theme page split, page merges (15→11 páginas)
 - Dashboard links, cover gradients, rgba inputs
@@ -49,6 +49,13 @@ Sesión larga con múltiples fixes:
 - Offline banner 3s delay
 - /admin/content server-side redirect
 - Emoji system verified working
+- **Upload 403 fix** — replaced x509 Web Crypto with tokeninfo endpoint
+- **Stats countUp fix** — race condition with IntersectionObserver
+- **Mobile sidebar** — hamburger opens sidebar overlay
+- **HelpTips** — added to theme, cardstyle, animations, brand, floating
+- **Hero Collapsible IDs** — fixed ID/title mismatches
+- **Mobile CSS** — added to animations, hero, testimonials, features, cardstyle, effects
+- **ARIA attrs** — added role=form to 6 admin pages
 
 ## 📋 PRÓXIMA SESIÓN → SESSION-49-PLAN.md
 
