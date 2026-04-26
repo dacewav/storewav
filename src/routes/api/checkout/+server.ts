@@ -100,7 +100,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 	const params = new URLSearchParams();
 	params.append('mode', 'payment');
 	params.append('success_url', `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
-	params.append('cancel_url', `${origin}/cart`);
+	params.append('cancel_url', `${origin}/checkout/cancel`);
 	params.append('payment_intent_data[metadata][items]', metadata.items);
 
 	if (customerEmail) {

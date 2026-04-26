@@ -14,6 +14,9 @@ declare namespace Cloudflare {
 		PUBLIC_FIREBASE_STORAGE_BUCKET: string;
 		PUBLIC_FIREBASE_MESSAGING_SENDER_ID: string;
 		PUBLIC_FIREBASE_APP_ID: string;
+		STRIPE_SECRET_KEY: string;
+		STRIPE_WEBHOOK_SECRET: string;
+		RESEND_API_KEY: string;
 	}
 }
 interface Env extends Cloudflare.Env {}

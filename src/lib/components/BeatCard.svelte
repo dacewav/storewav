@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Beat } from '$lib/stores/beats';
-	import { wishlist, settings, player, analytics, incrementPlay, accentRgb as accentRgbStore } from '$lib/stores';
+	import { wishlist, settings, player, analytics, incrementPlay, accentRgb as accentRgbStore, cart } from '$lib/stores';
 	import { tilt } from '$lib/actions';
 	import { toast } from '$lib/toastStore';
 	import Icon from './Icon.svelte';
@@ -105,6 +105,31 @@
 		analytics.track('beat', 'play', { lbl: beat.id, meta: beat.name });
 		onplay?.(beat);
 	}
+
+	function handleAddToCart(e: MouseEvent) {
+		e.stopPropagation();
+		if (!beat.licenses?.length) return;
+		// Add cheapest license by default
+		const cheapest = beat.licenses.reduce((min, l, i) =>
+			l.priceUSD < beat.licenses[min].priceUSD ? i : min, 0);
+		const lic = beat.licenses[cheapest];
+		const alreadyIn = $cart.some(c => c.beatId === beat.id && c.licenseIndex === cheapest);
+		if (alreadyIn) {
+			toast.show('Ya está en el carrito');
+			return;
+		}
+		cart.add({
+			beatId: beat.id,
+			beatName: beat.name,
+			imageUrl: beat.imageUrl ?? '',
+			licenseName: lic.name,
+			licenseIndex: cheapest,
+			priceMXN: lic.priceMXN,
+			priceUSD: lic.priceUSD,
+		});
+		analytics.track('cart', 'add', { lbl: beat.id, val: lic.priceMXN, meta: lic.name });
+		toast.show(`🛒 ${lic.name} agregado`);
+	}
 </script>
 
 <div
@@ -146,6 +171,11 @@
 		<!-- Wishlist -->
 		<button class="beat-wish" class:active={$inWishlist} onclick={handleWishlist} aria-label="{$inWishlist ? 'Quitar de' : 'Añadir a'} favoritos" aria-pressed={$inWishlist}>
 			<Icon name="heart" size={14} filled={$inWishlist} />
+		</button>
+
+		<!-- Quick add to cart -->
+		<button class="beat-cart-btn" onclick={handleAddToCart} aria-label="Agregar al carrito" title="Agregar al carrito">
+			<Icon name="shoppingCart" size={14} />
 		</button>
 
 		<!-- Plays badge -->
@@ -416,6 +446,37 @@
 
 	.beat-wish.active {
 		color: var(--accent);
+	}
+
+	/* Quick add to cart */
+	.beat-cart-btn {
+		position: absolute;
+		top: calc(var(--space-3) + 40px);
+		right: var(--space-3);
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: var(--overlay-bg);
+		backdrop-filter: blur(8px);
+		border: 1px solid var(--border);
+		color: var(--text-secondary);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		opacity: 0;
+		z-index: 2;
+	}
+
+	.beat-card:hover .beat-cart-btn {
+		opacity: 1;
+	}
+
+	.beat-cart-btn:hover {
+		background: var(--surface-hover);
+		color: var(--accent);
+		transform: scale(1.1);
 	}
 
 	/* Plays badge */

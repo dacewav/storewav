@@ -2,12 +2,19 @@
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import { cart, settings, analytics } from '$lib/stores';
-	import { Icon } from '$lib/components';
+	import Icon from '$lib/components/Icon.svelte';
 
 	let s = $derived($settings.data);
 	let sessionId = $derived(page.url.searchParams.get('session_id'));
 	let orderStatus = $state<'loading' | 'success' | 'error'>('loading');
-	let orderItems = $state<Array<{ beatName: string; licenseName: string }>>([]);
+	let orderItems = $state<Array<{
+		beatId: string;
+		beatName: string;
+		licenseName: string;
+		downloadUrl?: string;
+		downloading?: boolean;
+	}>>([]);
+	let customerName = $state('');
 
 	onMount(async () => {
 		// Clear cart on successful payment
@@ -16,7 +23,7 @@
 		if (sessionId) {
 			analytics.track('checkout', 'success', { lbl: sessionId });
 
-			// Try to fetch order details
+			// Fetch order details from Firebase
 			try {
 				const resp = await fetch(
 					`https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/paidOrders/${sessionId}.json`
@@ -24,10 +31,18 @@
 				if (resp.ok) {
 					const data = await resp.json();
 					if (data?.items) {
-						orderItems = data.items.map((i: { beatName?: string; licenseName?: string }) => ({
+						orderItems = data.items.map((i: {
+							beatId?: string;
+							beatName?: string;
+							licenseName?: string;
+						}) => ({
+							beatId: i.beatId || '',
 							beatName: i.beatName || 'Beat',
 							licenseName: i.licenseName || 'Licencia',
 						}));
+					}
+					if (data?.customerName) {
+						customerName = data.customerName;
 					}
 				}
 			} catch {
@@ -39,6 +54,34 @@
 			orderStatus = 'error';
 		}
 	});
+
+	async function handleDownload(item: typeof orderItems[0]) {
+		if (!item.beatId || !sessionId) return;
+		item.downloading = true;
+
+		try {
+			const resp = await fetch('/api/download', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ orderId: sessionId, beatId: item.beatId }),
+			});
+
+			const data = await resp.json() as { ok?: boolean; downloadUrl?: string; error?: string };
+
+			if (resp.ok && data.ok && data.downloadUrl) {
+				item.downloadUrl = data.downloadUrl;
+				// Trigger download
+				window.open(data.downloadUrl, '_blank');
+				analytics.track('download', 'start', { lbl: item.beatId });
+			} else {
+				alert(data.error || 'Error al obtener link de descarga');
+			}
+		} catch {
+			alert('Error de conexión. Intenta de nuevo.');
+		} finally {
+			item.downloading = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -55,25 +98,56 @@
 		<div class="success-card">
 			<div class="success-icon">✅</div>
 			<h1 class="success-title">¡Pago exitoso!</h1>
+			{#if customerName}
+				<p class="success-greeting">Gracias, {customerName}</p>
+			{/if}
 			<p class="success-subtitle">
-				Tu compra ha sido procesada correctamente. Recibirás los archivos por email en los próximos minutos.
+				Tu compra ha sido procesada correctamente. Descargá tus archivos ahora — también recibirás un email con los links y tu contrato.
 			</p>
 
 			{#if orderItems.length > 0}
 				<div class="order-items">
 					<h2 class="order-title">Tu pedido</h2>
-					{#each orderItems as item}
+					{#each orderItems as item, i}
 						<div class="order-item">
-							<span class="order-beat">{item.beatName}</span>
-							<span class="order-license">{item.licenseName}</span>
+							<div class="order-item-info">
+								<span class="order-beat">{item.beatName}</span>
+								<span class="order-license">{item.licenseName}</span>
+							</div>
+							<button
+								class="download-btn"
+								class:downloaded={!!item.downloadUrl}
+								onclick={() => handleDownload(item)}
+								disabled={item.downloading}
+							>
+								{#if item.downloading}
+									<span class="dl-spinner"></span>
+								{:else if item.downloadUrl}
+									<Icon name="check" size={14} />
+									Descargado
+								{:else}
+									<Icon name="export" size={14} />
+									Descargar
+								{/if}
+							</button>
 						</div>
 					{/each}
 				</div>
 			{/if}
 
+			<div class="success-info">
+				<div class="info-item">
+					<span class="info-icon">📧</span>
+					<span>Revisá tu email para el contrato de licencia PDF</span>
+				</div>
+				<div class="info-item">
+					<span class="info-icon">💾</span>
+					<span>Guardá los archivos — el link de descarga es por tiempo limitado</span>
+				</div>
+			</div>
+
 			<div class="success-actions">
 				<a href="/" class="action-btn primary">Volver al catálogo</a>
-				<a href="/cart" class="action-btn secondary">Ver carrito</a>
 			</div>
 
 			<p class="success-note">
@@ -146,6 +220,13 @@
 		font-size: var(--text-2xl);
 		font-weight: 800;
 		color: var(--text);
+		margin-bottom: var(--space-2);
+	}
+
+	.success-greeting {
+		font-size: var(--text-base);
+		color: var(--accent);
+		font-weight: 600;
 		margin-bottom: var(--space-3);
 	}
 
@@ -156,6 +237,7 @@
 		margin-bottom: var(--space-6);
 	}
 
+	/* ── Order items ── */
 	.order-items {
 		text-align: left;
 		margin-bottom: var(--space-6);
@@ -176,8 +258,10 @@
 
 	.order-item {
 		display: flex;
+		align-items: center;
 		justify-content: space-between;
-		padding: var(--space-2) 0;
+		gap: var(--space-3);
+		padding: var(--space-3) 0;
 		border-bottom: 1px solid var(--border);
 	}
 
@@ -185,9 +269,19 @@
 		border-bottom: none;
 	}
 
+	.order-item-info {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+	}
+
 	.order-beat {
 		font-weight: 600;
 		color: var(--text);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.order-license {
@@ -196,6 +290,75 @@
 		color: var(--accent);
 	}
 
+	.download-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-4);
+		background: var(--accent);
+		color: var(--bg);
+		border: none;
+		border-radius: var(--radius-md);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		white-space: nowrap;
+		min-height: 36px;
+	}
+
+	.download-btn:hover:not(:disabled) {
+		background: var(--accent-dim);
+		box-shadow: var(--glow-sm);
+	}
+
+	.download-btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	.download-btn.downloaded {
+		background: rgba(34, 197, 94, 0.15);
+		color: #22c55e;
+		border: 1px solid rgba(34, 197, 94, 0.3);
+	}
+
+	.dl-spinner {
+		width: 14px;
+		height: 14px;
+		border: 2px solid rgba(255,255,255,0.3);
+		border-top-color: currentColor;
+		border-radius: 50%;
+		animation: spin 0.6s linear infinite;
+	}
+
+	/* ── Info box ── */
+	.success-info {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+		margin-bottom: var(--space-6);
+		padding: var(--space-4);
+		background: var(--surface2);
+		border-radius: var(--radius-lg);
+		text-align: left;
+	}
+
+	.info-item {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+	}
+
+	.info-icon {
+		font-size: 1.2rem;
+		flex-shrink: 0;
+	}
+
+	/* ── Actions ── */
 	.success-actions {
 		display: flex;
 		gap: var(--space-3);
@@ -225,17 +388,6 @@
 	.action-btn.primary:hover {
 		background: var(--accent-dim);
 		box-shadow: var(--glow-sm);
-	}
-
-	.action-btn.secondary {
-		background: transparent;
-		border: 1px solid var(--border);
-		color: var(--text);
-	}
-
-	.action-btn.secondary:hover {
-		border-color: var(--accent);
-		color: var(--accent);
 	}
 
 	.success-note {

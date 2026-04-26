@@ -94,7 +94,7 @@
 							onclick={() => removeItem(item)}
 							aria-label="Quitar del carrito"
 						>
-							<Icon name="x" size={16} />
+							<Icon name="close" size={16} />
 						</button>
 					</div>
 				{/each}

@@ -9,6 +9,9 @@ declare global {
 		interface Platform {
 			env?: {
 				MEDIA: R2Bucket;
+				STRIPE_SECRET_KEY?: string;
+				STRIPE_WEBHOOK_SECRET?: string;
+				RESEND_API_KEY?: string;
 			};
 			context?: {
 				waitUntil(promise: Promise<unknown>): void;

@@ -1,12 +1,14 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { generateContractPDF, getContractFile } from '$lib/contractPdf';
+import { sendDeliveryEmail } from '$lib/email';
 
 /**
  * POST /api/webhook/stripe
  * Handles Stripe webhook events (checkout.session.completed).
- * Verifies webhook signature, then updates order in Firebase.
+ * Verifies signature → updates order → generates contract → sends email.
  *
- * Requires STRIPE_WEBHOOK_SECRET env var.
+ * Requires: STRIPE_WEBHOOK_SECRET, optionally RESEND_API_KEY
  */
 
 const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
@@ -56,8 +58,26 @@ async function verifyStripeSignature(
 	}
 }
 
+/** Parse metadata items from Stripe session */
+function parseItems(metadata: Record<string, unknown> | undefined): Array<{
+	beatId: string;
+	beatName?: string;
+	licenseName: string;
+	priceMXN: number;
+	priceUSD: number;
+}> {
+	try {
+		if (!metadata?.items) return [];
+		const parsed = JSON.parse(metadata.items as string);
+		return Array.isArray(parsed) ? parsed : [];
+	} catch {
+		return [];
+	}
+}
+
 export const POST: RequestHandler = async ({ request, platform }) => {
 	const webhookSecret = platform?.env?.STRIPE_WEBHOOK_SECRET || (typeof process !== 'undefined' ? process.env?.STRIPE_WEBHOOK_SECRET : undefined);
+	const resendKey = platform?.env?.RESEND_API_KEY || (typeof process !== 'undefined' ? process.env?.RESEND_API_KEY : undefined);
 
 	if (!webhookSecret) {
 		console.error('[Stripe Webhook] Missing STRIPE_WEBHOOK_SECRET');
@@ -88,15 +108,20 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		const session = event.data.object;
 		const sessionId = session.id as string;
 		const customerEmail = (session.customer_email as string) || (session.customer_details as { email?: string })?.email || null;
+		const customerName = (session.customer_details as { name?: string })?.name || 'Cliente';
 		const paymentIntentId = session.payment_intent as string;
 
 		console.log(`[Stripe Webhook] Payment completed: ${sessionId}`);
 
-		// Update order in Firebase
+		// Parse items from metadata
+		const items = parseItems(session.metadata as Record<string, unknown> | undefined);
+
+		// 1. Update order in Firebase
 		try {
 			const updateData = {
 				status: 'paid',
 				customerEmail,
+				customerName,
 				paymentIntentId,
 				paidAt: Date.now(),
 			};
@@ -110,17 +135,118 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			// Also create a record under paidOrders for easy lookup
 			await fetch(`${FIREBASE_DB}/paidOrders/${sessionId}.json`, {
 				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
+				headers: { 'Content-Type': 'application/json'},
 				body: JSON.stringify({
 					...updateData,
-					items: session.metadata?.items ? JSON.parse(session.metadata.items as string) : [],
+					items,
 				}),
 			});
 
 			console.log(`[Stripe Webhook] Order ${sessionId} marked as paid`);
 		} catch (err) {
 			console.error('[Stripe Webhook] Failed to update order:', err);
-			// Return 200 to avoid Stripe retrying (we can fix manually)
+		}
+
+		// 2. Generate contracts + download links + email (non-blocking)
+		if (items.length > 0 && customerEmail) {
+			try {
+				// Fetch beat data for contract details
+				const beatDataMap: Record<string, { name: string; bpm?: string; key?: string; genre?: string; audioUrl?: string }> = {};
+				for (const item of items) {
+					try {
+						const resp = await fetch(`${FIREBASE_DB}/beats/${item.beatId}.json`);
+						if (resp.ok) {
+							const beat = await resp.json() as { name?: string; bpm?: number; key?: string; genre?: string; audioUrl?: string } | null;
+							if (beat) {
+								beatDataMap[item.beatId] = {
+									name: beat.name || item.beatName || 'Beat',
+									bpm: beat.bpm?.toString(),
+									key: beat.key,
+									genre: beat.genre,
+									audioUrl: beat.audioUrl,
+								};
+							}
+						}
+					} catch {
+						// Non-critical
+					}
+				}
+
+				// Generate PDFs and collect download info
+				const emailItems: Array<{ beatName: string; licenseName: string; downloadUrl: string }> = [];
+				let combinedPdfBase64: string | undefined;
+
+				for (const item of items) {
+					const beatData = beatDataMap[item.beatId];
+					const contractFile = getContractFile(item.licenseName);
+
+					// Generate contract PDF
+					const pdfBytes = generateContractPDF({
+						orderId: sessionId,
+						beatName: beatData?.name || item.beatName || 'Beat',
+						beatBpm: beatData?.bpm,
+						beatKey: beatData?.key,
+						beatGenre: beatData?.genre,
+						licenseName: item.licenseName,
+						priceMXN: item.priceMXN,
+						priceUSD: item.priceUSD,
+						buyerName: customerName,
+						buyerEmail: customerEmail,
+						date: new Date().toISOString().split('T')[0],
+						contractFile,
+					});
+
+					// Store contract in Firebase
+					const contractId = `${sessionId}_${item.beatId}`;
+					await fetch(`${FIREBASE_DB}/contracts/${contractId}.json`, {
+						method: 'PUT',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							orderId: sessionId,
+							beatId: item.beatId,
+							beatName: beatData?.name || item.beatName,
+							licenseName: item.licenseName,
+							buyerEmail: customerEmail,
+							buyerName: customerName,
+							contractFile,
+							createdAt: Date.now(),
+						}),
+					});
+
+					// Build download URL
+					const downloadUrl = beatData?.audioUrl || `${FIREBASE_DB}/beats/${item.beatId}/audioUrl.json`;
+
+					emailItems.push({
+						beatName: beatData?.name || item.beatName || 'Beat',
+						licenseName: item.licenseName,
+						downloadUrl,
+					});
+
+					// Use first PDF as attachment (or combine if multiple)
+					if (!combinedPdfBase64) {
+						combinedPdfBase64 = btoa(String.fromCharCode(...pdfBytes));
+					}
+				}
+
+				// 3. Send delivery email
+				const totalMXN = items.reduce((s, i) => s + i.priceMXN, 0);
+				const totalUSD = items.reduce((s, i) => s + i.priceUSD, 0);
+
+				await sendDeliveryEmail({
+					orderId: sessionId,
+					buyerEmail: customerEmail,
+					buyerName: customerName,
+					items: emailItems,
+					totalMXN,
+					totalUSD,
+					contractPdfBase64: combinedPdfBase64,
+				}, { RESEND_API_KEY: resendKey });
+
+				console.log(`[Stripe Webhook] Delivery email sent for ${sessionId}`);
+			} catch (err) {
+				console.error('[Stripe Webhook] Post-payment processing error:', err);
+				// Non-critical — order is already marked as paid
+			}
 		}
 	}
 
