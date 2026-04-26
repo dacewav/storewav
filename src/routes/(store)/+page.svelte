@@ -893,9 +893,9 @@
 	/* ── Beat Grid ── */
 	.beat-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 		gap: var(--beat-gap);
-		align-items: start;
+		align-items: stretch;
 	}
 
 	/* ── CTA Section ── */
