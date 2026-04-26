@@ -2,17 +2,31 @@
 	import { isFullyConnected } from '$lib/stores';
 
 	let connected = $derived($isFullyConnected);
-	let showBanner = $derived(!connected);
+	let showBanner = $state(false);
 	let dismissed = $state(false);
+	let timer: ReturnType<typeof setTimeout> | null = null;
+
+	// Only show banner after 3s of disconnection (avoids flash during initial load)
+	$effect(() => {
+		if (!connected) {
+			if (!timer && !dismissed) {
+				timer = setTimeout(() => {
+					showBanner = true;
+					timer = null;
+				}, 3000);
+			}
+		} else {
+			// Connected — hide immediately and reset
+			if (timer) { clearTimeout(timer); timer = null; }
+			showBanner = false;
+			dismissed = false;
+		}
+	});
 
 	function dismiss() {
 		dismissed = true;
+		showBanner = false;
 	}
-
-	// Re-show when connection is lost again
-	$effect(() => {
-		if (!connected) dismissed = false;
-	});
 </script>
 
 {#if showBanner && !dismissed}
