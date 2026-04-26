@@ -21,6 +21,7 @@
 		{ label: 'Beats', value: String(stats.total || '—'), icon: '🎵' },
 		{ label: 'Activos', value: String(stats.active || '—'), icon: '✅' },
 		{ label: 'Plays totales', value: stats.totalPlays > 0 ? stats.totalPlays.toLocaleString() : '—', icon: '🔥' },
+		{ label: 'Artistas', value: stats.uniqueArtists > 0 ? String(stats.uniqueArtists) : '—', icon: '🎤' },
 		{ label: 'Top beat', value: topBeatPlays > 0 ? `${topBeatName} (${topBeatPlays})` : '—', icon: '👑' }
 	]);
 

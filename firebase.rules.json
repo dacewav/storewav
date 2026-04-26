@@ -1413,6 +1413,47 @@
           ".validate": "newData.isNumber()"
         }
       }
+    },
+    "gallery": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      "$id": {
+        ".validate": "newData.hasChildren(['url', 'createdAt'])",
+        "url": {
+          ".validate": "newData.isString() && newData.val().length <= 2000"
+        },
+        "filename": {
+          ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "alt": {
+          ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "beatId": {
+          ".validate": "newData.isString() && newData.val().length <= 100"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+    "changelog": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      "$id": {
+        ".validate": "newData.hasChildren(['action', 'date'])",
+        "action": {
+          ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "date": {
+          ".validate": "newData.isNumber()"
+        },
+        "details": {
+          ".validate": "newData.isString() && newData.val().length <= 2000"
+        },
+        "user": {
+          ".validate": "newData.isString() && newData.val().length <= 200"
+        }
+      }
     }
   }
 }

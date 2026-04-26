@@ -95,6 +95,7 @@ export const beatsStats = derived(allBeatsList, ($list) => ({
 	active: $list.filter((b) => b.active).length,
 	inactive: $list.filter((b) => !b.active).length,
 	genres: [...new Set($list.map((b) => b.genre))].length,
+	uniqueArtists: [...new Set($list.map((b) => b.artist).filter(Boolean))].length,
 	totalPlays: $list.reduce((sum, b) => sum + (b.plays ?? 0), 0),
 	topBeat: $list.filter(b => (b.plays ?? 0) > 0).sort((a, b) => (b.plays ?? 0) - (a.plays ?? 0))[0] ?? null
 }));
