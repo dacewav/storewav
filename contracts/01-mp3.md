@@ -197,10 +197,14 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 > 11.6 Protección de datos: Los datos personales recabados serán tratados conforme a la LFPDPPP de México.
 >
 > 11.7 Definición de incumplimiento grave: Se consideran incumplimientos graves, de manera enunciativa más no limitativa: (a) la omisión del crédito obligatorio; (b) el registro no autorizado del beat o la Nueva Canción en sistemas de Content ID; (c) la venta, cesión o sublicenciamiento no autorizados; (d) el uso del beat fuera de los límites de streams o copias pactados sin renovar la licencia; (e) el uso en contenido prohibido por la Cláusula V; (f) el uso en proyectos de NFT/blockchain sin autorización expresa.
+>
+> 11.8 Cesión por parte del PRODUCTOR: El PRODUCTOR podrá ceder los derechos y obligaciones de este contrato a un tercero (por ejemplo, en caso de venta de su catálogo de producciones), previa notificación escrita al ARTISTA con al menos 15 (quince) días de anticipación. El cesionario asumirá todas las obligaciones del PRODUCTOR bajo este contrato.
+>
+> 11.9 Supervivencia: Las Cláusulas III (Derechos y Porcentajes), IV (Créditos Obligatorios), V (Restricciones y Prohibiciones), VII (Garantías e Indemnidad), VIII (Entrega de Archivos), XI.4 (Confidencialidad), XI.5 (Notificaciones) y la presente cláusula de Supervivencia, sobrevivirán a la terminación o expiración de este contrato por cualquier causa.
 
 **CLÁUSULA XII. LEGISLACIÓN APLICABLE**
 
-> Este contrato se rige por las leyes de los Estados Unidos Mexicanos, en especial la Ley Federal del Derecho de Autor (LFDA) y el Código Civil Federal. Antes de acudir a instancias judiciales, las partes acuerdan intentar resolver cualquier controversia de buena fe mediante negociación directa en un plazo de 15 (quince) días hábiles a partir de la notificación del conflicto. De no llegarse a un acuerdo, las partes se someten a la jurisdicción de los tribunales competentes de la ciudad de Puebla de Zaragoza, Estado de Puebla, México, renunciando expresamente a cualquier otro fuero que pudiera corresponderles por razón de domicilio presente o futuro. En caso de versión en inglés, la versión en español prevalece y es la legalmente vinculante.
+> Este contrato se rige por las leyes de los Estados Unidos Mexicanos, en especial la Ley Federal del Derecho de Autor (LFDA) y el Código Civil Federal. Antes de acudir a instancias judiciales, las partes acuerdan intentar resolver cualquier controversia de buena fe mediante negociación directa en un plazo de 15 (quince) días hábiles a partir de la notificación del conflicto. De no llegarse a un acuerdo, las partes se someten a la jurisdicción de los tribunales competentes de la ciudad de Puebla de Zaragoza, Estado de Puebla, México, renunciando expresamente a cualquier otro fuero que pudiera corresponderles por razón de domicilio presente o futuro. La versión oficial de este contrato es la redactada en idioma español. En caso de existir traducciones a otros idiomas, únicamente la versión en español tendrá validez legal y será la de referencia en caso de cualquier interpretación o discrepancia.
 
 **CLÁUSULA XIII. ACEPTACIÓN Y ACUERDO COMPLETO**
 
