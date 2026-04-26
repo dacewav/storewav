@@ -3,57 +3,53 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 30 — Floating Elements + Scroll Nav
+## Sesión Actual: 38 — MEGA-REBUILD-PLAN completo + Admin Improvements
 
 ```yaml
-sesión: "30"
-bloque: "Floating Elements + Scroll-aware Nav"
-objetivo: "Agregar elementos flotantes sobre la tienda"
-tiempo: "~50 min"
+sesión: "38"
+bloque: "Sessions 4-8 + Admin Improvements + GitHub Action"
+objetivo: "Completar MEGA-REBUILD-PLAN + mejoras admin"
+tiempo: "~55 min"
 estado: "✅ COMPLETADO"
-último_commit: "07e6bad"
+último_commit: "b24130a"
 tests_total: 117
-svelte_check: "0 errors, 0 warnings"
+svelte_check: "0 errors, 8 warnings"
 ```
 
-### Session 30 — Resumen
+### Session 38 — Resumen
 
-**Floating Elements (NUEVO)**
-- Store: `floating.ts` — CRUD con Firebase `floatingElements/` path
-- Componente: `FloatingElement.svelte` — renderiza texto/imagen con 5 animaciones
-- Admin: `/admin/floating` — CRUD completo con live preview, sliders, responsive toggles
-- Animaciones: float, pulse, bounce, spin, drift
-- Responsive: desktopOnly / mobileOnly toggles
-- Store layout: renderiza elementos visibles sobre la tienda
+**Admin Improvements**
+- Save status pill flotante en mobile (bottom-right)
+- Breadcrumb navigation para páginas anidadas
 
-**Scroll-aware Nav (YA EXISTÍA)**
-- `navHidden` con hide/show en dirección de scroll ✅
-- `navScrolled` con fondo cambiante ✅
-- Scroll progress bar ✅
-- Cursor glow ✅
-- Hero parallax ✅
+**GitHub Action (preparado)**
+- `.github/workflows/deploy-workers.yml` creado
+- Requiere agregar manual desde GitHub (token sin scope `workflow`)
+- Secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PUBLIC_FIREBASE_*`, `PUBLIC_ADMIN_UIDS`
 
-**Nota importante**
-- Firebase rules tienen `floatingElements/` con validación
-- Write requiere UID en `adminWhitelist/approved/`
-- En dev mode, el UID anónimo NO está en whitelist → writes se cachean local pero no persisten
-- Usuario debe agregar su UID a Firebase Console para que funcione en producción
+**MEGA-REBUILD-PLAN Sessions 4-8**
+- Session 4: Media Gallery (upload, grid, assign to beats)
+- Session 5: Card Style Presets (8) + Sibling Hover (blur/dim/scale-down/none)
+- Session 6: Feature Toggles (11) + Changelog
+- Session 7: Custom Emojis
+- Session 8: Dead code cleanup + type fixes (svelte-check 0 errors)
 
-## Próxima sesión: 31 — Cursor Glow + Scroll Progress
+## Próxima sesión: Ver pendientes en PROJECT_STATE.md
 
-Ver `MEGA-REBUILD-PLAN.md` Session 3.
-
-## Estado de Sesiones
+## Estado de Sesiones MEGA-REBUILD-PLAN
 
 | Sesión | Bloque | Estado |
 |--------|--------|--------|
-| 1-29 | Anteriores | ✅ |
-| 30 | Floating Elements + Scroll Nav | ✅ |
-| 31 | Cursor Glow + Scroll Progress | ⬜ Siguiente |
+| 1-3 | Pre-existentes | ✅ |
+| 4 | Media Gallery | ✅ |
+| 5 | Card Style Presets + Hover | ✅ |
+| 6 | Feature Toggles + Changelog | ✅ |
+| 7 | Custom Emojis | ✅ |
+| 8 | Cleanup + Audit | ✅ |
 
 ## Datos clave
 - Deploy: Cloudflare Pages auto-deploy desde Git push
 - Firebase: dacewav-store-3b0f5
 - Dev server: `npm run dev -- --host 0.0.0.0 --port 5173`
 - Login: `/login` → "🧪 Entrar como tester (anónimo)" (dev bypass)
-- Firebase rules: usuario debe deployar manualmente desde Console
+- Firebase rules: deploy manual desde Console

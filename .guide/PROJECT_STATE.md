@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-26 05:35 (Session 30 — Floating Elements + Scroll Nav)**
+> **Última actualización: 2026-04-26 08:00 (Session 38 — MEGA-REBUILD-PLAN completo)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -8,98 +8,90 @@ repo:          https://github.com/dacewav/storewav.git
 framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
-sesiones:      30 completadas
-commits:       43+
+sesiones:      38 completadas
+commits:       51+
 tests:         117 passing
-build:         0 errors, 0 warnings (svelte-check limpio)
+build:         0 errors, 0 warnings (svelte-check: 0 errors, 8 warnings)
 ```
 
 ## Quick Status
 
 | Área | Status | Detalle |
 |------|--------|---------|
-| .env | ✅ | Creado con credenciales reales |
-| Build | ✅ | 0 errors, 0 warnings (svelte-check) |
+| .env | ✅ | Credenciales reales configuradas |
+| Build | ✅ | 0 errors, 0 warnings |
 | Tests | ✅ | 117 passing (Vitest) |
-| Firebase conn | ✅ | Lectura + escritura OK (con UID aprobado) |
-| Settings en DB | ✅ | Flat format, migration layer + flattenPath para writes |
-| Beats en DB | ✅ | 7 beats con schema completo |
-| Theme engine | ✅ | 95+ keys → CSS vars, accent, glow, fonts |
+| svelte-check | ✅ | 0 errors, 8 warnings |
+| Firebase conn | ✅ | Lectura + escritura OK |
+| Settings en DB | ✅ | Flat format, migration layer |
+| Beats en DB | ✅ | 9 beats con schema completo |
+| Theme engine | ✅ | 95+ keys → CSS vars |
 | Auth | ✅ | Google + anonymous + adminWhitelist + dev bypass |
-| Card Style | ✅ | 8 secciones: Glow, Filtros, Borde, Sombra, Transform, Hover, Animación, Shimmer + 5 nuevas |
-| Admin | ✅ | 12 páginas, 80+ controles, sliders reactivos, keyboard, preview, command palette |
-| Schema mismatch | ✅ | RESUELTO: NESTED_TO_FLAT mapping + theme/ writes separados |
-| Deploy | ⚠️ | Pages auto-deploy, Workers stale |
+| Card Style | ✅ | 8 presets + sibling hover customization |
+| Admin | ✅ | 20 páginas, 100+ controles |
+| Media Gallery | ✅ | Upload, grid, assign to beats |
+| Feature Toggles | ✅ | 11 features toggleables |
+| Changelog | ✅ | Historial de cambios con Firebase |
+| Custom Emojis | ✅ | CRUD con Firebase |
+| Theme Presets | ✅ | Save/load/delete/rename |
+| Soft Delete | ✅ | Trash + restore + permanent delete |
+| Deploy Pages | ✅ | Auto-deploy desde Git push |
+| Deploy Workers | ⚠️ | Workflow creado, falta agregar manual + secrets |
 
-## Qué se hizo (resumen sesiones 1-28)
+## Admin Pages (20)
 
-- ✅ Data layer completo (Firebase stores, CRUD, migration, undo/redo, offline queue)
-- ✅ Hero section (glow, segments, eyebrow, gradient, stroke)
-- ✅ Banner + Divider + Nav + Footer
-- ✅ Theme engine (95+ keys → CSS vars, accent, glow, fonts, particles)
-- ✅ Store page (hero, grid, filters, featured, wishlist, player, testimonials, CTA)
-- ✅ Beat page (cover, waveform, licenses, platforms, related beats)
-- ✅ Admin panel (12 páginas, 80+ controles)
-- ✅ Beat editor (5 tabs: Info, Licencias, Media, Plataformas, Card Style)
-- ✅ Auth (Google + anonymous + adminWhitelist + dev bypass)
-- ✅ SEO (JSON-LD, OG tags, robots.txt, sitemap)
-- ✅ A11y (aria-labels, focus-visible, reduced-motion, keyboard nav)
-- ✅ Mobile responsive (bottom nav, touch-friendly sliders)
-- ✅ Live preview (split view, nueva pestaña, mobile popup)
-- ✅ Save system (auto-save, debounced batch, status animado, undo/redo)
-- ✅ Command palette (Ctrl+K), keyboard shortcuts
-- ✅ Onboarding tour (4 pasos)
-- ✅ Admin theme toggle (dark/light)
-- ✅ Color palette generator (11 shades + harmonies)
-- ✅ Font preview (Google Fonts live)
-- ✅ Logo upload + crop
-- ✅ 117 tests (Vitest)
-- ✅ **Schema mismatch resuelto** (NESTED_TO_FLAT mapping)
-- ✅ **18 nuevas opciones de personalización** (Card Style + Tienda)
+1. Dashboard (stats, seed, export/import)
+2. Beats (CRUD, bulk, filters, reorder, trash)
+3. Beat Editor (Info, Licencias, Media, Plataformas, Card Style)
+4. Hero (text, glow, stroke, eyebrow, gradient, segments)
+5. Contenido (site name, slogan, about, contact)
+6. Links (social, store, brand, legal)
+7. Testimonios (CRUD, toggle)
+8. Tema (colors, glow, typography, borders, presets)
+9. Card Style (8 presets + 8 secciones + sibling hover)
+10. Brand (logo upload, favicon, name, slogan)
+11. Banner (toggle, text, colors, position)
+12. Layout (container, padding, gap, radius, pattern)
+13. Animaciones (logo, cards, buttons, player, title, waveform)
+14. Floating (CRUD, 5 animations, responsive)
+15. **Media** (NUEVO — upload, grid, assign to beats)
+16. **Features** (NUEVO — 11 toggle switches)
+17. **Changelog** (NUEVO — history with filters)
+18. **Emojis** (NUEVO — CRUD, shortcode copy)
+19. Hero Visual (glow, stroke, segments)
+20. Content sections
 
-## Session 28 — Schema Fix + New Customization
+## MEGA-REBUILD-PLAN — Estado
 
-### Schema mismatch fix (CRITICAL)
-- Firebase rules esperan paths flat (`dividerTitle`, `heroTitle`, etc.)
-- Código escribía paths anidados (`section.dividerTitle`, `hero.title`, etc.)
-- Rules rechazaban writes → admin no podía guardar cambios
-- **Fix**: `NESTED_TO_FLAT` mapping + `flattenSettingsPath()` + `isThemePath()` + `getThemeKey()`
-- Theme/heroVisual/animations writes van a `theme/` path
-- Settings writes van a `settings/` path con flat keys
-
-### Nuevas opciones — Card Style (10)
-- 🎭 Fondo de card (color + opacidad)
-- 🔤 Tipografía título (tamaño, peso, color, alineación)
-- 💰 Precio (tamaño, color)
-- 🏷️ Tags (fondo, color, radio, tamaño)
-- 🖼️ Imagen (aspect ratio, hover zoom, object fit)
-- 📐 Layout (padding interno, fondo info)
-
-### Nuevas opciones — Tienda (8)
-- 🏠 Hero altura mínima (vh)
-- 📝 Títulos sección (tamaño, peso, alineación, color)
-- 🎨 Patrón fondo (dots, lines, grid + color + opacidad)
-- 📏 Scrollbar (delgado + color)
-
-### Dev mode admin access
-- `auth.ts`: en modo `dev`, cualquier usuario autenticado es admin
-- Permite acceso al admin sin necesidad de agregar UID a Firebase
+| Session | Features | Estado | Commit |
+|---------|----------|--------|--------|
+| 1 | Theme Presets + Soft Delete | ✅ | Pre-existente |
+| 2 | Floating Elements + Scroll Nav | ✅ | Pre-existente |
+| 3 | Cursor Glow + Scroll Progress | ✅ | Pre-existente |
+| 4 | Media Gallery | ✅ | `cb6ee26` |
+| 5 | Card Style Presets + Sibling Hover | ✅ | `77adacd` |
+| 6 | Feature Toggles + Changelog | ✅ | `18c0af9` |
+| 7 | Custom Emojis | ✅ | `dda2bcd` |
+| 8 | Dead Code Cleanup + Type Fixes | ✅ | `b24130a` |
 
 ## Pendientes conocidos
 
 | Prioridad | Item | Detalle |
 |-----------|------|---------|
-| 🔴 | Workers stale | `dacewav-store.daceidk.workers.dev` corre código viejo |
-| 🟡 | Beats sin cover images | 7 beats con `imageUrl: ""` |
-| 🟡 | Brand name "YUGEN" | ¿Es correcto o debería ser "DACEWAV"? |
-| ⚪ | GitHub Actions CI/CD | No configurado |
+| 🔴 | Subir audio/cover | 9 beats sin media — subir desde admin |
+| 🔴 | GitHub Action | Agregar workflow manual + secrets |
+| 🟡 | Firebase rules | Deploy rules para paths nuevos (themePresets, gallery, etc.) |
+| 🟡 | Hero glow default | Color negro → cambiar a accent |
+| ⚪ | Stats productores | Contar artistas únicos |
 | ⚪ | PWA | No implementado |
 
 ## Commands útiles
 
 ```bash
+cd ~/.openclaw/workspace/storewav
+
 # Build
-cd storewav && npm run build
+npm run build
 
 # Dev
 npm run dev -- --host 0.0.0.0 --port 5173
@@ -107,15 +99,13 @@ npm run dev -- --host 0.0.0.0 --port 5173
 # Tests
 npm test
 
-# Deploy
+# svelte-check
+npx svelte-check
+
+# Deploy Workers
 npx wrangler deploy
 
-# Firebase settings
+# Firebase
 curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/settings.json" | python3 -m json.tool
-
-# Firebase theme
-curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/theme.json" | python3 -m json.tool
-
-# Firebase beats
 curl -s "https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/beats.json"
 ```
