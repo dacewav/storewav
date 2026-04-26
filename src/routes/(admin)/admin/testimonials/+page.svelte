@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card, FileUpload } from '$lib/components';
 
 	let s = $derived($settings.data);
 	let testimonials = $derived((s?.testimonials ?? []) as { name: string; text: string; stars?: number; avatar?: string; role?: string }[]);
@@ -84,8 +84,22 @@
 						<textarea id="test-text-{i}" value={t.text} placeholder="Excelente calidad, beats profesionales..." rows={2} oninput={(e) => updateField(i, 'text', e.currentTarget.value)}></textarea>
 					</div>
 					<div class="field">
-						<label for="test-avatar-{i}">Avatar URL (opcional)</label>
-						<input id="test-avatar-{i}" type="url" value={t.avatar ?? ''} placeholder="https://..." oninput={(e) => updateField(i, 'avatar', e.currentTarget.value)} />
+						<label>Avatar (opcional)</label>
+						<FileUpload
+							value={t.avatar ?? ''}
+							folder="testimonials"
+							beatId="avatar"
+							accept="image/*"
+							label="Avatar"
+							type="image"
+							maxSizeMB={5}
+							onUploadComplete={(url) => updateField(i, 'avatar', url)}
+							onRemove={() => updateField(i, 'avatar', '')}
+						/>
+						<div class="url-fallback">
+							<label for="test-avatar-{i}">O pega una URL:</label>
+							<input id="test-avatar-{i}" type="url" value={t.avatar ?? ''} placeholder="https://..." oninput={(e) => updateField(i, 'avatar', e.currentTarget.value)} />
+						</div>
 					</div>
 				</div>
 				<div class="testimonial-actions">
@@ -147,6 +161,35 @@
 		flex-direction: column;
 		gap: var(--space-1);
 		margin-bottom: var(--space-2);
+	}
+
+	.url-fallback {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		margin-top: var(--space-1);
+	}
+
+	.url-fallback label {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+	}
+
+	.url-fallback input {
+		padding: var(--space-1) var(--space-2);
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		color: var(--text);
+		font-size: var(--text-xs);
+		font-family: var(--font-mono);
+		outline: none;
+		transition: border-color var(--duration-fast);
+	}
+
+	.url-fallback input:focus {
+		border-color: rgba(var(--accent-rgb), 0.5);
 	}
 
 	.field label {

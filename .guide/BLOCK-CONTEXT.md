@@ -3,47 +3,49 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 40 — Upload R2 + Fixes
+## Sesión Actual: 41 — FileUpload en campos URL + GitHub Action
 
 ```yaml
-sesión: "40"
-bloque: "R2 upload migration + UX fixes"
-objetivo: "Migrar uploads a R2, mejorar feedback visual"
+sesión: "41"
+bloque: "FileUpload integration + CI/CD"
+objetivo: "Añadir FileUpload a campos URL y crear GitHub Action"
 tiempo: "~50 min"
 estado: "✅ COMPLETADO"
-último_commit: "4ce13e1"
+último_commit: "(pendiente)"
 tests_total: 117
-svelte_check: "0 errors (build), 8 warnings"
+svelte_check: "0 errors, 10 warnings"
 ```
 
-### Session 40 — Resumen
+### Session 41 — Resumen
 
-**Upload R2 Migration**
-- Firebase Storage → Cloudflare R2 via `/api/upload` endpoint
-- wrangler.jsonc: R2 binding `MEDIA` → bucket `dace-beats`
-- Public URL: `https://cdn.dacewav.store`
-- XHR upload con progress real (barra se mueve)
-- Jurisdiction fix en Pages R2 binding (causaba deploy failure)
+**FileUpload en Testimonios**
+- Avatar URL: input URL → FileUpload + URL fallback
+- Folder: `testimonials/avatars/`
+- Max: 5MB, accepts images
 
-**UX Fixes**
-- ✓ Success flash animation después de subir (2s)
-- Image preview: `object-fit: contain` (no recorta GIFs)
-- Mobile: GIF preview ya no se rompe
-- Always try R2 first, Firebase fallback
+**FileUpload en Emojis**
+- Emoji image URL: input URL → FileUpload + URL fallback
+- Folder: `emojis/custom/`
+- Max: 2MB, accepts images
 
-**Env vars**
-- `$env/static/public` (build-time) — requiere vars en Pages dashboard
-- Firebase vars + `PUBLIC_R2_BASE_URL` configurados en Pages
+**GitHub Action — Workers Deploy**
+- Workflow: `.github/workflows/deploy-workers.yml`
+- Trigger: push to main + manual dispatch
+- Secrets necesarios en GitHub UI:
+  - `CF_API_TOKEN` — Cloudflare API token
+  - `CF_ACCOUNT_ID` — Cloudflare account ID
+  - `PUBLIC_FIREBASE_*` — todas las vars de Firebase
+  - `PUBLIC_ADMIN_UIDS`
 
-## Próxima sesión: Upload local en campos URL
+**TypeScript fix**
+- `upload.ts`: `deleteFile` return type `void` → `Promise<void>`
 
-### Tareas pendientes (Session 41)
+## Pendientes restantes
 
-1. **Testimonios** — añadir FileUpload para avatarUrl (subir desde PC)
-2. **Brand** — añadir FileUpload para logoUrl
-3. **Otros campos URL** — revisar todos los inputs type="url" y añadir upload local
-4. **GitHub Action** — agregar workflow + secrets desde GitHub UI
-5. **Firebase rules** — deploy desde Firebase Console
+1. **Firebase rules** — deploy `firebase.rules.json` desde Firebase Console (themePresets/, gallery/, customEmojis/, changelog/ ya están en el archivo)
+2. **Brand logoUrl** — ya tiene FileUpload (verificar que funciona)
+3. **Links** — URLs externas, probablemente no necesitan upload
+4. **Verificar stats productores** — dashboard ya muestra "Artistas únicos"
 
 ## Datos clave
 - Deploy: Cloudflare Pages auto-deploy (trigger via API)

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { customEmojis, initCustomEmojis, destroyCustomEmojis } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card, FileUpload } from '$lib/components';
 	import { toast } from '$lib/toastStore';
 
 	let emojis = $derived($customEmojis);
@@ -55,8 +55,22 @@
 				<input id="emoji-name" type="text" bind:value={newName} placeholder="ej: fire, star, wave" />
 			</div>
 			<div class="field">
-				<label for="emoji-url">URL de imagen</label>
-				<input id="emoji-url" type="url" bind:value={newUrl} placeholder="https://..." />
+				<label>Imagen del emoji</label>
+				<FileUpload
+					value={newUrl}
+					folder="emojis"
+					beatId="custom"
+					accept="image/*"
+					label="Emoji"
+					type="image"
+					maxSizeMB={2}
+					onUploadComplete={(url) => { newUrl = url; }}
+					onRemove={() => { newUrl = ''; }}
+				/>
+				<div class="url-fallback">
+					<label for="emoji-url">O pega una URL:</label>
+					<input id="emoji-url" type="url" bind:value={newUrl} placeholder="https://..." />
+				</div>
 			</div>
 			<button class="btn-add" onclick={handleAdd} disabled={!newName.trim() || !newUrl.trim()}>
 				➕ Agregar
@@ -113,6 +127,35 @@
 	.field label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
 	.field input { padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg); color: var(--text); font-size: var(--text-sm); outline: none; }
 	.field input:focus { border-color: var(--accent); }
+
+	.url-fallback {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		margin-top: var(--space-1);
+	}
+
+	.url-fallback label {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+	}
+
+	.url-fallback input {
+		padding: var(--space-1) var(--space-2);
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		color: var(--text);
+		font-size: var(--text-xs);
+		font-family: var(--font-mono);
+		outline: none;
+		transition: border-color var(--duration-fast);
+	}
+
+	.url-fallback input:focus {
+		border-color: rgba(var(--accent-rgb), 0.5);
+	}
 
 	.btn-add {
 		padding: var(--space-2) var(--space-4); min-height: var(--touch-min);

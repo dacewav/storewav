@@ -170,7 +170,7 @@ export function generatePath(folder: string, beatId: string, fileName: string): 
 /**
  * Borra un archivo de R2 o Firebase Storage por path/URL
  */
-export async function deleteFile(pathOrUrl: string): void {
+export async function deleteFile(pathOrUrl: string): Promise<void> {
 	// If it looks like a URL, try Firebase delete; otherwise it's an R2 path
 	if (pathOrUrl.startsWith('http')) {
 		try {
