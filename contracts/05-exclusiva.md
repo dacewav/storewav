@@ -113,7 +113,7 @@
 
 **CLÁUSULA I. OTORGAMIENTO DE DERECHOS EXCLUSIVOS**
 
-El PRODUCTOR otorga al ARTISTA una licencia EXCLUSIVA y A PERPETUIDAD para usar el beat descrito anteriormente con el fin de grabar, reproducir, distribuir, monetizar y explotar comercialmente una o varias obras musicales (las Nuevas Canciones). El ARTISTA tendrá el derecho exclusivo de explotar el beat, sujeto a los términos de este Contrato.
+El PRODUCTOR otorga al ARTISTA una licencia EXCLUSIVA y A PERPETUIDAD para usar el beat descrito anteriormente con el fin de grabar, reproducir, distribuir, monetizar y explotar comercialmente una o varias obras musicales (en adelante, las "Nuevas Canciones"), entendidas como composiciones musicales vocales o instrumentales que incorporen el beat licenciado. A diferencia de las licencias no exclusivas, la licencia exclusiva permite la creación de múltiples Nuevas Canciones con el mismo beat. El ARTISTA tendrá el derecho exclusivo de explotar el beat, sujeto a los términos de este Contrato.
 
 1\.1  Formato entregado: todos los archivos indicados en la sección Descripción del Beat (MP3, WAV, Stems/Trackout en archivo ZIP).
 
@@ -231,17 +231,19 @@ La duración de esta licencia es a perpetuidad, siempre y cuando el ARTISTA cump
 
 12\.3  Fuerza mayor: Ninguna de las partes será responsable por incumplimiento causado por eventos fuera de su control razonable.
 
-12\.4  Confidencialidad: Los términos de este acuerdo son confidenciales y no deben ser divulgados por el ARTISTA a terceros, salvo a sus asesores legales, contables, mánager o sello discográfico, siempre que dichos terceros estén sujetos a una obligación de confidencialidad equivalente.
+12\.4  Confidencialidad: Los términos económicos de este acuerdo (precio pagado, split de regalías y condiciones particulares) son confidenciales y no deben ser divulgados por el ARTISTA a terceros, salvo a sus asesores legales, contables, mánager o sello discográfico. Las condiciones generales de la licencia (tipo, alcance, restricciones) no son confidenciales.
 
-12\.5  Protección de datos: Los datos personales recabados serán tratados conforme a la LFPDPPP de México.
+12\.5  Notificaciones: Cualquier comunicación oficial deberá realizarse por escrito al correo electrónico provisto por cada parte. Las notificaciones enviadas al correo electrónico registrado se considerarán recibidas dentro de las 24 horas siguientes al envío. Las comunicaciones por WhatsApp u otros canales de mensajería tendrán valor informativo, pero solo las notificaciones por correo electrónico tendrán efectos legales conforme a este contrato.
 
-12\.6  Acuerdo completo: Este documento reemplaza cualquier comunicación o acuerdo previo, oral o escrito.
+12\.6  Protección de datos: Los datos personales recabados serán tratados conforme a la LFPDPPP de México.
 
-12\.7  Definición de incumplimiento grave: Se consideran incumplimientos graves, de manera enunciativa más no limitativa: (a) omisión del crédito obligatorio; (b) registro no autorizado en sistemas de Content ID; (c) cesión, venta o sublicenciamiento del beat o stems a terceros; (d) no configurar el split del 30% en el distribuidor al momento del lanzamiento, o desactivarlo sin autorización escrita del PRODUCTOR; (e) omitir la notificación de cambio de distribuidor o plataforma adicional en el plazo establecido en la Cláusula IV.3; (f) uso del beat en contenido prohibido por la Cláusula VIII; (g) no realizar el whitelisting requerido en el plazo establecido en la Cláusula VI.2; (h) el uso de los stems entregados como base para producciones, remezclas o canciones distintas a las Nuevas Canciones acordadas, o su comercialización como producción propia; (i) la omisión reiterada de los pagos manuales del 30% establecidos en la Cláusula IV.4 para plataformas sin split automático.
+12\.7  Acuerdo completo: Este documento reemplaza cualquier comunicación o acuerdo previo, oral o escrito.
+
+12\.8  Definición de incumplimiento grave: Se consideran incumplimientos graves, de manera enunciativa más no limitativa: (a) omisión del crédito obligatorio; (b) registro no autorizado en sistemas de Content ID; (c) cesión, venta o sublicenciamiento del beat o stems a terceros; (d) no configurar el split del 30% en el distribuidor al momento del lanzamiento, o desactivarlo sin autorización escrita del PRODUCTOR; (e) omitir la notificación de cambio de distribuidor o plataforma adicional en el plazo establecido en la Cláusula IV.3; (f) uso del beat en contenido prohibido por la Cláusula VIII; (g) no realizar el whitelisting requerido en el plazo establecido en la Cláusula VI.2; (h) el uso de los stems entregados como base para producciones, remezclas o canciones distintas a las Nuevas Canciones acordadas, o su comercialización como producción propia; (i) la omisión reiterada de los pagos manuales del 30% establecidos en la Cláusula IV.4 para plataformas sin split automático.
 
 **CLÁUSULA XIII. LEGISLACIÓN APLICABLE**
 
-Este contrato se rige por las leyes de los Estados Unidos Mexicanos, en especial la Ley Federal del Derecho de Autor (LFDA) y el Código Civil Federal. Antes de acudir a instancias judiciales, las partes acuerdan intentar resolver cualquier controversia de buena fe mediante negociación directa en un plazo de 15 (quince) días hábiles a partir de la notificación del conflicto. De no llegarse a un acuerdo, las partes se someten a la jurisdicción de los tribunales competentes del estado indicado en los datos de la operación. En caso de versión en inglés, la versión en español prevalece y es la legalmente vinculante.
+Este contrato se rige por las leyes de los Estados Unidos Mexicanos, en especial la Ley Federal del Derecho de Autor (LFDA) y el Código Civil Federal. Antes de acudir a instancias judiciales, las partes acuerdan intentar resolver cualquier controversia de buena fe mediante negociación directa en un plazo de 15 (quince) días hábiles a partir de la notificación del conflicto. De no llegarse a un acuerdo, las partes se someten a la jurisdicción de los tribunales competentes de la ciudad de Puebla de Zaragoza, Estado de Puebla, México, renunciando expresamente a cualquier otro fuero que pudiera corresponderles por razón de domicilio presente o futuro. En caso de versión en inglés, la versión en español prevalece y es la legalmente vinculante.
 
 **CLÁUSULA XIV. ACEPTACIÓN Y ACUERDO COMPLETO**
 

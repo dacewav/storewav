@@ -76,7 +76,7 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 
 **CLÁUSULA I. OBJETO DE LA LICENCIA**
 
-> El PRODUCTOR otorga al ARTISTA una licencia no exclusiva, intransferible y no sublicenciable para usar el beat descrito anteriormente con el fin de crear una nueva obra musical (la Nueva Canción), bajo las siguientes limitaciones:
+> El PRODUCTOR otorga al ARTISTA una licencia no exclusiva, intransferible y no sublicenciable para usar el beat descrito anteriormente con el fin de crear una nueva obra musical (en adelante, la "Nueva Canción"), entendida como una única composición musical vocal o instrumental que incorpore el beat licenciado. Para efectos de este contrato, "Nueva Canción" se refiere exclusivamente a una sola obra; cada obra adicional que utilice el beat requerirá una licencia por separado o una licencia de nivel superior. Bajo las siguientes limitaciones:
 >
 > 1.1 Formato: El archivo indicado en la sección Descripción del Beat.
 >
@@ -186,9 +186,9 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 >
 > 11.3 Fuerza mayor: Ninguna de las partes será responsable por incumplimiento causado por eventos fuera de su control razonable.
 >
-> 11.4 Confidencialidad: Los términos de este acuerdo son confidenciales y no deben ser divulgados por el ARTISTA a terceros, salvo a sus asesores legales, contables, mánager o sello discográfico, siempre que dichos terceros estén sujetos a una obligación de confidencialidad equivalente.
+> 11.4 Confidencialidad: Los términos económicos de este acuerdo (precio pagado, descuentos aplicados y condiciones particulares) son confidenciales y no deben ser divulgados por el ARTISTA a terceros, salvo a sus asesores legales, contables, mánager o sello discográfico. Las condiciones generales de la licencia (tipo, alcance, restricciones) no son confidenciales.
 >
-> 11.5 Notificaciones: Cualquier comunicación oficial deberá realizarse por escrito a través de los canales de contacto provistos por las partes.
+> 11.5 Notificaciones: Cualquier comunicación oficial deberá realizarse por escrito al correo electrónico provisto por cada parte. Las notificaciones enviadas al correo electrónico registrado se considerarán recibidas dentro de las 24 horas siguientes al envío. Las comunicaciones por WhatsApp u otros canales de mensajería tendrán valor informativo, pero solo las notificaciones por correo electrónico tendrán efectos legales conforme a este contrato.
 >
 > 11.6 Protección de datos: Los datos personales recabados serán tratados conforme a la LFPDPPP de México.
 >
@@ -196,7 +196,7 @@ CONTRATO DE LICENCIA NO EXCLUSIVA
 
 **CLÁUSULA XII. LEGISLACIÓN APLICABLE**
 
-> Este contrato se rige por las leyes de los Estados Unidos Mexicanos, en especial la Ley Federal del Derecho de Autor (LFDA) y el Código Civil Federal. Antes de acudir a instancias judiciales, las partes acuerdan intentar resolver cualquier controversia de buena fe mediante negociación directa en un plazo de 15 (quince) días hábiles a partir de la notificación del conflicto. De no llegarse a un acuerdo, las partes se someten a la jurisdicción de los tribunales competentes del estado indicado en los datos de la operación. En caso de versión en inglés, la versión en español prevalece y es la legalmente vinculante.
+> Este contrato se rige por las leyes de los Estados Unidos Mexicanos, en especial la Ley Federal del Derecho de Autor (LFDA) y el Código Civil Federal. Antes de acudir a instancias judiciales, las partes acuerdan intentar resolver cualquier controversia de buena fe mediante negociación directa en un plazo de 15 (quince) días hábiles a partir de la notificación del conflicto. De no llegarse a un acuerdo, las partes se someten a la jurisdicción de los tribunales competentes de la ciudad de Puebla de Zaragoza, Estado de Puebla, México, renunciando expresamente a cualquier otro fuero que pudiera corresponderles por razón de domicilio presente o futuro. En caso de versión en inglés, la versión en español prevalece y es la legalmente vinculante.
 
 **CLÁUSULA XIII. ACEPTACIÓN Y ACUERDO COMPLETO**
 
