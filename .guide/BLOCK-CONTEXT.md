@@ -10,47 +10,40 @@ sesión: "43"
 bloque: "Admin polish + Firebase deploy"
 objetivo: "Pulir admin (animation previews, theme preview) + deploy Firebase rules"
 tiempo: "~50 min"
-estado: "🔴 PENDIENTE"
-último_commit: "8ca48f9"
+estado: "🟡 PARCIAL — code done, deploy pending"
+último_commit: "6d52083"
 tests_total: 134
 svelte_check: "0 errors, 13 warnings"
 ```
 
-## Contexto de sesión 42 (recién completada)
+## TAREAS SESIÓN 43 (estado)
 
-Sesión heavy — 10 commits, cambios visuales grandes:
-- Waveform + Player visual overhaul
-- Emoji system fix (reactive picker, live preview)
-- Store layout (genre tabs, show more, back-to-top)
-- Beat grid equal sizing fix
-- Page transitions + beat detail parallax
+### 1. ✅ Admin: Animation Previews en vivo
+- Mini-card previews realistas para cada elemento (logo, title, cards, CTA, player, waveform)
+- Timing por elemento (dur, delay, easing) reflejado en cada preview
+- Galería de presets separada
 
-## TAREAS SESIÓN 43 (prioridad)
+### 2. ✅ Theme: Live Preview Panel
+- Split-view: controles izquierda, preview derecha (sticky)
+- Mini mockup de tienda: nav, hero, cards, CTA
+- Se actualiza en tiempo real con cada slider
+- Toggle button, responsive (<1100px se oculta)
 
-### 1. Admin: Animation Previews en vivo
-- **Página**: `/admin/animations`
-- **Qué falta**: preview en vivo de cada tipo de animación (float, pulse, bounce, etc.)
-- **Archivo**: `src/routes/(admin)/admin/animations/+page.svelte`
-- **Idea**: mini card con cada animación aplicada, usuario ve el efecto antes de seleccionar
+### 3. 🟡 Firebase Rules Deploy
+- Rules ya incluyen gallery/, changelog/, customEmojis/ en firebase.rules.json
+- **FALTA**: deploy desde Firebase Console (requiere credenciales)
+- Comando: `firebase deploy --only database`
 
-### 2. Theme: Live Preview Panel
-- **Página**: `/admin/theme`
-- **Qué falta**: panel de preview que muestre cambios en tiempo real
-- **Archivo**: `src/routes/(admin)/admin/theme/+page.svelte`
-- **Idea**: split view — sliders a la izquierda, preview de la tienda a la derecha
+### 4. 🟡 GitHub Secrets
+- Workflow necesita 9 secrets:
+  - PUBLIC_FIREBASE_API_KEY, AUTH_DOMAIN, DATABASE_URL, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID
+  - PUBLIC_ADMIN_UIDS
+  - CF_API_TOKEN, CF_ACCOUNT_ID
+- **FALTA**: agregarlos en GitHub repo → Settings → Secrets
 
-### 3. Firebase Rules Deploy
-- **Qué**: las rules están actualizadas en código pero falta deploy desde Firebase Console
-- **Paths nuevos**: `gallery/`, `changelog/`, `customEmojis/`
-- **Ver**: `firebase.rules` o `database.rules.json`
-
-### 4. GitHub Secrets
-- **Qué**: configurar secrets para Workers deploy
-- **Dónde**: GitHub repo → Settings → Secrets
-
-### 5. Store: Verificar beats sin audio
-- **Qué**: primeros 7 beats no tienen audioUrl
-- **Verificar**: en Firebase RTDB `beats/` → campo `audioUrl`
+### 5. 🔴 Beats sin audio
+- 11/11 beats sin audioUrl (solo 1 tiene previewUrl)
+- Necesitan audio files subidos via admin/media o R2
 
 ## Datos clave
 - Dev: `npm run dev -- --host 0.0.0.0 --port 5173`

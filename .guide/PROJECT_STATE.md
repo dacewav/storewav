@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-26 11:36 (Session 42 — Visual Overhaul + Emoji Fix + Store Layout)**
+> **Última actualización: 2026-04-26 11:42 (Session 43 — Admin Polish + Firebase Deploy)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -8,11 +8,11 @@ repo:          https://github.com/dacewav/storewav.git
 framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
-sesiones:      42 completadas
-commits:       64+
+sesiones:      43 completadas
+commits:       65+
 tests:         134 passing
 build:         0 errors, 0 warnings (svelte-check: 0 errors, 13 warnings)
-último_commit: "8ca48f9"
+último_commit: "6d52083"
 
 ## Quick Status
 
@@ -42,6 +42,27 @@ build:         0 errors, 0 warnings (svelte-check: 0 errors, 13 warnings)
 | Page Transitions | ✅ | View Transitions API (fade/scale) |
 | Store Layout | ✅ | Genre tabs + show more + back-to-top |
 | Beat Grid | ✅ | Equal 3-column layout (fixed) |
+
+## Session 43 — What Changed
+
+### Admin Animation Live Previews
+- **Animations page**: realistic mini-card previews for each element type
+- Logo: icon + text with assigned animation
+- Title: hero text with animation
+- Beat Cards: two mini cards with staggered delay
+- CTA Button: WhatsApp button with animation
+- Player Bar: mini player with bars + time
+- Waveform: 20-bar waveform visualization
+- Each preview uses per-element timing (duration, delay, easing)
+- Separate "Galería de Presets" section for all 9 animation types
+
+### Theme Live Preview Panel
+- **Split-view layout**: controls left, preview right (sticky)
+- Mini store mockup: nav, hero, cards, CTA button
+- Updates in real-time as sliders move (accent, bg, surface, radius, opacity, glow, etc.)
+- Toggle button to show/hide preview
+- Responsive: auto-hides on screens < 1100px
+- hexToRgb helper for CSS var generation
 
 ## Session 42 — What Changed
 
@@ -92,12 +113,10 @@ build:         0 errors, 0 warnings (svelte-check: 0 errors, 13 warnings)
 
 | Prioridad | Item | Detalle |
 |-----------|------|---------|
-| 🟡 | Firebase rules | Rules actualizadas con gallery/ y changelog/ — falta deploy |
-| 🟡 | GitHub secrets | Configurar en GitHub UI |
-| 🟡 | Admin animation previews | Preview en vivo de cada animación en admin/animations |
-| 🟡 | Theme live preview | Panel de preview en admin/theme |
+| 🟡 | Firebase rules | Rules actualizadas con gallery/, changelog/, customEmojis/ — falta deploy desde Firebase Console |
+| 🟡 | GitHub secrets | 9 secrets necesarios (Firebase vars + CF_API_TOKEN + CF_ACCOUNT_ID) — ver workflow |
+| 🔴 | Beats sin audio | 11/11 beats sin audioUrl, solo 1 con previewUrl |
 | 🟢 | Hover sound effects | Opcional, toggleable |
-| 🟢 | Beat grid sin audio | Primeros 7 beats no tienen audio |
 | 🟢 | PWA | No implementado |
 
 ## Commands útiles
