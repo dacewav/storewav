@@ -1,7 +1,12 @@
 <script lang="ts">
 	/**
 	 * EmojiPicker — Discord-style floating emoji picker.
-	 * Prevents blur by intercepting mousedown on the picker container.
+	 *
+	 * Features:
+	 * - onmousedown on each button (not container) for reliable click
+	 * - "No results" state when query has no matches
+	 * - "No emojis" state when store is empty
+	 * - Keyboard navigation (↑↓ Enter Tab Esc)
 	 */
 	import type { CustomEmoji } from '$lib/stores/customEmojis';
 
@@ -33,6 +38,10 @@
 				.slice(0, 24)
 	);
 
+	let hasResults = $derived(filtered.length > 0);
+	let showNoResults = $derived(visible && emojis.length > 0 && filtered.length === 0 && query.length > 0);
+	let showNoEmojis = $derived(visible && emojis.length === 0);
+
 	$effect(() => {
 		void filtered.length;
 		selectedIndex = 0;
@@ -46,7 +55,15 @@
 	});
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (!visible || filtered.length === 0) return;
+		if (!visible) return;
+
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			onclose?.();
+			return;
+		}
+
+		if (!hasResults) return;
 
 		switch (e.key) {
 			case 'ArrowDown':
@@ -63,10 +80,6 @@
 				if (filtered[selectedIndex]) {
 					onselect?.(filtered[selectedIndex]);
 				}
-				break;
-			case 'Escape':
-				e.preventDefault();
-				onclose?.();
 				break;
 		}
 	}
@@ -86,7 +99,7 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-{#if visible && filtered.length > 0}
+{#if visible && (hasResults || showNoResults || showNoEmojis)}
 	<div
 		class="emoji-picker"
 		style="top: {rect.bottom + 4}px; left: {rect.left}px;"
@@ -96,29 +109,46 @@
 	>
 		<div class="picker-header">
 			<span class="picker-title">Emojis</span>
-			<span class="picker-count">{filtered.length}</span>
+			<span class="picker-count">{emojis.length}</span>
 		</div>
-		<div class="picker-grid" bind:this={listEl}>
-			{#each filtered as emoji, i}
-				<button
-					class="picker-emoji"
-					class:selected={i === selectedIndex}
-					onmousedown={(e) => handleEmojiMousedown(e, emoji)}
-					role="option"
-					aria-selected={i === selectedIndex}
-					title=":{emoji.name}:"
-					tabindex="-1"
-				>
-					<img src={emoji.url} alt=":{emoji.name}:" loading="lazy" />
-					<span class="picker-name">:{emoji.name}:</span>
-				</button>
-			{/each}
-		</div>
-		<div class="picker-hint">
-			<span>↑↓ navegar</span>
-			<span>↵ seleccionar</span>
-			<span>esc cerrar</span>
-		</div>
+
+		{#if showNoEmojis}
+			<div class="picker-empty">
+				<span class="picker-empty-icon">😶</span>
+				<span class="picker-empty-text">No hay emojis custom</span>
+				<span class="picker-empty-hint">Creá emojis en Admin → Emojis</span>
+			</div>
+		{:else if showNoResults}
+			<div class="picker-empty">
+				<span class="picker-empty-icon">🔍</span>
+				<span class="picker-empty-text">Sin resultados para ":{query}:"</span>
+			</div>
+		{:else}
+			<div class="picker-grid" bind:this={listEl}>
+				{#each filtered as emoji, i}
+					<button
+						class="picker-emoji"
+						class:selected={i === selectedIndex}
+						onmousedown={(e) => handleEmojiMousedown(e, emoji)}
+						role="option"
+						aria-selected={i === selectedIndex}
+						title=":{emoji.name}:"
+						tabindex="-1"
+					>
+						<img src={emoji.url} alt=":{emoji.name}:" loading="lazy" />
+						<span class="picker-name">:{emoji.name}:</span>
+					</button>
+				{/each}
+			</div>
+		{/if}
+
+		{#if hasResults}
+			<div class="picker-hint">
+				<span>↑↓ navegar</span>
+				<span>↵ seleccionar</span>
+				<span>esc cerrar</span>
+			</div>
+		{/if}
 	</div>
 {/if}
 
@@ -207,6 +237,32 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		max-width: 100%;
+	}
+
+	.picker-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+		padding: 20px 12px;
+	}
+
+	.picker-empty-icon {
+		font-size: 24px;
+		opacity: 0.5;
+	}
+
+	.picker-empty-text {
+		font-family: var(--font-mono, monospace);
+		font-size: 11px;
+		color: var(--text-muted, #888);
+		text-align: center;
+	}
+
+	.picker-empty-hint {
+		font-family: var(--font-mono, monospace);
+		font-size: 10px;
+		color: var(--text-hint, #666);
 	}
 
 	.picker-hint {

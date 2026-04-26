@@ -49,24 +49,34 @@ export function findEmojiQuery(text: string, cursorPos: number): { query: string
 
 	if (lastColon < 0) return null;
 
-	// Check if there's another ':' before this one (complete shortcode)
-	const prevColon = before.lastIndexOf(':', lastColon - 1);
-	if (prevColon >= 0 && prevColon < lastColon) {
-		// There's already a complete :shortcode: before cursor
-		// Check if cursor is right after a closing ':'
-		if (text[lastColon] === ':') {
-			return null; // Already closed
+	// Check if this colon is the closing ':' of a complete :shortcode:
+	// Find the colon BEFORE lastColon — if it exists and there's no ':' between them,
+	// then lastColon is a closing colon, not an opening one
+	const textBetween = before.slice(lastColon + 1);
+	if (textBetween.includes(':')) {
+		// There's another ':' between lastColon and cursor — we're outside any shortcode
+		return null;
+	}
+
+	// Also check: if the char BEFORE lastColon is the opening ':', and the text between
+	// them is a valid shortcode, then we're right after a closing ':'
+	if (lastColon > 0) {
+		const prevColon = before.lastIndexOf(':', lastColon - 1);
+		if (prevColon >= 0) {
+			const potentialShortcode = before.slice(prevColon + 1, lastColon);
+			// If there's a valid shortcode between prevColon and lastColon, and no ':' in between
+			if (/^[a-zA-Z0-9_+-]+$/.test(potentialShortcode) && !before.slice(prevColon + 1, lastColon).includes(':')) {
+				return null; // Cursor is right after a complete :shortcode:
+			}
 		}
 	}
 
 	// Check chars between lastColon and cursor — only allow valid shortcode chars
-	const query = before.slice(lastColon + 1);
-	if (!/^[a-zA-Z0-9_+-]*$/.test(query)) return null;
-	// Don't allow spaces in the shortcode
-	if (query.includes(' ')) return null;
+	if (!/^[a-zA-Z0-9_+-]*$/.test(textBetween)) return null;
+	if (textBetween.includes(' ')) return null;
 
 	return {
-		query,
+		query: textBetween,
 		start: lastColon,
 		end: cursorPos
 	};

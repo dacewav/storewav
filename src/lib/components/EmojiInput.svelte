@@ -1,7 +1,12 @@
 <script lang="ts">
 	/**
 	 * EmojiInput — textarea/input with Discord-style emoji autocomplete.
-	 * Robust version: recomputes query on select, no stale state issues.
+	 *
+	 * Fixes applied:
+	 * - Reactive picker: re-runs updatePicker when emojis load from Firebase
+	 * - Preview always shows when text contains potential shortcodes
+	 * - Picker shows "no results" state when query has no matches
+	 * - Robust cursor tracking across blur/focus cycles
 	 */
 	import { customEmojis } from '$lib/stores';
 	import { findEmojiQuery, insertEmoji, renderEmojis } from '$lib/emojiUtils';
@@ -34,15 +39,28 @@
 	let pickerVisible = $state(false);
 	let pickerQuery = $state('');
 	let pickerRect = $state({ top: 0, left: 0, bottom: 0 });
-
-	// Track the colon position so we can recompute the query on select
 	let lastColonPos = $state(-1);
 
-	// Preview
-	let hasShortcodes = $derived(/:[a-zA-Z0-9_+-]+:/.test(value));
+	// Preview — show whenever text has ":" (potential shortcode being typed)
+	let hasShortcodes = $derived(/:[a-zA-Z0-9_+-]+:?/.test(value));
 	let renderedPreview = $derived(
-		hasShortcodes ? renderEmojis(value, emojis) : ''
+		hasShortcodes && emojis.length > 0 ? renderEmojis(value, emojis) : ''
 	);
+
+	// Show raw text with styled shortcodes when emojis aren't loaded yet
+	let previewHtml = $derived(
+		renderedPreview || (hasShortcodes
+			? value.replace(/:([a-zA-Z0-9_+-]+):?/g, '<span class="emoji-pending">:$1:</span>')
+			: '')
+	);
+
+	// KEY FIX: re-run picker logic when emojis array changes (Firebase loads late)
+	$effect(() => {
+		void emojis.length; // track dependency
+		if (inputEl && inputEl === document.activeElement) {
+			updatePicker();
+		}
+	});
 
 	function handleInput() {
 		oninput?.(value);
@@ -59,6 +77,11 @@
 			lastColonPos = query.start;
 			pickerVisible = true;
 			positionPicker(query.start);
+		} else if (query && emojis.length === 0) {
+			// Has query but emojis not loaded yet — keep tracking
+			pickerQuery = query.query;
+			lastColonPos = query.start;
+			pickerVisible = false;
 		} else {
 			closePicker();
 		}
@@ -99,10 +122,11 @@
 	}
 
 	function handleSelect(emoji: CustomEmoji) {
-		// Recompute query from current value + last known colon position
 		const cursorPos = inputEl?.selectionStart ?? value.length;
 		const query = findEmojiQuery(value, cursorPos)
-			|| (lastColonPos >= 0 ? { start: lastColonPos, end: cursorPos, query: value.slice(lastColonPos + 1, cursorPos) } : null);
+			|| (lastColonPos >= 0
+				? { start: lastColonPos, end: cursorPos, query: value.slice(lastColonPos + 1, cursorPos) }
+				: null);
 
 		if (!query) return;
 
@@ -167,11 +191,11 @@
 	/>
 {/if}
 
-<!-- Live preview -->
-{#if hasShortcodes}
+<!-- Live preview — always shows when text has potential shortcodes -->
+{#if hasShortcodes && previewHtml}
 	<div class="emoji-preview">
 		<span class="preview-label">Preview:</span>
-		<span class="preview-text">{@html renderedPreview}</span>
+		<span class="preview-text">{@html previewHtml}</span>
 	</div>
 {/if}
 
@@ -239,5 +263,12 @@
 		vertical-align: -0.15em;
 		object-fit: contain;
 		margin: 0 0.05em;
+	}
+
+	.preview-text :global(.emoji-pending) {
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+		opacity: 0.6;
 	}
 </style>
