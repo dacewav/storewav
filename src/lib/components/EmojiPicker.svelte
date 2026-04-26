@@ -71,12 +71,15 @@
 		}
 	}
 
-	// CRITICAL: prevent mousedown on entire picker from blurring the input
-	function handlePickerMousedown(e: MouseEvent) {
+	/**
+	 * CRITICAL: onmousedown on each button (not container) to:
+	 * 1. Prevent input blur (e.preventDefault)
+	 * 2. Stop event from reaching container's mousedown (e.stopPropagation)
+	 * 3. Fire onselect immediately — click events are unreliable after preventDefault
+	 */
+	function handleEmojiMousedown(e: MouseEvent, emoji: CustomEmoji) {
 		e.preventDefault();
-	}
-
-	function handleEmojiClick(emoji: CustomEmoji) {
+		e.stopPropagation();
 		onselect?.(emoji);
 	}
 </script>
@@ -90,7 +93,6 @@
 		role="listbox"
 		aria-label="Emojis personalizados"
 		bind:this={pickerEl}
-		onmousedown={handlePickerMousedown}
 	>
 		<div class="picker-header">
 			<span class="picker-title">Emojis</span>
@@ -101,7 +103,7 @@
 				<button
 					class="picker-emoji"
 					class:selected={i === selectedIndex}
-					onclick={() => handleEmojiClick(emoji)}
+					onmousedown={(e) => handleEmojiMousedown(e, emoji)}
 					role="option"
 					aria-selected={i === selectedIndex}
 					title=":{emoji.name}:"
