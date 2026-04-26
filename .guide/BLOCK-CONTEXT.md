@@ -3,98 +3,93 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 44 — Admin UX Overhaul + Browser Testing
+## Sesión Actual: 45 — Polish + Animation Intensity + More Testing
 
 ```yaml
-sesión: "44"
-bloque: "Admin UX overhaul + browser testing + particles polish"
-objetivo: "Hacer el admin más visual e intuitivo, testear en browser, arreglar opacidad"
+sesión: "45"
+bloque: "Polish + animation intensity system + browser testing"
+objetivo: "Pulir los fixes de la sesión 44, agregar sistema de intensidad, testear todo en browser"
 tiempo: "~50 min"
 estado: "🔴 PENDIENTE"
-último_commit: "8d9102e"
+último_commit: "4cb673c"
 tests_total: 134
-svelte_check: "0 errors, 15 warnings"
+svelte_check: "0 errors, 25 warnings"
 ```
 
-## Contexto de sesión 43
+## Contexto de sesión 44
 
-Sesión larga — 6 commits, mucho trabajo:
-- Animation live previews + theme split-view preview
-- Phase 1 personalization: 20+ controles nuevos (divider, advanced colors, transitions, shadows)
-- Particles opacity fix (closure bug)
-- Particles image upload
-- Particles visual redesign (preview + type pills + grouped controls)
-- Deep audit + mega plan generado
+Sesión larga — 4 commits, mucho trabajo:
+- **Emoji picker click fix**: root cause era Firebase write failing → inputValue local independiente
+- **FileUpload**: floating elements + banner bg image
+- **Premium presets**: 9 nuevos del catalog (17 total)
+- **New animations**: 8 nuevas (18 total)
+- **Banner**: bgImage + opacity + live preview
+- Browser testing: emoji click verificado funcionando
 
 ## ⚠️ PROBLEMAS CONOCIDOS
 
-### 1. Particles Opacity — NO TESTEADO EN BROWSER
-- El bug del closure fue arreglado en `Particles.svelte` (usa `$state` mutables)
-- PERO: no se pudo testear porque el login anónimo tiene `PERMISSION_DENIED` en Firebase
-- **Acción**: testear en browser con login real de admin (Google auth)
-- Si sigue sin funcionar, revisar: `onSlide('theme.particlesOpacity', 'particlesOpacity', ...)` → ¿llega a Firebase? → ¿llega a Particles component?
+### 1. Anonymous Login — No Write Permissions
+- Login anónimo no tiene write perms en Firebase
+- Los settings no se guardan (PERMISSION_DENIED)
+- **Impacto**: no se puede testear cambios de settings en browser sin Google login
+- **Workaround**: usar Google login o agregar UID al admin whitelist en Firebase Console
 
-### 2. Particles Visual Redesign — NECESITA BROWSER TEST
-- Nuevo `ParticlesPreview.svelte` — canvas standalone para preview
-- Sección reescrita con type pills, toggle badge, controles agrupados
-- **Acción**: verificar que el preview se renderice, que los type pills funcionen, que los sliders respondan
-- Posible issue: `{#await import(...)}` puede no hidratar bien
+### 2. Beats sin audio
+- 9/9 beats sin audioUrl
+- Player no aparece, stats muestran 0 plays
+- **Fix**: subir audio desde admin → Media tab
 
-### 3. Admin UX General — USER FEEDBACK
-- User dijo: "el sistema que agregaste nuevo es bien pero es muy poco visual e intuitivo"
-- Se refiere a la UX GENERAL del admin, no solo partículas
-- **Acción**: hacer un overhaul de UX en las páginas principales
-- Ideas: previews en vivo, iconos en cada sección, mejor agrupación, micro-interacciones
+### 3. Hero glow default
+- Color default es negro (#000000) en algunos casos
+- Code fallback a accent (#dc2626) — es data issue, no code
 
-## TAREAS SESIÓN 44 (prioridad)
+## TAREAS SESIÓN 45 (prioridad)
 
-### 1. Browser Testing (15 min)
-- Levantar dev server
-- Login con Google (no anónimo — necesita write perms)
-- Testear particles opacity slider
-- Testear particles type pills + preview
-- Testear animation previews
-- Testear theme preview panel
-- Testear divider styling controls
-- Testear advanced colors, transitions, shadows
+### 1. Animation Intensity System (15 min)
+- Agregar `--anim-int: 0-1` como CSS variable por card
+- Slider en CardStyleEditor para controlar intensidad
+- Cada animación usa `--anim-int` para modularizar fuerza
+- Ejemplo: float con `--anim-int: 0.5` = movimiento más sutil
 
-### 2. Fix Bugs encontrados en browser (15 min)
-- Arreglar cualquier bug que aparezca en el testing
-- Especialmente: ParticlesPreview hydration, type pills reactivity
+### 2. Browser Testing con Google Auth (15 min)
+- Testear con Google login (tiene write perms)
+- Verificar emoji picker en varios contextos (beat editor, content, banner)
+- Verificar FileUpload en floating elements
+- Verificar banner bg image rendering
+- Verificar nuevos presets en card style page
 
-### 3. Admin UX Overhaul Start (20 min)
-- Empezar por la página de **Theme** (la más usada)
-- Agregar previews visuales en secciones clave:
-  - **Colores**: preview de la paleta actual
-  - **Glow**: mini demo del efecto glow
-  - **Typography**: preview del font actual
-  - **Card Effects**: mini card con los efectos aplicados
-  - **Particles**: ya tiene preview (mejorar si es necesario)
-- Mejorar la jerarquía visual: secciones colapsables, iconos más grandes, badges de estado
+### 3. Polish + UX Improvements (15 min)
+- Dashboard: verificar que stats son correctos
+- Admin navigation: verificar todos los links funcionan
+- Card presets: verificar que los 17 presets se renderizan correctamente
+- Animations: verificar que las 18 animaciones funcionan en store
+
+### 4. Push + Guide Update (5 min)
+- Commit cambios
+- Actualizar PROJECT_STATE.md y BLOCK-CONTEXT.md
 
 ## Archivos Clave
 
-### Modificados en sesión 43
-- `src/lib/components/Particles.svelte` — opacity fix + image rendering
-- `src/lib/components/ParticlesPreview.svelte` — NUEVO preview component
-- `src/routes/(admin)/admin/theme/+page.svelte` — particles redesign + advanced colors + transitions + shadows + preview panel
-- `src/routes/(admin)/admin/content/+page.svelte` — divider styling
-- `src/routes/(admin)/admin/hero/+page.svelte` — textClr, logoTextGap
-- `src/routes/(admin)/admin/animations/+page.svelte` — live previews
-- `src/routes/(store)/+page.svelte` — divider styles, hero textClr
-- `src/lib/stores/settings.ts` — 20+ new fields
-- `src/lib/theme.ts` — THEME_MAP additions
+### Modificados en sesión 44
+- `src/lib/components/EmojiInput.svelte` — inputValue local, handleSelect DOM read
+- `src/lib/components/EmojiPicker.svelte` — onpointerdown + onclick fallback
+- `src/lib/stores/settings.ts` — BannerSettings bgImage fields
+- `src/routes/(admin)/admin/banner/+page.svelte` — FileUpload + preview
+- `src/routes/(admin)/admin/floating/+page.svelte` — FileUpload for image type
+- `src/routes/(admin)/admin/theme/+page.svelte` — 18 animations in dropdown
+- `src/routes/(store)/+layout.svelte` — banner bg image + 18 animation keyframes
+- `src/lib/cardStylePresets.ts` — 9 new premium presets (17 total)
 
 ### Para leer (contexto)
 - `.guide/AUDIT-CUSTOMIZATION.md` — inventario completo de controles
 - `.guide/MEGA-PLAN-PERSONALIZATION.md` — plan de 4 fases
+- `.guide/MEGA-PLAN-CATALOG-IMPORT.md` — importar estilos del catalog
 
 ## Datos clave
 - Dev: `npm run dev -- --host 0.0.0.0 --port 5173`
-- Login: `/login` → "Continuar con Google" (NO usar tester anónimo — no tiene write perms)
+- Login: `/login` → "Continuar con Google" (para write perms) o tester anónimo (read-only)
 - Firebase: dacewav-store-3b0f5
 - CDN: https://cdn.dacewav.store
 - Tests: `npm test -- --run` (134 passing)
-- Check: `npx svelte-check` (0 errors, 15 warnings)
+- Check: `npx svelte-check` (0 errors, 25 warnings)
 - Repo: https://github.com/dacewav/storewav
-- ⚠️ Token GitHub anterior — REVOCAR si aún está activo
