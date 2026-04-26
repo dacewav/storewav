@@ -1402,6 +1402,58 @@
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'"
     },
+    "orders": {
+      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
+      ".write": true,
+      "$sessionId": {
+        "status": {
+          ".validate": "newData.isString() && newData.val().length <= 20"
+        },
+        "customerEmail": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "paidAt": {
+          ".validate": "!newData.exists() || newData.isNumber()"
+        },
+        "paymentIntentId": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)"
+        },
+        "items": {
+          "$idx": {
+            "beatId": {
+              ".validate": "newData.isString() && newData.val().length <= 128"
+            },
+            "beatName": {
+              ".validate": "newData.isString() && newData.val().length <= 200"
+            },
+            "licenseName": {
+              ".validate": "newData.isString() && newData.val().length <= 100"
+            },
+            "priceMXN": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "priceUSD": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "paidOrders": {
+      ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
+      ".write": true,
+      "$sessionId": {
+        "$other": {
+          ".validate": true
+        }
+      }
+    },
     "changelog": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",

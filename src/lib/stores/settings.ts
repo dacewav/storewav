@@ -377,6 +377,8 @@ export type LabelSettings = {
 	loginNote: string;
 	errorTitle: string;
 	errorBtn: string;
+	addToCart: string;
+	inCart: string;
 };
 
 export type SettingsData = {
@@ -637,7 +639,9 @@ const DEFAULT: SettingsData = {
 		loginBack: '← Volver a la tienda',
 		loginNote: 'Solo administradores autorizados',
 		errorTitle: 'Página no encontrada',
-		errorBtn: 'Volver al inicio'
+		errorBtn: 'Volver al inicio',
+		addToCart: 'Agregar al carrito',
+		inCart: 'En el carrito'
 	}
 };
 
@@ -829,6 +833,8 @@ const NESTED_TO_FLAT: Record<string, string> = {
 	'labels.loginNote': 'labelLoginNote',
 	'labels.errorTitle': 'labelErrorTitle',
 	'labels.errorBtn': 'labelErrorBtn',
+	'labels.addToCart': 'labelAddToCart',
+	'labels.inCart': 'labelInCart',
 };
 
 /** Paths that should write to theme/ instead of settings/ */

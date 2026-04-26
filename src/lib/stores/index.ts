@@ -18,3 +18,4 @@ export { floatingElements, visibleFloatingElements, floatingLoading, initFloatin
 export { gallery, galleryLoading, initGallery, destroyGallery, type GalleryImage } from './gallery';
 export { changelog, initChangelog, destroyChangelog, type ChangelogEntry } from './changelog';
 export { customEmojis, initCustomEmojis, destroyCustomEmojis, type CustomEmoji } from './customEmojis';
+export { cart, cartCount, cartTotalMXN, cartTotalUSD, type CartItem } from './cart';

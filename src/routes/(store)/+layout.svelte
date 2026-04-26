@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { onNavigate } from '$app/navigation';
-	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis } from '$lib/stores';
+	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis, cartCount } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { sanitizeCSS } from '$lib/sanitize';
@@ -380,6 +380,12 @@
 			{#each navLinks as link}
 				<a href={link.url} class="nav-link" target="_blank" rel="noopener">{link.label}</a>
 			{/each}
+			<a href="/cart" class="icon-btn" title="Carrito" aria-label="Carrito">
+				<Icon name="shoppingCart" size={14} />
+				{#if $cartCount > 0}
+					<span class="nav-badge">{$cartCount}</span>
+				{/if}
+			</a>
 			<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={() => wishlistOpen = true}>
 				<Icon name="heart" size={14} />
 				{#if wishCount > 0}
@@ -416,6 +422,13 @@
 				<a href={link.url} class="mobile-link" target="_blank" rel="noopener" onclick={closeMenu}>{link.label}</a>
 			{/each}
 			<div class="mobile-actions">
+				<a href="/cart" class="icon-btn" title="Carrito" aria-label="Carrito" onclick={closeMenu}>
+					<Icon name="shoppingCart" size={16} />
+					<span>Carrito</span>
+					{#if $cartCount > 0}
+						<span class="nav-badge nav-badge-inline">{$cartCount}</span>
+					{/if}
+				</a>
 				<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={() => { closeMenu(); wishlistOpen = true; }}>
 					<Icon name="heart" size={16} />
 					<span>Favoritos</span>

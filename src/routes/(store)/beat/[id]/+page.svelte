@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { beatsList, player, wishlist, settings, analytics, beats as beatsStore, accentRgb as accentRgbStore } from '$lib/stores';
+	import { beatsList, player, wishlist, settings, analytics, beats as beatsStore, accentRgb as accentRgbStore, cart } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
 	import { Skeleton, Badge, BeatCard, EmptyState, InlineEmoji } from '$lib/components';
 	import { stripEmojis } from '$lib/emojiUtils';
@@ -55,6 +55,8 @@
 	let whatsappNum = $derived(s?.brand?.whatsapp ?? '');
 	let labelRelated = $derived(labels.relatedBeats ?? 'Beats relacionados');
 	let labelLicenses = $derived(labels.licenses ?? 'Licencias');
+	let labelAddToCart = $derived(labels.addToCart ?? 'Agregar al carrito');
+	let labelInCart = $derived(labels.inCart ?? 'En el carrito');
 
 	// Related beats: same genre, exclude current, max 4
 	let relatedBeats = $derived(
@@ -288,15 +290,39 @@
 							{/each}
 						</div>
 						{#if selectedLicense >= 0 && beat.licenses[selectedLicense]}
-							<a
-								class="buy-btn"
-								href="https://wa.me/{whatsappNum}?text={encodeURIComponent(`Quiero la licencia ${beat.licenses[selectedLicense].name} ($${beat.licenses[selectedLicense].priceMXN} MXN / $${beat.licenses[selectedLicense].priceUSD} USD) de ${beat.name}`)}"
-								target="_blank"
-								rel="noopener"
-								onclick={() => analytics.track('license', 'buy_click', { lbl: beat?.id, val: beat?.licenses?.[selectedLicense]?.priceMXN, meta: beat?.licenses?.[selectedLicense]?.name })}
-							>
-								{labelBuy} {beat.licenses[selectedLicense].name} — ${beat.licenses[selectedLicense].priceMXN}
-							</a>
+							{@const lic = beat.licenses[selectedLicense]}
+							{@const isInCart = $cart.some(c => c.beatId === beat.id && c.licenseIndex === selectedLicense)}
+							<div class="buy-actions">
+								<button
+									class="add-cart-btn"
+									class:in-cart={isInCart}
+									onclick={() => {
+										if (!isInCart) {
+											cart.add({
+												beatId: beat.id,
+												beatName: beat.name,
+												imageUrl: beat.imageUrl ?? '',
+												licenseName: lic.name,
+												licenseIndex: selectedLicense,
+												priceMXN: lic.priceMXN,
+												priceUSD: lic.priceUSD,
+											});
+											analytics.track('cart', 'add', { lbl: beat.id, val: lic.priceMXN, meta: lic.name });
+										}
+									}}
+								>
+									{isInCart ? labelInCart : labelAddToCart}
+								</button>
+								<a
+									class="buy-btn"
+									href="https://wa.me/{whatsappNum}?text={encodeURIComponent(`Quiero la licencia ${lic.name} ($${lic.priceMXN} MXN / $${lic.priceUSD} USD) de ${beat.name}`)}"
+									target="_blank"
+									rel="noopener"
+									onclick={() => analytics.track('license', 'buy_click', { lbl: beat?.id, val: lic.priceMXN, meta: lic.name })}
+								>
+									{labelBuy} por WhatsApp
+								</a>
+							</div>
 						{/if}
 					</div>
 				{/if}
@@ -684,13 +710,49 @@
 		margin-top: var(--space-1);
 	}
 
-	/* Buy button */
-	.buy-btn {
+	/* Buy actions */
+	.buy-actions {
+		display: flex;
+		gap: var(--space-2);
+		margin-top: var(--space-3);
+	}
+
+	.add-cart-btn {
+		flex: 1;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
-		margin-top: var(--space-3);
+		padding: var(--space-3) var(--space-4);
+		background: transparent;
+		color: var(--accent);
+		border: 2px solid var(--accent);
+		border-radius: var(--radius-lg);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		cursor: pointer;
+		min-height: 48px;
+		transition: all var(--duration-normal) var(--ease-out);
+	}
+
+	.add-cart-btn:hover:not(.in-cart) {
+		background: rgba(var(--accent-rgb), 0.08);
+		transform: translateY(-1px);
+	}
+
+	.add-cart-btn.in-cart {
+		border-color: var(--border);
+		color: var(--text-muted);
+		cursor: default;
+	}
+
+	/* Buy button */
+	.buy-btn {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		padding: var(--space-3) var(--space-4);
 		background: var(--accent);
 		color: var(--bg);
