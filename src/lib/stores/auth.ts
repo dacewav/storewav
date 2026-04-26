@@ -95,11 +95,14 @@ export async function initAuth() {
 		// Handle redirect result (for signInWithRedirect flow)
 		try {
 			const result = await getRedirectResult(auth);
-			if (result?.user && dev) {
-				console.log('[Auth] Redirect sign-in successful:', result.user.email);
+			if (result?.user) {
+				if (dev) console.log('[Auth] Redirect sign-in successful:', result.user.email);
+			} else if (dev) {
+				console.log('[Auth] No redirect result (user may have navigated directly)');
 			}
 		} catch (redirectErr) {
-			console.error('[Auth] Redirect result error:', redirectErr);
+			const code = (redirectErr as { code?: string })?.code ?? 'unknown';
+			console.error('[Auth] Redirect result error:', code, redirectErr);
 		}
 
 		unsub = onAuthStateChanged(auth, async (fbUser) => {
@@ -125,7 +128,7 @@ export async function initAuth() {
 	}
 }
 
-/** Login con Google — uses redirect to avoid COOP popup issues */
+/** Login con Google — redirect-only (COOP-safe, no popups) */
 export async function loginWithGoogle() {
 	try {
 		const auth = await getAuthInstance();
@@ -133,9 +136,15 @@ export async function loginWithGoogle() {
 
 		const { GoogleAuthProvider, signInWithRedirect } = await import('firebase/auth');
 		const provider = new GoogleAuthProvider();
+		provider.addScope('email');
+		provider.addScope('profile');
+
+		if (dev) console.log('[Auth] signInWithRedirect...');
 		await signInWithRedirect(auth, provider);
+		// Page will navigate away — redirect result handled in initAuth()
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
+		console.error('[Auth] loginWithGoogle error:', msg);
 		store.update((s) => ({ ...s, error: msg }));
 	}
 }
