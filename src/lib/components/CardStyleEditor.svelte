@@ -471,6 +471,46 @@
 								<label for="cse-adel">Delay</label>
 								<input id="cse-adel" type="text" value={value.animationDelay ?? ''} placeholder="0s" oninput={(e) => set('animationDelay', e.currentTarget.value || undefined)} />
 							</div>
+
+							<!-- Glitch parameters -->
+							{#if value.animation === 'glitch'}
+								<div class="section-divider"></div>
+								<div class="subsection-title">⚙️ Parámetros Glitch</div>
+								<div class="row">
+									<div class="field">
+										<label for="cse-gx">Offset X ({value.animGlitchX ?? 4}px)</label>
+										<input id="cse-gx" type="range" min="0" max="12" step="1" value={value.animGlitchX ?? 4} oninput={(e) => set('animGlitchX', +e.currentTarget.value !== 4 ? +e.currentTarget.value : undefined)} />
+									</div>
+									<div class="field">
+										<label for="cse-gy">Offset Y ({value.animGlitchY ?? 4}px)</label>
+										<input id="cse-gy" type="range" min="0" max="12" step="1" value={value.animGlitchY ?? 4} oninput={(e) => set('animGlitchY', +e.currentTarget.value !== 4 ? +e.currentTarget.value : undefined)} />
+									</div>
+								</div>
+								<div class="field">
+									<label for="cse-gr">Rotación ({value.animGlitchRot ?? 0}°)</label>
+									<input id="cse-gr" type="range" min="0" max="5" step="0.1" value={value.animGlitchRot ?? 0} oninput={(e) => set('animGlitchRot', +e.currentTarget.value || undefined)} />
+								</div>
+							{/if}
+
+							<!-- Neon flicker parameters -->
+							{#if value.animation === 'neonFlicker'}
+								<div class="section-divider"></div>
+								<div class="subsection-title">⚙️ Parámetros Neon</div>
+								<div class="row">
+									<div class="field">
+										<label for="cse-nmin">Brillo min ({value.animNeonMin ?? 0.4})</label>
+										<input id="cse-nmin" type="range" min="0" max="1" step="0.05" value={value.animNeonMin ?? 0.4} oninput={(e) => set('animNeonMin', +e.currentTarget.value !== 0.4 ? +e.currentTarget.value : undefined)} />
+									</div>
+									<div class="field">
+										<label for="cse-nmax">Brillo max ({value.animNeonMax ?? 1})</label>
+										<input id="cse-nmax" type="range" min="0.5" max="2" step="0.05" value={value.animNeonMax ?? 1} oninput={(e) => set('animNeonMax', +e.currentTarget.value !== 1 ? +e.currentTarget.value : undefined)} />
+									</div>
+								</div>
+								<div class="field">
+									<label for="cse-nb">Saturación ({value.animNeonBright ?? 1})</label>
+									<input id="cse-nb" type="range" min="0.5" max="2" step="0.05" value={value.animNeonBright ?? 1} oninput={(e) => set('animNeonBright', +e.currentTarget.value !== 1 ? +e.currentTarget.value : undefined)} />
+								</div>
+							{/if}
 						{/if}
 					{/if}
 

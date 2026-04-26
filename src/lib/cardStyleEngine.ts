@@ -128,6 +128,14 @@ export type CardStyleConfig = {
 	animEasing?: string;         // CSS easing
 	animIntensity?: number;      // 0-100, default 100. Controls animation strength via --anim-int CSS var
 
+	// Animation-specific parameters (catalog parity)
+	animGlitchX?: number;        // px, default 4
+	animGlitchY?: number;        // px, default 4
+	animGlitchRot?: number;      // deg, default 0
+	animNeonMin?: number;        // 0-1, default 0.4
+	animNeonMax?: number;        // 0-1, default 1
+	animNeonBright?: number;     // 0-2, default 1
+
 	// Cover effects
 	coverOverlay?: string;  // CSS gradient/overlay
 	coverBlur?: number;     // px
@@ -434,11 +442,11 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 		100% { filter: hue-rotate(360deg) brightness(1); }
 	}`,
 	glitch: `@keyframes cardGlitch {
-		0%, 100% { transform: translate(0); }
-		20% { transform: translate(calc(-2px * var(--anim-int, 1)), calc(2px * var(--anim-int, 1))); }
-		40% { transform: translate(calc(-2px * var(--anim-int, 1)), calc(-2px * var(--anim-int, 1))); }
-		60% { transform: translate(calc(2px * var(--anim-int, 1)), calc(2px * var(--anim-int, 1))); }
-		80% { transform: translate(calc(2px * var(--anim-int, 1)), calc(-2px * var(--anim-int, 1))); }
+		0%, 100% { transform: translate(0); clip-path: inset(0); }
+		20% { transform: translate(calc(var(--anim-glitch-x, 4px) * var(--anim-int, 1) * -1), calc(var(--anim-glitch-y, 4px) * var(--anim-int, 1))); clip-path: inset(20% 0 30% 0); }
+		40% { transform: translate(calc(var(--anim-glitch-x, 4px) * var(--anim-int, 1)), calc(var(--anim-glitch-y, 4px) * var(--anim-int, 1) * -1)); clip-path: inset(60% 0 10% 0); }
+		60% { transform: translate(calc(var(--anim-glitch-x, 4px) * var(--anim-int, 1) * -0.5), calc(var(--anim-glitch-y, 4px) * var(--anim-int, 1) * 0.5)); clip-path: inset(40% 0 20% 0); }
+		80% { transform: translate(calc(var(--anim-glitch-x, 4px) * var(--anim-int, 1) * 0.5), calc(var(--anim-glitch-y, 4px) * var(--anim-int, 1) * -0.5)); clip-path: inset(10% 0 50% 0); }
 	}`,
 	colorShift: `@keyframes cardColorShift {
 		0% { filter: hue-rotate(0deg); }
@@ -640,6 +648,14 @@ export function cardStyleToCSS(style: CardStyleConfig, accentRgb: string): strin
 	if (style.animIntensity !== undefined && style.animIntensity !== 100) {
 		parts.push(`--anim-int: ${style.animIntensity / 100};`);
 	}
+	// Glitch parameters
+	if (style.animGlitchX !== undefined) parts.push(`--anim-glitch-x: ${style.animGlitchX}px;`);
+	if (style.animGlitchY !== undefined) parts.push(`--anim-glitch-y: ${style.animGlitchY}px;`);
+	if (style.animGlitchRot !== undefined) parts.push(`--anim-glitch-rot: ${style.animGlitchRot}deg;`);
+	// Neon flicker parameters
+	if (style.animNeonMin !== undefined) parts.push(`--anim-neon-min: ${style.animNeonMin};`);
+	if (style.animNeonMax !== undefined) parts.push(`--anim-neon-max: ${style.animNeonMax};`);
+	if (style.animNeonBright !== undefined) parts.push(`--anim-neon-bright: ${style.animNeonBright};`);
 	// Filter
 	// Card background — apply opacity only to background, not entire element
 	if (style.cardBg) {
