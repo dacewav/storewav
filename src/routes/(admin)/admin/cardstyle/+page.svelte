@@ -3,7 +3,7 @@
 	import { Card } from '$lib/components';
 	import CardStyleEditor from '$lib/components/CardStyleEditor.svelte';
 	import { accentRgb as accentRgbStore } from '$lib/stores';
-	import { CARD_PRESETS, type CardPreset } from '$lib/cardStylePresets';
+	import { getAllPresets, type CardPreset, type PresetId } from '$lib/cardStyleEngine';
 
 	let cardStyle = $state<Record<string, unknown>>($settings.data?.cardStyle ?? {});
 	let accentRgb = $state('220, 38, 38');
@@ -23,6 +23,14 @@
 		if (!confirm('¿Restaurar estilo de cards a los defaults?')) return;
 		updateCardStyle({});
 	}
+
+	const PRESET_ICONS: Record<PresetId, string> = {
+		none: '⬜', film: '🎬', noir: '🖤', vintage: '🎞️', ember: '🔥',
+		frost: '❄️', crystal: '💎', hologram: '🌈', float: '☁️',
+		glitch: '📺', ghost: '👻', pop: '🎨', deep: '🌊',
+	};
+
+	const presets = getAllPresets();
 </script>
 
 <div class="page">
@@ -38,13 +46,13 @@
 
 	<!-- Presets -->
 	<div class="presets-section">
-		<h3 class="presets-title">Presets rápidos</h3>
+		<h3 class="presets-title">Presets premium</h3>
 		<div class="presets-grid">
-			{#each CARD_PRESETS as preset}
-				<button class="preset-card" onclick={() => applyPreset(preset)} title={preset.description}>
-					<span class="preset-icon">{preset.icon}</span>
+			{#each presets as preset}
+				<button class="preset-card" onclick={() => applyPreset(preset)} title={preset.desc}>
+					<span class="preset-icon">{PRESET_ICONS[preset.id]}</span>
 					<span class="preset-name">{preset.name}</span>
-					<span class="preset-desc">{preset.description}</span>
+					<span class="preset-desc">{preset.desc}</span>
 				</button>
 			{/each}
 		</div>
