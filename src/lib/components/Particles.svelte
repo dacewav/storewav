@@ -21,12 +21,22 @@
 		sizeMax?: number;
 	} = $props();
 
+	// Mutable refs so draw() always reads current values
+	let curOpacity = $state(0.3);
+	let curSpeed = $state(1);
+	let curType = $state('circle');
+	let curText = $state('');
+	let curImgUrl = $state('');
+	$effect(() => { curOpacity = opacity; curSpeed = speed; curType = type; curText = text; curImgUrl = imgUrl; });
+
 	let canvas: HTMLCanvasElement;
 	let animId = 0;
 	let particles: { x: number; y: number; vx: number; vy: number; size: number; life: number }[] = [];
 	let canvasW = 0;
 	let canvasH = 0;
 	let ctxRef: CanvasRenderingContext2D | null = null;
+	let loadedImage: HTMLImageElement | null = null;
+	let loadedImageUrl = '';
 
 	const resolvedColor = $derived(color || getComputedAccent());
 
@@ -69,12 +79,17 @@
 		const ctx = ctxRef;
 		const w = canvasW;
 		const h = canvasH;
+		const op = curOpacity;
+		const spd = curSpeed;
+		const tp = curType;
+		const txt = curText;
+		const img = curImgUrl;
 		ctx.clearRect(0, 0, w, h);
 
 		for (const p of particles) {
 			p.x += p.vx;
 			p.y += p.vy;
-			p.life += 0.002 * speed;
+			p.life += 0.002 * spd;
 
 			if (p.x < 0) p.x = w;
 			if (p.x > w) p.x = 0;
@@ -82,31 +97,36 @@
 			if (p.y > h) p.y = 0;
 
 			const breathe = 0.5 + 0.5 * Math.sin(p.life * Math.PI * 2);
-			ctx.globalAlpha = opacity + (1 - opacity) * breathe;
+			ctx.globalAlpha = op + (1 - op) * breathe;
 			ctx.fillStyle = drawColor;
 
-			if (type === 'circle') {
+			if (tp === 'circle') {
 				ctx.beginPath();
 				ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
 				ctx.fill();
-			} else if (type === 'square') {
+			} else if (tp === 'square') {
 				ctx.fillRect(p.x - p.size, p.y - p.size, p.size * 2, p.size * 2);
-			} else if (type === 'line') {
+			} else if (tp === 'line') {
 				ctx.strokeStyle = drawColor;
 				ctx.lineWidth = 1.5;
 				ctx.beginPath();
 				ctx.moveTo(p.x, p.y);
 				ctx.lineTo(p.x + p.vx * 12, p.y + p.vy * 12);
 				ctx.stroke();
-			} else if (type === 'text') {
-				// Use a large font to ensure visibility — min 18px
+			} else if (tp === 'text') {
 				const fontSize = Math.max(p.size * 4, 18);
 				ctx.font = `bold ${fontSize}px sans-serif`;
-				ctx.fillText(text || '✦', p.x, p.y);
-			} else if (type === 'image' && imgUrl) {
-				ctx.beginPath();
-				ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-				ctx.fill();
+				ctx.fillText(txt || '✦', p.x, p.y);
+			} else if (tp === 'image' && img) {
+				if (loadedImage && loadedImageUrl === img) {
+					const s = p.size * 3;
+					ctx.drawImage(loadedImage, p.x - s / 2, p.y - s / 2, s, s);
+				} else {
+					// Fallback: colored circle while loading
+					ctx.beginPath();
+					ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+					ctx.fill();
+				}
 			}
 		}
 
@@ -123,6 +143,21 @@
 		void _particleKey;
 		if (canvasW > 0 && canvasH > 0) {
 			initParticles(canvasW, canvasH);
+		}
+	});
+
+	// Preload particle image
+	$effect(() => {
+		const url = curImgUrl;
+		if (curType === 'image' && url && url !== loadedImageUrl) {
+			const img = new Image();
+			img.crossOrigin = 'anonymous';
+			img.onload = () => { loadedImage = img; loadedImageUrl = url; };
+			img.onerror = () => { loadedImage = null; loadedImageUrl = ''; };
+			img.src = url;
+		} else if (!url) {
+			loadedImage = null;
+			loadedImageUrl = '';
 		}
 	});
 

@@ -136,6 +136,31 @@
 	// Preview panel toggle
 	let showPreview = $state(true);
 
+	// Particle image upload
+	let particleUploading = $state(false);
+	let particleUploadProgress = $state(0);
+
+	async function handleParticleImageUpload(e: Event) {
+		const input = e.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+		particleUploading = true;
+		particleUploadProgress = 0;
+		try {
+			const { uploadFile } = await import('$lib/upload');
+			const ext = file.name.split('.').pop() ?? 'png';
+			const filename = `particles/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+			const result = await uploadFile(filename, file, (p) => { particleUploadProgress = p.percent; });
+			update('theme.particlesImgUrl', result.url);
+		} catch (err) {
+			console.error('Upload failed:', err);
+		} finally {
+			particleUploading = false;
+			particleUploadProgress = 0;
+			input.value = '';
+		}
+	}
+
 	/** Build live preview CSS vars from current theme state */
 	let previewStyle = $derived.by(() => {
 		const accent = t.accent || '#dc2626';
@@ -908,9 +933,28 @@
 		{/if}
 		{#if t.particlesType === 'image'}
 			<div class="field">
-				<label for="t-piu">URL imagen</label>
-				<input id="t-piu" type="text" value={t.particlesImgUrl ?? ''} oninput={(e) => update('theme.particlesImgUrl', e.currentTarget.value)} />
+				<label for="t-piu">URL imagen partícula</label>
+				<input id="t-piu" type="text" value={t.particlesImgUrl ?? ''} oninput={(e) => update('theme.particlesImgUrl', e.currentTarget.value)} placeholder="https://cdn.dacewav.store/..." />
 			</div>
+			<div class="field">
+				<label>O subir imagen local</label>
+				<label class="upload-zone" class:uploading={particleUploading}>
+					<input type="file" accept="image/*" onchange={handleParticleImageUpload} disabled={particleUploading} />
+					{#if particleUploading}
+						<span class="upload-icon">⏳</span>
+						<span class="upload-text">Subiendo... {particleUploadProgress}%</span>
+					{:else}
+						<span class="upload-icon">📁</span>
+						<span class="upload-text">Click o arrastrar imagen</span>
+					{/if}
+				</label>
+			</div>
+			{#if t.particlesImgUrl}
+				<div class="particle-preview">
+					<img src={t.particlesImgUrl} alt="Preview partícula" />
+					<button class="btn-clear" onclick={() => update('theme.particlesImgUrl', '')}>✕ Quitar imagen</button>
+				</div>
+			{/if}
 		{/if}
 	</Card>
 	<!-- Hero Height -->
@@ -1202,4 +1246,16 @@
 		.theme-layout { max-width: 800px; }
 		.preview-toggle { display: none; }
 	}
+
+	/* Particle image upload */
+	.upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-6); border: 2px dashed var(--border); border-radius: var(--radius-md); background: var(--surface); cursor: pointer; transition: all var(--duration-fast); min-height: 100px; }
+	.upload-zone:hover { border-color: rgba(var(--accent-rgb), 0.5); background: rgba(var(--accent-rgb), 0.04); }
+	.upload-zone.uploading { opacity: 0.6; pointer-events: none; }
+	.upload-zone input[type="file"] { display: none; }
+	.upload-icon { font-size: var(--text-2xl); }
+	.upload-text { font-size: var(--text-sm); color: var(--text-secondary); }
+	.particle-preview { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+	.particle-preview img { width: 48px; height: 48px; object-fit: contain; border-radius: var(--radius-sm); background: rgba(0,0,0,0.2); }
+	.btn-clear { padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: transparent; color: var(--text-muted); font-size: var(--text-xs); cursor: pointer; transition: all var(--duration-fast); }
+	.btn-clear:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-glow); }
 </style>
