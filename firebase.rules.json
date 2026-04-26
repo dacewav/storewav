@@ -478,7 +478,16 @@
     "beats": {
       ".read": true,
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
-      ".indexOn": ["genre", "date", "order", "active", "featured", "exclusive", "available", "deleted"],
+      ".indexOn": [
+        "genre",
+        "date",
+        "order",
+        "active",
+        "featured",
+        "exclusive",
+        "available",
+        "deleted"
+      ],
       "$beatId": {
         ".validate": "newData.hasChildren(['name', 'genre', 'bpm', 'key'])",
         "name": {
@@ -1272,9 +1281,14 @@
     },
     "analytics": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
-      ".indexOn": ["cat", "act"],
+      ".indexOn": [
+        "cat",
+        "act"
+      ],
       "events": {
-        ".indexOn": ["ts"],
+        ".indexOn": [
+          "ts"
+        ],
         "$date": {
           "$eventId": {
             ".write": "auth != null",
@@ -1301,7 +1315,10 @@
         }
       },
       "counts": {
-        ".indexOn": ["clicks", "views"],
+        ".indexOn": [
+          "clicks",
+          "views"
+        ],
         "$beatId": {
           ".write": "auth != null",
           "clicks": {
@@ -1452,12 +1469,18 @@
         "$other": {
           ".validate": true
         }
-      }
+      },
+      ".indexOn": [
+        "customerEmail",
+        "paidAt"
+      ]
     },
     "changelog": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
-      ".indexOn": ["date"],
+      ".indexOn": [
+        "date"
+      ],
       "$entryId": {
         "date": {
           ".validate": "newData.isNumber()"

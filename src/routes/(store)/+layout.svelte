@@ -386,6 +386,9 @@
 					<span class="nav-badge">{$cartCount}</span>
 				{/if}
 			</a>
+			<a href="/account/orders" class="icon-btn" title="Mis órdenes" aria-label="Mis órdenes">
+				<Icon name="export" size={14} />
+			</a>
 			<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={() => wishlistOpen = true}>
 				<Icon name="heart" size={14} />
 				{#if wishCount > 0}
@@ -428,6 +431,10 @@
 					{#if $cartCount > 0}
 						<span class="nav-badge nav-badge-inline">{$cartCount}</span>
 					{/if}
+				</a>
+				<a href="/account/orders" class="icon-btn" title="Mis órdenes" aria-label="Mis órdenes" onclick={closeMenu}>
+					<Icon name="export" size={16} />
+					<span>Órdenes</span>
 				</a>
 				<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={() => { closeMenu(); wishlistOpen = true; }}>
 					<Icon name="heart" size={16} />

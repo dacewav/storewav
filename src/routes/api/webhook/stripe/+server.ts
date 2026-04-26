@@ -213,8 +213,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 						}),
 					});
 
-					// Build download URL
-					const downloadUrl = beatData?.audioUrl || `${FIREBASE_DB}/beats/${item.beatId}/audioUrl.json`;
+					// Build secure download URL
+					const downloadUrl = `https://dacewav.store/api/download/${sessionId}/${item.beatId}`;
 
 					emailItems.push({
 						beatName: beatData?.name || item.beatName || 'Beat',

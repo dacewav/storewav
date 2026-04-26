@@ -60,24 +60,18 @@
 		item.downloading = true;
 
 		try {
-			const resp = await fetch('/api/download', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ orderId: sessionId, beatId: item.beatId }),
-			});
-
-			const data = await resp.json() as { ok?: boolean; downloadUrl?: string; error?: string };
-
-			if (resp.ok && data.ok && data.downloadUrl) {
-				item.downloadUrl = data.downloadUrl;
-				// Trigger download
-				window.open(data.downloadUrl, '_blank');
-				analytics.track('download', 'start', { lbl: item.beatId });
-			} else {
-				alert(data.error || 'Error al obtener link de descarga');
-			}
+			// Use secure download endpoint — serves file directly
+			const url = `/api/download/${sessionId}/${item.beatId}`;
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `${item.beatName}.mp3`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			item.downloadUrl = url;
+			analytics.track('download', 'start', { lbl: item.beatId });
 		} catch {
-			alert('Error de conexión. Intenta de nuevo.');
+			alert('Error al descargar. Intenta de nuevo.');
 		} finally {
 			item.downloading = false;
 		}
@@ -148,6 +142,7 @@
 
 			<div class="success-actions">
 				<a href="/" class="action-btn primary">Volver al catálogo</a>
+				<a href="/account/orders" class="action-btn secondary">Mis órdenes</a>
 			</div>
 
 			<p class="success-note">

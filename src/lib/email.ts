@@ -116,7 +116,16 @@ export async function sendDeliveryEmail(
 
 		<!-- Footer -->
 		<div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #1a1a1a; text-align: center;">
-			<p style="color: #555; font-size: 12px; line-height: 1.6;">
+			<p style="color: #888; font-size: 13px; margin-bottom: 12px;">
+				¿Perdiste los links? Accedé a tus descargas en cualquier momento:
+			</p>
+			<a href="https://dacewav.store/account/orders"
+				style="display: inline-block; padding: 10px 24px; background: #222; color: #fff;
+				text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;
+				border: 1px solid #333;">
+				📦 Mis órdenes
+			</a>
+			<p style="color: #555; font-size: 12px; line-height: 1.6; margin-top: 16px;">
 				Si tienes problemas con la descarga, contáctanos por
 				<a href="https://wa.me" style="color: #dc2626;">WhatsApp</a>
 				o responde a este email.
