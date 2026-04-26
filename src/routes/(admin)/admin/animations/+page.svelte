@@ -1,3 +1,4 @@
+	<svelte:head><title>Animations — Admin</title></svelte:head>
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card , Collapsible, HelpTip} from '$lib/components';

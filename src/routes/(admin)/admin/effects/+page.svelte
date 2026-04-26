@@ -1,8 +1,9 @@
+	<svelte:head><title>Effects — Admin</title></svelte:head>
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card, AdminSkeleton, HelpTip, Collapsible } from '$lib/components';
 	import type { ThemeSettings } from '$lib/stores/settings';
-	import { fmt, handleShiftArrows, hexToRgb, BLEND_MODES, GLOW_ANIMS, PARTICLE_TYPES } from '$lib/themeShared';
+	import { fmt, handleShiftArrows, BLEND_MODES, GLOW_ANIMS, PARTICLE_TYPES } from '$lib/themeShared';
 
 	let s = $derived($settings.data);
 	let t = $derived((s?.theme ?? {}) as ThemeSettings);

@@ -1,3 +1,4 @@
+	<svelte:head><title>Cardstyle — Admin</title></svelte:head>
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card, HelpTip } from '$lib/components';

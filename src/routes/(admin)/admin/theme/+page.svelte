@@ -1,3 +1,4 @@
+	<svelte:head><title>Theme — Admin</title></svelte:head>
 <script lang="ts">
 	import { settings, themePresets as themePresetsStore, savePreset, loadPreset, deletePreset, renamePreset } from '$lib/stores';
 	import { Card, AdminSkeleton, Collapsible, HelpTip } from '$lib/components';
@@ -85,6 +86,9 @@
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
+	}
+	function updateDebounced(path: string, value: unknown) {
+		settings.updateFieldDebounced(path, value);
 	}
 
 	/** Wrapper for shared fmt with local state */
@@ -291,15 +295,15 @@
 			<div class="field">
 				<label for="t-accent">Accent (color principal)</label>
 				<div class="color-row">
-					<input id="t-accent" type="color" value={t.accent || '#dc2626'} oninput={(e) => update('theme.accent', e.currentTarget.value)} />
-					<input type="text" value={t.accent ?? '#dc2626'} oninput={(e) => update('theme.accent', e.currentTarget.value)} />
+					<input id="t-accent" type="color" value={t.accent || '#dc2626'} oninput={(e) => updateDebounced('theme.accent', e.currentTarget.value)} />
+					<input type="text" value={t.accent ?? '#dc2626'} oninput={(e) => updateDebounced('theme.accent', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-gc">Glow color (vacío = accent)</label>
 				<div class="color-row">
-					<input id="t-gc" type="color" value={t.glowColor || t.accent || '#dc2626'} oninput={(e) => update('theme.glowColor', e.currentTarget.value)} />
-					<input type="text" value={t.glowColor ?? ''} placeholder="(usa accent)" oninput={(e) => update('theme.glowColor', e.currentTarget.value)} />
+					<input id="t-gc" type="color" value={t.glowColor || t.accent || '#dc2626'} oninput={(e) => updateDebounced('theme.glowColor', e.currentTarget.value)} />
+					<input type="text" value={t.glowColor ?? ''} placeholder="(usa accent)" oninput={(e) => updateDebounced('theme.glowColor', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -322,15 +326,15 @@
 			<div class="field">
 				<label for="t-bgc">Background principal</label>
 				<div class="color-row">
-					<input id="t-bgc" type="color" value={t.bgColor || '#060404'} oninput={(e) => update('theme.bgColor', e.currentTarget.value)} />
-					<input type="text" value={t.bgColor ?? ''} placeholder="(#060404)" oninput={(e) => update('theme.bgColor', e.currentTarget.value)} />
+					<input id="t-bgc" type="color" value={t.bgColor || '#060404'} oninput={(e) => updateDebounced('theme.bgColor', e.currentTarget.value)} />
+					<input type="text" value={t.bgColor ?? ''} placeholder="(#060404)" oninput={(e) => updateDebounced('theme.bgColor', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-sfc">Superficie (cards/paneles)</label>
 				<div class="color-row">
-					<input id="t-sfc" type="color" value={t.surfaceColor || '#0f0808'} oninput={(e) => update('theme.surfaceColor', e.currentTarget.value)} />
-					<input type="text" value={t.surfaceColor ?? ''} placeholder="(#0f0808)" oninput={(e) => update('theme.surfaceColor', e.currentTarget.value)} />
+					<input id="t-sfc" type="color" value={t.surfaceColor || '#0f0808'} oninput={(e) => updateDebounced('theme.surfaceColor', e.currentTarget.value)} />
+					<input type="text" value={t.surfaceColor ?? ''} placeholder="(#0f0808)" oninput={(e) => updateDebounced('theme.surfaceColor', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -338,8 +342,8 @@
 			<div class="field">
 				<label for="t-txc">Texto principal</label>
 				<div class="color-row">
-					<input id="t-txc" type="color" value={t.textColor || '#f5eeee'} oninput={(e) => update('theme.textColor', e.currentTarget.value)} />
-					<input type="text" value={t.textColor ?? ''} placeholder="(#f5eeee)" oninput={(e) => update('theme.textColor', e.currentTarget.value)} />
+					<input id="t-txc" type="color" value={t.textColor || '#f5eeee'} oninput={(e) => updateDebounced('theme.textColor', e.currentTarget.value)} />
+					<input type="text" value={t.textColor ?? ''} placeholder="(#f5eeee)" oninput={(e) => updateDebounced('theme.textColor', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -352,15 +356,15 @@
 			<div class="field">
 				<label for="t-bgsec">Background secundario</label>
 				<div class="color-row">
-					<input id="t-bgsec" type="color" value={t.bgSecondary || '#0a0a0a'} oninput={(e) => update('theme.bgSecondary', e.currentTarget.value)} />
-					<input type="text" value={t.bgSecondary ?? ''} placeholder="(#0a0a0a)" oninput={(e) => update('theme.bgSecondary', e.currentTarget.value)} />
+					<input id="t-bgsec" type="color" value={t.bgSecondary || '#0a0a0a'} oninput={(e) => updateDebounced('theme.bgSecondary', e.currentTarget.value)} />
+					<input type="text" value={t.bgSecondary ?? ''} placeholder="(#0a0a0a)" oninput={(e) => updateDebounced('theme.bgSecondary', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-sfc2">Superficie alternativa</label>
 				<div class="color-row">
-					<input id="t-sfc2" type="color" value={t.surfaceColor2 || '#1a0c0c'} oninput={(e) => update('theme.surfaceColor2', e.currentTarget.value)} />
-					<input type="text" value={t.surfaceColor2 ?? ''} placeholder="(#1a0c0c)" oninput={(e) => update('theme.surfaceColor2', e.currentTarget.value)} />
+					<input id="t-sfc2" type="color" value={t.surfaceColor2 || '#1a0c0c'} oninput={(e) => updateDebounced('theme.surfaceColor2', e.currentTarget.value)} />
+					<input type="text" value={t.surfaceColor2 ?? ''} placeholder="(#1a0c0c)" oninput={(e) => updateDebounced('theme.surfaceColor2', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -368,15 +372,15 @@
 			<div class="field">
 				<label for="t-sfh">Superficie hover</label>
 				<div class="color-row">
-					<input id="t-sfh" type="color" value={t.surfaceHover || '#161010'} oninput={(e) => update('theme.surfaceHover', e.currentTarget.value)} />
-					<input type="text" value={t.surfaceHover ?? ''} placeholder="(#161010)" oninput={(e) => update('theme.surfaceHover', e.currentTarget.value)} />
+					<input id="t-sfh" type="color" value={t.surfaceHover || '#161010'} oninput={(e) => updateDebounced('theme.surfaceHover', e.currentTarget.value)} />
+					<input type="text" value={t.surfaceHover ?? ''} placeholder="(#161010)" oninput={(e) => updateDebounced('theme.surfaceHover', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-sfa">Superficie active</label>
 				<div class="color-row">
-					<input id="t-sfa" type="color" value={t.surfaceActive || '#1e1414'} oninput={(e) => update('theme.surfaceActive', e.currentTarget.value)} />
-					<input type="text" value={t.surfaceActive ?? ''} placeholder="(#1e1414)" oninput={(e) => update('theme.surfaceActive', e.currentTarget.value)} />
+					<input id="t-sfa" type="color" value={t.surfaceActive || '#1e1414'} oninput={(e) => updateDebounced('theme.surfaceActive', e.currentTarget.value)} />
+					<input type="text" value={t.surfaceActive ?? ''} placeholder="(#1e1414)" oninput={(e) => updateDebounced('theme.surfaceActive', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -384,13 +388,13 @@
 			<div class="field">
 				<label for="t-bdr">Borde principal</label>
 				<div class="color-row">
-					<input type="text" value={t.borderColor ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.borderColor', e.currentTarget.value)} />
+					<input type="text" value={t.borderColor ?? ''} placeholder="(rgba...)" oninput={(e) => updateDebounced('theme.borderColor', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-bdr2">Borde secundario</label>
 				<div class="color-row">
-					<input type="text" value={t.borderColor2 ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.borderColor2', e.currentTarget.value)} />
+					<input type="text" value={t.borderColor2 ?? ''} placeholder="(rgba...)" oninput={(e) => updateDebounced('theme.borderColor2', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -398,13 +402,13 @@
 			<div class="field">
 				<label for="t-txth">Texto hint/sutil</label>
 				<div class="color-row">
-					<input type="text" value={t.textHint ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.textHint', e.currentTarget.value)} />
+					<input type="text" value={t.textHint ?? ''} placeholder="(rgba...)" oninput={(e) => updateDebounced('theme.textHint', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-txtm">Texto muted</label>
 				<div class="color-row">
-					<input type="text" value={t.textMuted ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.textMuted', e.currentTarget.value)} />
+					<input type="text" value={t.textMuted ?? ''} placeholder="(rgba...)" oninput={(e) => updateDebounced('theme.textMuted', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -412,15 +416,15 @@
 			<div class="field">
 				<label for="t-danger">Danger (error)</label>
 				<div class="color-row">
-					<input id="t-danger" type="color" value={t.dangerColor || '#ff4444'} oninput={(e) => update('theme.dangerColor', e.currentTarget.value)} />
-					<input type="text" value={t.dangerColor ?? ''} placeholder="(#ff4444)" oninput={(e) => update('theme.dangerColor', e.currentTarget.value)} />
+					<input id="t-danger" type="color" value={t.dangerColor || '#ff4444'} oninput={(e) => updateDebounced('theme.dangerColor', e.currentTarget.value)} />
+					<input type="text" value={t.dangerColor ?? ''} placeholder="(#ff4444)" oninput={(e) => updateDebounced('theme.dangerColor', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-warning">Warning (advertencia)</label>
 				<div class="color-row">
-					<input id="t-warning" type="color" value={t.warningColor || '#ffaa00'} oninput={(e) => update('theme.warningColor', e.currentTarget.value)} />
-					<input type="text" value={t.warningColor ?? ''} placeholder="(#ffaa00)" oninput={(e) => update('theme.warningColor', e.currentTarget.value)} />
+					<input id="t-warning" type="color" value={t.warningColor || '#ffaa00'} oninput={(e) => updateDebounced('theme.warningColor', e.currentTarget.value)} />
+					<input type="text" value={t.warningColor ?? ''} placeholder="(#ffaa00)" oninput={(e) => updateDebounced('theme.warningColor', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -428,15 +432,15 @@
 			<div class="field">
 				<label for="t-selbg">Selección texto bg</label>
 				<div class="color-row">
-					<input id="t-selbg" type="color" value={t.selectionBg || '#dc2626'} oninput={(e) => update('theme.selectionBg', e.currentTarget.value)} />
-					<input type="text" value={t.selectionBg ?? ''} placeholder="(accent)" oninput={(e) => update('theme.selectionBg', e.currentTarget.value)} />
+					<input id="t-selbg" type="color" value={t.selectionBg || '#dc2626'} oninput={(e) => updateDebounced('theme.selectionBg', e.currentTarget.value)} />
+					<input type="text" value={t.selectionBg ?? ''} placeholder="(accent)" oninput={(e) => updateDebounced('theme.selectionBg', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-selcl">Selección texto color</label>
 				<div class="color-row">
-					<input id="t-selcl" type="color" value={t.selectionColor || '#ffffff'} oninput={(e) => update('theme.selectionColor', e.currentTarget.value)} />
-					<input type="text" value={t.selectionColor ?? ''} placeholder="(#ffffff)" oninput={(e) => update('theme.selectionColor', e.currentTarget.value)} />
+					<input id="t-selcl" type="color" value={t.selectionColor || '#ffffff'} oninput={(e) => updateDebounced('theme.selectionColor', e.currentTarget.value)} />
+					<input type="text" value={t.selectionColor ?? ''} placeholder="(#ffffff)" oninput={(e) => updateDebounced('theme.selectionColor', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -474,16 +478,16 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-shsm">Sombra pequeña</label>
-				<input id="t-shsm" type="text" value={t.shadowSm ?? ''} placeholder="0 2px 8px rgba(0,0,0,0.3)" oninput={(e) => update('theme.shadowSm', e.currentTarget.value)} />
+				<input id="t-shsm" type="text" value={t.shadowSm ?? ''} placeholder="0 2px 8px rgba(0,0,0,0.3)" oninput={(e) => updateDebounced('theme.shadowSm', e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="t-shmd">Sombra mediana</label>
-				<input id="t-shmd" type="text" value={t.shadowMd ?? ''} placeholder="0 4px 16px rgba(0,0,0,0.4)" oninput={(e) => update('theme.shadowMd', e.currentTarget.value)} />
+				<input id="t-shmd" type="text" value={t.shadowMd ?? ''} placeholder="0 4px 16px rgba(0,0,0,0.4)" oninput={(e) => updateDebounced('theme.shadowMd', e.currentTarget.value)} />
 			</div>
 		</div>
 		<div class="field">
 			<label for="t-shlg">Sombra grande</label>
-			<input id="t-shlg" type="text" value={t.shadowLg ?? ''} placeholder="0 8px 32px rgba(0,0,0,0.5)" oninput={(e) => update('theme.shadowLg', e.currentTarget.value)} />
+			<input id="t-shlg" type="text" value={t.shadowLg ?? ''} placeholder="0 8px 32px rgba(0,0,0,0.5)" oninput={(e) => updateDebounced('theme.shadowLg', e.currentTarget.value)} />
 		</div>
 	</Collapsible>
 
@@ -493,8 +497,8 @@
 			<div class="field">
 				<label for="t-nbc">Color fondo nav</label>
 				<div class="color-row">
-					<input id="t-nbc" type="color" value={t.navBgColor || '#060404'} oninput={(e) => update('theme.navBgColor', e.currentTarget.value)} />
-					<input type="text" value={t.navBgColor ?? ''} placeholder="(auto)" oninput={(e) => update('theme.navBgColor', e.currentTarget.value)} />
+					<input id="t-nbc" type="color" value={t.navBgColor || '#060404'} oninput={(e) => updateDebounced('theme.navBgColor', e.currentTarget.value)} />
+					<input type="text" value={t.navBgColor ?? ''} placeholder="(auto)" oninput={(e) => updateDebounced('theme.navBgColor', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
@@ -510,15 +514,15 @@
 			<div class="field">
 				<label for="t-ctbg">Fondo botón</label>
 				<div class="color-row">
-					<input id="t-ctbg" type="color" value={t.ctaBtnBg || '#25d366'} oninput={(e) => update('theme.ctaBtnBg', e.currentTarget.value)} />
-					<input type="text" value={t.ctaBtnBg ?? ''} placeholder="(default)" oninput={(e) => update('theme.ctaBtnBg', e.currentTarget.value)} />
+					<input id="t-ctbg" type="color" value={t.ctaBtnBg || '#25d366'} oninput={(e) => updateDebounced('theme.ctaBtnBg', e.currentTarget.value)} />
+					<input type="text" value={t.ctaBtnBg ?? ''} placeholder="(default)" oninput={(e) => updateDebounced('theme.ctaBtnBg', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-ctbc">Texto botón</label>
 				<div class="color-row">
-					<input id="t-ctbc" type="color" value={t.ctaBtnClr || '#ffffff'} oninput={(e) => update('theme.ctaBtnClr', e.currentTarget.value)} />
-					<input type="text" value={t.ctaBtnClr ?? ''} placeholder="(default)" oninput={(e) => update('theme.ctaBtnClr', e.currentTarget.value)} />
+					<input id="t-ctbc" type="color" value={t.ctaBtnClr || '#ffffff'} oninput={(e) => updateDebounced('theme.ctaBtnClr', e.currentTarget.value)} />
+					<input type="text" value={t.ctaBtnClr ?? ''} placeholder="(default)" oninput={(e) => updateDebounced('theme.ctaBtnClr', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -526,8 +530,8 @@
 			<div class="field">
 				<label for="t-cthh">Hover fondo</label>
 				<div class="color-row">
-					<input id="t-cthh" type="color" value={t.ctaBtnHoverBg || '#1da851'} oninput={(e) => update('theme.ctaBtnHoverBg', e.currentTarget.value)} />
-					<input type="text" value={t.ctaBtnHoverBg ?? ''} placeholder="(default)" oninput={(e) => update('theme.ctaBtnHoverBg', e.currentTarget.value)} />
+					<input id="t-cthh" type="color" value={t.ctaBtnHoverBg || '#1da851'} oninput={(e) => updateDebounced('theme.ctaBtnHoverBg', e.currentTarget.value)} />
+					<input type="text" value={t.ctaBtnHoverBg ?? ''} placeholder="(default)" oninput={(e) => updateDebounced('theme.ctaBtnHoverBg', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
@@ -560,11 +564,11 @@
 		<div class="row">
 			<div class="field">
 				<label for="t-fd">Font display (Google Font)</label>
-				<input id="t-fd" type="text" value={t.fontDisplay ?? 'Syne'} oninput={(e) => update('theme.fontDisplay', e.currentTarget.value)} placeholder="Syne" />
+				<input id="t-fd" type="text" value={t.fontDisplay ?? 'Syne'} oninput={(e) => updateDebounced('theme.fontDisplay', e.currentTarget.value)} placeholder="Syne" />
 			</div>
 			<div class="field">
 				<label for="t-fb">Font body (Google Font)</label>
-				<input id="t-fb" type="text" value={t.fontBody ?? 'DM Mono'} oninput={(e) => update('theme.fontBody', e.currentTarget.value)} placeholder="DM Mono" />
+				<input id="t-fb" type="text" value={t.fontBody ?? 'DM Mono'} oninput={(e) => updateDebounced('theme.fontBody', e.currentTarget.value)} placeholder="DM Mono" />
 			</div>
 		</div>
 		<div class="row">
@@ -650,15 +654,15 @@
 			<div class="field">
 				<label for="t-wc">Color barra</label>
 				<div class="color-row">
-					<input id="t-wc" type="color" value={t.wbarColor || '#1a1a1a'} oninput={(e) => update('theme.wbarColor', e.currentTarget.value)} />
-					<input type="text" value={t.wbarColor ?? ''} placeholder="(default)" oninput={(e) => update('theme.wbarColor', e.currentTarget.value)} />
+					<input id="t-wc" type="color" value={t.wbarColor || '#1a1a1a'} oninput={(e) => updateDebounced('theme.wbarColor', e.currentTarget.value)} />
+					<input type="text" value={t.wbarColor ?? ''} placeholder="(default)" oninput={(e) => updateDebounced('theme.wbarColor', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-wa">Color activo</label>
 				<div class="color-row">
-					<input id="t-wa" type="color" value={t.wbarActive || '#dc2626'} oninput={(e) => update('theme.wbarActive', e.currentTarget.value)} />
-					<input type="text" value={t.wbarActive ?? ''} placeholder="(accent)" oninput={(e) => update('theme.wbarActive', e.currentTarget.value)} />
+					<input id="t-wa" type="color" value={t.wbarActive || '#dc2626'} oninput={(e) => updateDebounced('theme.wbarActive', e.currentTarget.value)} />
+					<input type="text" value={t.wbarActive ?? ''} placeholder="(accent)" oninput={(e) => updateDebounced('theme.wbarActive', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
@@ -710,8 +714,8 @@
 		<div class="field">
 			<label for="t-stc">Color</label>
 			<div class="color-row">
-				<input id="t-stc" type="color" value={t.sectionTitleColor || '#ffffff'} oninput={(e) => update('theme.sectionTitleColor', e.currentTarget.value)} />
-				<input type="text" value={t.sectionTitleColor ?? ''} placeholder="(default)" oninput={(e) => update('theme.sectionTitleColor', e.currentTarget.value)} />
+				<input id="t-stc" type="color" value={t.sectionTitleColor || '#ffffff'} oninput={(e) => updateDebounced('theme.sectionTitleColor', e.currentTarget.value)} />
+				<input type="text" value={t.sectionTitleColor ?? ''} placeholder="(default)" oninput={(e) => updateDebounced('theme.sectionTitleColor', e.currentTarget.value)} />
 			</div>
 		</div>
 	</Collapsible>
@@ -730,8 +734,8 @@
 			<div class="field">
 				<label for="t-bgc">Color patrón</label>
 				<div class="color-row">
-					<input id="t-bgc" type="color" value={t.bgPatternColor || '#ffffff'} oninput={(e) => update('theme.bgPatternColor', e.currentTarget.value)} />
-					<input type="text" value={t.bgPatternColor ?? ''} placeholder="(default)" oninput={(e) => update('theme.bgPatternColor', e.currentTarget.value)} />
+					<input id="t-bgc" type="color" value={t.bgPatternColor || '#ffffff'} oninput={(e) => updateDebounced('theme.bgPatternColor', e.currentTarget.value)} />
+					<input type="text" value={t.bgPatternColor ?? ''} placeholder="(default)" oninput={(e) => updateDebounced('theme.bgPatternColor', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
@@ -751,8 +755,8 @@
 		<div class="field">
 			<label for="t-sbc">Color scrollbar</label>
 			<div class="color-row">
-				<input id="t-sbc" type="color" value={t.scrollbarColor || '#666666'} oninput={(e) => update('theme.scrollbarColor', e.currentTarget.value)} />
-				<input type="text" value={t.scrollbarColor ?? ''} placeholder="(default)" oninput={(e) => update('theme.scrollbarColor', e.currentTarget.value)} />
+				<input id="t-sbc" type="color" value={t.scrollbarColor || '#666666'} oninput={(e) => updateDebounced('theme.scrollbarColor', e.currentTarget.value)} />
+				<input type="text" value={t.scrollbarColor ?? ''} placeholder="(default)" oninput={(e) => updateDebounced('theme.scrollbarColor', e.currentTarget.value)} />
 			</div>
 		</div>
 	</Collapsible>
@@ -764,7 +768,7 @@
 			<textarea
 				id="t-css"
 				value={t.customCSS ?? ''}
-				oninput={(e) => update('theme.customCSS', e.currentTarget.value)}
+				oninput={(e) => updateDebounced('theme.customCSS', e.currentTarget.value)}
 				placeholder={"/* .mi-clase { color: red; } */"}
 				rows={6}
 			></textarea>

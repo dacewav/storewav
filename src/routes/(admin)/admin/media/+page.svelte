@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { gallery, galleryLoading, initGallery, destroyGallery, beats as beatsStore, updateBeat, type GalleryImage } from '$lib/stores';
-	import { Card, Badge } from '$lib/components';
 	import { toast } from '$lib/toastStore';
 
 	let images = $derived($gallery);

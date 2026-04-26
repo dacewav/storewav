@@ -1,3 +1,4 @@
+	<svelte:head><title>Brand — Admin</title></svelte:head>
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card, FileUpload, ImageCropper, FontPreview, HelpTip , Collapsible} from '$lib/components';
@@ -55,6 +56,9 @@
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
+	}
+	function updateDebounced(path: string, value: unknown) {
+		settings.updateFieldDebounced(path, value);
 	}
 
 	// ── E1: Logo Crop ──
@@ -185,7 +189,7 @@
 				/>
 				<div class="url-fallback">
 					<label for="b-logo">O pega una URL:</label>
-					<input id="b-logo" type="text" value={brand.logo ?? ''} oninput={(e) => update('brand.logo', e.currentTarget.value)} placeholder="https://..." />
+					<input id="b-logo" type="text" value={brand.logo ?? ''} oninput={(e) => updateDebounced('brand.logo', e.currentTarget.value)} placeholder="https://..." />
 				</div>
 			</div>
 
@@ -230,19 +234,19 @@
 		<p class="field-desc">Nombre, descripción y meta tags. <HelpTip text="Brand name aparece en el header y título de la pestaña. Meta description es el texto que muestra Google en resultados de búsqueda." /></p>
 				<div class="field">
 			<label for="b-name">Nombre de marca</label>
-			<input id="b-name" type="text" value={brand.name ?? ''} oninput={(e) => update('brand.name', e.currentTarget.value)} />
+			<input id="b-name" type="text" value={brand.name ?? ''} oninput={(e) => updateDebounced('brand.name', e.currentTarget.value)} />
 		</div>
 		<div class="field">
 			<label for="b-wa">WhatsApp (con código de país)</label>
-			<input id="b-wa" type="text" value={brand.whatsapp ?? ''} oninput={(e) => update('brand.whatsapp', e.currentTarget.value)} placeholder="5215512345678" />
+			<input id="b-wa" type="text" value={brand.whatsapp ?? ''} oninput={(e) => updateDebounced('brand.whatsapp', e.currentTarget.value)} placeholder="5215512345678" />
 		</div>
 		<div class="field">
 			<label for="b-ft">Footer texto</label>
-			<input id="b-ft" type="text" value={brand.footerText ?? ''} oninput={(e) => update('brand.footerText', e.currentTarget.value)} />
+			<input id="b-ft" type="text" value={brand.footerText ?? ''} oninput={(e) => updateDebounced('brand.footerText', e.currentTarget.value)} />
 		</div>
 		<div class="field">
 			<label for="b-meta">Meta description (SEO)</label>
-			<input id="b-meta" type="text" value={brand.metaDescription ?? ''} oninput={(e) => update('brand.metaDescription', e.currentTarget.value)} />
+			<input id="b-meta" type="text" value={brand.metaDescription ?? ''} oninput={(e) => updateDebounced('brand.metaDescription', e.currentTarget.value)} />
 		</div>
 	</Collapsible>
 
@@ -329,7 +333,7 @@
 		</div>
 		<div class="field">
 			<label for="b-lt">Texto loader</label>
-			<input id="b-lt" type="text" value={loader.brandText ?? ''} oninput={(e) => update('loader.brandText', e.currentTarget.value)} />
+			<input id="b-lt" type="text" value={loader.brandText ?? ''} oninput={(e) => updateDebounced('loader.brandText', e.currentTarget.value)} />
 		</div>
 	</Collapsible>
 

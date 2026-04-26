@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
 	import { ALL_FEATURES, FEATURE_LABELS, type FeatureKey } from '$lib/featureToggles';
 	import { toast } from '$lib/toastStore';
 

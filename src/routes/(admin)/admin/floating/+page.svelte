@@ -1,5 +1,6 @@
+	<svelte:head><title>Floating — Admin</title></svelte:head>
 <script lang="ts">
-	import { Card, Range, Badge, HelpTip, Collapsible, FileUpload, EmojiInput } from '$lib/components';
+	import { Range, Badge, HelpTip, Collapsible, FileUpload, EmojiInput } from '$lib/components';
 	import { settings } from '$lib/stores';
 	import {
 		floatingElements,

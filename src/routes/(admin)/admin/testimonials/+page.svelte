@@ -1,3 +1,4 @@
+	<svelte:head><title>Testimonials — Admin</title></svelte:head>
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card, FileUpload , Collapsible} from '$lib/components';

@@ -1,3 +1,4 @@
+	<svelte:head><title>Hero — Admin</title></svelte:head>
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card, EmojiInput , Collapsible} from '$lib/components';
@@ -38,6 +39,9 @@
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
+	}
+	function updateDebounced(path: string, value: unknown) {
+		settings.updateFieldDebounced(path, value);
 	}
 
 	const LABEL_FIELDS: { key: string; label: string; group: string }[] = [
@@ -130,19 +134,19 @@
 	<Collapsible id="hero-text" icon="🏠" title="Texto" open={true}>
 				<div class="field">
 			<label for="hero-title">Título principal</label>
-			<input id="hero-title" type="text" value={hero.title ?? ''} oninput={(e) => update('hero.title', e.currentTarget.value)} />
+			<input id="hero-title" type="text" value={hero.title ?? ''} oninput={(e) => updateDebounced('hero.title', e.currentTarget.value)} />
 		</div>
 		<div class="field">
 			<label for="hero-glow">Palabra glow (última línea)</label>
-			<input id="hero-glow" type="text" value={hero.glowWord ?? ''} oninput={(e) => update('hero.glowWord', e.currentTarget.value)} />
+			<input id="hero-glow" type="text" value={hero.glowWord ?? ''} oninput={(e) => updateDebounced('hero.glowWord', e.currentTarget.value)} />
 		</div>
 		<div class="field">
 			<label for="hero-sub">Subtítulo</label>
-			<input id="hero-sub" type="text" value={hero.subtitle ?? ''} oninput={(e) => update('hero.subtitle', e.currentTarget.value)} />
+			<input id="hero-sub" type="text" value={hero.subtitle ?? ''} oninput={(e) => updateDebounced('hero.subtitle', e.currentTarget.value)} />
 		</div>
 		<div class="field">
 			<label for="hero-eyebrow">Eyebrow (badge superior)</label>
-			<input id="hero-eyebrow" type="text" value={hero.eyebrow ?? ''} oninput={(e) => update('hero.eyebrow', e.currentTarget.value)} />
+			<input id="hero-eyebrow" type="text" value={hero.eyebrow ?? ''} oninput={(e) => updateDebounced('hero.eyebrow', e.currentTarget.value)} />
 		</div>
 	</Collapsible>
 
@@ -166,8 +170,8 @@
 			<div class="field">
 				<label for="hv-tc">Color texto hero</label>
 				<div class="color-row">
-					<input id="hv-tc" type="color" value={hv.textClr || theme.textColor || '#f5eeee'} oninput={(e) => update('heroVisual.textClr', e.currentTarget.value)} />
-					<input type="text" value={hv.textClr ?? ''} placeholder="(usa texto global)" oninput={(e) => update('heroVisual.textClr', e.currentTarget.value)} />
+					<input id="hv-tc" type="color" value={hv.textClr || theme.textColor || '#f5eeee'} oninput={(e) => updateDebounced('heroVisual.textClr', e.currentTarget.value)} />
+					<input type="text" value={hv.textClr ?? ''} placeholder="(usa texto global)" oninput={(e) => updateDebounced('heroVisual.textClr', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
@@ -199,8 +203,8 @@
 			<div class="field">
 				<label for="hv-gc">Color glow</label>
 				<div class="color-row">
-					<input id="hv-gc" type="color" value={hv.glowClr || theme.accent || '#dc2626'} oninput={(e) => update('heroVisual.glowClr', e.currentTarget.value)} />
-					<input type="text" value={hv.glowClr ?? ''} placeholder="(usa accent)" oninput={(e) => update('heroVisual.glowClr', e.currentTarget.value)} />
+					<input id="hv-gc" type="color" value={hv.glowClr || theme.accent || '#dc2626'} oninput={(e) => updateDebounced('heroVisual.glowClr', e.currentTarget.value)} />
+					<input type="text" value={hv.glowClr ?? ''} placeholder="(usa accent)" oninput={(e) => updateDebounced('heroVisual.glowClr', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -232,8 +236,8 @@
 			<div class="field">
 				<label for="hv-sc">Color stroke</label>
 				<div class="color-row">
-					<input id="hv-sc" type="color" value={hv.strokeClr || theme.accent || '#dc2626'} oninput={(e) => update('heroVisual.strokeClr', e.currentTarget.value)} />
-					<input type="text" value={hv.strokeClr ?? ''} placeholder="(usa accent)" oninput={(e) => update('heroVisual.strokeClr', e.currentTarget.value)} />
+					<input id="hv-sc" type="color" value={hv.strokeClr || theme.accent || '#dc2626'} oninput={(e) => updateDebounced('heroVisual.strokeClr', e.currentTarget.value)} />
+					<input type="text" value={hv.strokeClr ?? ''} placeholder="(usa accent)" oninput={(e) => updateDebounced('heroVisual.strokeClr', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -255,6 +259,8 @@
 				</div>
 				<button class="btn-remove" onclick={() => removeSegment(i)} aria-label="Eliminar segmento" title="Eliminar">✕</button>
 			</div>
+		{:else}
+			<p class="field-desc" style="padding: var(--space-2) 0; font-style: italic;">Sin segmentos — se usa el título normal.</p>
 		{/each}
 		<button class="btn-add" onclick={addSegment}>+ Añadir segmento</button>
 	</Collapsible>
@@ -271,8 +277,8 @@
 			<div class="field">
 				<label for="hv-ec">Color</label>
 				<div class="color-row">
-					<input id="hv-ec" type="color" value={hv.eyebrowClr || theme.accent || '#dc2626'} oninput={(e) => update('heroVisual.eyebrowClr', e.currentTarget.value)} />
-					<input type="text" value={hv.eyebrowClr ?? ''} placeholder="(usa accent)" oninput={(e) => update('heroVisual.eyebrowClr', e.currentTarget.value)} />
+					<input id="hv-ec" type="color" value={hv.eyebrowClr || theme.accent || '#dc2626'} oninput={(e) => updateDebounced('heroVisual.eyebrowClr', e.currentTarget.value)} />
+					<input type="text" value={hv.eyebrowClr ?? ''} placeholder="(usa accent)" oninput={(e) => updateDebounced('heroVisual.eyebrowClr', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
@@ -294,8 +300,8 @@
 			<div class="field">
 				<label for="hv-gcl">Color gradiente</label>
 				<div class="color-row">
-					<input id="hv-gcl" type="color" value={hv.gradClr || theme.accent || '#dc2626'} oninput={(e) => update('heroVisual.gradClr', e.currentTarget.value)} />
-					<input type="text" value={hv.gradClr ?? ''} placeholder="(usa accent)" oninput={(e) => update('heroVisual.gradClr', e.currentTarget.value)} />
+					<input id="hv-gcl" type="color" value={hv.gradClr || theme.accent || '#dc2626'} oninput={(e) => updateDebounced('heroVisual.gradClr', e.currentTarget.value)} />
+					<input type="text" value={hv.gradClr ?? ''} placeholder="(usa accent)" oninput={(e) => updateDebounced('heroVisual.gradClr', e.currentTarget.value)} />
 				</div>
 			</div>
 		</div>
@@ -332,7 +338,7 @@
 	<Collapsible id="catalog-section" icon="📋" title="Sección Catálogo" open={false}>
 		<div class="field">
 			<label for="sec-title">Título sección</label>
-			<input id="sec-title" type="text" value={section.title ?? ''} oninput={(e) => update('section.title', e.currentTarget.value)} />
+			<input id="sec-title" type="text" value={section.title ?? ''} oninput={(e) => updateDebounced('section.title', e.currentTarget.value)} />
 		</div>
 		<div class="field">
 			<label for="sec-div">Divider título (HTML + emojis permitido)</label>
@@ -378,8 +384,8 @@
 			<div class="field">
 				<label for="div-sc">Color subtítulo</label>
 				<div class="color-row">
-					<input id="div-sc" type="color" value={section.dividerSubColor || '#ffffff'} oninput={(e) => update('section.dividerSubColor', e.currentTarget.value)} />
-					<input type="text" value={section.dividerSubColor ?? ''} placeholder="(default)" oninput={(e) => update('section.dividerSubColor', e.currentTarget.value)} />
+					<input id="div-sc" type="color" value={section.dividerSubColor || '#ffffff'} oninput={(e) => updateDebounced('section.dividerSubColor', e.currentTarget.value)} />
+					<input type="text" value={section.dividerSubColor ?? ''} placeholder="(default)" oninput={(e) => updateDebounced('section.dividerSubColor', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
@@ -408,7 +414,7 @@
 	<Collapsible id="cta" icon="💬" title="CTA (Call to Action)" open={false}>
 		<div class="field">
 			<label for="cta-t">Título</label>
-			<input id="cta-t" type="text" value={cta.title ?? ''} oninput={(e) => update('cta.title', e.currentTarget.value)} />
+			<input id="cta-t" type="text" value={cta.title ?? ''} oninput={(e) => updateDebounced('cta.title', e.currentTarget.value)} />
 		</div>
 		<div class="field">
 			<label for="cta-s">Subtítulo</label>
@@ -422,11 +428,11 @@
 		<div class="row">
 			<div class="field">
 				<label for="cta-b">Texto botón</label>
-				<input id="cta-b" type="text" value={cta.buttonText ?? ''} oninput={(e) => update('cta.buttonText', e.currentTarget.value)} />
+				<input id="cta-b" type="text" value={cta.buttonText ?? ''} oninput={(e) => updateDebounced('cta.buttonText', e.currentTarget.value)} />
 			</div>
 			<div class="field">
 				<label for="cta-u">URL botón</label>
-				<input id="cta-u" type="text" value={cta.buttonUrl ?? ''} oninput={(e) => update('cta.buttonUrl', e.currentTarget.value)} />
+				<input id="cta-u" type="text" value={cta.buttonUrl ?? ''} oninput={(e) => updateDebounced('cta.buttonUrl', e.currentTarget.value)} />
 			</div>
 		</div>
 	</Collapsible>
@@ -436,7 +442,7 @@
 			{#each fields as f}
 				<div class="field">
 					<label for="lbl-{f.key}">{f.label}</label>
-					<input id="lbl-{f.key}" type="text" value={(labels as Record<string, unknown>)[f.key] ?? ''} oninput={(e) => update(`labels.${f.key}`, e.currentTarget.value)} />
+					<input id="lbl-{f.key}" type="text" value={(labels as Record<string, unknown>)[f.key] ?? ''} oninput={(e) => updateDebounced(`labels.${f.key}`, e.currentTarget.value)} />
 				</div>
 			{/each}
 		</Collapsible>

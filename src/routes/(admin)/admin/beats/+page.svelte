@@ -1,6 +1,7 @@
+	<svelte:head><title>Beats — Admin</title></svelte:head>
 <script lang="ts">
 	import { Badge, EmptyState, Skeleton } from '$lib/components';
-	import { allBeatsList, trashedBeatsList, beatsStats, beats as beatsStore, deleteBeat, trashBeat, restoreBeat, permanentDelete, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
+	import { allBeatsList, trashedBeatsList, beatsStats, beats as beatsStore, trashBeat, restoreBeat, permanentDelete, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
 	import type { BeatWithId } from '$lib/stores/beats';
 	import { toast } from '$lib/toastStore';
 
