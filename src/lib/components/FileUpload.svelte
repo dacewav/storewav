@@ -31,6 +31,7 @@
 	let progress = $state<UploadProgress | null>(null);
 	let error = $state('');
 	let previewUrl = $state('');
+	let justUploaded = $state(false);
 	let fileInput: HTMLInputElement | undefined = $state();
 
 	// Audio preview
@@ -98,7 +99,9 @@
 			value = result.url;
 			onUploadComplete?.(result.url);
 			previewUrl = '';
-			toast.success('Archivo subido');
+			justUploaded = true;
+			setTimeout(() => { justUploaded = false; }, 2000);
+			toast.success('Archivo subido ✓');
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error al subir';
 			previewUrl = '';
@@ -187,6 +190,12 @@
 					<span class="progress-pct">{progress.percent}%</span>
 				</div>
 				<span class="progress-text">Subiendo...</span>
+			</div>
+		{:else if justUploaded}
+			<!-- Success flash -->
+			<div class="success-state">
+				<div class="success-check">✓</div>
+				<span class="success-text">¡Subido!</span>
 			</div>
 		{:else if showPreview && type === 'image'}
 			<!-- Image preview -->
@@ -323,18 +332,54 @@
 
 	.progress-text { font-size: var(--text-xs); color: var(--text-muted); }
 
+	/* Success flash */
+	.success-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-4);
+		animation: successPop 0.3s ease;
+	}
+
+	.success-check {
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		background: var(--accent);
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 24px;
+		font-weight: 700;
+	}
+
+	.success-text {
+		font-size: var(--text-sm);
+		color: var(--accent);
+		font-weight: 600;
+	}
+
+	@keyframes successPop {
+		0% { transform: scale(0.8); opacity: 0; }
+		50% { transform: scale(1.1); }
+		100% { transform: scale(1); opacity: 1; }
+	}
+
 	/* Image preview */
 	.img-preview {
 		width: 100%;
 		position: relative;
-		aspect-ratio: 1;
 		max-height: 250px;
+		overflow: hidden;
 	}
 
 	.img-preview img {
 		width: 100%;
-		height: 100%;
-		object-fit: cover;
+		height: auto;
+		max-height: 250px;
+		object-fit: contain;
 		display: block;
 	}
 
