@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card , Collapsible} from '$lib/components';
+	import { Card , Collapsible, HelpTip} from '$lib/components';
 	import type { AnimationSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -102,7 +102,7 @@
 
 <div class="editor">
 	<h2 class="editor-title">🎬 Animaciones</h2>
-	<p class="editor-desc">Asigna animaciones preset a cada elemento de la tienda.</p>
+	<p class="editor-desc">Asigna animaciones preset a cada elemento de la tienda. <HelpTip text="Cada elemento (hero, logo, cards, botones) puede tener una animación diferente. 'none' = sin animación. Los presets usan CSS @keyframes con loop infinito." /></p>
 
 	{#each ANIM_ITEMS as item}
 		<Collapsible id="anim-{item.key}" icon={item.icon} title={item.label} open={item.key === 'animLogo'}>
@@ -143,7 +143,7 @@
 
 	<!-- Global timing controls -->
 	<Collapsible id="anim-title" icon="📝" title="⏱️ Timing global" open={false}>
-				<p class="field-desc">Duración, delay y easing aplicados a todas las animaciones.</p>
+				<p class="field-desc">Duración, delay y easing aplicados a todas las animaciones. <HelpTip text="Duration: cuánto dura cada animación (en segundos). Delay: espera antes de empezar. Easing: curva de movimiento (ease-out = natural, linear = uniforme)." /></p>
 		<div class="row">
 			<div class="field">
 				<label for="anim-dur">Duración ({fmt('animDuration', 10, 's')})</label>

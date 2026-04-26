@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card } from '$lib/components';
+	import { Card, HelpTip } from '$lib/components';
 	import CardStyleEditor from '$lib/components/CardStyleEditor.svelte';
 	import { accentRgb as accentRgbStore } from '$lib/stores';
 	import { getAllPresets, type CardPreset, type PresetId } from '$lib/cardStyleEngine';
@@ -37,7 +37,7 @@
 	<div class="page-header">
 		<div>
 			<h2 class="page-title">🎨 Card Style Global</h2>
-			<p class="page-desc">Estilo base aplicado a todas las cards del store. Los beats pueden sobreescribir individualmente.</p>
+			<p class="page-desc">Estilo base aplicado a todas las cards del store. Los beats pueden sobreescribir individualmente. <HelpTip text="Estos estilos se aplican como base a TODAS las cards. Cada beat puede tener overrides individuales en su pestaña Card Style. Los presets cargan combinaciones pre-diseñadas." /></p>
 		</div>
 		<div class="header-actions">
 			<button class="btn-ghost" onclick={resetToDefaults}>↺ Reset defaults</button>

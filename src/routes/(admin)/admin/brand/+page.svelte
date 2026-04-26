@@ -151,6 +151,7 @@
 
 	<!-- ═══ E1: Logo Upload + Crop ═══ -->
 	<Collapsible id="brand-logo" icon="🖼️" title="🖼️ Logo" open={true}>
+		<p class="field-desc">Logo principal, favicon e imagen OG. <HelpTip text="Logo: aparece en el header. Favicon: icono de la pestaña del navegador (32x32). OG: imagen que se muestra al compartir el link en redes sociales (1200x630)." /></p>
 				<p class="section-desc">Sube tu logo, recórtalo, y genera automáticamente favicon + OG image.</p>
 
 		{#if showCropper && cropSrc}
@@ -226,6 +227,7 @@
 
 	<!-- ═══ Identity ═══ -->
 	<Collapsible id="brand-identity" icon="⭐" title="🏷️ Identidad" open={false}>
+		<p class="field-desc">Nombre, descripción y meta tags. <HelpTip text="Brand name aparece en el header y título de la pestaña. Meta description es el texto que muestra Google en resultados de búsqueda." /></p>
 				<div class="field">
 			<label for="b-name">Nombre de marca</label>
 			<input id="b-name" type="text" value={brand.name ?? ''} oninput={(e) => update('brand.name', e.currentTarget.value)} />

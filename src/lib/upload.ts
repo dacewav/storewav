@@ -34,21 +34,25 @@ async function getAuthToken(): Promise<string | null> {
 
 /**
  * Upload: POST /api/upload → R2 (with auth + real progress via XHR)
- * Siempre intenta R2 primero. Fallback a Firebase solo si falla.
+ * Siempre intenta R2 primero. Fallback a Firebase solo si falla por errores NO-auth.
  */
 export async function uploadFile(
 	path: string,
 	file: File,
 	onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
-	// Intentar R2 primero (en dev, el endpoint bypass admin check)
 	try {
 		return await uploadToR2(path, file, onProgress);
 	} catch (r2Err) {
+		const msg = r2Err instanceof Error ? r2Err.message : String(r2Err);
+		// Auth errors → no fallback (Firebase Storage también fallará). Propagar inmediatamente.
+		if (msg.includes('autenticado') || msg.includes('autorizado') || msg.includes('permiso')) {
+			throw r2Err;
+		}
 		console.warn('[Upload] R2 falló, intentando Firebase Storage:', r2Err);
 	}
 
-	// Fallback: Firebase Storage
+	// Fallback: Firebase Storage (solo para errores de red/R2, NO auth)
 	return uploadToFirebase(path, file, onProgress);
 }
 

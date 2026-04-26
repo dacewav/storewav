@@ -48,14 +48,9 @@
 		return field.replace(/([A-Z])/g, ' $1').toLowerCase().trim();
 	}
 
-	// Sidebar toggle (mobile → opens palette instead)
+	// Sidebar toggle
 	let sidebarOpen = $state(false);
 	function toggleSidebar() {
-		// On mobile, sidebar is replaced by bottom nav — open palette instead
-		if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-			paletteOpen = true;
-			return;
-		}
 		sidebarOpen = !sidebarOpen;
 	}
 	function closeSidebar() { sidebarOpen = false; }
@@ -537,10 +532,7 @@
 			z-index: 99;
 		}
 
-		/* Hide sidebar on mobile — use bottom nav instead */
-		.admin-body .sidebar {
-			display: none;
-		}
+		/* Sidebar slides in as overlay on mobile */
 
 		.admin-content {
 			padding-bottom: 80px; /* space for bottom nav */

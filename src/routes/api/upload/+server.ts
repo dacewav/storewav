@@ -30,47 +30,20 @@ const BLOCKED_EXTENSIONS = [
 	'.jar', '.war', '.class', '.wasm',
 ];
 
-/** Verify Firebase ID token using Google's public keys */
+/** Verify Firebase ID token using Google's tokeninfo endpoint.
+ *  Works on all runtimes (Cloudflare Workers, Node, Deno) — no Web Crypto needed. */
 async function verifyFirebaseToken(idToken: string): Promise<{ uid: string; email?: string } | null> {
 	try {
-		const response = await fetch('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com');
-		if (!response.ok) return null;
+		const resp = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
+		if (!resp.ok) return null;
 
-		const certs: Record<string, string> = await response.json();
-		const [headerB64] = idToken.split('.');
-		const header = JSON.parse(atob(headerB64.replace(/-/g, '+').replace(/_/g, '/')));
-		const cert = certs[header.kid];
-		if (!cert) return null;
+		const payload = await resp.json() as Record<string, string>;
 
-		const pemHeader = '-----BEGIN CERTIFICATE-----';
-		const pemFooter = '-----END CERTIFICATE-----';
-		const pemContents = cert.replace(pemHeader, '').replace(pemFooter, '').replace(/\s/g, '');
-		const binaryDer = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
-
-		const cryptoKey = await crypto.subtle.importKey(
-			'x509' as any, binaryDer,
-			{ name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-			false, ['verify']
-		);
-
-		const [headerPart, payloadPart, signaturePart] = idToken.split('.');
-		const encoder = new TextEncoder();
-		const data = encoder.encode(`${headerPart}.${payloadPart}`);
-
-		const signatureStr = signaturePart.replace(/-/g, '+').replace(/_/g, '/');
-		const signature = Uint8Array.from(atob(signatureStr), c => c.charCodeAt(0));
-
-		const isValid = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', cryptoKey, signature, data);
-		if (!isValid) return null;
-
-		const payloadStr = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
-		const payload = JSON.parse(atob(payloadStr));
-
-		const now = Math.floor(Date.now() / 1000);
-		if (payload.exp && payload.exp < now) return null;
-		if (payload.nbf && payload.nbf > now) return null;
+		// Validate issuer
 		if (payload.iss !== `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`) return null;
+		// Validate audience
 		if (payload.aud !== FIREBASE_PROJECT_ID) return null;
+		// Must have a subject (user ID)
 		if (!payload.sub || typeof payload.sub !== 'string') return null;
 
 		return { uid: payload.sub, email: payload.email };

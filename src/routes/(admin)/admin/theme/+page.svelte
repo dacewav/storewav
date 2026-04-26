@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings, themePresets as themePresetsStore, savePreset, loadPreset, deletePreset, renamePreset } from '$lib/stores';
-	import { Card, AdminSkeleton, Collapsible } from '$lib/components';
+	import { Card, AdminSkeleton, Collapsible, HelpTip } from '$lib/components';
 	import type { ThemeSettings } from '$lib/stores/settings';
 	import type { ThemePreset } from '$lib/stores';
 	import { fmt, handleShiftArrows, hexToRgb } from '$lib/themeShared';
@@ -261,7 +261,7 @@
 				<span class="mini-swatch" style="background:{t.textColor || '#f5eeee'}" title="Text"></span>
 			</div>
 		{/snippet}
-		<p class="field-desc">El accent es el color principal — botones, links, highlights. El glow es el resplandor.</p>
+		<p class="field-desc">El accent es el color principal — botones, links, highlights. El glow es el resplandor. <HelpTip text="Accent define el color de marca. Glow se usa para efectos de resplandor (hero, cards, partículas). Dejá glow vacío para usar el accent automáticamente." /></p>
 		<!-- Live Palette Preview -->
 		<div class="palette-preview">
 			<div class="palette-strip">
@@ -307,6 +307,7 @@
 
 	<!-- Background & Surfaces -->
 	<Collapsible id="surfaces" icon="🖼️" title="Fondo y Superficies" open={false}>
+		<p class="field-desc">BG es el fondo general. Surface son las cards y paneles. <HelpTip text="Surface es el fondo de cards, paneles y modales. Surface2 es para elementos dentro de surface (inputs, badges). Hover es el estado al pasar el mouse." /></p>
 		{#snippet preview()}
 			<div class="mini-surface-preview">
 				<div class="msp-bg" style="background:{t.bgColor || '#060404'}">
@@ -443,6 +444,7 @@
 
 	<!-- Transitions & Shadows -->
 	<Collapsible id="transitions" icon="⚡" title="Transiciones y Sombras" open={false}>
+		<p class="field-desc">Controla la velocidad y suavidad de las animaciones CSS. <HelpTip text="Duration: duración de transiciones (hover, focus). Easing: curva de velocidad (ease-out es natural). Shadow: sombra base de las cards." /></p>
 		<p class="field-desc">Controla la velocidad de las transiciones y sombras globales.</p>
 		<div class="row">
 			<div class="field">
@@ -545,6 +547,7 @@
 
 	<!-- Typography -->
 	<Collapsible id="typography" icon="🔤" title="Tipografía" open={true}>
+		<p class="field-desc">Fuentes y tamaños del sitio. <HelpTip text="Display: títulos grandes (hero, secciones). Body: texto general. Mono: datos, labels, precios. Las fuentes se cargan de Google Fonts." /></p>
 		{#snippet preview()}
 			<span class="typo-preview" style="font-family:'{t.fontDisplay || 'Syne'}',sans-serif; font-weight:{t.fontWeight ?? 400}">Aa</span>
 		{/snippet}
@@ -582,6 +585,7 @@
 
 	<!-- Spacing & Shape -->
 	<Collapsible id="spacing" icon="📏" title="Espaciado y Forma" open={false}>
+		<p class="field-desc">Espaciado entre elementos y forma de bordes. <HelpTip text="Gap: espacio entre cards del grid. Container padding: margen lateral de la página. Radius: redondez de bordes (0 = cuadrado, 9999px = píldora)." /></p>
 		<div class="row">
 			<div class="field">
 				<label for="t-r">Border radius ({t.radiusGlobal ?? 12}px)</label>

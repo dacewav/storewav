@@ -199,19 +199,18 @@ export const siblingBlur: Action<HTMLElement, {
 };
 
 /** Animates a number from 0 to target value when element enters viewport */
-export const countUp: Action<HTMLElement, number> = (node, target) => {
+export const countUp: Action<HTMLElement, number> = (node, initialTarget) => {
 	let animated = false;
+	let target = initialTarget;
 	const duration = 1200;
 
 	function animate(t: number) {
 		if (animated || !t || t <= 0) return;
 		animated = true;
-
 		const start = performance.now();
 		function step(now: number) {
 			const elapsed = now - start;
 			const progress = Math.min(elapsed / duration, 1);
-			// Ease out cubic
 			const eased = 1 - Math.pow(1 - progress, 3);
 			node.textContent = String(Math.round(eased * t));
 			if (progress < 1) requestAnimationFrame(step);
@@ -228,25 +227,21 @@ export const countUp: Action<HTMLElement, number> = (node, target) => {
 				observer.disconnect();
 			}
 		},
-		{ threshold: 0.5 }
+		{ threshold: 0.1 }
 	);
 	observer.observe(node);
 
-	// Animate immediately if target is already set
-	if (target && target > 0) {
-		// Let the IntersectionObserver handle it
-	}
-
 	return {
 		update(newTarget: number) {
-			if (newTarget === target) return;
+			const prev = target;
 			target = newTarget;
-			// Re-animate if already visible and new target is valid
-			if (visible && newTarget && newTarget > 0) {
-				animated = false;
-				animate(newTarget);
-			} else if (!visible && newTarget && newTarget > 0) {
-				// Not yet visible, let observer handle it
+			if (newTarget > 0 && newTarget !== prev) {
+				if (visible) {
+					// Already visible (observer already fired) — animate immediately
+					animated = false;
+					animate(newTarget);
+				}
+				// If not visible yet, observer will handle it when it fires
 			}
 		},
 		destroy() {

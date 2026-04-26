@@ -133,6 +133,7 @@
 
 	<!-- Banner Settings -->
 	<Collapsible id="banner-main" icon="📢" title="Banner" open={true}>
+		<p class="field-desc">Banner superior scrollable. <HelpTip text="El banner aparece arriba del hero. Textos: array de mensajes que scrollean. Velocidad: qué rápido se mueven. Separador: emoji entre mensajes." /></p>
 		<div class="field">
 			<label>
 				<input type="checkbox" checked={b.enabled === true} onchange={(e) => bannerUpdate('banner.enabled', e.currentTarget.checked)} />
