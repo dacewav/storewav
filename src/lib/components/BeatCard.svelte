@@ -36,8 +36,13 @@
 	let accentRgb = $state('220, 38, 38');
 	accentRgbStore.subscribe(v => { accentRgb = v; });
 	let globalCardStyle = $derived($settings.data?.cardStyle ?? {});
+	// Per-beat animation intensity from cardAnim.intensity (0-200 → 0-100 for CSS var)
+	let perBeatOverrides = $derived({
+		...(beat.cardStyle ?? {}),
+		...(beat.cardAnim?.intensity !== undefined ? { animIntensity: Math.min(100, Math.max(0, (beat.cardAnim.intensity as number) / 2)) } : {})
+	} as Partial<CardStyleConfig>);
 	let cardStyle = $derived(
-		mergeCardStyles(globalCardStyle as Partial<CardStyleConfig>, (beat.cardStyle ?? {}) as Partial<CardStyleConfig>)
+		mergeCardStyles(globalCardStyle as Partial<CardStyleConfig>, perBeatOverrides)
 	);
 	// Hover CSS variables for :hover rule
 	let hoverVars = $derived([
@@ -201,7 +206,7 @@
 		border-color: var(--hover-border-color, var(--border-hover-accent));
 		box-shadow: var(--card-shadow-hover);
 		transform: scale(var(--hover-scale)) translateY(var(--hover-translate-y));
-		filter: brightness(var(--hover-brightness, 1)) saturate(var(--hover-saturate, 1)) blur(var(--hover-blur, 0px)) hue-rotate(var(--hover-hue-rotate, 0deg));
+		filter: brightness(var(--hover-brightness, 1)) saturate(var(--hover-saturate, 1)) hue-rotate(var(--hover-hue-rotate, 0deg));
 		opacity: var(--hover-opacity, 1);
 		transition-duration: var(--hover-transition, var(--duration-normal));
 	}

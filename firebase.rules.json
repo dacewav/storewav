@@ -1275,7 +1275,7 @@
         "$date": {
           "$eventId": {
             ".write": true,
-            ".validate": "newData.hasChildren(['ts', 'cat', 'act']) && newData.child('ts').isNumber()",
+            ".validate": "newData.hasChildren(['ts', 'cat', 'act']) && newData.child('ts').isNumber() && newData.child('ts').val() > (now - 86400000) && newData.child('ts').val() < (now + 60000) && newData.child('cat').isString() && newData.child('cat').val().length <= 30 && newData.child('act').isString() && newData.child('act').val().length <= 50",
             "ts": {
               ".validate": "newData.isNumber()"
             },
@@ -1299,7 +1299,7 @@
       },
       "counts": {
         "$beatId": {
-          ".write": true,
+          ".write": "auth != null && root.child(\"adminWhitelist/approved\").child(auth.uid).exists()",
           "clicks": {
             ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000"
           },
@@ -1317,7 +1317,7 @@
       },
       "daily": {
         "$date": {
-          ".write": true,
+          ".write": "auth != null && root.child(\"adminWhitelist/approved\").child(auth.uid).exists()",
           "total": {
             ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000"
           },
@@ -1384,7 +1384,11 @@
         "$other": {
           ".validate": false
         }
-      }
+      },
+      ".indexOn": [
+        "email",
+        "ts"
+      ]
     },
     "notifications": {
       ".read": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",

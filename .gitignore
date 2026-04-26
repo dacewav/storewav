@@ -21,3 +21,18 @@ Thumbs.db
 # Nested clone (from bootstrap)
 store/
 .env
+
+# AI agent workspace (private notes)
+memory/
+.guide/
+MEMORY.md
+AGENTS.md
+SOUL.md
+USER.md
+TOOLS.md
+IDENTITY.md
+HEARTBEAT.md
+BOOTSTRAP.md
+
+# Rules backup archive
+rules-pack.tar.gz

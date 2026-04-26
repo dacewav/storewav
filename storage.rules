@@ -2,14 +2,22 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
-    // Para verificar admin sin Cloud Functions, Storage usa request.auth.uid
-    // La lista de admin UIDs se mantiene aquí + en PUBLIC_ADMIN_UIDS (env)
-    // Si usas Cloud Functions, cambia a request.auth.token.admin == true
+    // Admin check: verify UID is in the approved whitelist in RTDB
+    // Note: storage.rules can't read RTDB directly, so we rely on
+    // the PUBLIC_ADMIN_UIDS env var for the hardcoded super-admin,
+    // and Firebase RTDB adminWhitelist for additional admins.
+    //
+    // IMPORTANT: The super-admin UID below MUST match the one in firebase.rules.json
+    // and PUBLIC_ADMIN_UIDS env var. Update all three when changing.
+    //
+    // For stronger security, use Firebase Custom Claims via Cloud Functions.
 
     // Covers: images only (admin only)
     match /beats/covers/{beatId}/{fileName} {
       allow read: if true;
       allow write: if request.auth != null
+        && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
+            || request.auth.token.admin == true)
         && request.resource.contentType.matches('image/.*')
         && request.resource.size < 10 * 1024 * 1024; // 10MB
     }
@@ -18,6 +26,8 @@ service firebase.storage {
     match /beats/audio/{beatId}/{fileName} {
       allow read: if true;
       allow write: if request.auth != null
+        && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
+            || request.auth.token.admin == true)
         && request.resource.contentType.matches('audio/.*')
         && request.resource.size < 100 * 1024 * 1024; // 100MB
     }
@@ -26,8 +36,30 @@ service firebase.storage {
     match /beats/previews/{beatId}/{fileName} {
       allow read: if true;
       allow write: if request.auth != null
+        && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
+            || request.auth.token.admin == true)
         && request.resource.contentType.matches('audio/.*')
         && request.resource.size < 20 * 1024 * 1024; // 20MB
+    }
+
+    // Gallery: images only (admin only)
+    match /gallery/{imageId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
+            || request.auth.token.admin == true)
+        && request.resource.contentType.matches('image/.*')
+        && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Custom emojis: images only (admin only)
+    match /emojis/{emojiId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && (request.auth.uid == 'Uks9YGSd6rS40zqlRujoe6pE6N22'
+            || request.auth.token.admin == true)
+        && request.resource.contentType.matches('image/.*')
+        && request.resource.size < 2 * 1024 * 1024; // 2MB
     }
 
     // Block everything else

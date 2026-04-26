@@ -1,7 +1,7 @@
 /**
  * Upload utility — R2 (prod) / Firebase Storage (dev fallback)
  *
- * Production: POST /api/upload → Cloudflare R2
+ * Production: POST /api/upload → Cloudflare R2 (with auth)
  * Dev: Firebase Storage (si está configurado)
  */
 
@@ -17,13 +17,21 @@ export type UploadProgress = {
 };
 
 /**
- * Sube un archivo vía API route → R2 (prod) o Firebase Storage (dev)
- * @param path - Path en storage (ej: 'beats/covers/abc123/1234.jpg')
- * @param file - File object
- * @param onProgress - Callback de progreso
+ * Get current Firebase ID token for authenticated uploads
  */
+async function getAuthToken(): Promise<string | null> {
+	try {
+		const { getAuthInstance } = await import('$lib/firebase');
+		const auth = await getAuthInstance();
+		if (!auth?.currentUser) return null;
+		return await auth.currentUser.getIdToken();
+	} catch {
+		return null;
+	}
+}
+
 /**
- * Upload: POST /api/upload → R2 (con progreso real via XHR)
+ * Upload: POST /api/upload → R2 (with auth + real progress via XHR)
  * Siempre intenta R2 primero. Fallback a Firebase solo si falla.
  */
 export async function uploadFile(
@@ -43,13 +51,18 @@ export async function uploadFile(
 }
 
 /**
- * Upload via /api/upload → R2 (with real progress via XHR)
+ * Upload via /api/upload → R2 (with auth + real progress via XHR)
  */
 async function uploadToR2(
 	path: string,
 	file: File,
 	onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
+	const token = await getAuthToken();
+	if (!token) {
+		throw new Error('No autenticado — inicia sesión para subir archivos');
+	}
+
 	return new Promise((resolve, reject) => {
 		const formData = new FormData();
 		formData.append('file', file);
@@ -81,6 +94,8 @@ async function uploadToR2(
 				} catch {
 					reject(new Error('Respuesta inválida del servidor'));
 				}
+			} else if (xhr.status === 401 || xhr.status === 403) {
+				reject(new Error('No autorizado — verifica tu sesión'));
 			} else {
 				try {
 					const body = JSON.parse(xhr.responseText);
@@ -100,6 +115,7 @@ async function uploadToR2(
 		};
 
 		xhr.open('POST', '/api/upload');
+		xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 		xhr.timeout = 120_000; // 2 min
 		xhr.send(formData);
 	});
@@ -171,7 +187,6 @@ export function generatePath(folder: string, beatId: string, fileName: string): 
  * Borra un archivo de R2 o Firebase Storage por path/URL
  */
 export async function deleteFile(pathOrUrl: string): Promise<void> {
-	// If it looks like a URL, try Firebase delete; otherwise it's an R2 path
 	if (pathOrUrl.startsWith('http')) {
 		try {
 			const { getStorageInstance } = await import('$lib/firebase');
@@ -183,7 +198,6 @@ export async function deleteFile(pathOrUrl: string): Promise<void> {
 			// Silently fail
 		}
 	}
-	// R2 delete would need a separate API route — for now, files are overwritten
 }
 
 /**

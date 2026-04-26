@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeHtml } from '../sanitize';
+import { sanitizeHtml, sanitizeCSS } from '../sanitize';
 
 describe('sanitizeHtml', () => {
 	it('returns empty string for empty input', () => {
@@ -54,5 +54,83 @@ describe('sanitizeHtml', () => {
 	it('is case-insensitive for tag matching', () => {
 		expect(sanitizeHtml('<EM>text</EM>')).toBe('<EM>text</EM>');
 		expect(sanitizeHtml('<SCRIPT>bad</SCRIPT>')).toBe('bad');
+	});
+});
+
+describe('sanitizeCSS', () => {
+	it('returns empty string for empty input', () => {
+		expect(sanitizeCSS('')).toBe('');
+	});
+
+	it('allows normal CSS', () => {
+		const css = 'body { color: red; background: #000; }';
+		expect(sanitizeCSS(css)).toBe(css);
+	});
+
+	it('allows flexbox and grid', () => {
+		const css = '.container { display: flex; gap: 10px; }';
+		expect(sanitizeCSS(css)).toBe(css);
+	});
+
+	it('blocks javascript: in url()', () => {
+		const css = 'body { background: url(javascript:alert(1)) }';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('javascript:');
+	});
+
+	it('blocks data: in url()', () => {
+		const css = 'body { background: url(data:text/html,<script>alert(1)</script>) }';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('data:');
+	});
+
+	it('blocks vbscript: in url()', () => {
+		const css = 'body { background: url(vbscript:msgbox) }';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('vbscript:');
+	});
+
+	it('blocks expression()', () => {
+		const css = 'body { width: expression(alert(1)) }';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('expression(');
+	});
+
+	it('blocks -moz-binding', () => {
+		const css = 'body { -moz-binding: url(evil.xml#xss) }';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('-moz-binding:');
+	});
+
+	it('blocks behavior:', () => {
+		const css = 'body { behavior: url(evil.htc) }';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('behavior:');
+	});
+
+	it('blocks @import with external URL', () => {
+		const css = '@import url("https://evil.com/style.css")';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('https://evil.com');
+	});
+
+	it('strips HTML tags from CSS', () => {
+		const css = 'body { color: red; }<script>alert(1)</script>';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('<script>');
+		expect(result).toContain('color: red');
+	});
+
+	it('handles url() with quotes', () => {
+		const css = 'body { background: url("javascript:alert(1)") }';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('javascript:');
+	});
+
+	it('handles mixed case javascript:', () => {
+		const css = 'body { background: url(JaVaScRiPt:alert(1)) }';
+		const result = sanitizeCSS(css);
+		expect(result).not.toContain('javascript:');
+		expect(result).not.toContain('JaVaScRiPt');
 	});
 });

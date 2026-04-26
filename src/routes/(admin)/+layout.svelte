@@ -149,30 +149,39 @@
 
 	const navGroups = [
 		{
-			label: 'Contenido',
+			label: 'Tienda',
 			items: [
 				{ href: '/admin', label: 'Dashboard', icon: '📊', shortcut: 'Ctrl+D' },
 				{ href: '/admin/beats', label: 'Beats', icon: '🎵', shortcut: 'Ctrl+B' },
-				{ href: '/admin/hero', label: 'Hero', icon: '🏠', shortcut: 'Ctrl+H' },
-				{ href: '/admin/content', label: 'Contenido', icon: '✏️' },
-				{ href: '/admin/links', label: 'Links', icon: '🔗' },
-				{ href: '/admin/testimonials', label: 'Testimonios', icon: '💬' },
 				{ href: '/admin/media', label: 'Media', icon: '🖼️' },
+				{ href: '/admin/testimonials', label: 'Testimonios', icon: '💬' },
+				{ href: '/admin/links', label: 'Links', icon: '🔗' },
 			]
 		},
 		{
-			label: 'Apariencia',
+			label: 'Secciones',
 			items: [
-				{ href: '/admin/theme', label: 'Tema', icon: '🎨', shortcut: 'Ctrl+T' },
-				{ href: '/admin/cardstyle', label: 'Card Style', icon: '🃏' },
-				{ href: '/admin/brand', label: 'Brand', icon: '🏢' },
+				{ href: '/admin/hero', label: 'Hero & Contenido', icon: '🏠', shortcut: 'Ctrl+H' },
 				{ href: '/admin/banner', label: 'Banner', icon: '📢' },
-				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
-				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
 				{ href: '/admin/floating', label: 'Floating', icon: '✨' },
+			]
+		},
+		{
+			label: 'Visual',
+			items: [
+				{ href: '/admin/theme', label: 'Colores & Tipografía', icon: '🎨', shortcut: 'Ctrl+T' },
+				{ href: '/admin/cardstyle', label: 'Cards & Hover', icon: '🃏' },
+				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
+				{ href: '/admin/brand', label: 'Brand & Logo', icon: '🏢' },
+				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
+			]
+		},
+		{
+			label: 'Sistema',
+			items: [
 				{ href: '/admin/features', label: 'Features', icon: '⚡' },
-				{ href: '/admin/changelog', label: 'Changelog', icon: '📋' },
 				{ href: '/admin/emojis', label: 'Emojis', icon: '😀' },
+				{ href: '/admin/changelog', label: 'Changelog', icon: '📋' },
 			]
 		}
 	];

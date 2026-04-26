@@ -126,6 +126,7 @@ export type CardStyleConfig = {
 	animDur?: number;            // seconds
 	animDelay?: number;          // seconds
 	animEasing?: string;         // CSS easing
+	animIntensity?: number;      // 0-100, default 100. Controls animation strength via --anim-int CSS var
 
 	// Cover effects
 	coverOverlay?: string;  // CSS gradient/overlay
@@ -189,6 +190,7 @@ const DEFAULT: CardStyleConfig = {
 	hoverScale: 1.02,
 	hoverBrightness: 1.05,
 	animation: 'none',
+	animIntensity: 100,
 };
 
 // ═══ Premium Card Effect Presets ═══
@@ -211,7 +213,8 @@ export const PRESETS: Record<PresetId, CardPreset> = {
 		config: {
 			brightness: 1, contrast: 1, saturate: 1, grayscale: 0, sepia: 0, hueRotate: 0,
 			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
-			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			animation: 'none',
+	animIntensity: 100, animType: '', animDur: 0, animDelay: 0, animEasing: '',
 			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
 			borderRadius: '0px', cardBgOpacity: 1,
 			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
@@ -226,7 +229,8 @@ export const PRESETS: Record<PresetId, CardPreset> = {
 		config: {
 			brightness: 0.97, contrast: 1.15, saturate: 0.75, grayscale: 0.3, sepia: 0.1, hueRotate: 0,
 			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
-			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			animation: 'none',
+	animIntensity: 100, animType: '', animDur: 0, animDelay: 0, animEasing: '',
 			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
 			borderRadius: '4px', cardBgOpacity: 1,
 			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
@@ -241,7 +245,8 @@ export const PRESETS: Record<PresetId, CardPreset> = {
 		config: {
 			brightness: 0.9, contrast: 1.4, saturate: 0, grayscale: 1, sepia: 0, hueRotate: 0,
 			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
-			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			animation: 'none',
+	animIntensity: 100, animType: '', animDur: 0, animDelay: 0, animEasing: '',
 			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
 			borderRadius: '2px', cardBgOpacity: 1,
 			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
@@ -256,7 +261,8 @@ export const PRESETS: Record<PresetId, CardPreset> = {
 		config: {
 			brightness: 0.95, contrast: 1.05, saturate: 0.85, grayscale: 0, sepia: 0.6, hueRotate: 0,
 			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
-			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			animation: 'none',
+	animIntensity: 100, animType: '', animDur: 0, animDelay: 0, animEasing: '',
 			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
 			borderRadius: '8px', cardBgOpacity: 1,
 			borderEnabled: true, borderColor: '#78716c', borderWidth: '1px', borderStyle: 'solid',
@@ -271,7 +277,8 @@ export const PRESETS: Record<PresetId, CardPreset> = {
 		config: {
 			brightness: 1.05, contrast: 1.1, saturate: 1.2, grayscale: 0, sepia: 0.05, hueRotate: 0,
 			glowEnabled: true, glow: 'pulse', glowColor: '#c2410c', glowSpeed: 2.5, glowIntensity: 1.1, glowBlur: 25, glowOpacity: 0.55, glowHoverOnly: false,
-			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			animation: 'none',
+	animIntensity: 100, animType: '', animDur: 0, animDelay: 0, animEasing: '',
 			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
 			borderRadius: '6px', cardBgOpacity: 1,
 			borderEnabled: true, borderColor: '#9a3412', borderWidth: '1px', borderStyle: 'solid',
@@ -286,7 +293,8 @@ export const PRESETS: Record<PresetId, CardPreset> = {
 		config: {
 			brightness: 1.08, contrast: 1.05, saturate: 0.85, grayscale: 0, sepia: 0, hueRotate: -5,
 			glowEnabled: true, glow: 'breathe', glowColor: '#0e7490', glowSpeed: 5, glowIntensity: 0.8, glowBlur: 28, glowOpacity: 0.4, glowHoverOnly: true,
-			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			animation: 'none',
+	animIntensity: 100, animType: '', animDur: 0, animDelay: 0, animEasing: '',
 			shimmer: true, shimmerSpeed: 3, shimmerOpacity: 0.04,
 			borderRadius: '10px', cardBgOpacity: 1,
 			borderEnabled: true, borderColor: '#155e75', borderWidth: '1px', borderStyle: 'solid',
@@ -301,7 +309,8 @@ export const PRESETS: Record<PresetId, CardPreset> = {
 		config: {
 			brightness: 1.1, contrast: 1.05, saturate: 1.1, grayscale: 0, sepia: 0, hueRotate: 0,
 			glowEnabled: true, glow: 'breathe', glowColor: '#6366f1', glowSpeed: 4, glowIntensity: 0.7, glowBlur: 30, glowOpacity: 0.35, glowHoverOnly: true,
-			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			animation: 'none',
+	animIntensity: 100, animType: '', animDur: 0, animDelay: 0, animEasing: '',
 			shimmer: true, shimmerSpeed: 3, shimmerOpacity: 0.04,
 			borderRadius: '14px', cardBgOpacity: 0.92,
 			borderEnabled: true, borderColor: 'rgba(255,255,255,0.08)', borderWidth: '1px', borderStyle: 'solid',
@@ -376,7 +385,8 @@ export const PRESETS: Record<PresetId, CardPreset> = {
 		config: {
 			brightness: 1.05, contrast: 1.25, saturate: 2.5, grayscale: 0, sepia: 0, hueRotate: 0,
 			glowEnabled: false, glow: 'active', glowColor: '#dc2626', glowSpeed: 3, glowIntensity: 1, glowBlur: 20, glowOpacity: 1, glowHoverOnly: false,
-			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			animation: 'none',
+	animIntensity: 100, animType: '', animDur: 0, animDelay: 0, animEasing: '',
 			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
 			borderRadius: '2px', cardBgOpacity: 1,
 			borderEnabled: true, borderColor: '#1c1917', borderWidth: '2px', borderStyle: 'solid',
@@ -391,7 +401,8 @@ export const PRESETS: Record<PresetId, CardPreset> = {
 		config: {
 			brightness: 0.85, contrast: 1.2, saturate: 0.9, grayscale: 0, sepia: 0, hueRotate: 0,
 			glowEnabled: true, glow: 'active', glowColor: '#dc2626', glowSpeed: 4, glowIntensity: 0.6, glowBlur: 30, glowOpacity: 0.25, glowHoverOnly: true,
-			animation: 'none', animType: '', animDur: 0, animDelay: 0, animEasing: '',
+			animation: 'none',
+	animIntensity: 100, animType: '', animDur: 0, animDelay: 0, animEasing: '',
 			shimmer: false, shimmerSpeed: 0, shimmerOpacity: 0,
 			borderRadius: '8px', cardBgOpacity: 1,
 			borderEnabled: false, borderColor: '#dc2626', borderWidth: '1px', borderStyle: 'solid',
@@ -415,7 +426,7 @@ export function getAllPresets(): CardPreset[] {
 const ANIMATION_KEYFRAMES: Record<string, string> = {
 	float: `@keyframes cardFloat {
 		0%, 100% { transform: translateY(0); }
-		50% { transform: translateY(-6px); }
+		50% { transform: translateY(calc(-6px * var(--anim-int, 1))); }
 	}`,
 	hologram: `@keyframes cardHologram {
 		0% { filter: hue-rotate(0deg) brightness(1); }
@@ -424,10 +435,10 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 	}`,
 	glitch: `@keyframes cardGlitch {
 		0%, 100% { transform: translate(0); }
-		20% { transform: translate(-2px, 2px); }
-		40% { transform: translate(-2px, -2px); }
-		60% { transform: translate(2px, 2px); }
-		80% { transform: translate(2px, -2px); }
+		20% { transform: translate(calc(-2px * var(--anim-int, 1)), calc(2px * var(--anim-int, 1))); }
+		40% { transform: translate(calc(-2px * var(--anim-int, 1)), calc(-2px * var(--anim-int, 1))); }
+		60% { transform: translate(calc(2px * var(--anim-int, 1)), calc(2px * var(--anim-int, 1))); }
+		80% { transform: translate(calc(2px * var(--anim-int, 1)), calc(-2px * var(--anim-int, 1))); }
 	}`,
 	colorShift: `@keyframes cardColorShift {
 		0% { filter: hue-rotate(0deg); }
@@ -443,49 +454,49 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 	}`,
 	rotate3d: `@keyframes cardRotate3d {
 		0%, 100% { transform: perspective(600px) rotateY(0deg); }
-		50% { transform: perspective(600px) rotateY(5deg); }
+		50% { transform: perspective(600px) rotateY(calc(5deg * var(--anim-int, 1))); }
 	}`,
 	jello: `@keyframes cardJello {
 		0%, 100% { transform: none; }
-		30% { transform: skewX(-12.5deg) skewY(-12.5deg); }
-		40% { transform: skewX(6.25deg) skewY(6.25deg); }
-		50% { transform: skewX(-3.125deg) skewY(-3.125deg); }
-		65% { transform: skewX(1.5625deg) skewY(1.5625deg); }
-		75% { transform: skewX(-0.78125deg) skewY(-0.78125deg); }
+		30% { transform: skewX(calc(-12.5deg * var(--anim-int, 1))) skewY(calc(-12.5deg * var(--anim-int, 1))); }
+		40% { transform: skewX(calc(6.25deg * var(--anim-int, 1))) skewY(calc(6.25deg * var(--anim-int, 1))); }
+		50% { transform: skewX(calc(-3.125deg * var(--anim-int, 1))) skewY(calc(-3.125deg * var(--anim-int, 1))); }
+		65% { transform: skewX(calc(1.5625deg * var(--anim-int, 1))) skewY(calc(1.5625deg * var(--anim-int, 1))); }
+		75% { transform: skewX(calc(-0.78125deg * var(--anim-int, 1))) skewY(calc(-0.78125deg * var(--anim-int, 1))); }
 	}`,
 	wobble: `@keyframes cardWobble {
 		0%, 100% { transform: none; }
-		15% { transform: translateX(-8px) rotate(-4deg); }
-		30% { transform: translateX(6px) rotate(3deg); }
-		45% { transform: translateX(-4px) rotate(-2deg); }
-		60% { transform: translateX(2px) rotate(1deg); }
+		15% { transform: translateX(calc(-8px * var(--anim-int, 1))) rotate(calc(-4deg * var(--anim-int, 1))); }
+		30% { transform: translateX(calc(6px * var(--anim-int, 1))) rotate(calc(3deg * var(--anim-int, 1))); }
+		45% { transform: translateX(calc(-4px * var(--anim-int, 1))) rotate(calc(-2deg * var(--anim-int, 1))); }
+		60% { transform: translateX(calc(2px * var(--anim-int, 1))) rotate(calc(1deg * var(--anim-int, 1))); }
 	}`,
 	heartbeat: `@keyframes cardHeartbeat {
 		0%, 100% { transform: scale(1); }
-		14% { transform: scale(1.05); }
+		14% { transform: scale(calc(1 + 0.05 * var(--anim-int, 1))); }
 		28% { transform: scale(1); }
-		42% { transform: scale(1.05); }
+		42% { transform: scale(calc(1 + 0.05 * var(--anim-int, 1))); }
 		70% { transform: scale(1); }
 	}`,
 	tada: `@keyframes cardTada {
 		0%, 100% { transform: scale(1) rotate(0deg); }
-		10%, 20% { transform: scale(0.9) rotate(-3deg); }
-		30%, 50%, 70%, 90% { transform: scale(1.05) rotate(2deg); }
-		40%, 60%, 80% { transform: scale(1.05) rotate(-2deg); }
+		10%, 20% { transform: scale(calc(1 - 0.1 * var(--anim-int, 1))) rotate(calc(-3deg * var(--anim-int, 1))); }
+		30%, 50%, 70%, 90% { transform: scale(calc(1 + 0.05 * var(--anim-int, 1))) rotate(calc(2deg * var(--anim-int, 1))); }
+		40%, 60%, 80% { transform: scale(calc(1 + 0.05 * var(--anim-int, 1))) rotate(calc(-2deg * var(--anim-int, 1))); }
 	}`,
 	rubberBand: `@keyframes cardRubberBand {
 		0%, 100% { transform: scaleX(1) scaleY(1); }
-		30% { transform: scaleX(1.15) scaleY(0.85); }
-		40% { transform: scaleX(0.85) scaleY(1.15); }
-		50% { transform: scaleX(1.08) scaleY(0.92); }
-		65% { transform: scaleX(0.97) scaleY(1.03); }
-		75% { transform: scaleX(1.02) scaleY(0.98); }
+		30% { transform: scaleX(calc(1 + 0.15 * var(--anim-int, 1))) scaleY(calc(1 - 0.15 * var(--anim-int, 1))); }
+		40% { transform: scaleX(calc(1 - 0.15 * var(--anim-int, 1))) scaleY(calc(1 + 0.15 * var(--anim-int, 1))); }
+		50% { transform: scaleX(calc(1 + 0.08 * var(--anim-int, 1))) scaleY(calc(1 - 0.08 * var(--anim-int, 1))); }
+		65% { transform: scaleX(calc(1 - 0.03 * var(--anim-int, 1))) scaleY(calc(1 + 0.03 * var(--anim-int, 1))); }
+		75% { transform: scaleX(calc(1 + 0.02 * var(--anim-int, 1))) scaleY(calc(1 - 0.02 * var(--anim-int, 1))); }
 	}`,
 	swing: `@keyframes cardSwing {
-		20% { transform: rotate(8deg); }
-		40% { transform: rotate(-6deg); }
-		60% { transform: rotate(4deg); }
-		80% { transform: rotate(-2deg); }
+		20% { transform: rotate(calc(8deg * var(--anim-int, 1))); }
+		40% { transform: rotate(calc(-6deg * var(--anim-int, 1))); }
+		60% { transform: rotate(calc(4deg * var(--anim-int, 1))); }
+		80% { transform: rotate(calc(-2deg * var(--anim-int, 1))); }
 		100% { transform: rotate(0deg); }
 	}`,
 	flash: `@keyframes cardFlash {
@@ -494,20 +505,20 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 	}`,
 	bounce: `@keyframes cardBounce {
 		0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-		40% { transform: translateY(-12px); }
-		60% { transform: translateY(-6px); }
+		40% { transform: translateY(calc(-12px * var(--anim-int, 1))); }
+		60% { transform: translateY(calc(-6px * var(--anim-int, 1))); }
 	}`,
 	shake: `@keyframes cardShake {
 		0%, 100% { transform: translateX(0); }
-		10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-		20%, 40%, 60%, 80% { transform: translateX(4px); }
+		10%, 30%, 50%, 70%, 90% { transform: translateX(calc(-4px * var(--anim-int, 1))); }
+		20%, 40%, 60%, 80% { transform: translateX(calc(4px * var(--anim-int, 1))); }
 	}`,
 	headShake: `@keyframes cardHeadShake {
 		0%, 100% { transform: translateX(0) rotateY(0); }
-		6.5% { transform: translateX(-4px) rotateY(-4deg); }
-		18.5% { transform: translateX(3px) rotateY(3deg); }
-		31.5% { transform: translateX(-2px) rotateY(-2deg); }
-		43.5% { transform: translateX(1px) rotateY(1deg); }
+		6.5% { transform: translateX(calc(-4px * var(--anim-int, 1))) rotateY(calc(-4deg * var(--anim-int, 1))); }
+		18.5% { transform: translateX(calc(3px * var(--anim-int, 1))) rotateY(calc(3deg * var(--anim-int, 1))); }
+		31.5% { transform: translateX(calc(-2px * var(--anim-int, 1))) rotateY(calc(-2deg * var(--anim-int, 1))); }
+		43.5% { transform: translateX(calc(1px * var(--anim-int, 1))) rotateY(calc(1deg * var(--anim-int, 1))); }
 	}`,
 	flip: `@keyframes cardFlip {
 		0% { transform: perspective(400px) rotateY(0); }
@@ -515,9 +526,9 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 		100% { transform: perspective(400px) rotateY(360deg); }
 	}`,
 	lightSpeed: `@keyframes cardLightSpeed {
-		0% { transform: translateX(100%) skewX(-30deg); opacity: 0; }
-		60% { transform: skewX(20deg); opacity: 1; }
-		80% { transform: skewX(-5deg); }
+		0% { transform: translateX(calc(100% * var(--anim-int, 1))) skewX(calc(-30deg * var(--anim-int, 1))); opacity: 0; }
+		60% { transform: skewX(calc(20deg * var(--anim-int, 1))); opacity: 1; }
+		80% { transform: skewX(calc(-5deg * var(--anim-int, 1))); }
 		100% { transform: none; }
 	}`,
 	blurIn: `@keyframes cardBlurIn {
@@ -526,7 +537,7 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 	}`,
 	zoomPulse: `@keyframes cardZoomPulse {
 		0%, 100% { transform: scale(1); }
-		50% { transform: scale(1.04); }
+		50% { transform: scale(calc(1 + 0.04 * var(--anim-int, 1))); }
 	}`,
 	gradientBorder: `@keyframes cardGradientBorder {
 		0% { border-image-source: linear-gradient(0deg, var(--accent), transparent); }
@@ -537,9 +548,9 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 	}`,
 	drift: `@keyframes cardDrift {
 		0%, 100% { transform: translate(0, 0) rotate(0deg); }
-		25% { transform: translate(3px, -4px) rotate(0.5deg); }
-		50% { transform: translate(-2px, -6px) rotate(-0.3deg); }
-		75% { transform: translate(4px, -2px) rotate(0.2deg); }
+		25% { transform: translate(calc(3px * var(--anim-int, 1)), calc(-4px * var(--anim-int, 1))) rotate(calc(0.5deg * var(--anim-int, 1))); }
+		50% { transform: translate(calc(-2px * var(--anim-int, 1)), calc(-6px * var(--anim-int, 1))) rotate(calc(-0.3deg * var(--anim-int, 1))); }
+		75% { transform: translate(calc(4px * var(--anim-int, 1)), calc(-2px * var(--anim-int, 1))) rotate(calc(0.2deg * var(--anim-int, 1))); }
 	}`,
 	spin: `@keyframes cardSpin {
 		0% { transform: rotate(0deg); }
@@ -547,33 +558,33 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 	}`,
 	tilt: `@keyframes cardTilt {
 		0%, 100% { transform: perspective(600px) rotateX(0deg) rotateY(0deg); }
-		25% { transform: perspective(600px) rotateX(2deg) rotateY(3deg); }
-		75% { transform: perspective(600px) rotateX(-2deg) rotateY(-3deg); }
+		25% { transform: perspective(600px) rotateX(calc(2deg * var(--anim-int, 1))) rotateY(calc(3deg * var(--anim-int, 1))); }
+		75% { transform: perspective(600px) rotateX(calc(-2deg * var(--anim-int, 1))) rotateY(calc(-3deg * var(--anim-int, 1))); }
 	}`,
 	sway: `@keyframes cardSway {
 		0%, 100% { transform: rotate(0deg); }
-		25% { transform: rotate(2deg); }
-		75% { transform: rotate(-2deg); }
+		25% { transform: rotate(calc(2deg * var(--anim-int, 1))); }
+		75% { transform: rotate(calc(-2deg * var(--anim-int, 1))); }
 	}`,
 	popIn: `@keyframes cardPopIn {
-		0% { transform: scale(0.8); opacity: 0; }
-		60% { transform: scale(1.05); opacity: 1; }
+		0% { transform: scale(calc(1 - 0.2 * var(--anim-int, 1))); opacity: 0; }
+		60% { transform: scale(calc(1 + 0.05 * var(--anim-int, 1))); opacity: 1; }
 		100% { transform: scale(1); }
 	}`,
 	elastic: `@keyframes cardElastic {
-		0% { transform: scale(0); }
-		55% { transform: scale(1.08); }
-		70% { transform: scale(0.96); }
-		85% { transform: scale(1.02); }
+		0% { transform: scale(calc(1 - 1 * var(--anim-int, 1))); }
+		55% { transform: scale(calc(1 + 0.08 * var(--anim-int, 1))); }
+		70% { transform: scale(calc(1 - 0.04 * var(--anim-int, 1))); }
+		85% { transform: scale(calc(1 + 0.02 * var(--anim-int, 1))); }
 		100% { transform: scale(1); }
 	}`,
 	dropIn: `@keyframes cardDropIn {
-		0% { transform: translateY(-30px) scale(0.9); opacity: 0; }
-		60% { transform: translateY(4px) scale(1.02); opacity: 1; }
+		0% { transform: translateY(calc(-30px * var(--anim-int, 1))) scale(calc(1 - 0.1 * var(--anim-int, 1))); opacity: 0; }
+		60% { transform: translateY(calc(4px * var(--anim-int, 1))) scale(calc(1 + 0.02 * var(--anim-int, 1))); opacity: 1; }
 		100% { transform: translateY(0) scale(1); }
 	}`,
 	riseUp: `@keyframes cardRiseUp {
-		0% { transform: translateY(20px); opacity: 0; }
+		0% { transform: translateY(calc(20px * var(--anim-int, 1))); opacity: 0; }
 		100% { transform: translateY(0); opacity: 1; }
 	}`,
 	flipX: `@keyframes cardFlipX {
@@ -586,12 +597,12 @@ const ANIMATION_KEYFRAMES: Record<string, string> = {
 	}`,
 	rubber: `@keyframes cardRubber {
 		0%, 100% { transform: scaleX(1) scaleY(1); }
-		30% { transform: scaleX(1.12) scaleY(0.88); }
-		60% { transform: scaleX(0.92) scaleY(1.08); }
+		30% { transform: scaleX(calc(1 + 0.12 * var(--anim-int, 1))) scaleY(calc(1 - 0.12 * var(--anim-int, 1))); }
+		60% { transform: scaleX(calc(1 - 0.08 * var(--anim-int, 1))) scaleY(calc(1 + 0.08 * var(--anim-int, 1))); }
 	}`,
 	squeeze: `@keyframes cardSqueeze {
 		0%, 100% { transform: scaleX(1) scaleY(1); }
-		50% { transform: scaleX(0.95) scaleY(1.05); }
+		50% { transform: scaleX(calc(1 - 0.05 * var(--anim-int, 1))) scaleY(calc(1 + 0.05 * var(--anim-int, 1))); }
 	}`,
 };
 
@@ -610,7 +621,13 @@ export function mergeCardStyles(
 	perBeat: Partial<CardStyleConfig>,
 	custom?: Partial<CardStyleConfig>
 ): CardStyleConfig {
-	return { ...DEFAULT, ...global, ...perBeat, ...custom };
+	const merged = { ...DEFAULT, ...global, ...perBeat, ...custom };
+	// Backward compat: hoverBlur was repurposed — map to siblingsBlur
+	if (merged.hoverBlur && !merged.hoverSiblingsBlur) {
+		merged.hoverSiblingsBlur = merged.hoverBlur;
+		merged.hoverBlur = 0;
+	}
+	return merged;
 }
 
 /**
@@ -619,6 +636,10 @@ export function mergeCardStyles(
 export function cardStyleToCSS(style: CardStyleConfig, accentRgb: string): string {
 	const parts: string[] = [];
 
+	// Animation intensity CSS variable (0-1 scale)
+	if (style.animIntensity !== undefined && style.animIntensity !== 100) {
+		parts.push(`--anim-int: ${style.animIntensity / 100};`);
+	}
 	// Filter
 	// Card background — apply opacity only to background, not entire element
 	if (style.cardBg) {

@@ -404,8 +404,9 @@
 							<input id="cse-hb" type="range" min="0.5" max="2" step="0.05" value={getNum('hoverBrightness', 1.05)} oninput={(e) => set('hoverBrightness', +e.currentTarget.value !== 1.05 ? +e.currentTarget.value : undefined)} />
 						</div>
 						<div class="field">
-							<label for="cse-hbl">Blur ({getNum('hoverBlur', 0)}px)</label>
-							<input id="cse-hbl" type="range" min="0" max="10" step="0.5" value={getNum('hoverBlur', 0)} oninput={(e) => set('hoverBlur', +e.currentTarget.value || undefined)} />
+							<label for="cse-hbl">Blur siblings ({getNum('hoverSiblingsBlur', 0)}px)</label>
+							<input id="cse-hbl" type="range" min="0" max="10" step="0.5" value={getNum('hoverBlur', 0)} oninput={(e) => set('hoverSiblingsBlur', +e.currentTarget.value || undefined)} />
+								<small class="field-hint">Difumina las demás cards al hacer hover</small>
 						</div>
 						<div class="field">
 							<label for="cse-hsat">Saturate ({getNum('hoverSaturate', 1)})</label>
@@ -457,6 +458,11 @@
 							</select>
 						</div>
 						{#if value.animation && value.animation !== 'none'}
+							<div class="field">
+								<label for="cse-aint">Intensidad ({value.animIntensity ?? 100}%)</label>
+								<input id="cse-aint" type="range" min="0" max="100" step="5" value={value.animIntensity ?? 100} oninput={(e) => set('animIntensity', Number(e.currentTarget.value) === 100 ? undefined : Number(e.currentTarget.value))} />
+								<small class="field-hint">Controla la fuerza de la animación (0% = sin movimiento, 100% = completo)</small>
+							</div>
 							<div class="field">
 								<label for="cse-adur">Duration</label>
 								<input id="cse-adur" type="text" value={value.animationDuration ?? ''} placeholder="3s" oninput={(e) => set('animationDuration', e.currentTarget.value || undefined)} />

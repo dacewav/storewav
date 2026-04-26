@@ -80,3 +80,42 @@ describe('cardStyleToCSS', () => {
 		expect(result).toContain('box-shadow');
 	});
 });
+
+import { getAllKeyframes } from '../cardStyleEngine';
+
+describe('animIntensity --anim-int', () => {
+	it('does not generate --anim-int at default (100)', () => {
+		const style = mergeCardStyles({ animIntensity: 100 }, {});
+		const result = cardStyleToCSS(style, '220, 38, 38');
+		expect(result).not.toContain('--anim-int');
+	});
+
+	it('generates --anim-int at 50%', () => {
+		const style = mergeCardStyles({ animIntensity: 50 }, {});
+		const result = cardStyleToCSS(style, '220, 38, 38');
+		expect(result).toContain('--anim-int: 0.5;');
+	});
+
+	it('generates --anim-int at 0%', () => {
+		const style = mergeCardStyles({ animIntensity: 0 }, {});
+		const result = cardStyleToCSS(style, '220, 38, 38');
+		expect(result).toContain('--anim-int: 0;');
+	});
+
+	it('generates --anim-int at 75%', () => {
+		const style = mergeCardStyles({ animIntensity: 75 }, {});
+		const result = cardStyleToCSS(style, '220, 38, 38');
+		expect(result).toContain('--anim-int: 0.75;');
+	});
+
+	it('perBeat animIntensity overrides global', () => {
+		const style = mergeCardStyles({ animIntensity: 100 }, { animIntensity: 25 });
+		const result = cardStyleToCSS(style, '220, 38, 38');
+		expect(result).toContain('--anim-int: 0.25;');
+	});
+
+	it('keyframes contain var(--anim-int)', () => {
+		const keyframes = getAllKeyframes();
+		expect(keyframes).toContain('var(--anim-int, 1)');
+	});
+});

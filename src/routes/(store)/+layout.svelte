@@ -5,6 +5,7 @@
 	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
+	import { sanitizeCSS } from '$lib/sanitize';
 
 	let { children } = $props();
 
@@ -56,8 +57,8 @@
 	let particlesImgUrl = $derived(settingsData?.theme?.particlesImgUrl ?? '');
 	let particlesSizeMin = $derived(settingsData?.theme?.particlesSizeMin ?? 3);
 	let particlesSizeMax = $derived(settingsData?.theme?.particlesSizeMax ?? 8);
-	let customCSS = $derived(settingsData?.theme?.customCSS ?? '');
-	let animCustomCSS = $derived(settingsData?.animations?.animCustomCSS ?? '');
+	let customCSS = $derived(sanitizeCSS(settingsData?.theme?.customCSS ?? ''));
+	let animCustomCSS = $derived(sanitizeCSS(settingsData?.animations?.animCustomCSS ?? ''));
 	let bgPattern = $derived(settingsData?.theme?.bgPattern ?? 'none');
 	let bgPatternColor = $derived(settingsData?.theme?.bgPatternColor ?? '');
 	let bgPatternOpacity = $derived(settingsData?.theme?.bgPatternOpacity ?? 0.05);
