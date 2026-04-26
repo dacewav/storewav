@@ -1,7 +1,7 @@
 <script lang="ts">
 	/**
 	 * EmojiInput — textarea/input with Discord-style emoji autocomplete.
-	 * Wraps a native input/textarea and adds :shortcode: picker + live preview.
+	 * Robust version: recomputes query on select, no stale state issues.
 	 */
 	import { customEmojis } from '$lib/stores';
 	import { findEmojiQuery, insertEmoji, renderEmojis } from '$lib/emojiUtils';
@@ -34,9 +34,11 @@
 	let pickerVisible = $state(false);
 	let pickerQuery = $state('');
 	let pickerRect = $state({ top: 0, left: 0, bottom: 0 });
-	let activeEmojiQuery = $state<ReturnType<typeof findEmojiQuery>>(null);
 
-	// Preview: rendered version of the value with emojis
+	// Track the colon position so we can recompute the query on select
+	let lastColonPos = $state(-1);
+
+	// Preview
 	let hasShortcodes = $derived(/:[a-zA-Z0-9_+-]+:/.test(value));
 	let renderedPreview = $derived(
 		hasShortcodes ? renderEmojis(value, emojis) : ''
@@ -53,8 +55,8 @@
 		const query = findEmojiQuery(value, pos);
 
 		if (query && emojis.length > 0) {
-			activeEmojiQuery = query;
 			pickerQuery = query.query;
+			lastColonPos = query.start;
 			pickerVisible = true;
 			positionPicker(query.start);
 		} else {
@@ -97,8 +99,14 @@
 	}
 
 	function handleSelect(emoji: CustomEmoji) {
-		if (!activeEmojiQuery) return;
-		const result = insertEmoji(value, inputEl?.selectionStart ?? 0, activeEmojiQuery, emoji.name);
+		// Recompute query from current value + last known colon position
+		const cursorPos = inputEl?.selectionStart ?? value.length;
+		const query = findEmojiQuery(value, cursorPos)
+			|| (lastColonPos >= 0 ? { start: lastColonPos, end: cursorPos, query: value.slice(lastColonPos + 1, cursorPos) } : null);
+
+		if (!query) return;
+
+		const result = insertEmoji(value, cursorPos, query, emoji.name);
 		value = result.text;
 		closePicker();
 		oninput?.(value);
@@ -114,7 +122,7 @@
 	function closePicker() {
 		pickerVisible = false;
 		pickerQuery = '';
-		activeEmojiQuery = null;
+		lastColonPos = -1;
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -126,7 +134,8 @@
 	}
 
 	function handleBlur() {
-		setTimeout(() => { closePicker(); }, 200);
+		// Longer delay — mousedown on picker must fire first
+		setTimeout(() => { closePicker(); }, 300);
 	}
 </script>
 
@@ -158,7 +167,7 @@
 	/>
 {/if}
 
-<!-- Live preview: rendered emojis -->
+<!-- Live preview -->
 {#if hasShortcodes}
 	<div class="emoji-preview">
 		<span class="preview-label">Preview:</span>

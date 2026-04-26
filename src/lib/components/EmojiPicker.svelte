@@ -1,7 +1,7 @@
 <script lang="ts">
 	/**
 	 * EmojiPicker — Discord-style floating emoji picker.
-	 * Uses mousedown to prevent blur race condition.
+	 * Prevents blur by intercepting mousedown on the picker container.
 	 */
 	import type { CustomEmoji } from '$lib/stores/customEmojis';
 
@@ -23,6 +23,7 @@
 
 	let selectedIndex = $state(0);
 	let listEl: HTMLDivElement | undefined = $state();
+	let pickerEl: HTMLDivElement | undefined = $state();
 
 	let filtered = $derived(
 		query.length === 0
@@ -32,13 +33,11 @@
 				.slice(0, 24)
 	);
 
-	// Reset selection when filtered changes
 	$effect(() => {
 		void filtered.length;
 		selectedIndex = 0;
 	});
 
-	// Scroll selected into view
 	$effect(() => {
 		if (!listEl) return;
 		void selectedIndex;
@@ -72,9 +71,12 @@
 		}
 	}
 
-	// Use mousedown instead of click to prevent blur race condition
-	function handleMousedown(e: MouseEvent, emoji: CustomEmoji) {
-		e.preventDefault(); // Prevents blur on the input
+	// CRITICAL: prevent mousedown on entire picker from blurring the input
+	function handlePickerMousedown(e: MouseEvent) {
+		e.preventDefault();
+	}
+
+	function handleEmojiClick(emoji: CustomEmoji) {
 		onselect?.(emoji);
 	}
 </script>
@@ -87,6 +89,8 @@
 		style="top: {rect.bottom + 4}px; left: {rect.left}px;"
 		role="listbox"
 		aria-label="Emojis personalizados"
+		bind:this={pickerEl}
+		onmousedown={handlePickerMousedown}
 	>
 		<div class="picker-header">
 			<span class="picker-title">Emojis</span>
@@ -97,10 +101,11 @@
 				<button
 					class="picker-emoji"
 					class:selected={i === selectedIndex}
-					onmousedown={(e) => handleMousedown(e, emoji)}
+					onclick={() => handleEmojiClick(emoji)}
 					role="option"
 					aria-selected={i === selectedIndex}
 					title=":{emoji.name}:"
+					tabindex="-1"
 				>
 					<img src={emoji.url} alt=":{emoji.name}:" loading="lazy" />
 					<span class="picker-name">:{emoji.name}:</span>
@@ -129,6 +134,7 @@
 		display: flex;
 		flex-direction: column;
 		animation: pickerIn 0.12s ease-out;
+		user-select: none;
 	}
 
 	@keyframes pickerIn {
