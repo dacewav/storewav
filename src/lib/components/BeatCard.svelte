@@ -50,7 +50,6 @@
 		cardStyle.hoverScale ? `--hover-translate-y: 0px` : '',
 		cardStyle.hoverBrightness ? `--hover-brightness: ${cardStyle.hoverBrightness}` : '',
 		cardStyle.hoverSaturate ? `--hover-saturate: ${cardStyle.hoverSaturate}` : '',
-		cardStyle.hoverBlur ? `--hover-blur: ${cardStyle.hoverBlur}px` : '',
 		cardStyle.hoverShadowBlur ? `--hover-shadow-blur: ${cardStyle.hoverShadowBlur}px` : '',
 		cardStyle.hoverBorderColor ? `--hover-border-color: ${cardStyle.hoverBorderColor}` : '',
 		cardStyle.hoverOpacity ? `--hover-opacity: ${cardStyle.hoverOpacity}` : '',
@@ -206,7 +205,7 @@
 		border-color: var(--hover-border-color, var(--border-hover-accent));
 		box-shadow: var(--card-shadow-hover);
 		transform: scale(var(--hover-scale)) translateY(var(--hover-translate-y));
-		filter: brightness(var(--hover-brightness, 1)) saturate(var(--hover-saturate, 1)) hue-rotate(var(--hover-hue-rotate, 0deg));
+		filter: brightness(var(--hover-brightness, 1)) saturate(var(--hover-saturate, 1)) hue-rotate(var(--hover-hue-rotate, 0deg)) blur(0px) !important;
 		opacity: var(--hover-opacity, 1);
 		transition-duration: var(--hover-transition, var(--duration-normal));
 	}

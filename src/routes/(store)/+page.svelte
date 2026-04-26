@@ -26,7 +26,7 @@
 
 	// Sibling hover config from global cardStyle
 	let cardStyle = $derived((s?.cardStyle ?? {}) as Record<string, unknown>);
-	let siblingHoverEffect = $derived((cardStyle.siblingHoverEffect ?? 'blur') as 'blur' | 'dim' | 'scale-down' | 'none');
+	let siblingHoverEffect = $derived((cardStyle.siblingHoverEffect ?? 'none') as 'blur' | 'dim' | 'scale-down' | 'none');
 	let siblingHoverBlur = $derived(Number(cardStyle.siblingHoverBlur ?? 3));
 	let siblingHoverOpacity = $derived(Number(cardStyle.siblingHoverOpacity ?? 0.6));
 	let siblingHoverScale = $derived(Number(cardStyle.siblingHoverScale ?? 0.95));
