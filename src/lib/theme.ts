@@ -134,7 +134,6 @@ const THEME_MAP: Record<string, string> = {
 	// Container (new)
 	containerMaxWidth: '--max-width',
 	// Advanced colors
-	bgSecondary: '--bg-secondary',
 	surfaceColor2: '--surface2',
 	surfaceHover: '--surface-hover',
 	surfaceActive: '--surface-active',

@@ -36,6 +36,15 @@ export type SectionSettings = {
 	title: string;
 	dividerTitle: string;
 	dividerSub: string;
+	// Divider styling
+	dividerTitleSize: number;      // rem
+	dividerLetterSpacing: number;  // em
+	dividerSubColor: string;       // hex
+	dividerSubSize: number;        // px
+	dividerGlowOn: boolean;
+	dividerGlowInt: number;        // 0-10
+	dividerGlowBlur: number;       // px
+	dividerTitleSegments: string;  // color segments JSON
 };
 
 export type CtaSettings = {
@@ -523,7 +532,15 @@ const DEFAULT: SettingsData = {
 	section: {
 		title: 'Catálogo',
 		dividerTitle: 'Todo fire. <em>Zero filler.</em>',
-		dividerSub: 'Beats profesionales. Licencias para todos los niveles — desde bedroom producers hasta majors.'
+		dividerSub: 'Beats profesionales. Licencias para todos los niveles — desde bedroom producers hasta majors.',
+		dividerTitleSize: 0,
+		dividerLetterSpacing: 0,
+		dividerSubColor: '',
+		dividerSubSize: 14,
+		dividerGlowOn: false,
+		dividerGlowInt: 1,
+		dividerGlowBlur: 20,
+		dividerTitleSegments: ''
 	},
 	cta: {
 		title: '¿Listo para tu próximo hit?',
