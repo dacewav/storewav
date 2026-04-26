@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
 	import { AdminTopbar, CommandPalette, AdminOnboard } from '$lib/components';
-	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField, pendingCount } from '$lib/stores';
+	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField, pendingCount, initCustomEmojis, destroyCustomEmojis } from '$lib/stores';
 	import { adminTheme } from '$lib/stores/adminTheme';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -15,6 +15,9 @@
 
 	// Auth redirect — uses raw subscription, NOT $effect (prevents effect_update_depth_exceeded)
 	onMount(() => {
+		// Initialize custom emojis for admin (picker + previews)
+		initCustomEmojis();
+
 		let done = false;
 		const unsub = auth.subscribe((state) => {
 			if (done || state.loading || !state.adminChecked) return;
@@ -26,7 +29,10 @@
 				goto('/');
 			}
 		});
-		return unsub;
+		return () => {
+			unsub();
+			destroyCustomEmojis();
+		};
 	});
 
 	let currentSaveStatus = $derived($saveStatusStore);
