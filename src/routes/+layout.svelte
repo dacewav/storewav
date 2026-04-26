@@ -20,23 +20,27 @@
 
 		if (t.fontDisplay) {
 			const id = 'gf-display-dyn';
-			if (!document.getElementById(id)) {
-				const link = document.createElement('link');
-				link.id = id;
-				link.rel = 'stylesheet';
-				link.href = `https://fonts.googleapis.com/css2?family=${t.fontDisplay.replace(/ /g, '+')}:wght@400;700;800&display=swap`;
-				document.head.appendChild(link);
+			const href = `https://fonts.googleapis.com/css2?family=${t.fontDisplay.replace(/ /g, '+')}:wght@400;700;800&display=swap`;
+			let el = document.getElementById(id) as HTMLLinkElement | null;
+			if (!el) {
+				el = document.createElement('link');
+				el.id = id;
+				el.rel = 'stylesheet';
+				document.head.appendChild(el);
 			}
+			if (el.href !== href) el.href = href;
 		}
 		if (t.fontBody) {
 			const id = 'gf-body-dyn';
-			if (!document.getElementById(id)) {
-				const link = document.createElement('link');
-				link.id = id;
-				link.rel = 'stylesheet';
-				link.href = `https://fonts.googleapis.com/css2?family=${t.fontBody.replace(/ /g, '+')}:wght@400;500&display=swap`;
-				document.head.appendChild(link);
+			const href = `https://fonts.googleapis.com/css2?family=${t.fontBody.replace(/ /g, '+')}:wght@400;500&display=swap`;
+			let el = document.getElementById(id) as HTMLLinkElement | null;
+			if (!el) {
+				el = document.createElement('link');
+				el.id = id;
+				el.rel = 'stylesheet';
+				document.head.appendChild(el);
 			}
+			if (el.href !== href) el.href = href;
 		}
 	});
 

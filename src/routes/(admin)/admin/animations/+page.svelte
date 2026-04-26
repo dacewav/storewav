@@ -105,7 +105,7 @@
 	<p class="editor-desc">Asigna animaciones preset a cada elemento de la tienda.</p>
 
 	{#each ANIM_ITEMS as item}
-		<Collapsible id="anim-logo" icon="🎬" title="Logo" open={true}>
+		<Collapsible id="anim-{item.key}" icon={item.icon} title={item.label} open={item.key === 'animLogo'}>
 			<div class="anim-row">
 				<div class="anim-label">
 					<span class="anim-icon">{item.icon}</span>

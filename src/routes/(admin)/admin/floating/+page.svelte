@@ -281,7 +281,7 @@
 	{:else}
 		<div class="elements-list">
 			{#each elements as el}
-				<Collapsible id="floating-settings" icon="⚙️" title="Configuración" open={false}>
+				<Collapsible id="floating-el-{el.id}" icon={el.type === 'text' ? el.content : '🖼️'} title="{el.type === 'text' ? 'Texto' : 'Imagen'}: {el.content?.slice(0, 20) || '(vacío)'}" open={false}>
 					<div class="element-row">
 						<div class="element-info">
 							<span class="element-icon">{el.type === 'text' ? el.content : '🖼️'}</span>

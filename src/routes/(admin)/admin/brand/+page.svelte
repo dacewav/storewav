@@ -225,7 +225,7 @@
 	</Collapsible>
 
 	<!-- ═══ Identity ═══ -->
-	<Collapsible id="brand-favicon" icon="⭐" title="🏷️ Identidad" open={false}>
+	<Collapsible id="brand-identity" icon="⭐" title="🏷️ Identidad" open={false}>
 				<div class="field">
 			<label for="b-name">Nombre de marca</label>
 			<input id="b-name" type="text" value={brand.name ?? ''} oninput={(e) => update('brand.name', e.currentTarget.value)} />
@@ -245,7 +245,7 @@
 	</Collapsible>
 
 	<!-- ═══ E2: Color Palette Generator ═══ -->
-	<Collapsible id="brand-name" icon="📝" title="🎨 Paleta de colores" open={false}>
+	<Collapsible id="brand-palette" icon="🎨" title="🎨 Paleta de colores" open={false}>
 				<p class="section-desc">Generada automáticamente desde tu color accent ({theme.accent || '#dc2626'}). Edita el accent en Theme.</p>
 
 		{#if palette.length}
@@ -285,7 +285,7 @@
 	</Collapsible>
 
 	<!-- ═══ E3: Font Preview ═══ -->
-	<Collapsible id="brand-colors" icon="🎨" title="🔤 Tipografía" open={false}>
+	<Collapsible id="brand-typography" icon="🔤" title="🔤 Tipografía" open={false}>
 				<p class="section-desc">Escribe un Google Font y previsualízalo en tiempo real.</p>
 
 		<div class="field">
@@ -318,7 +318,7 @@
 	</Collapsible>
 
 	<!-- ═══ Loader ═══ -->
-	<Collapsible id="brand-fonts" icon="🔤" title="⏳ Loader" open={false}>
+	<Collapsible id="brand-loader" icon="⏳" title="⏳ Loader" open={false}>
 				<div class="field">
 			<label>
 				<input type="checkbox" checked={loader.enabled !== false} onchange={(e) => update('loader.enabled', e.currentTarget.checked)} />
@@ -348,7 +348,7 @@
 	</Collapsible>
 
 	<!-- ═══ Layout: Logo ═══ -->
-	<Collapsible id="layout-spacing" icon="📏" title="📐 Logo" open={false}>
+	<Collapsible id="layout-logo" icon="📐" title="📐 Logo" open={false}>
 		<div class="row">
 			<div class="field">
 				<label for="ly-ls">Escala ({layoutFmt('logoScale', 3)}x)</label>
@@ -378,7 +378,7 @@
 	</Collapsible>
 
 	<!-- ═══ Layout: Hero & Player ═══ -->
-	<Collapsible id="layout-pattern" icon="🎨" title="📐 Hero & Player" open={false}>
+	<Collapsible id="layout-hero" icon="🏠" title="📐 Hero & Player" open={false}>
 		<div class="field">
 			<label for="ly-hpt">Padding top hero (rem, 0=default)</label>
 			<input id="ly-hpt" type="number" min="0" max="20" step="0.5" value={layout.heroPadTop ?? 0} oninput={(e) => update('layout.heroPadTop', +e.currentTarget.value)} />
@@ -390,7 +390,7 @@
 	</Collapsible>
 
 	<!-- ═══ Layout: Nav & Footer ═══ -->
-	<Collapsible id="layout-scroll" icon="🔄" title="📐 Nav & Footer" open={false}>
+	<Collapsible id="layout-nav" icon="🧭" title="📐 Nav & Footer" open={false}>
 		<div class="row">
 			<div class="field">
 				<label for="ly-nh">Altura nav ({layoutFmt('navHeight', 100, 'px')})</label>
