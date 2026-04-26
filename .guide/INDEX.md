@@ -15,7 +15,7 @@
 | `docs/PLAN-MASTER.html` | Roadmap visual interactivo — fases, tareas, arquitectura | Para ver el plan completo del proyecto |
 | `docs/GUIDE-SYSTEM.html` | Generador del sistema .guide — documentación viva | Para entender la filosofía del guide system |
 | `docs/SETUP-DESDE-CERO.html` | Setup paso a paso (VS Code, Node, Git) para no-devs | Para onboarding de personas sin experiencia técnica |
-| `_archive/` | Archivos viejos del proyecto anterior | No leer — es histórico |
+| **SESSION-48-PLAN.md** | Plan de sesión 48: Firebase rules, HelpTips, polish | Leer para la próxima sesión |
 
 ---
 

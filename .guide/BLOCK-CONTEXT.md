@@ -3,93 +3,52 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 45 — Polish + Animation Intensity + More Testing
+## Sesión Actual: 48 — Firebase Rules + Remaining Polish
 
 ```yaml
-sesión: "45"
-bloque: "Polish + animation intensity system + browser testing"
-objetivo: "Pulir los fixes de la sesión 44, agregar sistema de intensidad, testear todo en browser"
+sesión: "48"
+bloque: "Firebase rules fix + HelpTips + final polish"
+objetivo: "Fixear PERMISION_DENIED en settings writes, agregar HelpTips, polish final"
 tiempo: "~50 min"
 estado: "🔴 PENDIENTE"
-último_commit: "4cb673c"
-tests_total: 134
-svelte_check: "0 errors, 25 warnings"
+último_commit: "83a2cb9"
+tests_total: 153
+svelte_check: "0 errors (pre-existing Firebase env warnings)"
 ```
 
-## Contexto de sesión 44
+## Contexto de sesión 47
 
-Sesión larga — 4 commits, mucho trabajo:
-- **Emoji picker click fix**: root cause era Firebase write failing → inputValue local independiente
-- **FileUpload**: floating elements + banner bg image
-- **Premium presets**: 9 nuevos del catalog (17 total)
-- **New animations**: 8 nuevas (18 total)
-- **Banner**: bgImage + opacity + live preview
-- Browser testing: emoji click verificado funcionando
+Dos commits, audit profundo:
+- **Dashboard links**: "Editar contenido" → "Editar hero" (/admin/hero)
+- **Cover gradients**: genre-based gradients replacing ♦ icon
+- **Theme rgba inputs**: removed broken color pickers for rgba fields
+- **HelpTips**: added to Effects page (particles, glitch, glow, stroke)
+- **Sidebar cleanup**: removed duplicate Banner and Layout entries
+- **Collapsible IDs**: fixed duplicates in animations (all were "anim-logo") and floating (all were "floating-settings")
+- **Brand page**: 7 ID/title mismatches fixed
+- **Dynamic fonts**: Google Fonts stylesheet now updates on font change
+- **Deep audit**: comprehensive review of all 15 admin pages + store + components
 
 ## ⚠️ PROBLEMAS CONOCIDOS
 
-### 1. Anonymous Login — No Write Permissions
-- Login anónimo no tiene write perms en Firebase
-- Los settings no se guardan (PERMISSION_DENIED)
-- **Impacto**: no se puede testear cambios de settings en browser sin Google login
-- **Workaround**: usar Google login o agregar UID al admin whitelist en Firebase Console
+1. **Banner URL PERMISSION_DENIED** — Firebase RTDB rechaza writes de tester anónimo. El UID anónimo no está en `adminWhitelist/approved`. Necesita login con Google O agregar el UID a la whitelist.
+2. **Firebase rules desactualizadas** — `firebase.rules.json` tiene validación para campos flat viejos. Verificar que TODOS los campos tienen reglas.
+3. **HelpTips incompletos** — solo Effects tiene HelpTips. Falta: theme, cardstyle, animations, brand, floating.
 
-### 2. Beats sin audio
-- 9/9 beats sin audioUrl
-- Player no aparece, stats muestran 0 plays
-- **Fix**: subir audio desde admin → Media tab
+## ✅ COMPLETADO (sesiones 45-47)
 
-### 3. Hero glow default
-- Color default es negro (#000000) en algunos casos
-- Code fallback a accent (#dc2626) — es data issue, no code
+- Theme page split: theme/+page.svelte → Colores & Fuentes + Effects & Glow
+- Page merges: Banner+Floating, Brand+Layout (15→11 páginas)
+- Glitch/Neon animation parameters
+- Dashboard links, cover gradients, rgba inputs
+- Collapsible ID duplicates, brand ID mismatches
+- Dynamic font reload
+- Deep audit completado
 
-## TAREAS SESIÓN 45 (prioridad)
+## 📋 PRÓXIMA SESIÓN → SESSION-48-PLAN.md
 
-### 1. Animation Intensity System (15 min)
-- Agregar `--anim-int: 0-1` como CSS variable por card
-- Slider en CardStyleEditor para controlar intensidad
-- Cada animación usa `--anim-int` para modularizar fuerza
-- Ejemplo: float con `--anim-int: 0.5` = movimiento más sutil
-
-### 2. Browser Testing con Google Auth (15 min)
-- Testear con Google login (tiene write perms)
-- Verificar emoji picker en varios contextos (beat editor, content, banner)
-- Verificar FileUpload en floating elements
-- Verificar banner bg image rendering
-- Verificar nuevos presets en card style page
-
-### 3. Polish + UX Improvements (15 min)
-- Dashboard: verificar que stats son correctos
-- Admin navigation: verificar todos los links funcionan
-- Card presets: verificar que los 17 presets se renderizan correctamente
-- Animations: verificar que las 18 animaciones funcionan en store
-
-### 4. Push + Guide Update (5 min)
-- Commit cambios
-- Actualizar PROJECT_STATE.md y BLOCK-CONTEXT.md
-
-## Archivos Clave
-
-### Modificados en sesión 44
-- `src/lib/components/EmojiInput.svelte` — inputValue local, handleSelect DOM read
-- `src/lib/components/EmojiPicker.svelte` — onpointerdown + onclick fallback
-- `src/lib/stores/settings.ts` — BannerSettings bgImage fields
-- `src/routes/(admin)/admin/banner/+page.svelte` — FileUpload + preview
-- `src/routes/(admin)/admin/floating/+page.svelte` — FileUpload for image type
-- `src/routes/(admin)/admin/theme/+page.svelte` — 18 animations in dropdown
-- `src/routes/(store)/+layout.svelte` — banner bg image + 18 animation keyframes
-- `src/lib/cardStylePresets.ts` — 9 new premium presets (17 total)
-
-### Para leer (contexto)
-- `.guide/AUDIT-CUSTOMIZATION.md` — inventario completo de controles
-- `.guide/MEGA-PLAN-PERSONALIZATION.md` — plan de 4 fases
-- `.guide/MEGA-PLAN-CATALOG-IMPORT.md` — importar estilos del catalog
-
-## Datos clave
-- Dev: `npm run dev -- --host 0.0.0.0 --port 5173`
-- Login: `/login` → "Continuar con Google" (para write perms) o tester anónimo (read-only)
-- Firebase: dacewav-store-3b0f5
-- CDN: https://cdn.dacewav.store
-- Tests: `npm test -- --run` (134 passing)
-- Check: `npx svelte-check` (0 errors, 25 warnings)
-- Repo: https://github.com/dacewav/storewav
+1. Fix Firebase rules para settings writes
+2. Testear TODOS los settings writes como anónimo
+3. HelpTips en más páginas
+4. Polish final (mobile overlay role, import modal confirm)
+5. Commit + push
