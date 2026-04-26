@@ -32,42 +32,22 @@
 		searched = false;
 
 		try {
-			// Query paidOrders where customerEmail matches
-			const resp = await fetch(
-				`${FIREBASE_DB}/paidOrders.json?orderBy="customerEmail"&equalTo="${encodeURIComponent(email.trim())}"`
-			);
+			const resp = await fetch(`/api/orders?email=${encodeURIComponent(email.trim())}`);
 
 			if (!resp.ok) {
-				error = 'Error al buscar órdenes';
+				const data = await resp.json() as { error?: string };
+				error = data.error || 'Error al buscar órdenes';
 				return;
 			}
 
-			const data = await resp.json() as Record<string, {
-				sessionId?: string;
-				items?: Array<{
-					beatId: string;
-					beatName: string;
-					licenseName: string;
-					priceMXN: number;
-					priceUSD: number;
-				}>;
-				paidAt?: number;
-				customerEmail?: string;
-			}> | null;
+			const data = await resp.json() as { ok?: boolean; orders?: typeof orders; error?: string };
 
-			if (data) {
-				orders = Object.entries(data)
-					.filter(([, o]) => o.customerEmail?.toLowerCase() === email.trim().toLowerCase())
-					.map(([id, o]) => ({
-						sessionId: o.sessionId || id,
-						items: o.items || [],
-						paidAt: o.paidAt || 0,
-						totalMXN: (o.items || []).reduce((s, i) => s + i.priceMXN, 0),
-						totalUSD: (o.items || []).reduce((s, i) => s + i.priceUSD, 0),
-					}))
-					.sort((a, b) => b.paidAt - a.paidAt);
+			if (!data.ok) {
+				error = data.error || 'Error al buscar órdenes';
+				return;
 			}
 
+			orders = data.orders || [];
 			searched = true;
 			analytics.track('orders', 'search', { lbl: email.trim() });
 		} catch {
