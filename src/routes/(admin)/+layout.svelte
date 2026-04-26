@@ -162,7 +162,7 @@
 			items: [
 				{ href: '/admin/hero', label: 'Hero & Contenido', icon: '🏠', shortcut: 'Ctrl+H' },
 				{ href: '/admin/banner', label: 'Banner', icon: '📢' },
-				{ href: '/admin/floating', label: 'Floating', icon: '✨' },
+				{ href: '/admin/floating', label: 'Banner & Floating', icon: '✨' },
 			]
 		},
 		{
@@ -172,7 +172,7 @@
 				{ href: '/admin/effects', label: 'Effects & Glow', icon: '✨' },
 				{ href: '/admin/cardstyle', label: 'Cards & Hover', icon: '🃏' },
 				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
-				{ href: '/admin/brand', label: 'Brand & Links', icon: '🏢' },
+				{ href: '/admin/brand', label: 'Brand & Layout', icon: '🏢' },
 				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
 			]
 		},

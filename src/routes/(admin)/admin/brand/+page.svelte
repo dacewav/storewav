@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card, FileUpload, ImageCropper, FontPreview, HelpTip , Collapsible} from '$lib/components';
-	import type { BrandSettings, LoaderSettings, ThemeSettings } from '$lib/stores/settings';
+	import type { BrandSettings, LoaderSettings, ThemeSettings, LayoutSettings } from '$lib/stores/settings';
 	import { generatePalette, generateHarmony, contrastRatio, type PaletteShade } from '$lib/colorPalette';
 	import { uploadFile } from '$lib/upload';
 	import { toast } from '$lib/toastStore';
@@ -10,6 +10,48 @@
 	let brand = $derived((s?.brand ?? {}) as BrandSettings);
 	let loader = $derived((s?.loader ?? {}) as LoaderSettings);
 	let theme = $derived((s?.theme ?? {}) as ThemeSettings);
+	let layout = $derived((s?.layout ?? {}) as LayoutSettings);
+
+	// Layout local state
+	let layoutLocal = $state<Record<string, number>>({});
+	let layoutLocalInit = false;
+
+	$effect(() => {
+		if (!layout || !s || layoutLocalInit) return;
+		layoutLocal = {
+			cardsPerRow: layout.cardsPerRow ?? 3,
+			logoScale: layout.logoScale ?? 1,
+			logoRotation: layout.logoRotation ?? 0,
+			navHeight: layout.navHeight ?? 64,
+		};
+		layoutLocalInit = true;
+	});
+
+	function layoutSlide(dotPath: string, localKey: string, val: number) {
+		layoutLocal[localKey] = val;
+		settings.updateFieldDebounced(dotPath, val);
+	}
+
+	function layoutFmt(key: string, max: number, unit = ''): string {
+		const n = layoutLocal[key] ?? 0;
+		return unit ? `${Math.min(n, max)}${unit}` : String(Math.min(n, max));
+	}
+
+	function handleShiftArrows(e: KeyboardEvent) {
+		if (!e.shiftKey) return;
+		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+		e.preventDefault();
+		const input = e.currentTarget as HTMLInputElement;
+		const min = parseFloat(input.min);
+		const max = parseFloat(input.max);
+		const step = parseFloat(input.step) || 1;
+		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
+		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
+		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+		if (nativeSetter) nativeSetter.call(input, String(newVal));
+		else input.value = String(newVal);
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+	}
 
 	function update(path: string, value: unknown) {
 		settings.updateField(path, value);
@@ -288,6 +330,86 @@
 			<input id="b-lt" type="text" value={loader.brandText ?? ''} oninput={(e) => update('loader.brandText', e.currentTarget.value)} />
 		</div>
 	</Collapsible>
+
+	<!-- ═══ Layout: Grid ═══ -->
+	<Collapsible id="layout-container" icon="📐" title="📐 Grid" open={false}>
+		<div class="row">
+			<div class="field">
+				<label for="ly-cards">Cards por fila ({layoutFmt('cardsPerRow', 6)})</label>
+				<input id="ly-cards" type="range" min="1" max="6" step="1" value={layoutLocal.cardsPerRow ?? 3} oninput={(e) => layoutSlide('layout.cardsPerRow', 'cardsPerRow', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+			</div>
+			<div class="field">
+				<label>
+					<input type="checkbox" checked={layout.showWishlist !== false} onchange={(e) => update('layout.showWishlist', e.currentTarget.checked)} />
+					Mostrar wishlist
+				</label>
+			</div>
+		</div>
+	</Collapsible>
+
+	<!-- ═══ Layout: Logo ═══ -->
+	<Collapsible id="layout-spacing" icon="📏" title="📐 Logo" open={false}>
+		<div class="row">
+			<div class="field">
+				<label for="ly-ls">Escala ({layoutFmt('logoScale', 3)}x)</label>
+				<input id="ly-ls" type="range" min="0.3" max="3" step="0.1" value={layoutLocal.logoScale ?? 1} oninput={(e) => layoutSlide('layout.logoScale', 'logoScale', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+			</div>
+			<div class="field">
+				<label for="ly-lw">Ancho (px, 0=auto)</label>
+				<input id="ly-lw" type="number" min="0" max="300" step="10" value={layout.logoWidth ?? 80} oninput={(e) => update('layout.logoWidth', +e.currentTarget.value)} />
+			</div>
+			<div class="field">
+				<label for="ly-lh">Alto (px, 0=auto)</label>
+				<input id="ly-lh" type="number" min="0" max="300" step="10" value={layout.logoHeight ?? 0} oninput={(e) => update('layout.logoHeight', +e.currentTarget.value)} />
+			</div>
+		</div>
+		<div class="row">
+			<div class="field">
+				<label for="ly-lr">Rotación ({layoutFmt('logoRotation', 180)}°)</label>
+				<input id="ly-lr" type="range" min="-180" max="180" step="5" value={layoutLocal.logoRotation ?? 0} oninput={(e) => layoutSlide('layout.logoRotation', 'logoRotation', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+			</div>
+			<div class="field">
+				<label>
+					<input type="checkbox" checked={layout.showLogoText !== false} onchange={(e) => update('layout.showLogoText', e.currentTarget.checked)} />
+					Mostrar texto junto al logo
+				</label>
+			</div>
+		</div>
+	</Collapsible>
+
+	<!-- ═══ Layout: Hero & Player ═══ -->
+	<Collapsible id="layout-pattern" icon="🎨" title="📐 Hero & Player" open={false}>
+		<div class="field">
+			<label for="ly-hpt">Padding top hero (rem, 0=default)</label>
+			<input id="ly-hpt" type="number" min="0" max="20" step="0.5" value={layout.heroPadTop ?? 0} oninput={(e) => update('layout.heroPadTop', +e.currentTarget.value)} />
+		</div>
+		<div class="field">
+			<label for="ly-pb">Player bottom offset (px)</label>
+			<input id="ly-pb" type="number" min="0" max="40" step="4" value={layout.playerBottom ?? 0} oninput={(e) => update('layout.playerBottom', +e.currentTarget.value)} />
+		</div>
+	</Collapsible>
+
+	<!-- ═══ Layout: Nav & Footer ═══ -->
+	<Collapsible id="layout-scroll" icon="🔄" title="📐 Nav & Footer" open={false}>
+		<div class="row">
+			<div class="field">
+				<label for="ly-nh">Altura nav ({layoutFmt('navHeight', 100, 'px')})</label>
+				<input id="ly-nh" type="range" min="40" max="100" step="4" value={layoutLocal.navHeight ?? 64} oninput={(e) => layoutSlide('layout.navHeight', 'navHeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+			</div>
+			<div class="field">
+				<label>
+					<input type="checkbox" checked={layout.showBanner !== false} onchange={(e) => update('layout.showBanner', e.currentTarget.checked)} />
+					Mostrar banner superior
+				</label>
+			</div>
+		</div>
+		<div class="field">
+			<label>
+				<input type="checkbox" checked={layout.footerVisible !== false} onchange={(e) => update('layout.footerVisible', e.currentTarget.checked)} />
+				Mostrar footer
+			</label>
+		</div>
+	</Collapsible>
 </div>
 
 <style>
@@ -301,6 +423,9 @@
 	.field label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: var(--space-2); }
 	.field input[type="text"] { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color var(--duration-fast); }
 	.field input[type="text"]:focus { border-color: rgba(var(--accent-rgb), 0.5); }
+	.field input[type="number"] { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color var(--duration-fast); }
+	.field input[type="number"]:focus { border-color: rgba(var(--accent-rgb), 0.5); }
+	.field input[type="range"] { width: 100%; accent-color: var(--accent); }
 	.field input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 	.url-fallback { margin-top: var(--space-2); }
 	.url-fallback label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); margin-bottom: var(--space-1); display: block; }
