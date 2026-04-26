@@ -33,21 +33,41 @@ export async function uploadFile(
 	const storageRef = ref(storage, path);
 
 	return new Promise((resolve, reject) => {
+		// Timeout: si en 30s no hubo progreso real, abortar
+		let lastProgress = 0;
+		const timeout = setTimeout(() => {
+			if (lastProgress === 0) {
+				console.error('[Upload] Timeout — sin progreso en 30s. Storage bucket:', storage.app.options.storageBucket);
+				reject(new Error('Upload timeout: sin progreso en 30s. Verifica que Firebase Storage esté habilitado y las rules permitan escritura.'));
+			}
+		}, 30_000);
+
 		const task = uploadBytesResumable(storageRef, file);
 
 		task.on(
 			'state_changed',
 			(snapshot) => {
+				const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+				if (pct > 0) lastProgress = pct;
 				onProgress?.({
 					bytesTransferred: snapshot.bytesTransferred,
 					totalBytes: snapshot.totalBytes,
-					percent: Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+					percent: pct
 				});
 			},
-			(error) => reject(error),
+			(error) => {
+				clearTimeout(timeout);
+				console.error('[Upload] Error:', error.code, error.message);
+				reject(error);
+			},
 			async () => {
-				const url = await getDownloadURL(task.snapshot.ref);
-				resolve({ url, path });
+				clearTimeout(timeout);
+				try {
+					const url = await getDownloadURL(task.snapshot.ref);
+					resolve({ url, path });
+				} catch (err) {
+					reject(err);
+				}
 			}
 		);
 	});

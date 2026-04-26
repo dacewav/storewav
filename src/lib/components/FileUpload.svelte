@@ -264,6 +264,7 @@
 	.uploader:hover { border-color: rgba(var(--accent-rgb), 0.3); }
 	.uploader.dragging { border-color: var(--accent); border-style: dashed; }
 	.uploader.uploading { pointer-events: none; }
+	.uploader.uploading .drop-zone { pointer-events: auto; }
 
 	.hidden-input { display: none; }
 
