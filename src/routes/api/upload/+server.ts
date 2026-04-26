@@ -1,4 +1,5 @@
 import { json } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
 
 /**
@@ -128,29 +129,33 @@ export const GET: RequestHandler = async ({ platform }) => {
 
 /** POST — upload file to R2 (requires auth + admin) */
 export const POST: RequestHandler = async ({ request, platform }) => {
-	// 1. Authenticate
-	const authHeader = request.headers.get('Authorization');
-	if (!authHeader?.startsWith('Bearer ')) {
-		return json({ ok: false, error: 'No autorizado — se requiere token de Firebase' }, { status: 401 });
+	// 1. Authenticate — skip token verification in dev mode
+	let user: { uid: string; email?: string } | null = null;
+
+	if (dev) {
+		// Dev mode: accept any request, use placeholder user
+		user = { uid: 'dev-user', email: 'dev@localhost' };
+	} else {
+		const authHeader = request.headers.get('Authorization');
+		if (!authHeader?.startsWith('Bearer ')) {
+			return json({ ok: false, error: 'No autorizado — se requiere token de Firebase' }, { status: 401 });
+		}
+
+		const idToken = authHeader.slice(7);
+		user = await verifyFirebaseToken(idToken);
+		if (!user) {
+			return json({ ok: false, error: 'Token inválido o expirado' }, { status: 401 });
+		}
+
+		// Admin check — only in production
+		const isAdmin = await checkIsAdmin(user.uid);
+		if (!isAdmin) {
+			return json({ ok: false, error: 'Prohibido — solo administradores pueden subir archivos' }, { status: 403 });
+		}
 	}
 
-	const idToken = authHeader.slice(7);
-	const user = await verifyFirebaseToken(idToken);
-	if (!user) {
-		return json({ ok: false, error: 'Token inválido o expirado' }, { status: 401 });
-	}
-
-	// 2. Check admin status
-	const isAdmin = await checkIsAdmin(user.uid);
-	if (!isAdmin) {
-		return json({ ok: false, error: 'Prohibido — solo administradores pueden subir archivos' }, { status: 403 });
-	}
-
-	// 3. Check R2 binding
+	// 2. Check R2 binding
 	const bucket = platform?.env?.MEDIA;
-	if (!bucket) {
-		return json({ ok: false, error: 'R2 bucket no configurado (binding: MEDIA)' }, { status: 500 });
-	}
 
 	// 4. Parse form data
 	let formData: FormData;
@@ -189,21 +194,39 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		return json({ ok: false, error: `Archivo demasiado grande (máx ${maxMB}MB para ${file.type})` }, { status: 400 });
 	}
 
-	// 9. Upload to R2
+	// 9. Upload
 	try {
 		const arrayBuffer = await file.arrayBuffer();
 
-		await bucket.put(path, arrayBuffer, {
-			httpMetadata: {
-				contentType: file.type || 'application/octet-stream',
-				cacheControl: 'public, max-age=31536000, immutable'
-			}
-		});
+		if (bucket) {
+			// R2 available (prod or wrangler dev): upload to R2
+			await bucket.put(path, arrayBuffer, {
+				httpMetadata: {
+					contentType: file.type || 'application/octet-stream',
+					cacheControl: 'public, max-age=31536000, immutable'
+				}
+			});
+			const url = `${R2_PUBLIC_BASE}/${path}`;
+			return json({ ok: true, path, url });
+		} else if (dev) {
+			// Dev mode without R2: save to local filesystem (static/uploads/)
+			const { mkdirSync, writeFileSync, existsSync } = await import('node:fs');
+			const { join } = await import('node:path');
+			const uploadDir = join(process.cwd(), 'static', 'uploads');
+			if (!existsSync(uploadDir)) mkdirSync(uploadDir, { recursive: true });
 
-		const url = `${R2_PUBLIC_BASE}/${path}`;
-		return json({ ok: true, path, url });
+			const flatName = path.replace(/\//g, '-');
+			const filePath = join(uploadDir, flatName);
+			writeFileSync(filePath, Buffer.from(arrayBuffer));
+
+			const url = `/uploads/${flatName}`;
+			console.log(`[Upload] Dev mode — saved to ${filePath}`);
+			return json({ ok: true, path, url });
+		} else {
+			return json({ ok: false, error: 'R2 bucket no configurado (binding: MEDIA)' }, { status: 500 });
+		}
 	} catch (err) {
-		console.error('[Upload R2]', err);
-		return json({ ok: false, error: 'Error al subir a R2' }, { status: 500 });
+		console.error('[Upload]', err);
+		return json({ ok: false, error: 'Error al subir archivo' }, { status: 500 });
 	}
 };

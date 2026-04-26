@@ -1,8 +1,8 @@
 /**
- * Upload utility — R2 (prod) / Firebase Storage (dev fallback)
+ * Upload utility — R2 (prod/ dev) / Firebase Storage (fallback)
  *
  * Production: POST /api/upload → Cloudflare R2 (with auth)
- * Dev: Firebase Storage (si está configurado)
+ * Dev: POST /api/upload → R2 via wrangler dev, or local filesystem fallback
  */
 
 import { dev } from '$app/environment';
@@ -33,22 +33,15 @@ async function getAuthToken(): Promise<string | null> {
 }
 
 /**
- * Upload: R2 (prod) / Firebase Storage (dev)
- * En dev mode, salta R2 y va directo a Firebase Storage.
- * En prod, intenta R2 primero. Fallback a Firebase solo si falla.
+ * Upload: POST /api/upload → R2 (with auth + real progress via XHR)
+ * Siempre intenta R2 primero. Fallback a Firebase solo si falla.
  */
 export async function uploadFile(
 	path: string,
 	file: File,
 	onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
-	// Dev mode: skip R2, go directly to Firebase Storage
-	if (dev) {
-		console.log('[Upload] Dev mode — usando Firebase Storage directamente');
-		return uploadToFirebase(path, file, onProgress);
-	}
-
-	// Prod: intentar R2 primero
+	// Intentar R2 primero (en dev, el endpoint bypass admin check)
 	try {
 		return await uploadToR2(path, file, onProgress);
 	} catch (r2Err) {
