@@ -893,9 +893,22 @@
 	/* ── Beat Grid ── */
 	.beat-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		grid-template-columns: repeat(3, 1fr);
 		gap: var(--beat-gap);
 		align-items: stretch;
+	}
+
+	@media (max-width: 1024px) {
+		.beat-grid {
+			grid-template-columns: repeat(2, 1fr);
+			gap: var(--space-3);
+		}
+	}
+
+	@media (max-width: 600px) {
+		.beat-grid {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	/* ── CTA Section ── */
@@ -959,19 +972,6 @@
 		box-shadow: var(--glow-sm);
 		opacity: var(--btn-opacity-hover);
 		transform: translateY(-2px);
-	}
-
-	@media (max-width: 1024px) {
-		.beat-grid {
-			grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-			gap: var(--space-3);
-		}
-	}
-
-	@media (max-width: 600px) {
-		.beat-grid {
-			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-		}
 	}
 
 	@media (max-width: 480px) {
