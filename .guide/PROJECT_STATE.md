@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-27 05:20 (Session 51-52 — E-Commerce + Delivery)**
+> **Última actualización: 2026-04-27 05:51 (Session 53 — Contratos + PDF Generator)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -8,7 +8,7 @@ repo:          https://github.com/dacewav/storewav.git
 framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
-sesiones:      52 (continuar en sesión 53)
+sesiones:      53 (continuar en sesión 54)
 tests:         153 passing
 build:         0 errors, svelte-check clean (except pre-existing Firebase env vars)
 último_commit: "d625a70"
@@ -25,7 +25,7 @@ build:         0 errors, svelte-check clean (except pre-existing Firebase env va
 | Checkout | ✅ | Stripe Checkout Session creation |
 | Webhook | ✅ | Payment → order → contract PDF → email |
 | Email | ✅ | Resend API, dominio dacewav.store verificado |
-| Contract PDF | ✅ | Pure JS generator, Workers-compatible |
+| Contract PDF | ✅ | **Generador completo con pdf-lib, multi-página, 13-14 cláusulas** |
 | Download API | ✅ | Secure endpoint /api/download/[orderId]/[beatId] |
 | Orders Page | ✅ | /account/orders — busca por email |
 | Cancel Page | ✅ | /checkout/cancel |
