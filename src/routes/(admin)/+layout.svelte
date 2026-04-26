@@ -155,7 +155,6 @@
 				{ href: '/admin/beats', label: 'Beats', icon: '🎵', shortcut: 'Ctrl+B' },
 				{ href: '/admin/media', label: 'Media', icon: '🖼️' },
 				{ href: '/admin/testimonials', label: 'Testimonios', icon: '💬' },
-				{ href: '/admin/links', label: 'Links', icon: '🔗' },
 			]
 		},
 		{
@@ -169,19 +168,18 @@
 		{
 			label: 'Visual',
 			items: [
-				{ href: '/admin/theme', label: 'Colores & Tipografía', icon: '🎨', shortcut: 'Ctrl+T' },
+				{ href: '/admin/theme', label: 'Colores & Fuentes', icon: '🎨', shortcut: 'Ctrl+T' },
 				{ href: '/admin/cardstyle', label: 'Cards & Hover', icon: '🃏' },
 				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
-				{ href: '/admin/brand', label: 'Brand & Logo', icon: '🏢' },
+				{ href: '/admin/brand', label: 'Brand & Links', icon: '🏢' },
 				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
 			]
 		},
 		{
 			label: 'Sistema',
 			items: [
-				{ href: '/admin/features', label: 'Features', icon: '⚡' },
+				{ href: '/admin/features', label: 'Features & Log', icon: '⚡' },
 				{ href: '/admin/emojis', label: 'Emojis', icon: '😀' },
-				{ href: '/admin/changelog', label: 'Changelog', icon: '📋' },
 			]
 		}
 	];
