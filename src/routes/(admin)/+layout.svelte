@@ -161,7 +161,6 @@
 			label: 'Secciones',
 			items: [
 				{ href: '/admin/hero', label: 'Hero & Contenido', icon: '🏠', shortcut: 'Ctrl+H' },
-				{ href: '/admin/banner', label: 'Banner', icon: '📢' },
 				{ href: '/admin/floating', label: 'Banner & Floating', icon: '✨' },
 			]
 		},
@@ -173,7 +172,6 @@
 				{ href: '/admin/cardstyle', label: 'Cards & Hover', icon: '🃏' },
 				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
 				{ href: '/admin/brand', label: 'Brand & Layout', icon: '🏢' },
-				{ href: '/admin/layout', label: 'Layout', icon: '📐' },
 			]
 		},
 		{
@@ -301,7 +299,6 @@
 			{ href: '/admin/beats', label: 'Beats', icon: '🎵' },
 			{ href: '/admin/hero', label: 'Hero', icon: '🏠' },
 			{ href: '/admin/theme', label: 'Tema', icon: '🎨' },
-			{ href: '/admin/content', label: 'Contenido', icon: '✏️' },
 			{ href: '/admin/brand', label: 'Brand', icon: '🏢' }
 		] as item}
 			<a

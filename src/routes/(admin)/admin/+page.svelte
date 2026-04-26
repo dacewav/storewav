@@ -28,6 +28,15 @@
 	let seeding = $state(false);
 	let seedResult = $state<string | null>(null);
 
+	function genreGradient(genre: string): string {
+		const g = (genre || "").toLowerCase();
+		if (g.includes("trap")) return "linear-gradient(135deg, #1a1a2e, #e94560)";
+		if (g.includes("lo-fi") || g.includes("lofi")) return "linear-gradient(135deg, #2d1b69, #11998e)";
+		if (g.includes("drill")) return "linear-gradient(135deg, #0f0c29, #302b63)";
+		if (g.includes("reggaeton")) return "linear-gradient(135deg, #f12711, #f5af19)";
+		return "linear-gradient(135deg, rgba(var(--accent-rgb), 0.4), rgba(var(--accent-rgb), 0.1))";
+	}
+
 	async function handleSeed() {
 		if (!confirm(`¿Crear ${SEED_COUNT} beats de demo en Firebase?`)) return;
 		seeding = true;
@@ -301,9 +310,9 @@
 						<span class="qa-icon">🎨</span>
 						<span>Editar tema</span>
 					</a>
-					<a href="/admin/content" class="qa-btn" aria-label="Editar contenido">
+					<a href="/admin/hero" class="qa-btn" aria-label="Editar hero">
 						<span class="qa-icon">✏️</span>
-						<span>Editar contenido</span>
+						<span>Editar hero</span>
 					</a>
 					<a href="/admin/beats" class="qa-btn" aria-label="Gestionar beats">
 						<span class="qa-icon">📊</span>
@@ -342,7 +351,7 @@
 								{#if beat.imageUrl}
 									<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" />
 								{:else}
-									<span class="rb-ph">♦</span>
+									<div class="rb-ph" style="background: {genreGradient(beat.genre)}"></div>
 								{/if}
 							</div>
 							<div class="rb-info">
@@ -625,7 +634,7 @@
 	}
 
 	.rb-cover img { width: 100%; height: 100%; object-fit: cover; }
-	.rb-ph { font-size: var(--text-sm); color: var(--text-muted); }
+	.rb-ph { width: 100%; height: 100%; border-radius: var(--radius-sm); }
 
 	.rb-info { flex: 1; min-width: 0; }
 	.rb-name { display: block; font-size: var(--text-sm); font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

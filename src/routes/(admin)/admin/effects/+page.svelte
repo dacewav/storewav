@@ -124,6 +124,7 @@
 				<div style="width:100%;height:8px;background:linear-gradient(90deg,{t.accent || '#dc2626'}66,transparent);border-radius:{t.radiusGlobal ?? 12}px {t.radiusGlobal ?? 12}px 0 0"></div>
 			</div>
 		{/snippet}
+		<HelpTip text="Opacidad: transparencia general de las cards. Blur: desenfoque del fondo detrás de las cards (efecto glass). Grain: textura de ruido sutil. Shadow: intensidad y color de la sombra." />
 		<div class="row">
 			<div class="field">
 				<label for="t-co">Card opacity ({f("cardOpacity", 1, "", true)})</label>
@@ -173,6 +174,7 @@
 
 	<!-- Hero Glow -->
 	<Collapsible id="hero-glow" icon="💫" title="Hero Glow" open={false}>
+		<HelpTip text="Añade un resplandor de color detrás del hero. Intensidad controla el brillo, blur qué tan difuso es. Color vacío usa el accent." />
 		<div class="field">
 			<label>
 				<input type="checkbox" checked={t.heroGlowOn === true} onchange={(e) => updateField('theme.heroGlowOn', e.currentTarget.checked)} />
@@ -200,6 +202,7 @@
 
 	<!-- Hero Stroke -->
 	<Collapsible id="hero-stroke" icon="✏️" title="Hero Stroke" open={false}>
+		<HelpTip text="Añade un borde/stroke alrededor del hero. Grosor controla el ancho del borde en píxeles. Color vacío usa el accent." />
 		<div class="row">
 			<div class="field">
 				<label>
@@ -306,7 +309,7 @@
 
 		<!-- Size & Speed -->
 		<div class="control-group">
-			<span class="group-label">📏 Tamaño y Movimiento</span>
+			<span class="group-label">📏 Tamaño y Movimiento <HelpTip text="Cantidad: cuántas partículas se muestran a la vez. Velocidad: qué tan rápido se mueven. Tamaño min/max: rango de tamaños posibles para cada partícula." /></span>
 			<div class="row">
 				<div class="field">
 					<label for="t-pc">Cantidad ({f("particlesCount", 200)})</label>
@@ -331,7 +334,7 @@
 
 		<!-- Color & Opacity -->
 		<div class="control-group">
-			<span class="group-label">🎨 Color y Transparencia</span>
+			<span class="group-label">🎨 Color y Transparencia <HelpTip text="Color vacío usa el accent del tema. Opacidad controla qué tan transparentes son las partículas (0 = invisibles, 1 = sólidas)." /></span>
 			<div class="row">
 				<div class="field">
 					<label for="t-pcl">Color</label>

@@ -16,6 +16,15 @@
 		type CardStyleConfig
 	} from '$lib/cardStyleEngine';
 
+
+	function genreGradient(genre: string): string {
+		const g = (genre || "").toLowerCase();
+		if (g.includes("trap")) return "linear-gradient(135deg, #1a1a2e, #e94560)";
+		if (g.includes("lo-fi") || g.includes("lofi")) return "linear-gradient(135deg, #2d1b69, #11998e)";
+		if (g.includes("drill")) return "linear-gradient(135deg, #0f0c29, #302b63)";
+		if (g.includes("reggaeton")) return "linear-gradient(135deg, #f12711, #f5af19)";
+		return "linear-gradient(135deg, rgba(var(--accent-rgb), 0.4), rgba(var(--accent-rgb), 0.1))";
+	}
 	let {
 		beat,
 		onplay,
@@ -124,8 +133,8 @@
 		{#if beat.imageUrl}
 			<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" style={imageCSS || undefined} />
 		{:else}
-			<div class="beat-cover-placeholder">
-				<Icon name="music" size={32} />
+			<div class="beat-cover-placeholder" style="background: {genreGradient(beat.genre)}">
+				<span class="placeholder-genre">{beat.genre}</span>
 			</div>
 		{/if}
 
@@ -293,7 +302,17 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--text-muted);
+		position: relative;
+	}
+
+	.placeholder-genre {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: rgba(255, 255, 255, 0.7);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		font-weight: 600;
+		text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 	}
 
 	.beat-cover-overlay {

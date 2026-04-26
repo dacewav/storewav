@@ -383,14 +383,12 @@
 			<div class="field">
 				<label for="t-bdr">Borde principal</label>
 				<div class="color-row">
-					<input id="t-bdr" type="color" value={t.borderColor || 'rgba(255,255,255,0.06)'} oninput={(e) => update('theme.borderColor', e.currentTarget.value)} />
 					<input type="text" value={t.borderColor ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.borderColor', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-bdr2">Borde secundario</label>
 				<div class="color-row">
-					<input id="t-bdr2" type="color" value={t.borderColor2 || 'rgba(255,255,255,0.12)'} oninput={(e) => update('theme.borderColor2', e.currentTarget.value)} />
 					<input type="text" value={t.borderColor2 ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.borderColor2', e.currentTarget.value)} />
 				</div>
 			</div>
@@ -399,14 +397,12 @@
 			<div class="field">
 				<label for="t-txth">Texto hint/sutil</label>
 				<div class="color-row">
-					<input id="t-txth" type="color" value={t.textHint || 'rgba(245,238,238,0.15)'} oninput={(e) => update('theme.textHint', e.currentTarget.value)} />
 					<input type="text" value={t.textHint ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.textHint', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
 				<label for="t-txtm">Texto muted</label>
 				<div class="color-row">
-					<input id="t-txtm" type="color" value={t.textMuted || 'rgba(245,238,238,0.25)'} oninput={(e) => update('theme.textMuted', e.currentTarget.value)} />
 					<input type="text" value={t.textMuted ?? ''} placeholder="(rgba...)" oninput={(e) => update('theme.textMuted', e.currentTarget.value)} />
 				</div>
 			</div>
