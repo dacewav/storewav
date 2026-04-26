@@ -54,22 +54,37 @@ async function uploadToR2(
 	formData.append('file', file);
 	formData.append('path', path);
 
-	const res = await fetch('/api/upload', {
-		method: 'POST',
-		body: formData
-	});
+	// Timeout: 60s for upload
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), 60_000);
 
-	if (!res.ok) {
-		const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-		throw new Error(body.error || `Upload falló (${res.status})`);
+	try {
+		const res = await fetch('/api/upload', {
+			method: 'POST',
+			body: formData,
+			signal: controller.signal
+		});
+
+		clearTimeout(timeout);
+
+		if (!res.ok) {
+			const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+			throw new Error(body.error || `Upload falló (${res.status})`);
+		}
+
+		onProgress?.({ bytesTransferred: file.size, totalBytes: file.size, percent: 100 });
+
+		const data = await res.json();
+		if (!data.ok) throw new Error(data.error || 'Upload falló');
+
+		return { url: data.url, path: data.path };
+	} catch (err) {
+		clearTimeout(timeout);
+		if (err instanceof DOMException && err.name === 'AbortError') {
+			throw new Error('Upload timeout: el servidor no respondió en 60s');
+		}
+		throw err;
 	}
-
-	onProgress?.({ bytesTransferred: file.size, totalBytes: file.size, percent: 100 });
-
-	const data = await res.json();
-	if (!data.ok) throw new Error(data.error || 'Upload falló');
-
-	return { url: data.url, path: data.path };
 }
 
 /**
@@ -126,16 +141,14 @@ async function uploadToFirebase(
 }
 
 /**
- * Check if R2 upload endpoint is available
+ * Check if R2 upload endpoint is available (binding configured)
  */
 async function isR2Available(): Promise<boolean> {
 	if (!browser) return false;
 	try {
-		// If the app is running on Cloudflare Pages with R2 binding, the API route works
-		// In dev mode (localhost), it won't have R2 → falls back to Firebase
-		const res = await fetch('/api/upload', { method: 'OPTIONS' }).catch(() => null);
-		// If the route exists (even if it returns 405), R2 is available
-		return res !== null && res.status !== 404;
+		const res = await fetch('/api/upload', { method: 'OPTIONS' });
+		// 204 = R2 binding exists; anything else = no R2 (dev mode)
+		return res.status === 204;
 	} catch {
 		return false;
 	}
