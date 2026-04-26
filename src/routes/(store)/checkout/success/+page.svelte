@@ -15,6 +15,7 @@
 		downloading?: boolean;
 	}>>([]);
 	let customerName = $state('');
+	let downloadingZip = $state(false);
 
 	onMount(async () => {
 		// Clear cart on successful payment
@@ -76,6 +77,26 @@
 			item.downloading = false;
 		}
 	}
+
+	async function handleDownloadZip(beatId: string, beatName: string) {
+		if (!beatId || !sessionId) return;
+		downloadingZip = true;
+
+		try {
+			const url = `/api/download/${sessionId}/${beatId}/zip`;
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `${beatName}_dacewav.zip`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			analytics.track('download', 'zip', { lbl: beatId });
+		} catch {
+			alert('Error al descargar el paquete. Intenta de nuevo.');
+		} finally {
+			downloadingZip = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -126,6 +147,21 @@
 							</button>
 						</div>
 					{/each}
+
+					{#if orderItems.length > 0}
+						<button
+							class="zip-btn"
+							onclick={() => handleDownloadZip(orderItems[0].beatId, orderItems[0].beatName)}
+							disabled={downloadingZip}
+						>
+							{#if downloadingZip}
+								<span class="dl-spinner"></span>
+								Preparando paquete...
+							{:else}
+								📦 Descargar todo (ZIP) — Beat + Contrato
+							{/if}
+						</button>
+					{/if}
 				</div>
 			{/if}
 
@@ -326,6 +362,36 @@
 		border-top-color: currentColor;
 		border-radius: 50%;
 		animation: spin 0.6s linear infinite;
+	}
+
+	.zip-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		width: 100%;
+		padding: var(--space-3) var(--space-4);
+		margin-top: var(--space-3);
+		background: rgba(var(--accent-rgb), 0.1);
+		color: var(--accent);
+		border: 1px solid rgba(var(--accent-rgb), 0.3);
+		border-radius: var(--radius-md);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		min-height: 40px;
+	}
+
+	.zip-btn:hover:not(:disabled) {
+		background: rgba(var(--accent-rgb), 0.2);
+		box-shadow: var(--glow-sm);
+	}
+
+	.zip-btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
 	}
 
 	/* ── Info box ── */

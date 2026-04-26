@@ -96,6 +96,17 @@
 		document.body.removeChild(a);
 		analytics.track('download', 'orders_page', { lbl: beatId });
 	}
+
+	function downloadZip(orderId: string, beatId: string, beatName: string) {
+		const url = `/api/download/${orderId}/${beatId}/zip`;
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${beatName}_dacewav.zip`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		analytics.track('download', 'zip_orders', { lbl: beatId });
+	}
 </script>
 
 <svelte:head>
@@ -159,13 +170,21 @@
 									<span class="item-name">{item.beatName}</span>
 									<span class="item-license">{item.licenseName}</span>
 								</div>
-								<button
-									class="download-btn"
-									onclick={() => downloadBeat(order.sessionId, item.beatId, item.beatName)}
-								>
-									<Icon name="export" size={14} />
-									Descargar
-								</button>
+								<div class="item-actions">
+									<button
+										class="download-btn"
+										onclick={() => downloadBeat(order.sessionId, item.beatId, item.beatName)}
+									>
+										<Icon name="export" size={14} />
+										Descargar
+									</button>
+									<button
+										class="zip-btn"
+										onclick={() => downloadZip(order.sessionId, item.beatId, item.beatName)}
+									>
+										📦 ZIP
+									</button>
+								</div>
 							</div>
 						{/each}
 					</div>
@@ -401,6 +420,35 @@
 
 	.download-btn:hover {
 		background: var(--accent-dim);
+		box-shadow: var(--glow-sm);
+	}
+
+	.item-actions {
+		display: flex;
+		gap: var(--space-2);
+		align-items: center;
+	}
+
+	.zip-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		padding: var(--space-2) var(--space-3);
+		background: rgba(var(--accent-rgb), 0.1);
+		color: var(--accent);
+		border: 1px solid rgba(var(--accent-rgb), 0.3);
+		border-radius: var(--radius-md);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		font-weight: 600;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		white-space: nowrap;
+		min-height: 36px;
+	}
+
+	.zip-btn:hover {
+		background: rgba(var(--accent-rgb), 0.2);
 		box-shadow: var(--glow-sm);
 	}
 
