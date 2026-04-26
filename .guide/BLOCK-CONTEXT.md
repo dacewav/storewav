@@ -3,69 +3,54 @@
 > **Se REESCRIBE cada vez que cambiamos de sesión.**
 > **Límite: 50 min por chat.**
 
-## Sesión Actual: 42 — Emoji Picker Fix + Polish
+## Sesión Actual: 43 — Admin Polish + Firebase Deploy
 
 ```yaml
-sesión: "42"
-bloque: "Emoji picker fix + polish"
-objetivo: "Arreglar emoji autocomplete y pulir UX"
+sesión: "43"
+bloque: "Admin polish + Firebase deploy"
+objetivo: "Pulir admin (animation previews, theme preview) + deploy Firebase rules"
 tiempo: "~50 min"
 estado: "🔴 PENDIENTE"
-último_commit: "ead822a"
+último_commit: "8ca48f9"
 tests_total: 134
 svelte_check: "0 errors, 13 warnings"
 ```
 
-## BUGS A ARREGLAR (prioridad)
+## Contexto de sesión 42 (recién completada)
 
-### 1. Emoji picker click no inserta el shortcode
-- **Problema**: al escribir `:` y clickear un emoji del picker, NO se autorellena el texto
-- **Causa probable**: `onmousedown={preventDefault}` en el contenedor del picker puede estar bloqueando el `click` event en los botones de emoji
-- **Fix intentado**: 3 iteraciones (click → mousedown → container preventDefault) — ninguna funcionó
-- **Archivo**: `src/lib/components/EmojiPicker.svelte`
-- **Solución sugerida**: usar `onmousedown` directamente en cada botón de emoji (no en el contenedor), con `e.preventDefault()` + `e.stopPropagation()` + llamar a `onselect` directamente
+Sesión heavy — 10 commits, cambios visuales grandes:
+- Waveform + Player visual overhaul
+- Emoji system fix (reactive picker, live preview)
+- Store layout (genre tabs, show more, back-to-top)
+- Beat grid equal sizing fix
+- Page transitions + beat detail parallax
 
-### 2. Preview del emoji no se muestra
-- **Problema**: después de seleccionar un emoji, la preview renderizada no aparece debajo del input
-- **Causa probable**: `renderEmojis` no matchea los shortcodes porque `$customEmojis` está vacío al renderizar, o el componente `InlineEmoji` no se actualiza reactivo
-- **Archivo**: `src/lib/components/EmojiInput.svelte`
-- **Verificar**: que `$customEmojis` tiene datos (debería tener `man_ball` y `gatitu`)
+## TAREAS SESIÓN 43 (prioridad)
 
-### 3. Preview de emojis en el picker
-- **Problema**: el picker muestra emojis pero las imágenes podrían no cargarse
-- **Verificar**: que las URLs de los emojis son accesibles desde el browser
-- **URLs**: `https://cdn.dacewav.store/emojis/custom/1777166010375.gif` y `1777166030318.jpg`
+### 1. Admin: Animation Previews en vivo
+- **Página**: `/admin/animations`
+- **Qué falta**: preview en vivo de cada tipo de animación (float, pulse, bounce, etc.)
+- **Archivo**: `src/routes/(admin)/admin/animations/+page.svelte`
+- **Idea**: mini card con cada animación aplicada, usuario ve el efecto antes de seleccionar
 
-## Contexto técnico
+### 2. Theme: Live Preview Panel
+- **Página**: `/admin/theme`
+- **Qué falta**: panel de preview que muestre cambios en tiempo real
+- **Archivo**: `src/routes/(admin)/admin/theme/+page.svelte`
+- **Idea**: split view — sliders a la izquierda, preview de la tienda a la derecha
 
-### Archivos clave del emoji system
-- `src/lib/components/EmojiPicker.svelte` — popup flotante con grid de emojis
-- `src/lib/components/EmojiInput.svelte` — wrapper textarea/input con autocomplete
-- `src/lib/components/InlineEmoji.svelte` — renderiza `:shortcode:` → `<img>`
-- `src/lib/emojiUtils.ts` — renderEmojis, stripEmojis, findEmojiQuery, insertEmoji
-- `src/lib/stores/customEmojis.ts` — store Firebase de emojis custom
+### 3. Firebase Rules Deploy
+- **Qué**: las rules están actualizadas en código pero falta deploy desde Firebase Console
+- **Paths nuevos**: `gallery/`, `changelog/`, `customEmojis/`
+- **Ver**: `firebase.rules` o `database.rules.json`
 
-### Datos Firebase
-- 2 emojis en `customEmojis/`: `man_ball` (gif) y `gatitu` (jpg)
-- URLs en R2: `https://cdn.dacewav.store/emojis/custom/`
+### 4. GitHub Secrets
+- **Qué**: configurar secrets para Workers deploy
+- **Dónde**: GitHub repo → Settings → Secrets
 
-### Integración admin (ya hecha)
-- BeatEditor → campo descripción (EmojiInput)
-- Banner → texto del banner (EmojiInput)
-- Content → divider título + subtítulo + CTA subtítulo (EmojiInput)
-
-### Integración tienda (ya hecha)
-- Beat description → InlineEmoji
-- Banner text → InlineEmoji
-- Divider title → renderEmojis + sanitizeHtml
-- CTA subtitle → InlineEmoji
-- Custom emojis init en store layout + admin layout
-
-## Otros pendientes
-1. **Firebase rules** — deploy desde Firebase Console
-2. **GitHub secrets** — configurar en GitHub UI
-3. **Beat grid** — no aparece en la tienda (debug con browser console)
-4. **Audio uploads** — primeros 7 beats no tienen audio
+### 5. Store: Verificar beats sin audio
+- **Qué**: primeros 7 beats no tienen audioUrl
+- **Verificar**: en Firebase RTDB `beats/` → campo `audioUrl`
 
 ## Datos clave
 - Dev: `npm run dev -- --host 0.0.0.0 --port 5173`
@@ -74,3 +59,4 @@ svelte_check: "0 errors, 13 warnings"
 - CDN: https://cdn.dacewav.store
 - Tests: `npm test -- --run` (134 passing)
 - Check: `npx svelte-check` (0 errors)
+- Repo: https://github.com/dacewav/storewav

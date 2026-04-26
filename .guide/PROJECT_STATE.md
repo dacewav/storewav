@@ -1,6 +1,6 @@
 # 🧠 PROJECT_STATE.md — Estado Rápido
 
-> **Última actualización: 2026-04-26 09:05 (Session 41 — FileUpload + GitHub Action)**
+> **Última actualización: 2026-04-26 11:36 (Session 42 — Visual Overhaul + Emoji Fix + Store Layout)**
 
 ```yaml
 proyecto:      dacewav/store (storewav)
@@ -8,11 +8,11 @@ repo:          https://github.com/dacewav/storewav.git
 framework:     SvelteKit 2 + Cloudflare Workers + Firebase RTDB
 firebase:      dacewav-store-3b0f5
 firebase_db:   https://dacewav-store-3b0f5-default-rtdb.firebaseio.com
-sesiones:      41 completadas
-commits:       53+
-tests:         117 passing
-build:         0 errors, 0 warnings (svelte-check: 0 errors, 10 warnings)
-último_commit: "eb80aa9"
+sesiones:      42 completadas
+commits:       64+
+tests:         134 passing
+build:         0 errors, 0 warnings (svelte-check: 0 errors, 13 warnings)
+último_commit: "8ca48f9"
 
 ## Quick Status
 
@@ -20,8 +20,8 @@ build:         0 errors, 0 warnings (svelte-check: 0 errors, 10 warnings)
 |------|--------|---------|
 | .env | ✅ | Credenciales reales configuradas |
 | Build | ✅ | 0 errors, 0 warnings |
-| Tests | ✅ | 117 passing (Vitest) |
-| svelte-check | ✅ | 0 errors, 8 warnings |
+| Tests | ✅ | 134 passing (Vitest) |
+| svelte-check | ✅ | 0 errors, 13 warnings |
 | Firebase conn | ✅ | Lectura + escritura OK |
 | Settings en DB | ✅ | Flat format, migration layer |
 | Beats en DB | ✅ | 9 beats con schema completo |
@@ -32,17 +32,44 @@ build:         0 errors, 0 warnings (svelte-check: 0 errors, 10 warnings)
 | Media Gallery | ✅ | Upload, grid, assign to beats |
 | Feature Toggles | ✅ | 11 features toggleables |
 | Changelog | ✅ | Historial de cambios con Firebase |
-| Custom Emojis | ✅ | CRUD con Firebase |
+| Custom Emojis | ✅ | CRUD + reactive picker + live preview |
 | Theme Presets | ✅ | Save/load/delete/rename |
 | Soft Delete | ✅ | Trash + restore + permanent delete |
 | Deploy Pages | ✅ | Auto-deploy desde Git push |
 | Deploy Workers | ⚠️ | Workflow creado, falta agregar manual + secrets |
+| Waveform | ✅ | Gradient + glow + breathing + organic heights |
+| Player | ✅ | Mini waveform + skip ±10s + gradient progress |
+| Page Transitions | ✅ | View Transitions API (fade/scale) |
+| Store Layout | ✅ | Genre tabs + show more + back-to-top |
+| Beat Grid | ✅ | Equal 3-column layout (fixed) |
+
+## Session 42 — What Changed
+
+### Visual Overhaul
+- **Waveform**: gradient active bars, glow at cursor, breathing animation, organic sine-based heights
+- **Player**: mini waveform (20 bars), skip ±10s, gradient progress bar, pulsing glow, track transitions
+- **Beat Cards**: organic waveform bars with gradient + drop-shadow
+- **Beat Detail**: parallax cover, stagger license grid, enhanced selected glow
+- **Page Transitions**: View Transitions API with fade/scale
+
+### Emoji System Fix
+- Reactive picker: re-opens when emojis load from Firebase
+- Preview shows shortcodes even before emojis load (pending state)
+- `findEmojiQuery` rewritten — fixes back-to-back shortcode edge cases
+- Picker shows "no emojis" / "no results" states
+
+### Store Layout
+- **Genre Tabs**: visible genre buttons with counts, click to filter
+- **Show More**: beats batched in groups of 8, "Mostrar más" + "Mostrar todos"
+- **Back to Top**: floating button after 600px scroll
+- **Grid Fix**: forced `repeat(3, 1fr)` — equal column widths
+- **Featured excluded**: no duplicates between featured section and main grid
 
 ## Admin Pages (20)
 
-1. Dashboard (stats, seed, export/import) — ahora incluye "Artistas únicos"
+1. Dashboard (stats, seed, export/import)
 2. Beats (CRUD, bulk, filters, reorder, trash)
-3. Beat Editor (Info, Licencias, Media, Plataformas, Card Style)
+3. Beat Editor (Info, Licenses, Media, Plataformas, Card Style)
 4. Hero (text, glow, stroke, eyebrow, gradient, segments)
 5. Contenido (site name, slogan, about, contact)
 6. Links (social, store, brand, legal)
@@ -54,47 +81,24 @@ build:         0 errors, 0 warnings (svelte-check: 0 errors, 10 warnings)
 12. Layout (container, padding, gap, radius, pattern)
 13. Animaciones (logo, cards, buttons, player, title, waveform)
 14. Floating (CRUD, 5 animations, responsive)
-15. **Media** (NUEVO — upload, grid, assign to beats)
-16. **Features** (NUEVO — 11 toggle switches)
-17. **Changelog** (NUEVO — history with filters)
-18. **Emojis** (NUEVO — CRUD, shortcode copy)
+15. Media (upload, grid, assign to beats)
+16. Features (11 toggle switches)
+17. Changelog (history with filters)
+18. Emojis (CRUD, shortcode copy)
 19. Hero Visual (glow, stroke, segments)
 20. Content sections
-
-## MEGA-REBUILD-PLAN — Estado
-
-| Session | Features | Estado | Commit |
-|---------|----------|--------|--------|
-| 1 | Theme Presets + Soft Delete | ✅ | Pre-existente |
-| 2 | Floating Elements + Scroll Nav | ✅ | Pre-existente |
-| 3 | Cursor Glow + Scroll Progress | ✅ | Pre-existente |
-| 4 | Media Gallery | ✅ | `cb6ee26` |
-| 5 | Card Style Presets + Sibling Hover | ✅ | `77adacd` |
-| 6 | Feature Toggles + Changelog | ✅ | `18c0af9` |
-| 7 | Custom Emojis | ✅ | `dda2bcd` |
-| 8 | Dead Code Cleanup + Type Fixes | ✅ | `b24130a` |
-| 9 | Upload R2 + Success Indicator + Mobile Fix | ✅ | `4ce13e1` |
-| 10 | FileUpload en URL fields + GitHub Action | ✅ | `eb80aa9` |
 
 ## Pendientes conocidos
 
 | Prioridad | Item | Detalle |
 |-----------|------|---------|
-| 🔴 | Subir audio/cover | Upload funcional con R2 — probar y verificar que URLs se guardan en Firebase |
-| 🔴 | GitHub Action | Workflow creado, falta: (1) agregar desde GitHub UI, (2) configurar secrets |
-| 🟡 | Firebase rules | Rules actualizadas con gallery/ y changelog/ — falta deploy desde Firebase Console |
-| 🟡 | Upload local en todos los campos URL | Testimonios (avatarUrl), Brand (logoUrl), y otros: añadir botón "Subir desde PC" además del campo URL |
-| ⚞ | PWA | No implementado |
-
-### Upload local — campos a migrar (próxima sesión)
-
-| Campo | Página | Archivo |
-|-------|--------|---------|
-| Testimonios: avatarUrl | /admin/testimonials | +page.svelte |
-| Brand: logoUrl | /admin/brand | +page.svelte |
-| Hero: (si aplica) | /admin/hero | +page.svelte |
-
-Cada campo URL debe tener: input URL + botón "Subir desde PC" (FileUpload component)
+| 🟡 | Firebase rules | Rules actualizadas con gallery/ y changelog/ — falta deploy |
+| 🟡 | GitHub secrets | Configurar en GitHub UI |
+| 🟡 | Admin animation previews | Preview en vivo de cada animación en admin/animations |
+| 🟡 | Theme live preview | Panel de preview en admin/theme |
+| 🟢 | Hover sound effects | Opcional, toggleable |
+| 🟢 | Beat grid sin audio | Primeros 7 beats no tienen audio |
+| 🟢 | PWA | No implementado |
 
 ## Commands útiles
 
