@@ -180,8 +180,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 					const beatData = beatDataMap[item.beatId];
 					const contractFile = getContractFile(item.licenseName);
 
-					// Generate contract PDF
-					const pdfBytes = generateContractPDF({
+					// Generate contract PDF (full contract, async)
+					const pdfBytes = await generateContractPDF({
 						orderId: sessionId,
 						beatName: beatData?.name || item.beatName || 'Beat',
 						beatBpm: beatData?.bpm,
@@ -224,7 +224,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 					// Use first PDF as attachment (or combine if multiple)
 					if (!combinedPdfBase64) {
-						combinedPdfBase64 = btoa(String.fromCharCode(...pdfBytes));
+						let binary = '';
+						for (let i = 0; i < pdfBytes.length; i++) {
+							binary += String.fromCharCode(pdfBytes[i]);
+						}
+						combinedPdfBase64 = btoa(binary);
 					}
 				}
 
