@@ -8,7 +8,7 @@
 import { writable, derived, get } from 'svelte/store';
 import { ref, onValue, set, remove, push } from 'firebase/database';
 import { getDb } from '$lib/firebase';
-import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { uploadFile, deleteFile } from '$lib/upload';
 import { toast } from '$lib/toastStore';
 
 export type GalleryImage = {
@@ -62,44 +62,26 @@ function createGalleryStore() {
 
 	async function uploadImage(file: File, onProgress?: (pct: number) => void): Promise<GalleryImage | null> {
 		try {
-			const storage = getStorage();
 			const ext = file.name.split('.').pop() ?? 'jpg';
 			const filename = `gallery/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-			const sRef = storageRef(storage, filename);
 
-			return new Promise((resolve, reject) => {
-				const task = uploadBytesResumable(sRef, file, { contentType: file.type });
-				task.on(
-					'state_changed',
-					(snap) => {
-						const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-						onProgress?.(pct);
-					},
-					(err) => {
-						console.error('[Gallery] Upload error:', err);
-						toast.error('Error al subir imagen');
-						reject(err);
-					},
-					async () => {
-						const url = await getDownloadURL(task.snapshot.ref);
-						const db = await getDb();
-			if (!db) return;
-						const newRef = push(ref(db, 'gallery'));
-						const image: Omit<GalleryImage, 'id'> = {
-							url,
-							name: file.name,
-							size: file.size,
-							uploadedAt: Date.now()
-						};
-						await set(newRef, image);
-						toast.success(`"${file.name}" subido`);
-						resolve({ id: newRef.key!, ...image });
-					}
-				);
-			});
+			const result = await uploadFile(filename, file, (p) => onProgress?.(p.percent));
+
+			const db = await getDb();
+			if (!db) return null;
+			const newRef = push(ref(db, 'gallery'));
+			const image: Omit<GalleryImage, 'id'> = {
+				url: result.url,
+				name: file.name,
+				size: file.size,
+				uploadedAt: Date.now()
+			};
+			await set(newRef, image);
+			toast.success(`"${file.name}" subido`);
+			return { id: newRef.key!, ...image };
 		} catch (e) {
 			console.error('[Gallery] Upload failed:', e);
-			toast.error('Error al subir imagen');
+			toast.error(e instanceof Error ? e.message : 'Error al subir imagen');
 			return null;
 		}
 	}
@@ -110,15 +92,9 @@ function createGalleryStore() {
 			const img = current.find((i) => i.id === id);
 			if (!img) return false;
 
-			// Delete from Storage if it's a Firebase URL
-			if (img.url.includes('firebasestorage.googleapis.com')) {
-				try {
-					const storage = getStorage();
-					const sRef = storageRef(storage, img.url);
-					await deleteObject(sRef);
-				} catch {
-					// Storage delete may fail if already gone — non-fatal
-				}
+			// Delete from storage (R2 or Firebase)
+			if (img.url) {
+				await deleteFile(img.url);
 			}
 
 			// Delete from RTDB

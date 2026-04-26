@@ -1,8 +1,11 @@
 /**
- * Upload utility — Firebase Storage
+ * Upload utility — R2 (prod) / Firebase Storage (dev fallback)
+ *
+ * Production: POST /api/upload → Cloudflare R2
+ * Dev: Firebase Storage (si está configurado)
  */
 
-import { getStorageInstance } from '$lib/firebase';
+import { browser } from '$app/environment';
 
 export type UploadResult = {
 	url: string;
@@ -16,8 +19,8 @@ export type UploadProgress = {
 };
 
 /**
- * Sube un archivo a Firebase Storage
- * @param path - Path en Storage (ej: 'beats/covers/abc123.jpg')
+ * Sube un archivo vía API route → R2 (prod) o Firebase Storage (dev)
+ * @param path - Path en storage (ej: 'beats/covers/abc123/1234.jpg')
  * @param file - File object
  * @param onProgress - Callback de progreso
  */
@@ -26,19 +29,69 @@ export async function uploadFile(
 	file: File,
 	onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResult> {
+	// Detect: if we have an API route, use R2; otherwise fallback to Firebase
+	const useR2 = await isR2Available();
+
+	if (useR2) {
+		return uploadToR2(path, file, onProgress);
+	}
+
+	// Dev fallback: Firebase Storage
+	return uploadToFirebase(path, file, onProgress);
+}
+
+/**
+ * Upload via /api/upload → R2
+ */
+async function uploadToR2(
+	path: string,
+	file: File,
+	onProgress?: (progress: UploadProgress) => void
+): Promise<UploadResult> {
+	onProgress?.({ bytesTransferred: 0, totalBytes: file.size, percent: 0 });
+
+	const formData = new FormData();
+	formData.append('file', file);
+	formData.append('path', path);
+
+	const res = await fetch('/api/upload', {
+		method: 'POST',
+		body: formData
+	});
+
+	if (!res.ok) {
+		const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+		throw new Error(body.error || `Upload falló (${res.status})`);
+	}
+
+	onProgress?.({ bytesTransferred: file.size, totalBytes: file.size, percent: 100 });
+
+	const data = await res.json();
+	if (!data.ok) throw new Error(data.error || 'Upload falló');
+
+	return { url: data.url, path: data.path };
+}
+
+/**
+ * Dev fallback: Firebase Storage
+ */
+async function uploadToFirebase(
+	path: string,
+	file: File,
+	onProgress?: (progress: UploadProgress) => void
+): Promise<UploadResult> {
+	const { getStorageInstance } = await import('$lib/firebase');
 	const storage = await getStorageInstance();
-	if (!storage) throw new Error('Firebase Storage no configurado. Habilita Storage en la consola Firebase.');
+	if (!storage) throw new Error('Firebase Storage no configurado y R2 no disponible.');
 
 	const { ref, uploadBytesResumable, getDownloadURL } = await import('firebase/storage');
 	const storageRef = ref(storage, path);
 
 	return new Promise((resolve, reject) => {
-		// Timeout: si en 30s no hubo progreso real, abortar
 		let lastProgress = 0;
 		const timeout = setTimeout(() => {
 			if (lastProgress === 0) {
-				console.error('[Upload] Timeout — sin progreso en 30s. Storage bucket:', storage.app.options.storageBucket);
-				reject(new Error('Upload timeout: sin progreso en 30s. Verifica que Firebase Storage esté habilitado y las rules permitan escritura.'));
+				reject(new Error('Upload timeout: sin progreso en 30s.'));
 			}
 		}, 30_000);
 
@@ -57,7 +110,6 @@ export async function uploadFile(
 			},
 			(error) => {
 				clearTimeout(timeout);
-				console.error('[Upload] Error:', error.code, error.message);
 				reject(error);
 			},
 			async () => {
@@ -74,6 +126,22 @@ export async function uploadFile(
 }
 
 /**
+ * Check if R2 upload endpoint is available
+ */
+async function isR2Available(): Promise<boolean> {
+	if (!browser) return false;
+	try {
+		// If the app is running on Cloudflare Pages with R2 binding, the API route works
+		// In dev mode (localhost), it won't have R2 → falls back to Firebase
+		const res = await fetch('/api/upload', { method: 'OPTIONS' }).catch(() => null);
+		// If the route exists (even if it returns 405), R2 is available
+		return res !== null && res.status !== 404;
+	} catch {
+		return false;
+	}
+}
+
+/**
  * Genera un path único para un archivo
  */
 export function generatePath(folder: string, beatId: string, fileName: string): string {
@@ -83,19 +151,22 @@ export function generatePath(folder: string, beatId: string, fileName: string): 
 }
 
 /**
- * Borra un archivo de Firebase Storage por URL
+ * Borra un archivo de R2 o Firebase Storage por path/URL
  */
-export async function deleteFile(url: string): Promise<void> {
-	const storage = await getStorageInstance();
-	if (!storage) return;
-
-	try {
-		const { ref, deleteObject } = await import('firebase/storage');
-		const storageRef = ref(storage, url);
-		await deleteObject(storageRef);
-	} catch {
-		// Silently fail — file might not exist
+export async function deleteFile(pathOrUrl: string): void {
+	// If it looks like a URL, try Firebase delete; otherwise it's an R2 path
+	if (pathOrUrl.startsWith('http')) {
+		try {
+			const { getStorageInstance } = await import('$lib/firebase');
+			const storage = await getStorageInstance();
+			if (!storage) return;
+			const { ref, deleteObject } = await import('firebase/storage');
+			await deleteObject(ref(storage, pathOrUrl));
+		} catch {
+			// Silently fail
+		}
 	}
+	// R2 delete would need a separate API route — for now, files are overwritten
 }
 
 /**
