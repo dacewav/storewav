@@ -170,6 +170,15 @@
 			]
 		},
 		{
+			label: 'Ventas',
+			items: [
+				{ href: '/admin/analytics', label: 'Analytics', icon: '📈' },
+				{ href: '/admin/discounts', label: 'Descuentos', icon: '🏷️' },
+				{ href: '/admin/contracts', label: 'Contratos', icon: '📄' },
+				{ href: '/admin/emails', label: 'Emails', icon: '✉️' },
+			]
+		},
+		{
 			label: 'Sistema',
 			items: [
 				{ href: '/admin/features', label: 'Features & Log', icon: '⚡' },
