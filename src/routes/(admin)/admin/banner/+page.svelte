@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
-	import { Card, EmojiInput , Collapsible} from '$lib/components';
+	import { Card, EmojiInput, Collapsible, FileUpload } from '$lib/components';
 	import type { BannerSettings } from '$lib/stores/settings';
 
 	let s = $derived($settings.data);
@@ -141,6 +141,44 @@
 			</div>
 		</div>
 	</Collapsible>
+
+	<!-- Background Image -->
+	<Collapsible id="banner-bgimg" icon="🖼️" title="Imagen de fondo" open={false}>
+		<p class="field-desc">Imagen de fondo del banner (opcional). Se superpone sobre el color de fondo.</p>
+		<div class="field">
+			<FileUpload
+				value={b.bgImage ?? ''}
+				folder="banner"
+				beatId="bg"
+				accept="image/*"
+				type="image"
+				label="Imagen de fondo"
+				maxSizeMB={5}
+				onUploadComplete={(url) => update('banner.bgImage', url)}
+				onRemove={() => update('banner.bgImage', '')}
+			/>
+			<div class="url-fallback">
+				<label for="bn-bgimg">O pega una URL:</label>
+				<input id="bn-bgimg" type="text" value={b.bgImage ?? ''} oninput={(e) => update('banner.bgImage', e.currentTarget.value)} placeholder="https://..." />
+			</div>
+		</div>
+		{#if b.bgImage}
+			<div class="field">
+				<label for="bn-bgop">Opacidad imagen ({Math.round((b.bgImageOpacity ?? 0.3) * 100)}%)</label>
+				<input id="bn-bgop" type="range" min="0" max="1" step="0.05" value={b.bgImageOpacity ?? 0.3} oninput={(e) => update('banner.bgImageOpacity', +e.currentTarget.value)} />
+			</div>
+		{/if}
+	</Collapsible>
+
+	<!-- Live Preview -->
+	<Collapsible id="banner-preview" icon="👁" title="Preview" open={false}>
+		<div class="banner-preview" style="background: {b.bgColor || '#7f1d1d'}; {b.bgImage ? `background-image: url(${b.bgImage}); background-size: cover; background-position: center;` : ''}">
+			{#if b.bgImage}
+				<div class="banner-preview-overlay" style="background: {b.bgColor || '#7f1d1d'}; opacity: {1 - (b.bgImageOpacity ?? 0.3)}"></div>
+			{/if}
+			<span class="banner-preview-text" style="color: {b.textColor || '#ffffff'}">{b.text || 'Tu banner aquí'}</span>
+		</div>
+	</Collapsible>
 </div>
 
 <style>
@@ -160,4 +198,12 @@
 	.color-row { display: flex; gap: var(--space-2); align-items: center; }
 	.color-row input[type="color"] { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); cursor: pointer; padding: 2px; }
 	.color-row input[type="text"] { flex: 1; }
+	.field-desc { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-3); line-height: 1.5; }
+	.url-fallback { margin-top: var(--space-2); }
+	.url-fallback label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-muted); margin-bottom: var(--space-1); display: block; }
+	.url-fallback input { padding: var(--space-1) var(--space-2); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-xs); font-family: var(--font-mono); outline: none; transition: border-color var(--duration-fast); }
+	.url-fallback input:focus { border-color: rgba(var(--accent-rgb), 0.5); }
+	.banner-preview { position: relative; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); overflow: hidden; text-align: center; min-height: 48px; display: flex; align-items: center; justify-content: center; }
+	.banner-preview-overlay { position: absolute; inset: 0; pointer-events: none; }
+	.banner-preview-text { position: relative; z-index: 1; font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.05em; white-space: nowrap; }
 </style>

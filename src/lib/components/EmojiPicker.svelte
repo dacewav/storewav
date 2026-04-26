@@ -85,12 +85,19 @@
 	}
 
 	/**
-	 * CRITICAL: onmousedown on each button (not container) to:
-	 * 1. Prevent input blur (e.preventDefault)
-	 * 2. Stop event from reaching container's mousedown (e.stopPropagation)
-	 * 3. Fire onselect immediately — click events are unreliable after preventDefault
+	 * CRITICAL: onpointerdown + onclick on each button (not container) to:
+	 * 1. Prevent input blur (e.preventDefault on pointerdown)
+	 * 2. Stop event from reaching container (e.stopPropagation)
+	 * 3. Fire onselect immediately — pointerdown fires before blur
+	 * 4. onclick as redundant fallback for max browser compat
 	 */
-	function handleEmojiMousedown(e: MouseEvent, emoji: CustomEmoji) {
+	function handleEmojiPointerDown(e: PointerEvent, emoji: CustomEmoji) {
+		e.preventDefault();
+		e.stopPropagation();
+		onselect?.(emoji);
+	}
+
+	function handleEmojiClick(e: MouseEvent, emoji: CustomEmoji) {
 		e.preventDefault();
 		e.stopPropagation();
 		onselect?.(emoji);
@@ -129,7 +136,8 @@
 					<button
 						class="picker-emoji"
 						class:selected={i === selectedIndex}
-						onmousedown={(e) => handleEmojiMousedown(e, emoji)}
+						onpointerdown={(e) => handleEmojiPointerDown(e, emoji)}
+						onclick={(e) => handleEmojiClick(e, emoji)}
 						role="option"
 						aria-selected={i === selectedIndex}
 						title=":{emoji.name}:"

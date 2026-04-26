@@ -111,7 +111,7 @@
 		return String(Math.round(clamped * 100) / 100);
 	}
 
-	const ANIMS = ['none', 'float', 'pulse', 'bounce', 'spin', 'shake', 'glow', 'slide-up', 'slide-down', 'fade-in'];
+	const ANIMS = ['none', 'float', 'pulse', 'bounce', 'spin', 'shake', 'glow', 'slide-up', 'slide-down', 'fade-in', 'wobble', 'jello', 'heartbeat', 'breathe', 'drift', 'pop', 'swing', 'tada'];
 	const PARTICLE_TYPES = ['circle', 'square', 'line', 'text', 'image'];
 	const BLEND_MODES = ['normal', 'screen', 'overlay', 'multiply', 'soft-light', 'hard-light', 'color-dodge'];
 	const GLOW_ANIMS = ['none', 'pulse', 'breathe', 'spin'];

@@ -40,6 +40,9 @@
 	let pickerQuery = $state('');
 	let pickerRect = $state({ top: 0, left: 0, bottom: 0 });
 	let lastColonPos = $state(-1);
+	let lastQueryEnd = $state(-1); // track end pos of the query when picker opens
+	let isSelecting = $state(false); // prevent blur from closing picker during selection
+	let lastSelectTime = $state(0); // debounce double-fire from pointerdown+click
 
 	// Preview — show whenever text has ":" (potential shortcode being typed)
 	let hasShortcodes = $derived(/:[a-zA-Z0-9_+-]+:?/.test(value));
@@ -75,12 +78,14 @@
 		if (query && emojis.length > 0) {
 			pickerQuery = query.query;
 			lastColonPos = query.start;
+			lastQueryEnd = query.end;
 			pickerVisible = true;
 			positionPicker(query.start);
 		} else if (query && emojis.length === 0) {
 			// Has query but emojis not loaded yet — keep tracking
 			pickerQuery = query.query;
 			lastColonPos = query.start;
+			lastQueryEnd = query.end;
 			pickerVisible = false;
 		} else {
 			closePicker();
@@ -122,24 +127,54 @@
 	}
 
 	function handleSelect(emoji: CustomEmoji) {
-		const cursorPos = inputEl?.selectionStart ?? value.length;
-		const query = findEmojiQuery(value, cursorPos)
-			|| (lastColonPos >= 0
-				? { start: lastColonPos, end: cursorPos, query: value.slice(lastColonPos + 1, cursorPos) }
-				: null);
+		// Debounce: onpointerdown + onclick both fire onselect — skip duplicates
+		const now = Date.now();
+		if (now - lastSelectTime < 150) return;
+		lastSelectTime = now;
 
-		if (!query) return;
+		// Block blur handler from closing picker during selection
+		isSelecting = true;
 
-		const result = insertEmoji(value, cursorPos, query, emoji.name);
+		// Save the value and query state BEFORE any reactivity resets them.
+		// The picker fires onpointerdown which prevents blur, but just in case,
+		// we use the saved lastColonPos/lastQueryEnd as primary source.
+		const currentText = value;
+		const colonPos = lastColonPos;
+		const queryEnd = lastQueryEnd >= 0 ? lastQueryEnd : (inputEl?.selectionStart ?? currentText.length);
+
+		// Build query from saved state (most reliable — set when picker opened)
+		let query = null;
+		if (colonPos >= 0) {
+			query = {
+				start: colonPos,
+				end: queryEnd,
+				query: currentText.slice(colonPos + 1, queryEnd)
+			};
+		}
+		// Fallback: try findEmojiQuery with current cursor
+		if (!query) {
+			const cursorPos = inputEl?.selectionStart ?? currentText.length;
+			query = findEmojiQuery(currentText, cursorPos);
+		}
+
+		if (!query) {
+			isSelecting = false;
+			return;
+		}
+
+		const result = insertEmoji(currentText, query.end, query, emoji.name);
 		value = result.text;
 		closePicker();
 		oninput?.(value);
 
+		// Refocus input and set cursor position
 		requestAnimationFrame(() => {
 			if (inputEl) {
 				inputEl.focus();
 				inputEl.setSelectionRange(result.cursor, result.cursor);
 			}
+			// Allow blur to work again after focus is restored
+			setTimeout(() => { isSelecting = false; }, 50);
 		});
 	}
 
@@ -147,6 +182,7 @@
 		pickerVisible = false;
 		pickerQuery = '';
 		lastColonPos = -1;
+		lastQueryEnd = -1;
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -158,8 +194,14 @@
 	}
 
 	function handleBlur() {
-		// Longer delay — mousedown on picker must fire first
-		setTimeout(() => { closePicker(); }, 300);
+		// Longer delay — pointerdown/click on picker must fire first.
+		// The picker uses onpointerdown with preventDefault which should keep
+		// focus on the input, but this timeout is a safety net.
+		setTimeout(() => {
+			if (!isSelecting) {
+				closePicker();
+			}
+		}, 300);
 	}
 </script>
 

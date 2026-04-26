@@ -86,6 +86,8 @@
 	let bannerDelay = $derived(settingsData?.banner?.delay ?? 0);
 	let bannerBg = $derived(settingsData?.banner?.bgColor ?? '#7f1d1d');
 	let bannerTxtClr = $derived(settingsData?.banner?.textColor ?? '#ffffff');
+	let bannerBgImage = $derived(settingsData?.banner?.bgImage ?? '');
+	let bannerBgImageOpacity = $derived(settingsData?.banner?.bgImageOpacity ?? 0.3);
 	let bannerDuration = $derived.by(() => {
 		const s = bannerSpeed;
 		switch (bannerAnim) {
@@ -286,7 +288,10 @@
 
 <!-- Banner (admin-editable) -->
 {#if bannerEnabled}
-<div class="site-banner" style="background: {bannerBg}">
+<div class="site-banner" style="background: {bannerBg}; {bannerBgImage ? `background-image: url(${bannerBgImage}); background-size: cover; background-position: center;` : ''}">
+	{#if bannerBgImage}
+		<div class="banner-bg-overlay" style="background: {bannerBg}; opacity: {1 - bannerBgImageOpacity}"></div>
+	{/if}
 	{#if bannerUrl}
 		<a
 			href={bannerUrl}
@@ -478,7 +483,16 @@
 		padding: var(--space-2) 0;
 	}
 
+	.banner-bg-overlay {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		z-index: 0;
+	}
+
 	.banner-inner {
+		position: relative;
+		z-index: 1;
 		font-family: var(--font-mono);
 		font-size: var(--text-xs);
 		color: var(--text);
@@ -897,8 +911,16 @@
 	@keyframes anim-slide-up { from { transform: translateY(10px); opacity: 0.5; } to { transform: translateY(0); opacity: 1; } }
 	@keyframes anim-slide-down { from { transform: translateY(-10px); opacity: 0.5; } to { transform: translateY(0); opacity: 1; } }
 	@keyframes anim-fade-in { from { opacity: 0; } to { opacity: 1; } }
+	@keyframes anim-wobble { 0%, 100% { transform: rotate(0); } 15% { transform: rotate(-5deg); } 30% { transform: rotate(3deg); } 45% { transform: rotate(-3deg); } 60% { transform: rotate(2deg); } 75% { transform: rotate(-1deg); } }
+	@keyframes anim-jello { 0%, 100% { transform: skewX(0) skewY(0); } 22% { transform: skewX(-4deg) skewY(-2deg); } 33% { transform: skewX(2deg) skewY(1deg); } 44% { transform: skewX(-1deg) skewY(-0.5deg); } 55% { transform: skewX(0.5deg) skewY(0.25deg); } }
+	@keyframes anim-heartbeat { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.1); } 28% { transform: scale(1); } 42% { transform: scale(1.1); } 70% { transform: scale(1); } }
+	@keyframes anim-breathe { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.03); opacity: 1; } }
+	@keyframes anim-drift { 0%, 100% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(3px, -3px) rotate(1deg); } 50% { transform: translate(-2px, 2px) rotate(-0.5deg); } 75% { transform: translate(1px, -1px) rotate(0.5deg); } }
+	@keyframes anim-pop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+	@keyframes anim-swing { 0%, 100% { transform: rotate(0); transform-origin: top center; } 20% { transform: rotate(8deg); } 40% { transform: rotate(-5deg); } 60% { transform: rotate(3deg); } 80% { transform: rotate(-1deg); } }
+	@keyframes anim-tada { 0%, 100% { transform: scale(1) rotate(0); } 10%, 20% { transform: scale(0.95) rotate(-3deg); } 30%, 50%, 70%, 90% { transform: scale(1.05) rotate(3deg); } 40%, 60%, 80% { transform: scale(1.05) rotate(-3deg); } }
 
-	.anim-float, .anim-pulse, .anim-bounce, .anim-spin, .anim-shake, .anim-glow, .anim-slide-up, .anim-slide-down, .anim-fade-in {
+	.anim-float, .anim-pulse, .anim-bounce, .anim-spin, .anim-shake, .anim-glow, .anim-slide-up, .anim-slide-down, .anim-fade-in, .anim-wobble, .anim-jello, .anim-heartbeat, .anim-breathe, .anim-drift, .anim-pop, .anim-swing, .anim-tada {
 		animation-fill-mode: both;
 		animation-iteration-count: infinite;
 		animation-duration: 2s;
@@ -911,7 +933,15 @@
 	.anim-spin { animation-name: anim-spin; }
 	.anim-shake { animation-name: anim-shake; }
 	.anim-glow { animation-name: anim-glow; }
-	.anim-slide-up { animation-name: anim-slide-up; }
-	.anim-slide-down { animation-name: anim-slide-down; }
-	.anim-fade-in { animation-name: anim-fade-in; }
+	.anim-slide-up { animation-name: anim-slide-up; animation-iteration-count: 1; }
+	.anim-slide-down { animation-name: anim-slide-down; animation-iteration-count: 1; }
+	.anim-fade-in { animation-name: anim-fade-in; animation-iteration-count: 1; }
+	.anim-wobble { animation-name: anim-wobble; }
+	.anim-jello { animation-name: anim-jello; }
+	.anim-heartbeat { animation-name: anim-heartbeat; }
+	.anim-breathe { animation-name: anim-breathe; }
+	.anim-drift { animation-name: anim-drift; }
+	.anim-pop { animation-name: anim-pop; animation-iteration-count: 1; }
+	.anim-swing { animation-name: anim-swing; transform-origin: top center; }
+	.anim-tada { animation-name: anim-tada; }
 </style>

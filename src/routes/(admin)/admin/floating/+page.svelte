@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Range, Badge, HelpTip , Collapsible} from '$lib/components';
+	import { Card, Range, Badge, HelpTip, Collapsible, FileUpload } from '$lib/components';
 	import {
 		floatingElements,
 		floatingLoading,
@@ -206,14 +206,38 @@
 					<label class="form-label" for="fl-content">
 						{form.type === 'image' ? 'URL de imagen' : 'Texto o emoji'}
 					</label>
-					<input
-						id="fl-content"
-						type="text"
-						class="form-input"
-						value={form.content ?? ''}
-						oninput={(e) => (form.content = e.currentTarget.value)}
-						placeholder={form.type === 'image' ? 'https://...' : '✨'}
-					/>
+					{#if form.type === 'image'}
+						<FileUpload
+							value={form.content ?? ''}
+							folder="floating"
+							beatId="element"
+							accept="image/*"
+							type="image"
+							label="Imagen flotante"
+							maxSizeMB={5}
+							onUploadComplete={(url) => { form.content = url; }}
+							onRemove={() => { form.content = ''; }}
+						/>
+						<div class="url-fallback">
+							<label class="form-label">O pega una URL:</label>
+							<input
+								type="text"
+								class="form-input"
+								value={form.content ?? ''}
+								oninput={(e) => (form.content = e.currentTarget.value)}
+								placeholder="https://..."
+							/>
+						</div>
+					{:else}
+						<input
+							id="fl-content"
+							type="text"
+							class="form-input"
+							value={form.content ?? ''}
+							oninput={(e) => (form.content = e.currentTarget.value)}
+							placeholder="✨"
+						/>
+					{/if}
 				</div>
 
 				<!-- Position -->
@@ -602,6 +626,18 @@
 		color: var(--text-muted);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
+	}
+
+	.url-fallback {
+		margin-top: var(--space-2);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+	}
+
+	.url-fallback .form-input {
+		font-size: var(--text-xs);
+		font-family: var(--font-mono);
 	}
 
 	.form-input, .form-select {

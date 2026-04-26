@@ -86,6 +86,8 @@ export type BannerSettings = {
 	delay: number; // seconds
 	bgColor: string;
 	textColor: string;
+	bgImage: string; // optional background image URL
+	bgImageOpacity: number; // 0-1, default 0.3
 };
 
 export type Testimonial = {
