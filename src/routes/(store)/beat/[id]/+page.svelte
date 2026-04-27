@@ -40,8 +40,18 @@
 	let beatsRaw = $derived($beatsStore);
 	let s = $derived($settings.data);
 
-	// Current beat
-	let beat = $derived(beats.find(b => b.id === beatId) ?? null);
+	// Current beat — look up by slug first, then by ID
+	let beat = $derived.by(() => {
+		const param = page.params.id;
+		// Try slug match first
+		const bySlug = beats.find(b => {
+			const slug = b.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+			return slug === param;
+		});
+		if (bySlug) return bySlug;
+		// Fallback to ID
+		return beats.find(b => b.id === param) ?? null;
+	});
 	let loading = $derived(beatsRaw.loading);
 
 	// Wishlist

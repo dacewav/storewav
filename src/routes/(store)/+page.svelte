@@ -6,6 +6,7 @@
 	import { beatsList, genres, settings, player, analytics, customEmojis, auth } from '$lib/stores';
 	import { userLikes } from '$lib/stores/likes';
 	import { getForYouRecommendations } from '$lib/stores/recommendations';
+	import { getBeatSlug } from '$lib/slug';
 	import { sanitizeHtml } from '$lib/sanitize';
 	import type { HeroVisualSettings, LabelSettings, AnimationSettings } from '$lib/stores/settings';
 	import type { IconName } from '$lib/icons';
@@ -267,7 +268,7 @@
 
 	function handleBeatClick(beat: Beat & { id: string }) {
 		analytics.track('beat', 'click', { lbl: beat.id, meta: beat.name });
-		goto(`/beat/${beat.id}`);
+		goto(`/beat/${getBeatSlug(beat)}`);
 	}
 
 	/** Sanitize HTML from Firebase — only allow safe inline tags */
