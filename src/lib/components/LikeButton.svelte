@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { auth, toggleLike, isLiked, subscribeToLikeCount } from '$lib/stores';
+	import { toast } from '$lib/toastStore';
 	import { onMount } from 'svelte';
 
 	let {
@@ -22,7 +23,7 @@
 
 	async function handleToggle() {
 		if (!uid) {
-			// Prompt login — could add a toast here
+			toast.info('Iniciá sesión para guardar favoritos');
 			return;
 		}
 		if (loading) return;
@@ -50,7 +51,6 @@
 	class:compact
 	class:animating
 	onclick={handleToggle}
-	disabled={!uid}
 	title={uid ? (isLikedVal ? 'Quitar de favoritos' : 'Agregar a favoritos') : 'Iniciá sesión para guardar'}
 	aria-label={isLikedVal ? 'Quitar like' : 'Dar like'}
 >
@@ -78,13 +78,8 @@
 		font-size: var(--text-xs);
 	}
 
-	.like-btn:hover:not(:disabled) {
+	.like-btn:hover {
 		background: rgba(239, 68, 68, 0.08);
-	}
-
-	.like-btn:disabled {
-		cursor: default;
-		opacity: 0.6;
 	}
 
 	.like-btn.compact {

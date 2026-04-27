@@ -8,10 +8,11 @@
 	let authState = $derived($auth);
 	let user = $derived(authState.user);
 
-	const tabs: Array<{ href: string; label: string; icon: 'export' | 'shoppingCart' | 'heart' }> = [
+	const tabs: Array<{ href: string; label: string; icon: 'export' | 'shoppingCart' | 'heart' | 'music' }> = [
 		{ href: '/account/profile', label: 'Perfil', icon: 'export' },
 		{ href: '/account/orders', label: 'Órdenes', icon: 'shoppingCart' },
 		{ href: '/account/favorites', label: 'Favoritos', icon: 'heart' },
+		{ href: '/account/playlists', label: 'Playlists', icon: 'music' },
 	];
 
 	let currentPath = $derived(page.url.pathname);
