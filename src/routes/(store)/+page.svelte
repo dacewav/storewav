@@ -3,7 +3,9 @@
 	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials, InlineEmoji } from '$lib/components';
 	import { renderEmojis, stripEmojis } from '$lib/emojiUtils';
 	import Icon from '$lib/components/Icon.svelte';
-	import { beatsList, genres, settings, player, analytics, customEmojis } from '$lib/stores';
+	import { beatsList, genres, settings, player, analytics, customEmojis, auth } from '$lib/stores';
+	import { userLikes } from '$lib/stores/likes';
+	import { getForYouRecommendations } from '$lib/stores/recommendations';
 	import { sanitizeHtml } from '$lib/sanitize';
 	import type { HeroVisualSettings, LabelSettings, AnimationSettings } from '$lib/stores/settings';
 	import type { IconName } from '$lib/icons';
@@ -126,6 +128,15 @@
 
 	// Featured beats (for the featured section)
 	let featuredBeats = $derived(beats.filter(b => b.featured).slice(0, 4));
+
+	// "For You" recommendations based on user's liked beats
+	let forYouBeats = $derived.by(() => {
+		const likedSet = $userLikes;
+		const likedIds = Array.from(likedSet);
+		if (likedIds.length === 0) return [];
+		const recs = getForYouRecommendations(likedIds, beats, {}, 8);
+		return recs.map(r => r.beat);
+	});
 
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
 	let filters: FilterState = $state({ search: '', genre: '', key: '', sort: 'newest', tags: [] });
@@ -356,6 +367,22 @@
 	</div>
 	<div class="beat-grid" use:staggerReveal={{ delay: 60 }}>
 		{#each featuredBeats as beat (beat.id)}
+			<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
+		{/each}
+	</div>
+</section>
+{/if}
+
+<!-- For You recommendations -->
+{#if forYouBeats.length > 0}
+<section class="featured-section" use:reveal={{}}>
+	<div class="section-header">
+		<h2 class="section-title" style={sectionTitleStyle}>✨ Para ti</h2>
+		<div class="section-line"></div>
+		<div class="section-badge">Basado en tus likes</div>
+	</div>
+	<div class="beat-grid" use:staggerReveal={{ delay: 60 }}>
+		{#each forYouBeats as beat (beat.id)}
 			<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 		{/each}
 	</div>

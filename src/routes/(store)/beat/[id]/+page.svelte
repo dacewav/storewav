@@ -8,6 +8,8 @@
 	import Waveform from '$lib/components/Waveform.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { staggerReveal } from '$lib/actions';
+	import { getRecommendations } from '$lib/stores/recommendations';
+	import { likeCounts } from '$lib/stores/likes';
 	import type { Action } from 'svelte/action';
 	import type { Beat } from '$lib/stores/beats';
 
@@ -58,21 +60,15 @@
 	let labelAddToCart = $derived(labels.addToCart ?? 'Agregar al carrito');
 	let labelInCart = $derived(labels.inCart ?? 'En el carrito');
 
-	// Related beats: same genre, exclude current, max 4
-	let relatedBeats = $derived(
-		beat
-			? beats
-					.filter(b => b.id !== beat!.id && b.genre === beat!.genre)
-					.slice(0, 4)
-			: []
-	);
-
-	// Fallback: if no same-genre, show random active beats
-	let displayRelated = $derived(
-		relatedBeats.length > 0
-			? relatedBeats
-			: beats.filter(b => b.id !== beatId).slice(0, 4)
-	);
+	// Smart recommendations using scoring engine
+	let displayRelated = $derived.by(() => {
+		if (!beat) return [];
+		const counts = $likeCounts;
+		const recs = getRecommendations(beat, beats, counts, [], 4);
+		if (recs.length > 0) return recs.map(r => r.beat);
+		// Fallback: random active beats
+		return beats.filter(b => b.id !== beatId).slice(0, 4);
+	});
 
 	// Selected license
 	let selectedLicense = $state(-1);
