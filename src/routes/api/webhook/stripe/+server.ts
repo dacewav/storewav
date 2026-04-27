@@ -266,12 +266,19 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 				const totalUSD = items.reduce((s, i) => s + i.priceUSD, 0);
 
 				// Calculate original totals (before discount) from metadata
-				const originalTotalMXN = discountCode && discountAmount
-					? Math.round(totalMXN / (1 - (discountType === 'percent' ? discountAmount / 100 : 0)))
-					: totalMXN;
-				const originalTotalUSD = discountCode && discountAmount
-					? Math.round(totalUSD / (1 - (discountType === 'percent' ? discountAmount / 100 : 0)))
-					: totalUSD;
+				let originalTotalMXN = totalMXN;
+				let originalTotalUSD = totalUSD;
+				if (discountCode && discountAmount) {
+					if (discountType === 'percent') {
+						// Percent: final = original * (1 - percent/100) → original = final / (1 - percent/100)
+						originalTotalMXN = Math.round(totalMXN / (1 - discountAmount / 100));
+						originalTotalUSD = Math.round(totalUSD / (1 - discountAmount / 100));
+					} else {
+						// Fixed: final = original - fixed → original = final + fixed
+						originalTotalMXN = totalMXN + Math.round(discountAmount * 17); // approx MXN
+						originalTotalUSD = totalUSD + discountAmount;
+					}
+				}
 
 				await sendDeliveryEmail({
 					orderId: sessionId,
