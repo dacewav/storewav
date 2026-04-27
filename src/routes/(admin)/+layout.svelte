@@ -177,6 +177,7 @@
 				{ href: '/admin/contracts', label: 'Contratos', icon: '📄' },
 				{ href: '/admin/contracts/editor', label: 'Editor', icon: '✏️' },
 				{ href: '/admin/emails', label: 'Emails', icon: '✉️' },
+				{ href: '/admin/comments', label: 'Comentarios', icon: '💬' },
 			]
 		},
 		{
