@@ -8,6 +8,17 @@
 
 	const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
+	/** Get auth token for API calls */
+	async function getAuthToken(): Promise<string | null> {
+		try {
+			const { getAuthInstance } = await import('$lib/firebase');
+			const auth = await getAuthInstance();
+			return await auth?.currentUser?.getIdToken() ?? null;
+		} catch {
+			return null;
+		}
+	}
+
 	let profile = $state({
 		artistName: '',
 		country: '',
@@ -37,7 +48,9 @@
 		if (!user) return;
 		loading = true;
 		try {
-			const resp = await fetch(`${FIREBASE_DB}/users/${user.uid}.json`);
+			const token = await getAuthToken();
+			const authParam = token ? `?auth=${token}` : '';
+			const resp = await fetch(`${FIREBASE_DB}/users/${user.uid}.json${authParam}`);
 			if (resp.ok) {
 				const data = await resp.json();
 				if (data) {
@@ -118,7 +131,9 @@
 			avatarPreview = data.url;
 
 			// Save to Firebase immediately
-			await fetch(`${FIREBASE_DB}/users/${user!.uid}/avatarURL.json`, {
+			const authToken = await getAuthToken();
+			const authP = authToken ? `?auth=${authToken}` : '';
+			await fetch(`${FIREBASE_DB}/users/${user!.uid}/avatarURL.json${authP}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(data.url),
@@ -158,7 +173,9 @@
 			};
 
 			// Merge with existing (don't overwrite createdAt)
-			const resp = await fetch(`${FIREBASE_DB}/users/${user.uid}.json`, {
+			const token = await getAuthToken();
+			const authParam = token ? `?auth=${token}` : '';
+			const resp = await fetch(`${FIREBASE_DB}/users/${user.uid}.json${authParam}`, {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(data),
