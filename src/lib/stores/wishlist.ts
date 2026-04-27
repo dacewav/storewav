@@ -10,6 +10,7 @@ import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 
 const STORAGE_KEY = 'dacewav_wishlist';
+const STORAGE_UID_KEY = 'dacewav_wishlist_uid'; // Track whose wishlist is in localStorage
 const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 let currentUid: string | null = null;
@@ -37,6 +38,11 @@ async function authUrl(path: string): Promise<string> {
 function loadLocal(): string[] {
 	if (!browser) return [];
 	try {
+		// If localStorage belongs to a different user, ignore it
+		const storedUid = localStorage.getItem(STORAGE_UID_KEY);
+		if (currentUid && storedUid && storedUid !== currentUid) {
+			return []; // Different user — don't load stale data
+		}
 		const raw = localStorage.getItem(STORAGE_KEY);
 		return raw ? JSON.parse(raw) : [];
 	} catch {
@@ -46,7 +52,18 @@ function loadLocal(): string[] {
 
 function saveLocal(ids: string[]) {
 	if (!browser) return;
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+		if (currentUid) localStorage.setItem(STORAGE_UID_KEY, currentUid);
+	} catch {
+		// Storage full or unavailable
+	}
+}
+
+function clearLocal() {
+	if (!browser) return;
+	localStorage.removeItem(STORAGE_KEY);
+	localStorage.removeItem(STORAGE_UID_KEY);
 }
 
 const store = writable<string[]>(loadLocal());
@@ -62,32 +79,57 @@ if (browser) {
 
 /**
  * Initialize Firebase sync for authenticated user.
- * Merges localStorage wishlist with Firebase on first login.
+ * Firebase is the source of truth when logged in.
+ * localStorage is only used for anonymous users.
  */
 export async function initWishlistSync(uid: string | null) {
 	currentUid = uid;
 
-	if (!uid || !browser) return;
+	if (!uid || !browser) {
+		// Not logged in — load from localStorage
+		store.set(loadLocal());
+		return;
+	}
 
 	try {
-		// Load Firebase wishlist
+		// Load Firebase wishlist (source of truth)
 		const url = await authUrl(`/userWishlist/${uid}`);
 		const resp = await fetch(url);
 		const firebaseData = await resp.json() as Record<string, { addedAt?: number }> | null;
 		const firebaseIds = firebaseData ? Object.keys(firebaseData) : [];
 
-		// Merge: union of local + Firebase
-		const localIds = loadLocal();
-		const merged = [...new Set([...localIds, ...firebaseIds])];
+		// Replace localStorage with Firebase data (no merge — per-account isolation)
+		store.set(firebaseIds);
+		saveLocal(firebaseIds);
 
-		// Update store and both storages
-		store.set(merged);
-		saveLocal(merged);
+		// If there were local items not in Firebase, sync them up
+		// (first time migration: user had wishlist before creating account)
+		const storedUid = localStorage.getItem(STORAGE_UID_KEY);
+		if (!storedUid || storedUid !== uid) {
+			// First time logging in with this account — check for anonymous local items
+			// loadLocal() returns [] because of UID mismatch, so we need raw localStorage
+			try {
+				const raw = localStorage.getItem(STORAGE_KEY);
+				if (raw) {
+					const localIds: string[] = JSON.parse(raw);
+					const newIds = localIds.filter(id => !firebaseIds.includes(id));
+					if (newIds.length > 0) {
+						// Merge anonymous items into Firebase
+						const merged = [...firebaseIds, ...newIds];
+						await syncToFirebase(merged);
+						store.set(merged);
+						saveLocal(merged);
+					}
+				}
+			} catch { /* ignore parse errors */ }
+		}
 
-		// Sync merged list to Firebase
-		await syncToFirebase(merged);
+		// Mark localStorage as belonging to this user
+		localStorage.setItem(STORAGE_UID_KEY, uid);
 	} catch (err) {
 		console.error('[Wishlist] Firebase sync failed:', err);
+		// Fallback to localStorage
+		store.set(loadLocal());
 	}
 }
 
@@ -143,7 +185,9 @@ function clear() {
 /** Cleanup on logout */
 export function destroyWishlistSync() {
 	currentUid = null;
-	// Keep localStorage — don't clear the store
+	// Clear UID tracking so next login starts fresh
+	if (browser) localStorage.removeItem(STORAGE_UID_KEY);
+	// Keep localStorage wishlist for anonymous browsing
 }
 
 export const wishlist = {

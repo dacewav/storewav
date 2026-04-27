@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Comment } from '$lib/stores/comments';
-	import { auth, deleteComment } from '$lib/stores';
+	import { auth, deleteComment, customEmojis } from '$lib/stores';
+	import { renderEmojis } from '$lib/emojiUtils';
 
 	let {
 		comment,
@@ -15,6 +16,8 @@
 	let isAdmin = $derived(authState.isAdmin);
 	let canDelete = $derived(isOwner || isAdmin);
 	let deleting = $state(false);
+	let emojis = $derived($customEmojis);
+	let renderedText = $derived(renderEmojis(comment.text, emojis));
 
 	function timeAgo(ts: number): string {
 		const diff = Date.now() - ts;
@@ -55,7 +58,7 @@
 				<span class="comment-edited">(editado)</span>
 			{/if}
 		</div>
-		<p class="comment-text">{comment.text}</p>
+		<p class="comment-text">{@html renderedText}</p>
 		{#if canDelete}
 			<button class="comment-delete" onclick={handleDelete} disabled={deleting}>
 				Eliminar

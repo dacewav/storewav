@@ -1,10 +1,9 @@
 <script lang="ts">
 	import type { Beat } from '$lib/stores/beats';
-	import { wishlist, settings, player, analytics, incrementPlay, accentRgb as accentRgbStore, cart } from '$lib/stores';
+	import { wishlist, settings, player, analytics, incrementPlay, accentRgb as accentRgbStore, cart, likeCounts } from '$lib/stores';
 	import { tilt } from '$lib/actions';
 	import { toast } from '$lib/toastStore';
 	import Icon from './Icon.svelte';
-	import LikeButton from './LikeButton.svelte';
 	import {
 		mergeCardStyles,
 		cardStyleToCSS,
@@ -41,6 +40,7 @@
 	let inWishlist = $derived(wishlist.isIn(beat.id));
 	let playing = $state(false);
 	let isCurrentBeat = $derived($player.beatId === beat.id && $player.playing);
+	let beatLikeCount = $derived($likeCounts[beat.id] ?? 0);
 
 	// Card style engine: merge global (from settings) + per-beat
 	let accentRgb = $state('220, 38, 38');
@@ -212,6 +212,10 @@
 			<span>{beat.bpm} BPM</span>
 			<span class="meta-dot">·</span>
 			<span>{beat.key}</span>
+			{#if beatLikeCount > 0}
+				<span class="meta-dot">·</span>
+				<span class="meta-likes">❤️ {beatLikeCount}</span>
+			{/if}
 		</div>
 		{#if beat.tags?.length}
 			<div class="beat-tags">
@@ -223,9 +227,6 @@
 		<div class="beat-price" style={priceCSS || undefined}>
 			<span class="price-from">{labelFrom}</span>
 			<span class="price-amount">${lowestPrice(beat)}</span>
-		</div>
-		<div class="beat-likes">
-			<LikeButton beatId={beat.id} compact showCount />
 		</div>
 	</div>
 </div>
@@ -548,6 +549,10 @@
 		color: var(--text-muted);
 	}
 
+	.meta-likes {
+		color: #ef4444;
+	}
+
 	.beat-tags {
 		display: flex;
 		gap: var(--space-1);
@@ -582,12 +587,5 @@
 		font-size: var(--text-lg);
 		font-weight: 800;
 		color: var(--accent);
-	}
-
-	.beat-likes {
-		display: flex;
-		align-items: center;
-		justify-content: flex-end;
-		padding: var(--space-1) 0;
 	}
 </style>

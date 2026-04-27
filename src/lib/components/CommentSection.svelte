@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { auth, comments, commentsLoading, postComment, initComments, destroyComments } from '$lib/stores';
+	import { auth, comments, commentsLoading, postComment, initComments, destroyComments, customEmojis } from '$lib/stores';
+	import { renderEmojis, findEmojiQuery, insertEmoji } from '$lib/emojiUtils';
 	import CommentCard from './CommentCard.svelte';
+	import EmojiPicker from './EmojiPicker.svelte';
+	import type { CustomEmoji } from '$lib/stores/customEmojis';
 
 	let { beatId }: { beatId: string } = $props();
 
@@ -13,6 +16,13 @@
 	let posting = $state(false);
 	let postError = $state('');
 	let charCount = $derived(commentText.length);
+	let emojis = $derived($customEmojis);
+
+	// Emoji picker state
+	let pickerVisible = $state(false);
+	let pickerQuery = $state('');
+	let pickerRect = $state({ top: 0, left: 0, bottom: 0 });
+	let inputEl: HTMLTextAreaElement | undefined = $state();
 
 	onMount(() => {
 		initComments(beatId);
@@ -25,6 +35,70 @@
 		initComments(id);
 		return () => destroyComments();
 	});
+
+	// Detect :shortcode: typing for autocomplete
+	function handleInput() {
+		if (!inputEl) return;
+		const cursorPos = inputEl.selectionStart ?? 0;
+		const query = findEmojiQuery(commentText, cursorPos);
+		if (query && query.query.length >= 0) {
+			pickerQuery = query.query;
+			pickerVisible = true;
+			updatePickerRect(query.start);
+		} else {
+			pickerVisible = false;
+		}
+	}
+
+	function updatePickerRect(colonIndex: number) {
+		if (!inputEl) return;
+		// Approximate position from the colon
+		const rect = inputEl.getBoundingClientRect();
+		// Simple approximation: position picker near cursor
+		pickerRect = {
+			top: rect.top,
+			left: Math.min(rect.left + 40, rect.right - 320),
+			bottom: rect.top - 4
+		};
+	}
+
+	function handleEmojiSelect(emoji: CustomEmoji) {
+		if (!inputEl) return;
+		const cursorPos = inputEl.selectionStart ?? 0;
+		const query = findEmojiQuery(commentText, cursorPos);
+		if (query) {
+			const result = insertEmoji(commentText, cursorPos, query, emoji.name);
+			commentText = result.text;
+			// Set cursor position after update
+			setTimeout(() => {
+				if (inputEl) {
+					inputEl.selectionStart = result.cursor;
+					inputEl.selectionEnd = result.cursor;
+					inputEl.focus();
+				}
+			}, 0);
+		} else {
+			// Insert at cursor
+			const before = commentText.slice(0, cursorPos);
+			const after = commentText.slice(cursorPos);
+			commentText = `${before}:${emoji.name}: ${after}`;
+			setTimeout(() => inputEl?.focus(), 0);
+		}
+		pickerVisible = false;
+	}
+
+	function openPicker(e: MouseEvent) {
+		e.preventDefault();
+		if (!inputEl) return;
+		pickerQuery = '';
+		pickerVisible = !pickerVisible;
+		const rect = inputEl.getBoundingClientRect();
+		pickerRect = {
+			top: rect.top,
+			left: Math.min(rect.left, rect.right - 320),
+			bottom: rect.top - 4
+		};
+	}
 
 	async function handleSubmit() {
 		if (!user || !commentText.trim()) return;
@@ -41,6 +115,7 @@
 
 		if (result.ok) {
 			commentText = '';
+			pickerVisible = false;
 		} else {
 			postError = result.error || 'Error al publicar';
 		}
@@ -63,14 +138,34 @@
 						{(user.displayName || '?')[0].toUpperCase()}
 					</div>
 				{/if}
-				<textarea
-					class="comment-input"
-					placeholder="Escribí un comentario..."
-					bind:value={commentText}
-					maxlength={500}
-					rows={2}
-					disabled={posting}
-				></textarea>
+				<div class="comment-input-wrap">
+					<textarea
+						class="comment-input"
+						placeholder="Escribí un comentario...  :emoji:"
+						bind:value={commentText}
+						bind:this={inputEl}
+						oninput={handleInput}
+						onkeydown={(e) => { if (e.key === 'Escape') pickerVisible = false; }}
+						maxlength={500}
+						rows={2}
+						disabled={posting}
+					></textarea>
+					<button
+						class="emoji-trigger"
+						type="button"
+						onclick={openPicker}
+						title="Emojis"
+						aria-label="Abrir picker de emojis"
+					>😀</button>
+				</div>
+				<EmojiPicker
+					{emojis}
+					query={pickerQuery}
+					visible={pickerVisible}
+					rect={pickerRect}
+					onselect={handleEmojiSelect}
+					onclose={() => { pickerVisible = false; }}
+				/>
 			</div>
 			<div class="comment-form-footer">
 				<span class="char-count" class:warn={charCount > 450}>
@@ -169,6 +264,7 @@
 	.comment-input {
 		flex: 1;
 		padding: var(--space-2) var(--space-3);
+		padding-right: 36px;
 		background: var(--bg);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
@@ -186,6 +282,35 @@
 
 	.comment-input:disabled {
 		opacity: 0.5;
+	}
+
+	.comment-input-wrap {
+		flex: 1;
+		position: relative;
+	}
+
+	.emoji-trigger {
+		position: absolute;
+		bottom: 8px;
+		right: 8px;
+		width: 28px;
+		height: 28px;
+		border-radius: var(--radius-sm);
+		border: none;
+		background: transparent;
+		cursor: pointer;
+		font-size: 16px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all var(--duration-fast);
+		opacity: 0.6;
+	}
+
+	.emoji-trigger:hover {
+		opacity: 1;
+		background: rgba(var(--accent-rgb), 0.08);
+		transform: scale(1.1);
 	}
 
 	.comment-form-footer {
