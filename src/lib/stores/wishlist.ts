@@ -15,6 +15,25 @@ const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 let currentUid: string | null = null;
 let syncingToFirebase = false;
 
+/** Get current user's Firebase ID token for authenticated REST calls */
+async function getAuthToken(): Promise<string | null> {
+	try {
+		const { getAuthInstance } = await import('$lib/firebase');
+		const auth = await getAuthInstance();
+		const user = auth?.currentUser;
+		if (!user) return null;
+		return await user.getIdToken();
+	} catch {
+		return null;
+	}
+}
+
+/** Build URL with auth token */
+async function authUrl(path: string): Promise<string> {
+	const token = await getAuthToken();
+	return token ? `${FIREBASE_DB}${path}?auth=${token}` : `${FIREBASE_DB}${path}`;
+}
+
 function loadLocal(): string[] {
 	if (!browser) return [];
 	try {
@@ -52,7 +71,8 @@ export async function initWishlistSync(uid: string | null) {
 
 	try {
 		// Load Firebase wishlist
-		const resp = await fetch(`${FIREBASE_DB}/userWishlist/${uid}.json`);
+		const url = await authUrl(`/userWishlist/${uid}`);
+		const resp = await fetch(url);
 		const firebaseData = await resp.json() as Record<string, { addedAt?: number }> | null;
 		const firebaseIds = firebaseData ? Object.keys(firebaseData) : [];
 
@@ -83,7 +103,8 @@ async function syncToFirebase(ids: string[]) {
 		for (const id of ids) {
 			data[id] = { addedAt: Date.now() };
 		}
-		await fetch(`${FIREBASE_DB}/userWishlist/${currentUid}.json`, {
+		const url = await authUrl(`/userWishlist/${currentUid}`);
+		await fetch(url, {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(data),
@@ -115,7 +136,7 @@ function clear() {
 	store.set([]);
 	saveLocal([]);
 	if (currentUid) {
-		fetch(`${FIREBASE_DB}/userWishlist/${currentUid}.json`, { method: 'DELETE' }).catch(() => {});
+		authUrl(`/userWishlist/${currentUid}`).then(url => fetch(url, { method: 'DELETE' })).catch(() => {});
 	}
 }
 

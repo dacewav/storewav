@@ -29,6 +29,30 @@ const activeListeners: Array<() => void> = [];
 /** Rate limit: last comment timestamp */
 let lastCommentAt = 0;
 
+/** Auth token for REST calls */
+let _authToken: string | null = null;
+
+/** Get current user's Firebase ID token */
+async function getAuthToken(): Promise<string | null> {
+	if (_authToken) return _authToken;
+	try {
+		const { getAuthInstance } = await import('$lib/firebase');
+		const auth = await getAuthInstance();
+		const user = auth?.currentUser;
+		if (!user) return null;
+		_authToken = await user.getIdToken();
+		return _authToken;
+	} catch {
+		return null;
+	}
+}
+
+/** Build URL with auth token */
+async function authUrl(path: string): Promise<string> {
+	const token = await getAuthToken();
+	return token ? `${FIREBASE_DB}${path}?auth=${token}` : `${FIREBASE_DB}${path}`;
+}
+
 /**
  * Subscribe to comments for a beat.
  */
@@ -100,7 +124,8 @@ export async function postComment(
 	}
 
 	try {
-		const resp = await fetch(`${FIREBASE_DB}/beatComments/${beatId}.json`, {
+		const url = await authUrl(`/beatComments/${beatId}`);
+		const resp = await fetch(url, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -130,9 +155,8 @@ export async function postComment(
  */
 export async function deleteComment(beatId: string, commentId: string): Promise<boolean> {
 	try {
-		const resp = await fetch(`${FIREBASE_DB}/beatComments/${beatId}/${commentId}.json`, {
-			method: 'DELETE',
-		});
+		const url = await authUrl(`/beatComments/${beatId}/${commentId}`);
+		const resp = await fetch(url, { method: 'DELETE' });
 		return resp.ok;
 	} catch {
 		return false;

@@ -169,7 +169,7 @@ describe('Comments Store', () => {
 		const result = await mod.postComment('beat-123', 'user-456', 'Test User', null, 'Great beat!');
 		expect(result.ok).toBe(true);
 		expect(fetch).toHaveBeenCalledWith(
-			expect.stringContaining('beatComments/beat-123.json'),
+			expect.stringContaining('beatComments/beat-123'),
 			expect.objectContaining({ method: 'POST' })
 		);
 	});

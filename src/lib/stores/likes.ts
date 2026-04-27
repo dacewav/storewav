@@ -17,6 +17,30 @@ const likeCountsStore = writable<Record<string, number>>({});
 /** Current UID (set by init) */
 let currentUid: string | null = null;
 
+/** Auth token for REST calls */
+let _authToken: string | null = null;
+
+/** Get current user's Firebase ID token */
+async function getAuthToken(): Promise<string | null> {
+	if (_authToken) return _authToken;
+	try {
+		const { getAuthInstance } = await import('$lib/firebase');
+		const auth = await getAuthInstance();
+		const user = auth?.currentUser;
+		if (!user) return null;
+		_authToken = await user.getIdToken();
+		return _authToken;
+	} catch {
+		return null;
+	}
+}
+
+/** Build URL with auth token */
+async function authUrl(path: string): Promise<string> {
+	const token = await getAuthToken();
+	return token ? `${FIREBASE_DB}${path}?auth=${token}` : `${FIREBASE_DB}${path}`;
+}
+
 /** Active listeners for cleanup */
 const activeListeners: Array<() => void> = [];
 
@@ -31,6 +55,7 @@ export async function initLikes(uid: string | null) {
 	if (!browser) return;
 
 	currentUid = uid;
+	_authToken = null; // Reset token for new user
 
 	if (!uid) {
 		userLikesStore.set(new Set());
@@ -96,17 +121,18 @@ export function subscribeToLikeCount(beatId: string, callback: (count: number) =
  */
 export async function toggleLike(beatId: string, uid: string): Promise<boolean> {
 	try {
-		const resp = await fetch(`${FIREBASE_DB}/userLikes/${uid}/${beatId}.json`);
+		const checkUrl = await authUrl(`/userLikes/${uid}/${beatId}`);
+		const resp = await fetch(checkUrl);
 		const exists = await resp.json();
 
 		if (exists) {
 			// Unlike
-			await fetch(`${FIREBASE_DB}/userLikes/${uid}/${beatId}.json`, { method: 'DELETE' });
-			await fetch(`${FIREBASE_DB}/beatLikes/${beatId}/${uid}.json`, { method: 'DELETE' });
+			await fetch(await authUrl(`/userLikes/${uid}/${beatId}`), { method: 'DELETE' });
+			await fetch(await authUrl(`/beatLikes/${beatId}/${uid}`), { method: 'DELETE' });
 			// Decrement count
-			const countResp = await fetch(`${FIREBASE_DB}/beats/${beatId}/likeCount.json`);
+			const countResp = await fetch(await authUrl(`/beats/${beatId}/likeCount`));
 			const count = (await countResp.json() as number) || 0;
-			await fetch(`${FIREBASE_DB}/beats/${beatId}/likeCount.json`, {
+			await fetch(await authUrl(`/beats/${beatId}/likeCount`), {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(Math.max(0, count - 1)),
@@ -114,20 +140,20 @@ export async function toggleLike(beatId: string, uid: string): Promise<boolean> 
 			return false;
 		} else {
 			// Like
-			await fetch(`${FIREBASE_DB}/userLikes/${uid}/${beatId}.json`, {
+			await fetch(await authUrl(`/userLikes/${uid}/${beatId}`), {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(true),
 			});
-			await fetch(`${FIREBASE_DB}/beatLikes/${beatId}/${uid}.json`, {
+			await fetch(await authUrl(`/beatLikes/${beatId}/${uid}`), {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(true),
 			});
 			// Increment count
-			const countResp = await fetch(`${FIREBASE_DB}/beats/${beatId}/likeCount.json`);
+			const countResp = await fetch(await authUrl(`/beats/${beatId}/likeCount`));
 			const count = (await countResp.json() as number) || 0;
-			await fetch(`${FIREBASE_DB}/beats/${beatId}/likeCount.json`, {
+			await fetch(await authUrl(`/beats/${beatId}/likeCount`), {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(count + 1),

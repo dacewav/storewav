@@ -24,6 +24,25 @@ export type Notification = {
 let currentUid: string | null = null;
 let _notifications = writable<Notification[]>([]);
 
+/** Get current user's Firebase ID token for authenticated REST calls */
+async function getAuthToken(): Promise<string | null> {
+	try {
+		const { getAuthInstance } = await import('$lib/firebase');
+		const auth = await getAuthInstance();
+		const user = auth?.currentUser;
+		if (!user) return null;
+		return await user.getIdToken();
+	} catch {
+		return null;
+	}
+}
+
+/** Build URL with auth token */
+async function authUrl(path: string): Promise<string> {
+	const token = await getAuthToken();
+	return token ? `${FIREBASE_DB}${path}?auth=${token}` : `${FIREBASE_DB}${path}`;
+}
+
 export const notifications = {
 	subscribe: _notifications.subscribe,
 };
@@ -41,7 +60,8 @@ export async function initNotifications(uid: string | null) {
 	}
 
 	try {
-		const resp = await fetch(`${FIREBASE_DB}/userNotifications/${uid}.json`);
+		const url = await authUrl(`/userNotifications/${uid}`);
+		const resp = await fetch(url);
 		const data = await resp.json() as Record<string, Omit<Notification, 'id'>> | null;
 
 		if (data) {
@@ -68,7 +88,8 @@ export async function markAsRead(notificationId: string) {
 	);
 
 	try {
-		await fetch(`${FIREBASE_DB}/userNotifications/${currentUid}/${notificationId}/read.json`, {
+		const url = await authUrl(`/userNotifications/${currentUid}/${notificationId}/read`);
+		await fetch(url, {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(true),
@@ -96,7 +117,8 @@ export async function markAllAsRead() {
 
 	try {
 		for (const id of unreadIds) {
-			await fetch(`${FIREBASE_DB}/userNotifications/${currentUid}/${id}/read.json`, {
+			const url = await authUrl(`/userNotifications/${currentUid}/${id}/read`);
+			await fetch(url, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(true),
@@ -116,7 +138,8 @@ export async function deleteNotification(notificationId: string) {
 	_notifications.update((list) => list.filter((n) => n.id !== notificationId));
 
 	try {
-		await fetch(`${FIREBASE_DB}/userNotifications/${currentUid}/${notificationId}.json`, {
+		const url = await authUrl(`/userNotifications/${currentUid}/${notificationId}`);
+		await fetch(url, {
 			method: 'DELETE',
 		});
 	} catch (err) {
@@ -132,7 +155,8 @@ export async function sendNotification(
 	notification: Omit<Notification, 'id' | 'read' | 'createdAt'>
 ) {
 	try {
-		const resp = await fetch(`${FIREBASE_DB}/userNotifications/${targetUid}.json`, {
+		const url = await authUrl(`/userNotifications/${targetUid}`);
+		const resp = await fetch(url, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -160,7 +184,8 @@ export async function notifyWishlistDiscount(
 ) {
 	try {
 		// Get all wishlists to find users who have this beat
-		const resp = await fetch(`${FIREBASE_DB}/userWishlist.json`);
+		const wishUrl = await authUrl('/userWishlist');
+		const resp = await fetch(wishUrl);
 		const allWishlists = await resp.json() as Record<string, Record<string, unknown>> | null;
 
 		if (!allWishlists) return 0;
@@ -194,7 +219,8 @@ export async function notifyWishlistDiscount(
 export async function notifyNewBeat(beatId: string, beatName: string) {
 	try {
 		// Get all user IDs from users/ node
-		const resp = await fetch(`${FIREBASE_DB}/users.json`);
+		const usersUrl = await authUrl('/users');
+		const resp = await fetch(usersUrl);
 		const users = await resp.json() as Record<string, unknown> | null;
 
 		if (!users) return 0;
@@ -230,7 +256,8 @@ export async function notifyPriceChange(
 	const emoji = newPrice < oldPrice ? '📉' : '📈';
 
 	try {
-		const resp = await fetch(`${FIREBASE_DB}/userWishlist.json`);
+		const wishUrl = await authUrl('/userWishlist');
+		const resp = await fetch(wishUrl);
 		const allWishlists = await resp.json() as Record<string, Record<string, unknown>> | null;
 
 		if (!allWishlists) return 0;
