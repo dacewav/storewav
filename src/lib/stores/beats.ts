@@ -41,6 +41,7 @@ export type Beat = {
 	exclusive?: boolean;
 	available?: boolean;
 	plays?: number;
+	likeCount?: number;
 	cardStyle?: Partial<CardStyleConfig>;
 	glowConfig?: Record<string, unknown>;
 	cardAnim?: Record<string, unknown>;

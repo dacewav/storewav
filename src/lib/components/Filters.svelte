@@ -36,6 +36,7 @@
 
 	const sortOptions = [
 		{ value: 'newest', label: 'Más recientes' },
+		{ value: 'popular', label: '🔥 Más populares' },
 		{ value: 'oldest', label: 'Más antiguos' },
 		{ value: 'name-az', label: 'Nombre A-Z' },
 		{ value: 'name-za', label: 'Nombre Z-A' },

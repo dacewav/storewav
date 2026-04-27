@@ -217,6 +217,7 @@
 		// Sort
 		switch (filters.sort) {
 			case 'newest': list.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '')); break;
+			case 'popular': list.sort((a, b) => (b.likeCount ?? b.plays ?? 0) - (a.likeCount ?? a.plays ?? 0)); break;
 			case 'oldest': list.sort((a, b) => (a.date ?? '').localeCompare(b.date ?? '')); break;
 			case 'name-az': list.sort((a, b) => a.name.localeCompare(b.name)); break;
 			case 'name-za': list.sort((a, b) => b.name.localeCompare(a.name)); break;
