@@ -7,8 +7,6 @@
 import { browser } from '$app/environment';
 import { dev } from '$app/environment';
 
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
-
 let initialized = false;
 let gsiLoaded = false;
 
@@ -16,6 +14,7 @@ let gsiLoaded = false;
 function loadGSI(): Promise<void> {
 	return new Promise((resolve, reject) => {
 		if (gsiLoaded) { resolve(); return; }
+		if (typeof document === 'undefined') { reject(new Error('No document')); return; }
 
 		const script = document.createElement('script');
 		script.src = 'https://accounts.google.com/gsi/client';
@@ -35,7 +34,7 @@ export async function initOneTap(
 	onCredential: (idToken: string) => Promise<void>,
 	clientId: string
 ): Promise<void> {
-	if (!browser || initialized) return;
+	if (!browser || initialized || !clientId) return;
 
 	try {
 		await loadGSI();
@@ -62,12 +61,12 @@ export async function initOneTap(
 
 		// Show the One Tap prompt
 		google.accounts.id.prompt((notification: any) => {
-			if (dev) console.log('[OneTap] Prompt notification:', notification.getMomentType());
+			if (dev) console.log('[OneTap] Prompt:', notification.getMomentType());
 		});
 
 		initialized = true;
 	} catch (err) {
-		console.error('[OneTap] Init failed:', err);
+		if (dev) console.error('[OneTap] Init failed:', err);
 	}
 }
 
@@ -94,4 +93,10 @@ export function dismissOneTap() {
 	if (google?.accounts?.id) {
 		google.accounts.id.cancel();
 	}
+}
+
+/** Reset One Tap state (call on logout) */
+export function resetOneTap() {
+	initialized = false;
+	dismissOneTap();
 }

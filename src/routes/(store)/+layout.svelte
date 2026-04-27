@@ -7,6 +7,8 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { initLikes, destroyLikes } from '$lib/stores/likes';
 	import { initWishlistSync } from '$lib/stores/wishlist';
+	import { initOneTap, signInWithIdToken, dismissOneTap } from '$lib/oneTap';
+	import { PUBLIC_GOOGLE_CLIENT_ID } from '$env/static/public';
 	import { sanitizeCSS } from '$lib/sanitize';
 
 	let { children } = $props();
@@ -80,6 +82,17 @@
 		const uid = $auth.user?.uid ?? null;
 		initLikes(uid);
 		initWishlistSync(uid);
+
+		// Google One Tap when not logged in
+		if (!uid && !$auth.loading && PUBLIC_GOOGLE_CLIENT_ID) {
+			initOneTap(
+				async (idToken) => { await signInWithIdToken(idToken); },
+				PUBLIC_GOOGLE_CLIENT_ID
+			);
+		} else {
+			dismissOneTap();
+		}
+
 		return () => destroyLikes();
 	});
 
