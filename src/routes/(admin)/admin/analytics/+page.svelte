@@ -21,6 +21,7 @@
 	};
 
 	let orders = $state<Order[]>([]);
+	let likeCounts = $state<Record<string, number>>({});
 	let loading = $state(true);
 	let period = $state<'all' | '30d' | '7d' | 'today'>('all');
 
@@ -94,6 +95,11 @@
 		// Discount usage
 		const discountUsage = ords.filter(o => o.discountCode).length;
 
+		// Top beats by likes
+		const topLikedBeats = Object.entries(likeCounts)
+			.sort(([, a], [, b]) => b - a)
+			.slice(0, 10);
+
 		return {
 			totalMXN,
 			totalUSD,
@@ -103,6 +109,7 @@
 			avgOrderUSD: ords.length > 0 ? Math.round(totalUSD / ords.length * 100) / 100 : 0,
 			byLicense,
 			topBeats,
+			topLikedBeats,
 			dailySales,
 			discountUsage,
 		};
@@ -111,15 +118,33 @@
 	async function loadOrders() {
 		loading = true;
 		try {
-			const resp = await fetch(`${FIREBASE_DB}/orders.json`);
-			if (resp.ok) {
-				const data = await resp.json();
+			const [ordersResp, likesResp] = await Promise.all([
+				fetch(`${FIREBASE_DB}/orders.json`),
+				fetch(`${FIREBASE_DB}/beats.json?shallow=true`),
+			]);
+
+			if (ordersResp.ok) {
+				const data = await ordersResp.json();
 				if (data) {
 					orders = Object.values(data) as Order[];
 				}
 			}
+
+			// Load like counts from beats
+			if (likesResp.ok) {
+				const beatsData = await likesResp.json() as Record<string, { likeCount?: number }> | null;
+				if (beatsData) {
+					const counts: Record<string, number> = {};
+					for (const [id, beat] of Object.entries(beatsData)) {
+						if (beat && typeof beat === 'object' && 'likeCount' in beat) {
+							counts[id] = (beat as { likeCount?: number }).likeCount ?? 0;
+						}
+					}
+					likeCounts = counts;
+				}
+			}
 		} catch (e) {
-			console.error('Failed to load orders:', e);
+			console.error('Failed to load analytics data:', e);
 		} finally {
 			loading = false;
 		}
@@ -227,6 +252,22 @@
 				</div>
 			{/if}
 		</div>
+
+		<!-- Top Beats by Likes -->
+		{#if stats.topLikedBeats.length > 0}
+			<div class="section">
+				<h2 class="section-title">🔥 Beats más likeados</h2>
+				<div class="top-list">
+					{#each stats.topLikedBeats as [beatId, count], i}
+						<div class="top-item">
+							<span class="top-rank">#{i + 1}</span>
+							<span class="top-name">{beatId}</span>
+							<span class="top-count">❤️ {count}</span>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
 
 		<!-- Daily Sales Chart (simple text-based) -->
 		<div class="section">
