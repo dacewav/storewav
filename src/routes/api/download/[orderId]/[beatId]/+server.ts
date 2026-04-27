@@ -1,12 +1,15 @@
 import type { RequestHandler } from './$types';
+import { getPresignedDownloadUrl, r2KeyFromUrl } from '$lib/r2Presign';
 
 /**
  * GET /api/download/[orderId]/[beatId]
- * Secure file download — verifies order is paid, then serves file from R2.
- * Supports Range requests for large files.
+ * Secure file download — verifies order is paid, then redirects to a presigned R2 URL.
+ * Falls back to R2 binding or proxy if presigning is unavailable.
  */
 
 const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
+const R2_BUCKET = 'dace-beats';
+const PRESIGNED_EXPIRY = 3600; // 1 hour
 
 // Cache verified orders for 5 min to avoid repeated Firebase calls
 const orderCache = new Map<string, { verified: number; items: string[] }>();
@@ -37,18 +40,7 @@ async function verifyOrder(orderId: string, beatId: string): Promise<boolean> {
 	}
 }
 
-/** Extract R2 key from a cdn.dacewav.store URL */
-function r2KeyFromUrl(url: string): string | null {
-	try {
-		const u = new URL(url);
-		// pathname starts with / — remove leading slash
-		return u.pathname.slice(1) || null;
-	} catch {
-		return null;
-	}
-}
-
-export const GET: RequestHandler = async ({ params, platform, request }) => {
+export const GET: RequestHandler = async ({ params, platform }) => {
 	const { orderId, beatId } = params;
 
 	if (!orderId || !beatId) {
@@ -77,7 +69,37 @@ export const GET: RequestHandler = async ({ params, platform, request }) => {
 		return new Response('Error fetching beat', { status: 500 });
 	}
 
-	// Try R2 binding first (direct, no egress)
+	// ── Presigned URL (primary method) ──
+	const env = platform?.env as Record<string, string> | undefined;
+	const r2AccountId = env?.R2_ACCOUNT_ID;
+	const r2AccessKeyId = env?.R2_ACCESS_KEY_ID;
+	const r2SecretAccessKey = env?.R2_SECRET_ACCESS_KEY;
+
+	if (r2AccountId && r2AccessKeyId && r2SecretAccessKey) {
+		const key = r2KeyFromUrl(audioUrl);
+		if (key) {
+			try {
+				const presignedUrl = await getPresignedDownloadUrl(
+					R2_BUCKET,
+					key,
+					{ R2_ACCOUNT_ID: r2AccountId, R2_ACCESS_KEY_ID: r2AccessKeyId, R2_SECRET_ACCESS_KEY: r2SecretAccessKey },
+					PRESIGNED_EXPIRY
+				);
+				return new Response(null, {
+					status: 302,
+					headers: {
+						Location: presignedUrl,
+						'Cache-Control': 'private, no-store',
+					},
+				});
+			} catch (err) {
+				console.error('[Download] Presign failed, falling back:', err);
+				// Fall through to R2 binding / proxy
+			}
+		}
+	}
+
+	// ── Fallback 1: R2 binding (direct, no egress) ──
 	const r2 = platform?.env?.MEDIA;
 	if (r2) {
 		const key = r2KeyFromUrl(audioUrl);
@@ -89,14 +111,6 @@ export const GET: RequestHandler = async ({ params, platform, request }) => {
 					headers.set('Content-Type', obj.httpMetadata?.contentType || 'audio/mpeg');
 					headers.set('Content-Disposition', `attachment; filename="${sanitizeFilename(beatName)}.mp3"`);
 					headers.set('Cache-Control', 'private, no-store');
-
-					// Support Range requests
-					const range = request.headers.get('Range');
-					if (range && obj.body) {
-						// For simplicity, serve full file — R2 handles range internally
-						headers.set('Accept-Ranges', 'bytes');
-					}
-
 					return new Response(obj.body, { headers });
 				}
 			} catch {
@@ -105,7 +119,7 @@ export const GET: RequestHandler = async ({ params, platform, request }) => {
 		}
 	}
 
-	// Fallback: proxy from public URL
+	// ── Fallback 2: proxy from public URL ──
 	try {
 		const resp = await fetch(audioUrl);
 		if (!resp.ok) return new Response('File not found', { status: 404 });
