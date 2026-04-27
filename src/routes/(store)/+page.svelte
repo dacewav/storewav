@@ -3,7 +3,7 @@
 	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials, InlineEmoji } from '$lib/components';
 	import { renderEmojis, stripEmojis } from '$lib/emojiUtils';
 	import Icon from '$lib/components/Icon.svelte';
-	import { beatsList, genres, settings, player, analytics, customEmojis, auth } from '$lib/stores';
+	import { beatsList, allBeatsList, genres, settings, player, analytics, customEmojis, auth } from '$lib/stores';
 	import { userLikes } from '$lib/stores/likes';
 	import { getForYouRecommendations } from '$lib/stores/recommendations';
 	import { getBeatSlug } from '$lib/slug';
@@ -127,8 +127,8 @@
 	let licenseCount = $derived(beats.length > 0 && beats[0].licenses ? beats[0].licenses.length : 4);
 	let testimonialsTitle = $derived(s?.labels?.testimonialsTitle ?? 'Lo que dicen');
 
-	// Featured beats (for the featured section)
-	let featuredBeats = $derived(beats.filter(b => b.featured).slice(0, 4));
+	// Featured beats — use allBeatsList so featured:true always shows, even if active is false
+	let featuredBeats = $derived($allBeatsList.filter(b => b.featured).slice(0, 4));
 
 	// "For You" recommendations based on user's liked beats
 	let forYouBeats = $derived.by(() => {

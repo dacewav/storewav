@@ -1,9 +1,10 @@
 <script lang="ts">
 	import type { Beat } from '$lib/stores/beats';
-	import { wishlist, settings, player, analytics, incrementPlay, accentRgb as accentRgbStore, cart, likeCounts } from '$lib/stores';
+	import { wishlist, settings, player, analytics, incrementPlay, accentRgb as accentRgbStore, cart, likeCounts, subscribeToLikeCount } from '$lib/stores';
 	import { tilt } from '$lib/actions';
 	import { toast } from '$lib/toastStore';
 	import Icon from './Icon.svelte';
+	import { onMount } from 'svelte';
 	import {
 		mergeCardStyles,
 		cardStyleToCSS,
@@ -41,6 +42,13 @@
 	let playing = $state(false);
 	let isCurrentBeat = $derived($player.beatId === beat.id && $player.playing);
 	let beatLikeCount = $derived($likeCounts[beat.id] ?? 0);
+
+	// Subscribe to like count for this beat (so cards show ❤️ N without needing LikeButton)
+	let unsubLikeCount: (() => void) | undefined;
+	onMount(() => {
+		unsubLikeCount = subscribeToLikeCount(beat.id, () => {});
+		return () => { unsubLikeCount?.(); };
+	});
 
 	// Card style engine: merge global (from settings) + per-beat
 	let accentRgb = $state('220, 38, 38');
