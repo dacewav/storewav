@@ -2,20 +2,27 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { auth, beatsList, player, settings, analytics, userLikes } from '$lib/stores';
+	import type { LabelSettings } from '$lib/stores/settings';
 	import { BeatCard, EmptyState, Skeleton } from '$lib/components';
 
 	let authState = $derived($auth);
 	let uid = $derived(authState.user?.uid);
 	let allBeats = $derived($beatsList);
 	let likedIds = $derived($userLikes);
-	let labels = $derived($settings.data?.labels ?? {});
+	let labels = $derived(($settings.data?.labels ?? {}) as LabelSettings);
 
 	let likedBeats = $derived(
 		allBeats.filter(b => likedIds.has(b.id))
 	);
 
 	function handlePlay(beat: typeof allBeats[0]) {
-		player.play(beat.id, beat.name, beat.audioUrl);
+		player.play({
+			id: beat.id,
+			name: beat.name,
+			artist: beat.artist ?? '',
+			imageUrl: beat.imageUrl ?? '',
+			audioUrl: beat.audioUrl ?? '',
+		});
 		analytics.track('beat', 'play', { lbl: beat.id, meta: beat.name });
 	}
 </script>

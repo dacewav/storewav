@@ -1,27 +1,33 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
 
 /**
  * GET /api/contracts/[file]
  * Returns the raw markdown text of a contract file.
- * Used by the contract editor to load the original template.
+ * Uses Vite's ?raw import to bundle the text at build time (Cloudflare-safe).
  */
+
+// Import all contract files at build time
+import mp3 from '../../../../../contracts/01-mp3.md?raw';
+import wav from '../../../../../contracts/02-wav.md?raw';
+import premium from '../../../../../contracts/03-premium.md?raw';
+import ilimitada from '../../../../../contracts/04-ilimitada.md?raw';
+import exclusiva from '../../../../../contracts/05-exclusiva.md?raw';
+
+const contracts: Record<string, string> = {
+	'01-mp3': mp3,
+	'02-wav': wav,
+	'03-premium': premium,
+	'04-ilimitada': ilimitada,
+	'05-exclusiva': exclusiva,
+};
+
 export const GET: RequestHandler = async ({ params }) => {
 	const { file } = params;
 
-	// Validate file name to prevent path traversal
-	const validFiles = ['01-mp3', '02-wav', '03-premium', '04-ilimitada', '05-exclusiva'];
-	if (!validFiles.includes(file)) {
+	if (!contracts[file]) {
 		return json({ error: 'Invalid contract file' }, { status: 400 });
 	}
 
-	try {
-		const filePath = join(process.cwd(), 'contracts', `${file}.md`);
-		const content = await readFile(filePath, 'utf-8');
-		return json({ content, file });
-	} catch {
-		return json({ error: 'Contract file not found' }, { status: 404 });
-	}
+	return json({ content: contracts[file], file });
 };

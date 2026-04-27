@@ -8,7 +8,7 @@
 	let authState = $derived($auth);
 	let user = $derived(authState.user);
 
-	const tabs = [
+	const tabs: Array<{ href: string; label: string; icon: 'export' | 'shoppingCart' | 'heart' }> = [
 		{ href: '/account', label: 'Perfil', icon: 'export' },
 		{ href: '/account/orders', label: 'Órdenes', icon: 'shoppingCart' },
 		{ href: '/account/favorites', label: 'Favoritos', icon: 'heart' },
