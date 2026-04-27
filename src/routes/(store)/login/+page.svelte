@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { Icon } from '$lib/components';
-	import { auth, loginWithGoogle, loginAnonymously, settings } from '$lib/stores';
+	import { auth, loginWithGoogle, loginWithEmailLink, completeEmailLinkSignIn, loginAnonymously, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import type { LabelSettings } from '$lib/stores/settings';
 
 	let loading = $state(false);
 	let error = $state('');
+	let emailMode = $state(false);
+	let email = $state('');
+	let emailSent = $state(false);
 	let authState = $derived($auth);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 	let labels = $derived(($settings.data?.labels ?? {}) as LabelSettings);
@@ -16,6 +19,22 @@
 	let loginBtn = $derived(labels.loginBtn ?? 'Continuar con Google');
 	let loginBack = $derived(labels.loginBack ?? '← Volver a la tienda');
 	let loginNote = $derived(labels.loginNote ?? 'Solo administradores autorizados');
+
+	// Check for email link completion on mount
+	let emailLinkChecked = $state(false);
+	$effect(() => {
+		if (emailLinkChecked) return;
+		emailLinkChecked = true;
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.get('complete') === 'email') {
+			completeEmailLinkSignIn().then((email) => {
+				if (email) {
+					emailSent = false;
+					// User is now logged in, auth state will redirect
+				}
+			});
+		}
+	});
 
 	// Si ya está logueado, redirigir al admin (run once)
 	let redirected = $state(false);
@@ -44,6 +63,19 @@
 			await loginAnonymously();
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error al iniciar sesión anónima';
+		}
+		loading = false;
+	}
+
+	async function handleEmailLogin() {
+		if (!email.trim()) return;
+		loading = true;
+		error = '';
+		try {
+			await loginWithEmailLink(email.trim());
+			emailSent = true;
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Error al enviar el link';
 		}
 		loading = false;
 	}
@@ -96,7 +128,7 @@
 
 		<form onsubmit={(e) => { e.preventDefault(); handleGoogleLogin(); }}>
 			<button class="google-btn" type="submit" disabled={loading}>
-				{#if loading}
+				{#if loading && !emailMode}
 					<span class="g-spinner"></span>
 				{:else}
 					<svg width="18" height="18" viewBox="0 0 24 24">
@@ -109,6 +141,40 @@
 				<span>{loginBtn}</span>
 			</button>
 		</form>
+
+		<!-- Divider -->
+		<div class="login-divider">
+			<span>o</span>
+		</div>
+
+		<!-- Email link (passwordless) -->
+		{#if emailSent}
+			<div class="email-sent">
+				<div class="email-sent-icon">📧</div>
+				<p>Te enviamos un link a <strong>{email}</strong></p>
+				<p class="email-sent-hint">Revisá tu bandeja de entrada y hacé click en el link para ingresar.</p>
+			</div>
+		{:else}
+			<form onsubmit={(e) => { e.preventDefault(); emailMode = true; handleEmailLogin(); }}>
+				<div class="email-row">
+					<input
+						type="email"
+						class="email-input"
+						placeholder="tu@email.com"
+						bind:value={email}
+						disabled={loading}
+						required
+					/>
+					<button class="email-btn" type="submit" disabled={loading || !email.trim()}>
+						{#if loading && emailMode}
+							<span class="g-spinner"></span>
+						{:else}
+							📧 Link
+						{/if}
+					</button>
+				</div>
+			</form>
+		{/if}
 
 		<button class="anon-btn" onclick={handleAnonLogin} disabled={loading}>
 			🧪 Entrar como tester (anónimo)
@@ -295,6 +361,112 @@
 	.anon-btn:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
+	}
+
+	/* Email login */
+	.login-divider {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		margin: var(--space-4) 0;
+	}
+
+	.login-divider::before,
+	.login-divider::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background: var(--border);
+	}
+
+	.login-divider span {
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		text-transform: uppercase;
+	}
+
+	.email-row {
+		display: flex;
+		gap: var(--space-2);
+	}
+
+	.email-input {
+		flex: 1;
+		padding: var(--space-3) var(--space-4);
+		background: var(--bg);
+		border: 1px solid var(--border2);
+		border-radius: var(--radius-lg);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		outline: none;
+		min-height: 48px;
+	}
+
+	.email-input:focus {
+		border-color: var(--accent);
+	}
+
+	.email-input:disabled {
+		opacity: 0.5;
+	}
+
+	.email-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-4);
+		background: rgba(var(--accent-rgb), 0.1);
+		border: 1px solid rgba(var(--accent-rgb), 0.3);
+		border-radius: var(--radius-lg);
+		color: var(--accent);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		cursor: pointer;
+		min-height: 48px;
+		white-space: nowrap;
+		transition: all var(--duration-fast);
+	}
+
+	.email-btn:hover:not(:disabled) {
+		background: rgba(var(--accent-rgb), 0.2);
+	}
+
+	.email-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.email-sent {
+		text-align: center;
+		padding: var(--space-4);
+		background: rgba(34, 197, 94, 0.08);
+		border: 1px solid rgba(34, 197, 94, 0.2);
+		border-radius: var(--radius-lg);
+	}
+
+	.email-sent-icon {
+		font-size: 2rem;
+		margin-bottom: var(--space-2);
+	}
+
+	.email-sent p {
+		font-size: var(--text-sm);
+		color: var(--text);
+		margin: 0;
+	}
+
+	.email-sent strong {
+		color: var(--accent);
+	}
+
+	.email-sent-hint {
+		font-size: var(--text-xs) !important;
+		color: var(--text-muted) !important;
+		margin-top: var(--space-1) !important;
 	}
 
 	.uid-display {

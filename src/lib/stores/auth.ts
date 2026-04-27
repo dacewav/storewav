@@ -149,6 +149,70 @@ export async function loginWithGoogle() {
 	}
 }
 
+/** Login con email link (passwordless) — envía link al email */
+export async function loginWithEmailLink(email: string) {
+	try {
+		const auth = await getAuthInstance();
+		if (!auth) throw new Error('Firebase no inicializado');
+
+		const { sendSignInLinkToEmail, isSignInWithEmailLink } = await import('firebase/auth');
+
+		// If already on the sign-in link page, complete the flow
+		if (isSignInWithEmailLink(auth, window.location.href)) {
+			const { signInWithEmailLink } = await import('firebase/auth');
+			const result = await signInWithEmailLink(auth, email, window.location.href);
+			if (dev) console.log('[Auth] Email link sign-in successful:', result.user.email);
+			// Clear saved email
+			window.localStorage.removeItem('dacewav_emailForSignIn');
+			return;
+		}
+
+		// Otherwise, send the link
+		const actionCodeSettings = {
+			url: `${window.location.origin}/login?complete=email`,
+			handleCodeInApp: true,
+		};
+
+		await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+		// Save email for completion
+		window.localStorage.setItem('dacewav_emailForSignIn', email);
+		if (dev) console.log('[Auth] Email link sent to:', email);
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err);
+		console.error('[Auth] loginWithEmailLink error:', msg);
+		store.update((s) => ({ ...s, error: msg }));
+		throw err;
+	}
+}
+
+/** Completar email link sign-in si el usuario vino del link */
+export async function completeEmailLinkSignIn(): Promise<string | null> {
+	try {
+		const auth = await getAuthInstance();
+		if (!auth) return null;
+
+		const { isSignInWithEmailLink, signInWithEmailLink } = await import('firebase/auth');
+
+		if (!isSignInWithEmailLink(auth, window.location.href)) return null;
+
+		// Get email from localStorage (saved when link was sent)
+		let email = window.localStorage.getItem('dacewav_emailForSignIn');
+		if (!email) {
+			// Prompt user for email if not saved
+			email = window.prompt('Ingresá tu email para completar el login:');
+			if (!email) return null;
+		}
+
+		const result = await signInWithEmailLink(auth, email, window.location.href);
+		window.localStorage.removeItem('dacewav_emailForSignIn');
+		if (dev) console.log('[Auth] Email link completed:', result.user.email);
+		return email;
+	} catch (err) {
+		console.error('[Auth] completeEmailLinkSignIn error:', err);
+		return null;
+	}
+}
+
 /** Login anónimo (para testing) */
 export async function loginAnonymously() {
 	try {
