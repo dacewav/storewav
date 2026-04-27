@@ -5,89 +5,90 @@
 	let user = $derived(authState.user);
 </script>
 
-<div class="profile-section">
-	<h2>Mi perfil</h2>
+<div class="dashboard">
+	<h2>👋 Hola, {user?.displayName?.split(' ')[0] || 'artista'}</h2>
+	<p class="dashboard-sub">Desde acá podés gestionar tu cuenta, ver tus compras y favoritos.</p>
 
-	<div class="profile-card">
-		<div class="profile-field">
-			<span class="field-label">Nombre</span>
-			<span class="field-value">{user?.displayName || '—'}</span>
-		</div>
-		<div class="profile-field">
-			<span class="field-label">Email</span>
-			<span class="field-value">{user?.email || '—'}</span>
-		</div>
-		<div class="profile-field">
-			<span class="field-label">UID</span>
-			<span class="field-value mono">{user?.uid?.slice(0, 12) || '—'}...</span>
-		</div>
-	</div>
-
-	<div class="profile-note">
-		<p>Para editar tu nombre o avatar, actualizá tu perfil de Google.</p>
+	<div class="dashboard-cards">
+		<a href="/account/profile" class="dash-card">
+			<span class="dash-icon">✏️</span>
+			<span class="dash-label">Editar perfil</span>
+			<span class="dash-desc">Nombre artístico, redes sociales</span>
+		</a>
+		<a href="/account/orders" class="dash-card">
+			<span class="dash-icon">📦</span>
+			<span class="dash-label">Mis órdenes</span>
+			<span class="dash-desc">Descargas, contratos, historial</span>
+		</a>
+		<a href="/account/favorites" class="dash-card">
+			<span class="dash-icon">❤️</span>
+			<span class="dash-label">Favoritos</span>
+			<span class="dash-desc">Beats que te gustaron</span>
+		</a>
+		<a href="/" class="dash-card">
+			<span class="dash-icon">🎵</span>
+			<span class="dash-label">Catálogo</span>
+			<span class="dash-desc">Explorar beats nuevos</span>
+		</a>
 	</div>
 </div>
 
 <style>
-	.profile-section h2 {
+	.dashboard h2 {
 		font-family: var(--font-display);
 		font-size: var(--text-xl);
 		font-weight: 700;
 		color: var(--text);
-		margin-bottom: var(--space-4);
+		margin-bottom: var(--space-1);
 	}
 
-	.profile-card {
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-lg);
-		padding: var(--space-4);
-		display: flex;
-		flex-direction: column;
+	.dashboard-sub {
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+		margin-bottom: var(--space-6);
+	}
+
+	.dashboard-cards {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
 		gap: var(--space-3);
 	}
 
-	.profile-field {
+	.dash-card {
 		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: var(--space-2) 0;
-		border-bottom: 1px solid var(--border);
+		flex-direction: column;
+		gap: var(--space-1);
+		padding: var(--space-4);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		text-decoration: none;
+		transition: all var(--duration-fast);
 	}
 
-	.profile-field:last-child {
-		border-bottom: none;
+	.dash-card:hover {
+		border-color: var(--accent);
+		transform: translateY(-2px);
 	}
 
-	.field-label {
-		font-size: var(--text-sm);
-		color: var(--text-muted);
-		font-family: var(--font-mono);
+	.dash-icon {
+		font-size: 1.5rem;
 	}
 
-	.field-value {
+	.dash-label {
+		font-weight: 700;
 		font-size: var(--text-sm);
 		color: var(--text);
-		font-weight: 600;
 	}
 
-	.field-value.mono {
-		font-family: var(--font-mono);
-		font-size: var(--text-xs);
-		color: var(--text-secondary);
-	}
-
-	.profile-note {
-		margin-top: var(--space-4);
-		padding: var(--space-3);
-		background: var(--surface);
-		border: 1px dashed var(--border);
-		border-radius: var(--radius-md);
-	}
-
-	.profile-note p {
-		font-size: var(--text-xs);
+	.dash-desc {
+		font-size: var(--text-2xs);
 		color: var(--text-muted);
-		margin: 0;
+	}
+
+	@media (max-width: 480px) {
+		.dashboard-cards {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>
