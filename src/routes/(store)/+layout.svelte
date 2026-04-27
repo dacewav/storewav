@@ -7,6 +7,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { initLikes, destroyLikes } from '$lib/stores/likes';
 	import { initWishlistSync } from '$lib/stores/wishlist';
+	import { setCartSyncToken } from '$lib/stores/cart';
 	import { initOneTap, signInWithIdToken, dismissOneTap } from '$lib/oneTap';
 	import { PUBLIC_GOOGLE_CLIENT_ID } from '$env/static/public';
 	import { sanitizeCSS } from '$lib/sanitize';
@@ -77,11 +78,20 @@
 	// Check if current user is admin
 	let isAdmin = $derived($auth.isAdmin);
 
-	// Init likes + wishlist sync when auth changes
+	// Init likes + wishlist sync + cart abandonment tracking when auth changes
 	$effect(() => {
 		const uid = $auth.user?.uid ?? null;
 		initLikes(uid);
 		initWishlistSync(uid);
+
+		// Cart abandonment tracking: sync cart to Firebase when logged in
+		if (uid) {
+			import('$lib/firebase').then(m => m.getAuthInstance()).then(authInst => {
+				authInst?.currentUser?.getIdToken().then(t => setCartSyncToken(t)).catch(() => {});
+			}).catch(() => {});
+		} else {
+			setCartSyncToken(null);
+		}
 
 		// Google One Tap when not logged in
 		if (!uid && !$auth.loading && PUBLIC_GOOGLE_CLIENT_ID) {

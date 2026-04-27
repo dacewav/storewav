@@ -10,7 +10,7 @@
  *   cart.clear();
  */
 
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 
 export type CartItem = {
 	beatId: string;
@@ -24,6 +24,7 @@ export type CartItem = {
 };
 
 const STORAGE_KEY = 'dacewav-cart';
+const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 function loadCart(): CartItem[] {
 	if (typeof localStorage === 'undefined') return [];
@@ -46,12 +47,58 @@ function saveCart(items: CartItem[]) {
 	}
 }
 
+/** Sync cart to Firebase for abandonment tracking */
+let _syncTimeout: ReturnType<typeof setTimeout> | null = null;
+let _authToken: string | null = null;
+
+export function setCartSyncToken(token: string | null) {
+	_authToken = token;
+}
+
+function syncToFirebase(items: CartItem[]) {
+	if (_syncTimeout) clearTimeout(_syncTimeout);
+	_syncTimeout = setTimeout(async () => {
+		if (!_authToken || items.length === 0) return;
+		try {
+			const { getAuthInstance } = await import('$lib/firebase');
+			const auth = await getAuthInstance();
+			const user = auth?.currentUser;
+			if (!user) return;
+
+			const data = {
+				uid: user.uid,
+				email: user.email || '',
+				displayName: user.displayName || '',
+				items: items.map(i => ({
+					beatId: i.beatId,
+					beatName: i.beatName,
+					licenseName: i.licenseName,
+					priceMXN: i.priceMXN,
+					priceUSD: i.priceUSD,
+				})),
+				totalMXN: items.reduce((s, i) => s + i.priceMXN, 0),
+				totalUSD: items.reduce((s, i) => s + i.priceUSD, 0),
+				lastUpdated: Date.now(),
+			};
+
+			await fetch(`${FIREBASE_DB}/abandonedCarts/${user.uid}.json?auth=${_authToken}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			});
+		} catch {
+			// Silent fail — don't block cart operations
+		}
+	}, 2000); // Debounce 2s
+}
+
 function createCartStore() {
 	const items = writable<CartItem[]>(loadCart());
 
-	// Persist on every change
+	// Persist on every change + sync to Firebase
 	items.subscribe((value) => {
 		saveCart(value);
+		syncToFirebase(value);
 	});
 
 	function add(item: Omit<CartItem, 'addedAt'>) {
@@ -75,8 +122,21 @@ function createCartStore() {
 		});
 	}
 
-	function clear() {
+	async function clear() {
 		items.set([]);
+		// Remove from Firebase abandoned carts
+		if (_authToken) {
+			try {
+				const { getAuthInstance } = await import('$lib/firebase');
+				const auth = await getAuthInstance();
+				const uid = auth?.currentUser?.uid;
+				if (uid) {
+					await fetch(`${FIREBASE_DB}/abandonedCarts/${uid}.json?auth=${_authToken}`, {
+						method: 'DELETE',
+					});
+				}
+			} catch { /* silent */ }
+		}
 	}
 
 	function isInCart(beatId: string, licenseIndex?: number) {

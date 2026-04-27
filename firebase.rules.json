@@ -1542,6 +1542,12 @@
     "contractTemplates": {
       ".read": "root.child('adminWhitelist/approved').child(auth.uid).exists()",
       ".write": "root.child('adminWhitelist/approved').child(auth.uid).exists()"
+    },
+    "abandonedCarts": {
+      "$uid": {
+        ".read": "auth !== null && auth.uid === $uid",
+        ".write": "auth !== null && auth.uid === $uid"
+      }
     }
   }
 }
