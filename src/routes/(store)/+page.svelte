@@ -3,7 +3,7 @@
 	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials, InlineEmoji } from '$lib/components';
 	import { renderEmojis, stripEmojis } from '$lib/emojiUtils';
 	import Icon from '$lib/components/Icon.svelte';
-	import { beatsList, allBeatsList, genres, settings, player, analytics, customEmojis, auth } from '$lib/stores';
+	import { beats as beatsStore, beatsList, allBeatsList, genres, settings, player, analytics, customEmojis, auth } from '$lib/stores';
 	import { userLikes } from '$lib/stores/likes';
 	import { getForYouRecommendations } from '$lib/stores/recommendations';
 	import { getBeatSlug } from '$lib/slug';
@@ -13,6 +13,7 @@
 	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
 
+	let beatsLoading = $derived($beatsStore.loading);
 	let beats = $derived($beatsList);
 	let genreList = $derived($genres);
 	let s = $derived($settings.data);
@@ -342,6 +343,7 @@
 		{/each}
 	</div>
 	{/if}
+	{#if beats.length > 0}
 	<div class="hero-stats">
 		<div class="stat">
 			<div class="stat-num" use:countUp={beats.length || 0}>0</div>
@@ -356,6 +358,7 @@
 			<div class="stat-label">{labels.statLicenses ?? 'licencias'}</div>
 		</div>
 	</div>
+	{/if}
 </section>
 
 <!-- Featured beats -->
@@ -417,7 +420,7 @@
 	{#if sortedGenres.length > 1}
 		<div class="genre-tabs">
 			<button class="genre-tab" class:active={!activeGenre} onclick={() => { activeGenre = ''; }}>
-				Todos <span class="tab-count">{beats.filter(b => !b.featured).length}</span>
+				Todos <span class="tab-count">{filteredBeats.length}</span>
 			</button>
 			{#each sortedGenres as { genre, count }}
 				<button class="genre-tab" class:active={activeGenre === genre} onclick={() => { activeGenre = activeGenre === genre ? '' : genre; }}>
@@ -466,12 +469,14 @@
 		{:else}
 			<EmptyState icon="🔍" title={labels.emptyTitle ?? 'Sin resultados'} subtitle={labels.emptySub ?? ''} />
 		{/if}
-	{:else}
+	{:else if beatsLoading}
 		<div class="beat-grid" use:staggerReveal={{ delay: 80 }}>
 			{#each Array(6) as _}
 				<Skeleton lines={3} />
 			{/each}
 		</div>
+	{:else}
+		<EmptyState icon="🎵" title="No hay beats todavía" subtitle="Pronto habrá contenido disponible." />
 	{/if}
 </section>
 
@@ -740,9 +745,11 @@
 	.featured-section {
 		position: relative;
 		z-index: var(--z-content);
-		padding: var(--space-8) var(--container-padding);
+		padding: var(--space-10) var(--container-padding);
 		max-width: var(--container-max);
 		margin: 0 auto;
+		background: linear-gradient(180deg, transparent, rgba(var(--accent-rgb), 0.02) 30%, rgba(var(--accent-rgb), 0.02) 70%, transparent);
+		border-radius: var(--radius-xl);
 	}
 
 	/* ── Section ── */
@@ -750,6 +757,7 @@
 		position: relative;
 		z-index: var(--z-content);
 		padding: var(--section-padding) var(--container-padding);
+		background: linear-gradient(180deg, transparent 0%, rgba(var(--accent-rgb), 0.015) 50%, transparent 100%);
 	}
 
 	.section-header {
@@ -783,6 +791,7 @@
 		color: var(--accent);
 		letter-spacing: 0.06em;
 		transition: all var(--duration-fast) var(--ease-out);
+		white-space: nowrap;
 	}
 
 	.section-badge:hover {
@@ -799,10 +808,17 @@
 	.genre-tabs {
 		display: flex;
 		gap: var(--space-2);
-		flex-wrap: wrap;
 		margin-bottom: var(--space-5);
 		padding-bottom: var(--space-4);
 		border-bottom: 1px solid var(--border);
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+		flex-wrap: nowrap;
+	}
+
+	.genre-tabs::-webkit-scrollbar {
+		display: none;
 	}
 
 	.genre-tab {
@@ -964,7 +980,10 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(var(--accent-rgb), 0.06), transparent);
+		background:
+			radial-gradient(ellipse 60% 50% at 50% 100%, rgba(var(--accent-rgb), 0.08), transparent),
+			radial-gradient(ellipse 40% 30% at 30% 80%, rgba(var(--accent-rgb), 0.04), transparent),
+			radial-gradient(ellipse 40% 30% at 70% 80%, rgba(var(--accent-rgb), 0.04), transparent);
 		pointer-events: none;
 	}
 
@@ -992,7 +1011,7 @@
 		gap: var(--space-2);
 		font-family: var(--font-mono);
 		font-size: var(--text-xs);
-		padding: var(--space-3) var(--space-6);
+		padding: var(--space-4) var(--space-8);
 		border-radius: var(--cta-btn-radius, var(--radius-lg));
 		border: 1px solid rgba(var(--accent-rgb), 0.5);
 		background: var(--cta-btn-bg, rgba(var(--accent-rgb), 0.1));
@@ -1003,6 +1022,7 @@
 		min-height: var(--touch-min);
 		opacity: var(--btn-opacity);
 		position: relative;
+		font-weight: 600;
 	}
 
 	.cta-btn:hover {
