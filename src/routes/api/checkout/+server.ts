@@ -289,21 +289,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 				body: JSON.stringify(orderData),
 			});
 
-			// Increment discount code usage
-			if (appliedDiscount) {
-				try {
-					// Fetch current usedCount and increment
-					const currentResp = await fetch(`${FIREBASE_DB}/discountCodes/${appliedDiscount.code}/usedCount.json`);
-					const currentCount = (await currentResp.json() as number) || 0;
-					await fetch(`${FIREBASE_DB}/discountCodes/${appliedDiscount.code}/usedCount.json`, {
-						method: 'PUT',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify(currentCount + 1),
-					});
-				} catch {
-					// Non-critical
-				}
-			}
+			// NOTE: usedCount is incremented in the Stripe webhook on successful payment,
+			// not here — to avoid counting abandoned checkouts.
 		} catch {
 			// Non-critical — order will be created by webhook if this fails
 			console.warn('[Checkout] Failed to save order to Firebase');

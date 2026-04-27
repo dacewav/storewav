@@ -3,8 +3,10 @@
 	import { page } from '$app/state';
 	import { onNavigate } from '$app/navigation';
 	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis, cartCount } from '$lib/stores';
-	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji } from '$lib/components';
+	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji, AuthButton } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
+	import { initLikes, destroyLikes } from '$lib/stores/likes';
+	import { initWishlistSync } from '$lib/stores/wishlist';
 	import { sanitizeCSS } from '$lib/sanitize';
 
 	let { children } = $props();
@@ -72,6 +74,14 @@
 
 	// Check if current user is admin
 	let isAdmin = $derived($auth.isAdmin);
+
+	// Init likes + wishlist sync when auth changes
+	$effect(() => {
+		const uid = $auth.user?.uid ?? null;
+		initLikes(uid);
+		initWishlistSync(uid);
+		return () => destroyLikes();
+	});
 
 	// Floating elements
 	let floatingEls = $derived($visibleFloatingElements);
@@ -398,6 +408,7 @@
 			<button class="icon-btn" title="Cambiar tema" aria-label="Cambiar tema" onclick={toggleTheme}>
 				<Icon name={isDark ? 'sun' : 'moon'} size={14} />
 			</button>
+			<AuthButton compact />
 		</div>
 
 		<!-- Hamburger (mobile only) -->
@@ -447,6 +458,9 @@
 					<Icon name={isDark ? 'sun' : 'moon'} size={16} />
 					<span>Tema</span>
 				</button>
+				<div class="mobile-auth">
+					<AuthButton />
+				</div>
 			</div>
 		</div>
 	{/if}
@@ -784,6 +798,14 @@
 
 	.mobile-actions .icon-btn span {
 		font-family: var(--font-body);
+	}
+
+	.mobile-auth {
+		margin-top: var(--space-4);
+		padding-top: var(--space-4);
+		border-top: 1px solid var(--border);
+		display: flex;
+		justify-content: center;
 	}
 
 	@keyframes slideInRight {

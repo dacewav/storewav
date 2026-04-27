@@ -38,4 +38,8 @@ export { default as ThemePresetCard } from './ThemePresetCard.svelte';
 export { default as EmojiPicker } from './EmojiPicker.svelte';
 export { default as EmojiInput } from './EmojiInput.svelte';
 export { default as InlineEmoji } from './InlineEmoji.svelte';
+export { default as AuthButton } from './AuthButton.svelte';
+export { default as LikeButton } from './LikeButton.svelte';
+export { default as CommentSection } from './CommentSection.svelte';
+export { default as CommentCard } from './CommentCard.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

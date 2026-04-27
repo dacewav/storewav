@@ -4,6 +4,7 @@
 	import { tilt } from '$lib/actions';
 	import { toast } from '$lib/toastStore';
 	import Icon from './Icon.svelte';
+	import LikeButton from './LikeButton.svelte';
 	import {
 		mergeCardStyles,
 		cardStyleToCSS,
@@ -222,6 +223,9 @@
 		<div class="beat-price" style={priceCSS || undefined}>
 			<span class="price-from">{labelFrom}</span>
 			<span class="price-amount">${lowestPrice(beat)}</span>
+		</div>
+		<div class="beat-likes">
+			<LikeButton beatId={beat.id} compact showCount />
 		</div>
 	</div>
 </div>
@@ -578,5 +582,12 @@
 		font-size: var(--text-lg);
 		font-weight: 800;
 		color: var(--accent);
+	}
+
+	.beat-likes {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		padding: var(--space-1) 0;
 	}
 </style>

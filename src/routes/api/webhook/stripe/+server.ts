@@ -111,6 +111,12 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		const customerName = (session.customer_details as { name?: string })?.name || 'Cliente';
 		const paymentIntentId = session.payment_intent as string;
 
+		// Extract discount info from metadata
+		const sessionMetadata = session.metadata as Record<string, string> | undefined;
+		const discountCode = sessionMetadata?.discountCode || null;
+		const discountType = sessionMetadata?.discountType as 'percent' | 'fixed' | null;
+		const discountAmount = sessionMetadata?.discountAmount ? parseFloat(sessionMetadata.discountAmount) : null;
+
 		console.log(`[Stripe Webhook] Payment completed: ${sessionId}`);
 
 		// Parse items from metadata
@@ -118,13 +124,20 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 		// 1. Update order in Firebase
 		try {
-			const updateData = {
+			const updateData: Record<string, unknown> = {
 				status: 'paid',
 				customerEmail,
 				customerName,
 				paymentIntentId,
 				paidAt: Date.now(),
 			};
+
+			// Include discount info in order record
+			if (discountCode) {
+				updateData.discountCode = discountCode;
+				updateData.discountType = discountType;
+				updateData.discountAmount = discountAmount;
+			}
 
 			await fetch(`${FIREBASE_DB}/orders/${sessionId}.json`, {
 				method: 'PATCH',
@@ -141,6 +154,22 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 					items,
 				}),
 			});
+
+			// Increment discount code usage (only on successful payment)
+			if (discountCode) {
+				try {
+					const currentResp = await fetch(`${FIREBASE_DB}/discountCodes/${discountCode}/usedCount.json`);
+					const currentCount = (await currentResp.json() as number) || 0;
+					await fetch(`${FIREBASE_DB}/discountCodes/${discountCode}/usedCount.json`, {
+						method: 'PUT',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify(currentCount + 1),
+					});
+					console.log(`[Stripe Webhook] Discount ${discountCode} usedCount → ${currentCount + 1}`);
+				} catch (err) {
+					console.error('[Stripe Webhook] Failed to increment discount usedCount:', err);
+				}
+			}
 
 			console.log(`[Stripe Webhook] Order ${sessionId} marked as paid`);
 		} catch (err) {
@@ -236,6 +265,14 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 				const totalMXN = items.reduce((s, i) => s + i.priceMXN, 0);
 				const totalUSD = items.reduce((s, i) => s + i.priceUSD, 0);
 
+				// Calculate original totals (before discount) from metadata
+				const originalTotalMXN = discountCode && discountAmount
+					? Math.round(totalMXN / (1 - (discountType === 'percent' ? discountAmount / 100 : 0)))
+					: totalMXN;
+				const originalTotalUSD = discountCode && discountAmount
+					? Math.round(totalUSD / (1 - (discountType === 'percent' ? discountAmount / 100 : 0)))
+					: totalUSD;
+
 				await sendDeliveryEmail({
 					orderId: sessionId,
 					buyerEmail: customerEmail,
@@ -244,6 +281,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 					totalMXN,
 					totalUSD,
 					contractPdfBase64: combinedPdfBase64,
+					discountCode: discountCode || undefined,
+					discountType: discountType || undefined,
+					discountAmount: discountAmount || undefined,
+					originalTotalMXN: discountCode ? originalTotalMXN : undefined,
+					originalTotalUSD: discountCode ? originalTotalUSD : undefined,
 				}, { RESEND_API_KEY: resendKey });
 
 				console.log(`[Stripe Webhook] Delivery email sent for ${sessionId}`);

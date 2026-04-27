@@ -16,6 +16,9 @@
 	}>>([]);
 	let customerName = $state('');
 	let downloadingZip = $state(false);
+	let orderDiscount = $state<{ code: string; type: string; amount: number } | null>(null);
+	let orderTotalMXN = $state(0);
+	let orderTotalUSD = $state(0);
 
 	onMount(async () => {
 		// Clear cart on successful payment
@@ -44,6 +47,20 @@
 					}
 					if (data?.customerName) {
 						customerName = data.customerName;
+					}
+					if (data?.discountCode) {
+						orderDiscount = {
+							code: data.discountCode,
+							type: data.discountType || 'percent',
+							amount: data.discountAmount || 0,
+						};
+					}
+					// Calculate totals from items
+					if (data?.items) {
+						for (const item of data.items) {
+							orderTotalMXN += item.priceMXN || 0;
+							orderTotalUSD += item.priceUSD || 0;
+						}
 					}
 				}
 			} catch {
@@ -161,6 +178,22 @@
 								📦 Descargar todo (ZIP) — Beat + Contrato
 							{/if}
 						</button>
+					{/if}
+
+					{#if orderDiscount}
+						<div class="discount-display">
+							<span class="discount-label">🏷️ Descuento: {orderDiscount.code}</span>
+							<span class="discount-value">
+								{orderDiscount.type === 'percent' ? `${orderDiscount.amount}% OFF` : `$${orderDiscount.amount} USD OFF`}
+							</span>
+						</div>
+					{/if}
+
+					{#if orderTotalMXN > 0}
+						<div class="order-total">
+							<span>Total pagado:</span>
+							<span class="total-amount">${orderTotalMXN.toLocaleString()} MXN / ${orderTotalUSD} USD</span>
+						</div>
 					{/if}
 				</div>
 			{/if}
@@ -392,6 +425,47 @@
 	.zip-btn:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
+	}
+
+	.discount-display {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--space-3);
+		margin-top: var(--space-3);
+		background: rgba(34, 197, 94, 0.08);
+		border: 1px solid rgba(34, 197, 94, 0.2);
+		border-radius: var(--radius-sm);
+	}
+
+	.discount-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		color: #22c55e;
+	}
+
+	.discount-value {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: #22c55e;
+	}
+
+	.order-total {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--space-3);
+		margin-top: var(--space-2);
+		border-top: 1px solid var(--border);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+	}
+
+	.total-amount {
+		font-weight: 700;
+		color: var(--accent);
+		font-family: var(--font-mono);
 	}
 
 	/* ── Info box ── */

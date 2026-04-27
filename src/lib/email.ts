@@ -19,6 +19,11 @@ export type DeliveryEmailData = {
 	totalUSD: number;
 	contractPdfBase64?: string; // PDF attachment
 	brandName?: string;
+	discountCode?: string;
+	discountType?: 'percent' | 'fixed';
+	discountAmount?: number;
+	originalTotalMXN?: number;
+	originalTotalUSD?: number;
 };
 
 type EmailTemplate = {
@@ -172,6 +177,18 @@ export async function sendDeliveryEmail(
 		<!-- Items -->
 		${itemsHtml}
 
+		${data.discountCode ? `
+		<!-- Discount -->
+		<div style="margin-top: 16px; padding: 12px 16px; background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 8px;">
+			<span style="color: #22c55e; font-weight: 700; font-size: 14px;">
+				🏷️ Descuento aplicado: ${escapeHtml(data.discountCode)}
+			</span>
+			<span style="color: #888; font-size: 13px; margin-left: 8px;">
+				${data.discountType === 'percent' ? `${data.discountAmount}% OFF` : `$${data.discountAmount} USD OFF`}
+			</span>
+		</div>
+		` : ''}
+
 		${tmpl.showContractNote && data.contractPdfBase64 ? `
 		<!-- Contract note -->
 		<div style="padding: 16px; background: #111; border-radius: 8px; margin-top: 24px; border-left: 3px solid ${tmpl.accentColor};">
@@ -187,6 +204,13 @@ export async function sendDeliveryEmail(
 		${tmpl.showTotal ? `
 		<!-- Total -->
 		<div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #222; text-align: right;">
+			${data.discountCode && data.originalTotalMXN ? `
+			<div style="margin-bottom: 4px;">
+				<span style="color: #666; font-size: 12px; text-decoration: line-through;">
+					$${data.originalTotalMXN} MXN ($${data.originalTotalUSD} USD)
+				</span>
+			</div>
+			` : ''}
 			<span style="color: #888; font-size: 13px;">Total: </span>
 			<span style="color: ${tmpl.accentColor}; font-weight: 800; font-size: 18px;">
 				$${data.totalMXN} MXN

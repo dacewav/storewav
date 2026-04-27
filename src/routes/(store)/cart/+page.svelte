@@ -13,9 +13,26 @@
 	let checkingOut = $state(false);
 	let checkoutError = $state('');
 
+	// Discount code state
+	let discountCode = $state('');
+	let discountLoading = $state(false);
+	let discountError = $state('');
+	let appliedDiscount = $state<{ code: string; type: 'percent' | 'fixed'; amount: number } | null>(null);
+
 	function removeItem(item: CartItem) {
 		cart.remove(item.beatId, item.licenseIndex);
 		analytics.track('cart', 'remove', { lbl: item.beatId, meta: item.licenseName });
+	}
+
+	function removeDiscount() {
+		discountCode = '';
+		appliedDiscount = null;
+		discountError = '';
+	}
+
+	function formatDiscount(d: { type: 'percent' | 'fixed'; amount: number }): string {
+		if (d.type === 'percent') return `${d.amount}% OFF`;
+		return `$${d.amount} USD OFF`;
 	}
 
 	async function handleCheckout() {
@@ -24,10 +41,15 @@
 		checkoutError = '';
 
 		try {
+			const body: Record<string, unknown> = { items };
+			if (discountCode.trim()) {
+				body.discountCode = discountCode.trim();
+			}
+
 			const resp = await fetch('/api/checkout', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ items }),
+				body: JSON.stringify(body),
 			});
 
 			const data = await resp.json() as { ok?: boolean; url?: string; error?: string };
@@ -108,6 +130,32 @@
 					<span>{count}</span>
 				</div>
 				<div class="summary-divider"></div>
+
+				<!-- Discount code -->
+				<div class="discount-section">
+					{#if appliedDiscount}
+						<div class="discount-applied">
+							<span class="discount-badge">🏷️ {formatDiscount(appliedDiscount)}</span>
+							<span class="discount-code-label">{appliedDiscount.code}</span>
+							<button class="discount-remove" onclick={removeDiscount}>✕</button>
+						</div>
+					{:else}
+						<div class="discount-input-row">
+							<input
+								type="text"
+								class="discount-input"
+								placeholder="Código de descuento"
+								bind:value={discountCode}
+								disabled={discountLoading}
+								maxlength={30}
+							/>
+						</div>
+						{#if discountError}
+							<p class="discount-error">{discountError}</p>
+						{/if}
+					{/if}
+				</div>
+
 				<div class="summary-row summary-total">
 					<span>Total</span>
 					<div class="total-prices">
@@ -418,6 +466,82 @@
 		color: var(--text-muted);
 		text-align: center;
 		line-height: var(--leading-relaxed);
+	}
+
+	/* ── Discount ── */
+	.discount-section {
+		margin: var(--space-3) 0;
+	}
+
+	.discount-input-row {
+		display: flex;
+		gap: var(--space-2);
+	}
+
+	.discount-input {
+		flex: 1;
+		padding: var(--space-2) var(--space-3);
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		outline: none;
+	}
+
+	.discount-input:focus {
+		border-color: var(--accent);
+	}
+
+	.discount-input:disabled {
+		opacity: 0.5;
+	}
+
+	.discount-applied {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-3);
+		background: rgba(34, 197, 94, 0.08);
+		border: 1px solid rgba(34, 197, 94, 0.2);
+		border-radius: var(--radius-sm);
+	}
+
+	.discount-badge {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 700;
+		color: #22c55e;
+	}
+
+	.discount-code-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		flex: 1;
+	}
+
+	.discount-remove {
+		background: none;
+		border: none;
+		color: var(--text-muted);
+		cursor: pointer;
+		font-size: var(--text-xs);
+		padding: var(--space-1);
+	}
+
+	.discount-remove:hover {
+		color: #ef4444;
+	}
+
+	.discount-error {
+		margin-top: var(--space-1);
+		font-size: var(--text-2xs);
+		color: #ef4444;
+		font-family: var(--font-mono);
 	}
 
 	/* ── Responsive ── */

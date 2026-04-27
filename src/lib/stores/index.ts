@@ -8,6 +8,7 @@ export {
 	type Beat, type BeatWithId, type BeatsMap, type LicenseItem
 } from './beats';
 export { wishlist } from './wishlist';
+export { initWishlistSync, destroyWishlistSync } from './wishlist';
 export { analytics } from './analytics';
 export { player } from './player';
 export { online, firebaseConnected, isFullyConnected, initConnection, destroyConnection } from './connection';
@@ -19,3 +20,6 @@ export { gallery, galleryLoading, initGallery, destroyGallery, type GalleryImage
 export { changelog, initChangelog, destroyChangelog, type ChangelogEntry } from './changelog';
 export { customEmojis, initCustomEmojis, destroyCustomEmojis, type CustomEmoji } from './customEmojis';
 export { cart, cartCount, cartTotalMXN, cartTotalUSD, type CartItem } from './cart';
+export { contractTemplates, type ContractTemplateData } from './contractTemplates';
+export { initLikes, toggleLike, isLiked, subscribeToLikeCount, destroyLikes, userLikes, likeCounts } from './likes';
+export { comments, commentsLoading, initComments, postComment, deleteComment, destroyComments } from './comments';

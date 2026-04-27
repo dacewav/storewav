@@ -18,6 +18,9 @@
 		paidAt: number;
 		totalMXN: number;
 		totalUSD: number;
+		discountCode?: string;
+		discountType?: string;
+		discountAmount?: number;
 	}>>([]);
 	let searched = $state(false);
 	let error = $state('');
@@ -52,6 +55,9 @@
 				}>;
 				paidAt?: number;
 				customerEmail?: string;
+				discountCode?: string;
+				discountType?: string;
+				discountAmount?: number;
 			}> | null;
 
 			if (data) {
@@ -63,6 +69,9 @@
 						paidAt: o.paidAt || 0,
 						totalMXN: (o.items || []).reduce((s, i) => s + i.priceMXN, 0),
 						totalUSD: (o.items || []).reduce((s, i) => s + i.priceUSD, 0),
+						discountCode: o.discountCode,
+						discountType: o.discountType,
+						discountAmount: o.discountAmount,
 					}))
 					.sort((a, b) => b.paidAt - a.paidAt);
 			}
@@ -162,6 +171,12 @@
 							<span class="total-usd">${order.totalUSD} USD</span>
 						</div>
 					</div>
+					{#if order.discountCode}
+						<div class="order-discount">
+							🏷️ Descuento: <strong>{order.discountCode}</strong>
+							({order.discountType === 'percent' ? `${order.discountAmount}%` : `$${order.discountAmount} USD`})
+						</div>
+					{/if}
 
 					<div class="order-items">
 						{#each order.items as item}
@@ -360,6 +375,15 @@
 		font-family: var(--font-mono);
 		font-size: var(--text-2xs);
 		color: var(--text-muted);
+	}
+
+	.order-discount {
+		padding: var(--space-2) var(--space-5);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: #22c55e;
+		background: rgba(34, 197, 94, 0.06);
+		border-bottom: 1px solid var(--border);
 	}
 
 	.order-items {

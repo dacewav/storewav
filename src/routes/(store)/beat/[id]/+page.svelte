@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { beatsList, player, wishlist, settings, analytics, beats as beatsStore, accentRgb as accentRgbStore, cart } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
-	import { Skeleton, Badge, BeatCard, EmptyState, InlineEmoji } from '$lib/components';
+	import { Skeleton, Badge, BeatCard, EmptyState, InlineEmoji, LikeButton, CommentSection } from '$lib/components';
 	import { stripEmojis } from '$lib/emojiUtils';
 	import Waveform from '$lib/components/Waveform.svelte';
 	import Icon from '$lib/components/Icon.svelte';
@@ -211,14 +211,17 @@
 				<div class="beat-header" use:staggerReveal={{ delay: 60 }}>
 					<div class="beat-title-row">
 						<h1 class="beat-title">{beat.name}</h1>
-						<button
-							class="beat-wish-btn"
-							class:active={inWishlist}
-							onclick={() => beat && wishlist.toggle(beat.id)}
-							aria-label={inWishlist ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-						>
-							<Icon name="heart" size={18} filled={inWishlist} />
-						</button>
+						<div class="beat-title-actions">
+							<LikeButton beatId={beat.id} showCount />
+							<button
+								class="beat-wish-btn"
+								class:active={inWishlist}
+								onclick={() => beat && wishlist.toggle(beat.id)}
+								aria-label={inWishlist ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+							>
+								<Icon name="heart" size={18} filled={inWishlist} />
+							</button>
+						</div>
 					</div>
 					{#if beat.artist}
 						<p class="beat-artist">{beat.artist}</p>
@@ -344,6 +347,11 @@
 					{/each}
 				</div>
 			</section>
+		{/if}
+
+		<!-- ── Comments ── -->
+		{#if beat}
+			<CommentSection beatId={beat.id} />
 		{/if}
 	{/if}
 </div>
@@ -505,6 +513,13 @@
 		align-items: flex-start;
 		justify-content: space-between;
 		gap: var(--space-4);
+	}
+
+	.beat-title-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		flex-shrink: 0;
 	}
 
 	.beat-title {
