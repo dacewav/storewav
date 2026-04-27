@@ -2,12 +2,13 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { onNavigate } from '$app/navigation';
-	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis, cartCount } from '$lib/stores';
+	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis, cartCount, unreadCount } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji, AuthButton } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { initLikes, destroyLikes } from '$lib/stores/likes';
 	import { initWishlistSync } from '$lib/stores/wishlist';
 	import { setCartSyncToken } from '$lib/stores/cart';
+	import { initNotifications, destroyNotifications } from '$lib/stores/notifications';
 	import { initOneTap, signInWithIdToken, dismissOneTap } from '$lib/oneTap';
 	import { PUBLIC_GOOGLE_CLIENT_ID } from '$env/static/public';
 	import { sanitizeCSS } from '$lib/sanitize';
@@ -83,6 +84,7 @@
 		const uid = $auth.user?.uid ?? null;
 		initLikes(uid);
 		initWishlistSync(uid);
+		initNotifications(uid);
 
 		// Cart abandonment tracking: sync cart to Firebase when logged in
 		if (uid) {
@@ -103,7 +105,7 @@
 			dismissOneTap();
 		}
 
-		return () => destroyLikes();
+		return () => { destroyLikes(); destroyNotifications(); };
 	});
 
 	// Floating elements
@@ -428,6 +430,12 @@
 					<span class="nav-badge">{wishCount}</span>
 				{/if}
 			</button>
+			<a href="/account/notifications" class="icon-btn" title="Notificaciones" aria-label="Notificaciones">
+				<Icon name="bell" size={14} />
+				{#if $unreadCount > 0}
+					<span class="nav-badge">{$unreadCount}</span>
+				{/if}
+			</a>
 			<button class="icon-btn" title="Cambiar tema" aria-label="Cambiar tema" onclick={toggleTheme}>
 				<Icon name={isDark ? 'sun' : 'moon'} size={14} />
 			</button>
@@ -477,6 +485,13 @@
 						<span class="nav-badge nav-badge-inline">{wishCount}</span>
 					{/if}
 				</button>
+				<a href="/account/notifications" class="icon-btn" title="Notificaciones" aria-label="Notificaciones" onclick={closeMenu}>
+					<Icon name="bell" size={16} />
+					<span>Notificaciones</span>
+					{#if $unreadCount > 0}
+						<span class="nav-badge nav-badge-inline">{$unreadCount}</span>
+					{/if}
+				</a>
 				<button class="icon-btn" title="Cambiar tema" aria-label="Cambiar tema" onclick={() => { toggleTheme(); closeMenu(); }}>
 					<Icon name={isDark ? 'sun' : 'moon'} size={16} />
 					<span>Tema</span>

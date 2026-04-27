@@ -30,6 +30,11 @@
 			<span class="dash-label">Playlists</span>
 			<span class="dash-desc">Colecciones de beats</span>
 		</a>
+		<a href="/account/notifications" class="dash-card">
+			<span class="dash-icon">🔔</span>
+			<span class="dash-label">Notificaciones</span>
+			<span class="dash-desc">Descuentos, nuevos beats</span>
+		</a>
 		<a href="/" class="dash-card">
 			<span class="dash-icon">🎵</span>
 			<span class="dash-label">Catálogo</span>

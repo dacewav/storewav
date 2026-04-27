@@ -23,3 +23,4 @@ export { cart, cartCount, cartTotalMXN, cartTotalUSD, type CartItem } from './ca
 export { contractTemplates, type ContractTemplateData } from './contractTemplates';
 export { initLikes, toggleLike, isLiked, subscribeToLikeCount, destroyLikes, userLikes, likeCounts } from './likes';
 export { comments, commentsLoading, initComments, postComment, deleteComment, destroyComments } from './comments';
+export { notifications, unreadCount, initNotifications, destroyNotifications, sendNotification, notifyWishlistDiscount, notifyNewBeat, notifyPriceChange, markAsRead, markAllAsRead, deleteNotification } from './notifications';
