@@ -1,12 +1,12 @@
 /**
  * Likes store — Firebase-backed likes/favorites system.
  * Syncs in real-time. Falls back gracefully if not authenticated.
+ *
+ * Uses Firebase SDK for all operations (no REST calls = no stale token issues).
  */
 
 import { writable, derived, get } from 'svelte/store';
 import { browser } from '$app/environment';
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 /** Current user's liked beat IDs */
 const userLikesStore = writable<Set<string>>(new Set());
@@ -16,30 +16,6 @@ const likeCountsStore = writable<Record<string, number>>({});
 
 /** Current UID (set by init) */
 let currentUid: string | null = null;
-
-/** Auth token for REST calls */
-let _authToken: string | null = null;
-
-/** Get current user's Firebase ID token */
-async function getAuthToken(): Promise<string | null> {
-	if (_authToken) return _authToken;
-	try {
-		const { getAuthInstance } = await import('$lib/firebase');
-		const auth = await getAuthInstance();
-		const user = auth?.currentUser;
-		if (!user) return null;
-		_authToken = await user.getIdToken();
-		return _authToken;
-	} catch {
-		return null;
-	}
-}
-
-/** Build URL with auth token */
-async function authUrl(path: string): Promise<string> {
-	const token = await getAuthToken();
-	return token ? `${FIREBASE_DB}${path}?auth=${token}` : `${FIREBASE_DB}${path}`;
-}
 
 /** Active listeners for cleanup */
 const activeListeners: Array<() => void> = [];
@@ -55,7 +31,6 @@ export async function initLikes(uid: string | null) {
 	if (!browser) return;
 
 	currentUid = uid;
-	_authToken = null; // Reset token for new user
 
 	if (!uid) {
 		userLikesStore.set(new Set());
@@ -63,7 +38,7 @@ export async function initLikes(uid: string | null) {
 	}
 
 	try {
-		const { getDatabase, ref, onValue, query, orderByChild, equalTo } = await import('firebase/database');
+		const { getDatabase, ref, onValue } = await import('firebase/database');
 		const { getApp } = await import('firebase/app');
 
 		const app = getApp();
@@ -118,46 +93,34 @@ export function subscribeToLikeCount(beatId: string, callback: (count: number) =
 
 /**
  * Toggle like on a beat. Requires auth.
+ * Uses Firebase SDK for reliable auth + atomic writes.
  */
 export async function toggleLike(beatId: string, uid: string): Promise<boolean> {
 	try {
-		const checkUrl = await authUrl(`/userLikes/${uid}/${beatId}`);
-		const resp = await fetch(checkUrl);
-		const exists = await resp.json();
+		const { getDatabase, ref, get, set, remove, runTransaction } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
 
-		if (exists) {
-			// Unlike
-			await fetch(await authUrl(`/userLikes/${uid}/${beatId}`), { method: 'DELETE' });
-			await fetch(await authUrl(`/beatLikes/${beatId}/${uid}`), { method: 'DELETE' });
-			// Decrement count
-			const countResp = await fetch(await authUrl(`/beats/${beatId}/likeCount`));
-			const count = (await countResp.json() as number) || 0;
-			await fetch(await authUrl(`/beats/${beatId}/likeCount`), {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(Math.max(0, count - 1)),
-			});
+		const db = getDatabase(getApp());
+
+		// Check if already liked
+		const userLikeRef = ref(db, `userLikes/${uid}/${beatId}`);
+		const snap = await get(userLikeRef);
+
+		if (snap.exists()) {
+			// Unlike — remove from both paths
+			await remove(userLikeRef);
+			await remove(ref(db, `beatLikes/${beatId}/${uid}`));
+			// Decrement count atomically
+			const countRef = ref(db, `beats/${beatId}/likeCount`);
+			await runTransaction(countRef, (current) => Math.max(0, (current || 0) - 1));
 			return false;
 		} else {
-			// Like
-			await fetch(await authUrl(`/userLikes/${uid}/${beatId}`), {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(true),
-			});
-			await fetch(await authUrl(`/beatLikes/${beatId}/${uid}`), {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(true),
-			});
-			// Increment count
-			const countResp = await fetch(await authUrl(`/beats/${beatId}/likeCount`));
-			const count = (await countResp.json() as number) || 0;
-			await fetch(await authUrl(`/beats/${beatId}/likeCount`), {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(count + 1),
-			});
+			// Like — write to both paths
+			await set(userLikeRef, true);
+			await set(ref(db, `beatLikes/${beatId}/${uid}`), true);
+			// Increment count atomically
+			const countRef = ref(db, `beats/${beatId}/likeCount`);
+			await runTransaction(countRef, (current) => (current || 0) + 1);
 			return true;
 		}
 	} catch (err) {

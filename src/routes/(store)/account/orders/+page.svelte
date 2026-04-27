@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { settings, analytics } from '$lib/stores';
 	import Icon from '$lib/components/Icon.svelte';
+	import { FIREBASE_DB } from '$lib/firebaseDb';
 
 	let s = $derived($settings.data);
 
@@ -24,8 +25,6 @@
 	}>>([]);
 	let searched = $state(false);
 	let error = $state('');
-
-	const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 	async function searchOrders() {
 		if (!email.trim()) return;

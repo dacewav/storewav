@@ -1,12 +1,12 @@
 /**
  * Comments store — Firebase-backed beat comments.
  * Flat comments (no threads), basic moderation.
+ *
+ * Uses Firebase SDK for all operations (reliable auth, real-time sync).
  */
 
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 export type Comment = {
 	id: string;
@@ -29,30 +29,6 @@ const activeListeners: Array<() => void> = [];
 /** Rate limit: last comment timestamp */
 let lastCommentAt = 0;
 
-/** Auth token for REST calls */
-let _authToken: string | null = null;
-
-/** Get current user's Firebase ID token */
-async function getAuthToken(): Promise<string | null> {
-	if (_authToken) return _authToken;
-	try {
-		const { getAuthInstance } = await import('$lib/firebase');
-		const auth = await getAuthInstance();
-		const user = auth?.currentUser;
-		if (!user) return null;
-		_authToken = await user.getIdToken();
-		return _authToken;
-	} catch {
-		return null;
-	}
-}
-
-/** Build URL with auth token */
-async function authUrl(path: string): Promise<string> {
-	const token = await getAuthToken();
-	return token ? `${FIREBASE_DB}${path}?auth=${token}` : `${FIREBASE_DB}${path}`;
-}
-
 /**
  * Subscribe to comments for a beat.
  */
@@ -64,7 +40,7 @@ export function initComments(beatId: string) {
 
 	(async () => {
 		try {
-			const { getDatabase, ref, onValue, query, orderByChild, limitToLast } = await import('firebase/database');
+			const { getDatabase, ref, onValue } = await import('firebase/database');
 			const { getApp } = await import('firebase/app');
 
 			const app = getApp();
@@ -103,6 +79,7 @@ export function initComments(beatId: string) {
 
 /**
  * Post a comment. Rate limited to 1 per 30 seconds.
+ * Uses Firebase SDK for reliable auth.
  */
 export async function postComment(
 	beatId: string,
@@ -124,26 +101,23 @@ export async function postComment(
 	}
 
 	try {
-		const url = await authUrl(`/beatComments/${beatId}`);
-		const resp = await fetch(url, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				uid,
-				displayName,
-				photoURL,
-				text: trimmed,
-				createdAt: now,
-				editedAt: null,
-				likes: 0,
-			}),
+		const { getDatabase, ref, push, set } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+
+		const db = getDatabase(getApp());
+		const newRef = push(ref(db, `beatComments/${beatId}`));
+		await set(newRef, {
+			uid,
+			displayName,
+			photoURL,
+			text: trimmed,
+			createdAt: now,
+			editedAt: null,
+			likes: 0,
 		});
 
-		if (resp.ok) {
-			lastCommentAt = now;
-			return { ok: true };
-		}
-		return { ok: false, error: 'Error al publicar' };
+		lastCommentAt = now;
+		return { ok: true };
 	} catch (err) {
 		console.error('[Comments] Post failed:', err);
 		return { ok: false, error: 'Error de conexión' };
@@ -152,12 +126,16 @@ export async function postComment(
 
 /**
  * Delete a comment. Only the author or admin can delete.
+ * Uses Firebase SDK.
  */
 export async function deleteComment(beatId: string, commentId: string): Promise<boolean> {
 	try {
-		const url = await authUrl(`/beatComments/${beatId}/${commentId}`);
-		const resp = await fetch(url, { method: 'DELETE' });
-		return resp.ok;
+		const { getDatabase, ref, remove } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+
+		const db = getDatabase(getApp());
+		await remove(ref(db, `beatComments/${beatId}/${commentId}`));
+		return true;
 	} catch {
 		return false;
 	}

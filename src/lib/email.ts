@@ -46,6 +46,8 @@ type EmailTemplate = {
 	showOrderNumber: boolean;
 };
 
+import { FIREBASE_DB } from '$lib/firebaseDb';
+
 const defaultTemplate: EmailTemplate = {
 	brandName: 'DACEWAV',
 	accentColor: '#dc2626',
@@ -65,8 +67,6 @@ const defaultTemplate: EmailTemplate = {
 	showTotal: true,
 	showOrderNumber: true,
 };
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 /** Fetch custom template from Firebase, fallback to default */
 async function getEmailTemplate(): Promise<EmailTemplate> {
@@ -287,7 +287,7 @@ function logEmail(data: DeliveryEmailData) {
 	console.log('═══════════════════════════════════════');
 	console.log('[EMAIL DELIVERY] (dry run — no RESEND_API_KEY)');
 	console.log(`To: ${data.buyerEmail}`);
-	console.log(`Subject: ✅ Tu compra en DACEWAV`);
+	console.log(`Subject: ✅ Tu compra en ${data.brandName ?? 'DACEWAV'}`);
 	console.log(`Items:`);
 	for (const item of data.items) {
 		console.log(`  - ${item.beatName} (${item.licenseName})`);

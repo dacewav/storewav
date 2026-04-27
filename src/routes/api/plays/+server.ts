@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { FIREBASE_DB } from '$lib/firebaseDb';
 
 /**
  * POST /api/plays
@@ -12,8 +13,6 @@ import type { RequestHandler } from './$types';
  * - Uses Firebase REST API with admin-level transaction
  * - No auth required (public endpoint) but rate limited
  */
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 // ── In-memory rate limiter (per Cloudflare Worker instance) ──
 const rateLimits = new Map<string, { count: number; resetAt: number }>();

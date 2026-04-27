@@ -1,13 +1,12 @@
 import type { RequestHandler } from './$types';
 import { getPresignedDownloadUrl, r2KeyFromUrl } from '$lib/r2Presign';
+import { FIREBASE_DB } from '$lib/firebaseDb';
 
 /**
  * GET /api/download/[orderId]/[beatId]
  * Secure file download — verifies order is paid, then redirects to a presigned R2 URL.
  * Falls back to R2 binding or proxy if presigning is unavailable.
  */
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 const R2_BUCKET = 'dace-beats';
 const PRESIGNED_EXPIRY = 3600; // 1 hour
 

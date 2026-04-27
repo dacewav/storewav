@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { generateContractPDF, getContractFile } from '$lib/contractPdf';
 import { sendDeliveryEmail } from '$lib/email';
+import { FIREBASE_DB } from '$lib/firebaseDb';
 
 /**
  * POST /api/webhook/stripe
@@ -10,8 +11,6 @@ import { sendDeliveryEmail } from '$lib/email';
  *
  * Requires: STRIPE_WEBHOOK_SECRET, optionally RESEND_API_KEY
  */
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 /** Verify Stripe webhook signature using Web Crypto */
 async function verifyStripeSignature(

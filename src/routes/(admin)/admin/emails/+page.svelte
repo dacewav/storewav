@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { analytics } from '$lib/stores';
-
-	const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
+	import { FIREBASE_DB } from '$lib/firebaseDb';
 
 	type EmailTemplate = {
 		// Branding

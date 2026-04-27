@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { settings } from '$lib/stores';
+	import { FIREBASE_DB } from '$lib/firebaseDb';
 
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
@@ -17,8 +18,6 @@
 	let comments = $state<Comment[]>([]);
 	let loading = $state(true);
 	let deleting = $state<string | null>(null);
-
-	const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 	async function loadComments() {
 		loading = true;

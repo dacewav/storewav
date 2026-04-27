@@ -1,13 +1,12 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { FIREBASE_DB } from '$lib/firebaseDb';
 
 /**
  * GET /api/orders?email=user@example.com
  * Server-side orders lookup — uses Firebase admin access.
  * Returns paid orders for the given email.
  */
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 export const GET: RequestHandler = async ({ url }) => {
 	const email = url.searchParams.get('email')?.trim().toLowerCase();

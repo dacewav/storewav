@@ -1,14 +1,13 @@
 import type { RequestHandler } from './$types';
 import { generateContractPDF, getContractFile } from '$lib/contractGenerator';
 import { zipSync } from 'fflate';
+import { FIREBASE_DB } from '$lib/firebaseDb';
 
 /**
  * GET /api/download/[orderId]/[beatId]/zip
  * Downloads a zip containing: beat audio + contract PDF.
  * If stems exist in the future, they'll be included too.
  */
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 // Reuse order cache from parent endpoint
 const orderCache = new Map<string, { verified: number; items: Array<{ beatId: string; licenseName: string; beatName?: string; priceMXN: number; priceUSD: number }> }>();

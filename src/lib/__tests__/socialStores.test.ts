@@ -1,9 +1,31 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// Mock $app/environment — browser=true so stores don't early-return
+vi.mock('$app/environment', () => ({
+	browser: true,
+	dev: true,
+	building: false,
+	version: '1.0.0',
+}));
+
+// Ensure window exists for browser-dependent stores
+if (typeof globalThis.window === 'undefined') {
+	(globalThis as any).window = {
+		addEventListener: vi.fn(),
+		removeEventListener: vi.fn(),
+		localStorage: {
+			getItem: vi.fn().mockReturnValue(null),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+		},
+	};
+}
+
 // Mock Firebase
 vi.mock('$lib/firebase', () => ({
 	getApp: vi.fn().mockResolvedValue({}),
 	getDb: vi.fn().mockResolvedValue(null),
+	getAuthInstance: vi.fn().mockResolvedValue(null),
 }));
 
 // Mock firebase/app
@@ -13,19 +35,22 @@ vi.mock('firebase/app', () => ({
 	getApps: vi.fn().mockReturnValue([]),
 }));
 
-// Mock firebase/database
+// Mock firebase/database — SDK methods used by stores
 vi.mock('firebase/database', () => ({
 	getDatabase: vi.fn().mockReturnValue({}),
 	ref: vi.fn().mockReturnValue({}),
 	onValue: vi.fn().mockReturnValue(() => {}),
 	get: vi.fn().mockResolvedValue({ exists: () => false, val: () => null }),
+	set: vi.fn().mockResolvedValue(undefined),
+	update: vi.fn().mockResolvedValue(undefined),
+	remove: vi.fn().mockResolvedValue(undefined),
+	push: vi.fn().mockReturnValue({ key: 'push-key-123' }),
+	runTransaction: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe('Contract Templates Store', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		// Mock fetch
-		(globalThis as any).fetch = vi.fn();
 	});
 
 	it('exports contractTemplates object', async () => {
@@ -38,10 +63,8 @@ describe('Contract Templates Store', () => {
 	});
 
 	it('getTemplate returns null when no custom template', async () => {
-		(globalThis as any).fetch = vi.fn().mockResolvedValue({
-			ok: true,
-			json: () => Promise.resolve(null),
-		});
+		const { get } = await import('firebase/database');
+		(get as any).mockResolvedValueOnce({ exists: () => false, val: () => null });
 
 		const mod = await import('$lib/stores/contractTemplates');
 		const result = await mod.contractTemplates.getTemplate('01-mp3');
@@ -49,13 +72,10 @@ describe('Contract Templates Store', () => {
 	});
 
 	it('getTemplate returns text when custom template exists', async () => {
-		(globalThis as any).fetch = vi.fn().mockResolvedValue({
-			ok: true,
-			json: () => Promise.resolve({
-				text: 'Custom contract text',
-				updatedAt: Date.now(),
-				updatedBy: 'admin',
-			}),
+		const { get } = await import('firebase/database');
+		(get as any).mockResolvedValueOnce({
+			exists: () => true,
+			val: () => ({ text: 'Custom contract text', updatedAt: Date.now(), updatedBy: 'admin' }),
 		});
 
 		const mod = await import('$lib/stores/contractTemplates');
@@ -63,41 +83,30 @@ describe('Contract Templates Store', () => {
 		expect(result).toBe('Custom contract text');
 	});
 
-	it('save sends PUT request to Firebase', async () => {
-		(globalThis as any).fetch = vi.fn().mockResolvedValue({
-			ok: true,
-			json: () => Promise.resolve({}),
-		});
+	it('save uses Firebase SDK set()', async () => {
+		const { set } = await import('firebase/database');
+		(set as any).mockResolvedValueOnce(undefined);
 
 		const mod = await import('$lib/stores/contractTemplates');
 		const result = await mod.contractTemplates.save('01-mp3', 'Test text');
 		expect(result).toBe(true);
-		expect(fetch).toHaveBeenCalledWith(
-			expect.stringContaining('contractTemplates/01-mp3.json'),
-			expect.objectContaining({ method: 'PUT' })
-		);
+		expect(set).toHaveBeenCalled();
 	});
 
-	it('reset sends DELETE request to Firebase', async () => {
-		(globalThis as any).fetch = vi.fn().mockResolvedValue({
-			ok: true,
-			json: () => Promise.resolve({}),
-		});
+	it('reset uses Firebase SDK remove()', async () => {
+		const { remove } = await import('firebase/database');
+		(remove as any).mockResolvedValueOnce(undefined);
 
 		const mod = await import('$lib/stores/contractTemplates');
 		const result = await mod.contractTemplates.reset('01-mp3');
 		expect(result).toBe(true);
-		expect(fetch).toHaveBeenCalledWith(
-			expect.stringContaining('contractTemplates/01-mp3.json'),
-			expect.objectContaining({ method: 'DELETE' })
-		);
+		expect(remove).toHaveBeenCalled();
 	});
 });
 
 describe('Likes Store', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(globalThis as any).fetch = vi.fn();
 	});
 
 	it('exports required functions', async () => {
@@ -117,24 +126,35 @@ describe('Likes Store', () => {
 		expect(typeof store.subscribe).toBe('function');
 	});
 
-	it('toggleLike returns boolean', async () => {
-		(globalThis as any).fetch = vi.fn()
-			.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(null) }) // check
-			.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) }) // put userLikes
-			.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) }) // put beatLikes
-			.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(0) }) // get count
-			.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) }); // put count
+	it('toggleLike returns boolean (like)', async () => {
+		const { get, set, runTransaction } = await import('firebase/database');
+		// get returns snapshot with exists() = false (not yet liked)
+		(get as any).mockResolvedValueOnce({ exists: () => false, val: () => null });
+		(set as any).mockResolvedValue(undefined);
+		(runTransaction as any).mockResolvedValue(undefined);
 
 		const mod = await import('$lib/stores/likes');
 		const result = await mod.toggleLike('beat-123', 'user-456');
 		expect(typeof result).toBe('boolean');
+		expect(result).toBe(true); // was not liked, now liked
+	});
+
+	it('toggleLike returns boolean (unlike)', async () => {
+		const { get, remove, runTransaction } = await import('firebase/database');
+		// get returns snapshot with exists() = true (already liked)
+		(get as any).mockResolvedValueOnce({ exists: () => true, val: () => true });
+		(remove as any).mockResolvedValue(undefined);
+		(runTransaction as any).mockResolvedValue(undefined);
+
+		const mod = await import('$lib/stores/likes');
+		const result = await mod.toggleLike('beat-123', 'user-456');
+		expect(result).toBe(false); // was liked, now unliked
 	});
 });
 
 describe('Comments Store', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(globalThis as any).fetch = vi.fn();
 	});
 
 	it('exports required functions', async () => {
@@ -162,23 +182,22 @@ describe('Comments Store', () => {
 		expect(result.error).toContain('500');
 	});
 
-	it('postComment sends POST to Firebase', async () => {
-		(globalThis as any).fetch = vi.fn().mockResolvedValue({ ok: true });
+	it('postComment uses Firebase SDK push()+set()', async () => {
+		const { push, set } = await import('firebase/database');
+		(push as any).mockReturnValue({ key: 'new-comment-id' });
+		(set as any).mockResolvedValue(undefined);
 
 		const mod = await import('$lib/stores/comments');
 		const result = await mod.postComment('beat-123', 'user-456', 'Test User', null, 'Great beat!');
 		expect(result.ok).toBe(true);
-		expect(fetch).toHaveBeenCalledWith(
-			expect.stringContaining('beatComments/beat-123'),
-			expect.objectContaining({ method: 'POST' })
-		);
+		expect(push).toHaveBeenCalled();
+		expect(set).toHaveBeenCalled();
 	});
 });
 
 describe('Wishlist Store', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(globalThis as any).fetch = vi.fn();
 		// Mock localStorage
 		const store: Record<string, string> = {};
 		(globalThis as any).localStorage = {
@@ -198,9 +217,6 @@ describe('Wishlist Store', () => {
 
 	it('toggle adds and removes beatId', async () => {
 		const mod = await import('$lib/stores/wishlist');
-
-		// Mock fetch for Firebase sync
-		(globalThis as any).fetch = vi.fn().mockResolvedValue({ ok: true });
 
 		expect(mod.wishlist.has('beat-1')).toBe(false);
 		mod.wishlist.toggle('beat-1');

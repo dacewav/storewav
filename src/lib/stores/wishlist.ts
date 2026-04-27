@@ -2,8 +2,11 @@
  * Wishlist store — localStorage + Firebase sync when authenticated.
  *
  * - Without login: localStorage only (fast, offline-friendly)
- * - With login: syncs to Firebase, merges on first login
+ * - With login: syncs to Firebase via SDK (reliable auth, real-time)
  * - Cross-device: available on any device when logged in
+ * - Per-account isolation: localStorage cleared on user switch
+ *
+ * Uses Firebase SDK (not REST) for all Firebase operations.
  */
 
 import { writable, get } from 'svelte/store';
@@ -11,29 +14,9 @@ import { browser } from '$app/environment';
 
 const STORAGE_KEY = 'dacewav_wishlist';
 const STORAGE_UID_KEY = 'dacewav_wishlist_uid'; // Track whose wishlist is in localStorage
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 let currentUid: string | null = null;
-let syncingToFirebase = false;
-
-/** Get current user's Firebase ID token for authenticated REST calls */
-async function getAuthToken(): Promise<string | null> {
-	try {
-		const { getAuthInstance } = await import('$lib/firebase');
-		const auth = await getAuthInstance();
-		const user = auth?.currentUser;
-		if (!user) return null;
-		return await user.getIdToken();
-	} catch {
-		return null;
-	}
-}
-
-/** Build URL with auth token */
-async function authUrl(path: string): Promise<string> {
-	const token = await getAuthToken();
-	return token ? `${FIREBASE_DB}${path}?auth=${token}` : `${FIREBASE_DB}${path}`;
-}
+let _unsub: (() => void) | null = null;
 
 function loadLocal(): string[] {
 	if (!browser) return [];
@@ -80,9 +63,12 @@ if (browser) {
 /**
  * Initialize Firebase sync for authenticated user.
  * Firebase is the source of truth when logged in.
- * localStorage is only used for anonymous users.
+ * Uses Firebase SDK onValue for real-time sync.
  */
 export async function initWishlistSync(uid: string | null) {
+	// Cleanup previous listener
+	if (_unsub) { _unsub(); _unsub = null; }
+
 	currentUid = uid;
 
 	if (!uid || !browser) {
@@ -92,22 +78,21 @@ export async function initWishlistSync(uid: string | null) {
 	}
 
 	try {
-		// Load Firebase wishlist (source of truth)
-		const url = await authUrl(`/userWishlist/${uid}`);
-		const resp = await fetch(url);
-		const firebaseData = await resp.json() as Record<string, { addedAt?: number }> | null;
+		const { getDatabase, ref, onValue, get, set, update } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+
+		const db = getDatabase(getApp());
+		const wishlistRef = ref(db, `userWishlist/${uid}`);
+
+		// First, check if Firebase has data
+		const snap = await get(wishlistRef);
+		const firebaseData = snap.val() as Record<string, { addedAt?: number }> | null;
 		const firebaseIds = firebaseData ? Object.keys(firebaseData) : [];
 
-		// Replace localStorage with Firebase data (no merge — per-account isolation)
-		store.set(firebaseIds);
-		saveLocal(firebaseIds);
-
-		// If there were local items not in Firebase, sync them up
-		// (first time migration: user had wishlist before creating account)
+		// Check for anonymous local items to migrate
 		const storedUid = localStorage.getItem(STORAGE_UID_KEY);
 		if (!storedUid || storedUid !== uid) {
-			// First time logging in with this account — check for anonymous local items
-			// loadLocal() returns [] because of UID mismatch, so we need raw localStorage
+			// First time with this account — check for anonymous items
 			try {
 				const raw = localStorage.getItem(STORAGE_KEY);
 				if (raw) {
@@ -115,17 +100,33 @@ export async function initWishlistSync(uid: string | null) {
 					const newIds = localIds.filter(id => !firebaseIds.includes(id));
 					if (newIds.length > 0) {
 						// Merge anonymous items into Firebase
-						const merged = [...firebaseIds, ...newIds];
-						await syncToFirebase(merged);
-						store.set(merged);
-						saveLocal(merged);
+						const mergedData: Record<string, { addedAt: number }> = { ...firebaseData } as any;
+						for (const id of newIds) {
+							mergedData[id] = { addedAt: Date.now() };
+						}
+						await set(wishlistRef, mergedData);
+						// The onValue listener will pick up the change
 					}
 				}
 			} catch { /* ignore parse errors */ }
 		}
 
-		// Mark localStorage as belonging to this user
+		// Set localStorage to belong to this user
 		localStorage.setItem(STORAGE_UID_KEY, uid);
+
+		// Replace local store with Firebase data
+		store.set(firebaseIds);
+		saveLocal(firebaseIds);
+
+		// Subscribe to real-time changes
+		_unsub = onValue(wishlistRef, (snap) => {
+			const val = snap.val();
+			const ids = val ? Object.keys(val) : [];
+			store.set(ids);
+			saveLocal(ids);
+		}, (err) => {
+			console.error('[Wishlist] Realtime sync error:', err);
+		});
 	} catch (err) {
 		console.error('[Wishlist] Firebase sync failed:', err);
 		// Fallback to localStorage
@@ -135,26 +136,23 @@ export async function initWishlistSync(uid: string | null) {
 
 /**
  * Sync wishlist to Firebase (full replace).
+ * Uses Firebase SDK.
  */
 async function syncToFirebase(ids: string[]) {
-	if (!currentUid || syncingToFirebase) return;
-	syncingToFirebase = true;
+	if (!currentUid || !browser) return;
 
 	try {
+		const { getDatabase, ref, set } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+
+		const db = getDatabase(getApp());
 		const data: Record<string, { addedAt: number }> = {};
 		for (const id of ids) {
 			data[id] = { addedAt: Date.now() };
 		}
-		const url = await authUrl(`/userWishlist/${currentUid}`);
-		await fetch(url, {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(data),
-		});
+		await set(ref(db, `userWishlist/${currentUid}`), data);
 	} catch (err) {
 		console.error('[Wishlist] Sync to Firebase failed:', err);
-	} finally {
-		syncingToFirebase = false;
 	}
 }
 
@@ -177,13 +175,21 @@ function has(beatId: string): boolean {
 function clear() {
 	store.set([]);
 	saveLocal([]);
-	if (currentUid) {
-		authUrl(`/userWishlist/${currentUid}`).then(url => fetch(url, { method: 'DELETE' })).catch(() => {});
+	if (currentUid && browser) {
+		(async () => {
+			try {
+				const { getDatabase, ref, set } = await import('firebase/database');
+				const { getApp } = await import('firebase/app');
+				const db = getDatabase(getApp());
+				await set(ref(db, `userWishlist/${currentUid}`), null);
+			} catch { /* silent */ }
+		})();
 	}
 }
 
 /** Cleanup on logout */
 export function destroyWishlistSync() {
+	if (_unsub) { _unsub(); _unsub = null; }
 	currentUid = null;
 	// Clear UID tracking so next login starts fresh
 	if (browser) localStorage.removeItem(STORAGE_UID_KEY);

@@ -7,7 +7,6 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { initLikes, destroyLikes } from '$lib/stores/likes';
 	import { initWishlistSync } from '$lib/stores/wishlist';
-	import { setCartSyncToken } from '$lib/stores/cart';
 	import { initNotifications, destroyNotifications } from '$lib/stores/notifications';
 	import { initOneTap, signInWithIdToken, dismissOneTap } from '$lib/oneTap';
 	import { PUBLIC_GOOGLE_CLIENT_ID } from '$env/static/public';
@@ -85,15 +84,6 @@
 		initLikes(uid);
 		initWishlistSync(uid);
 		initNotifications(uid);
-
-		// Cart abandonment tracking: sync cart to Firebase when logged in
-		if (uid) {
-			import('$lib/firebase').then(m => m.getAuthInstance()).then(authInst => {
-				authInst?.currentUser?.getIdToken().then(t => setCartSyncToken(t)).catch(() => {});
-			}).catch(() => {});
-		} else {
-			setCartSyncToken(null);
-		}
 
 		// Google One Tap when not logged in
 		if (!uid && !$auth.loading && PUBLIC_GOOGLE_CLIENT_ID) {

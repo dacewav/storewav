@@ -24,7 +24,6 @@ export type CartItem = {
 };
 
 const STORAGE_KEY = 'dacewav-cart';
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 function loadCart(): CartItem[] {
 	if (typeof localStorage === 'undefined') return [];
@@ -49,21 +48,20 @@ function saveCart(items: CartItem[]) {
 
 /** Sync cart to Firebase for abandonment tracking */
 let _syncTimeout: ReturnType<typeof setTimeout> | null = null;
-let _authToken: string | null = null;
-
-export function setCartSyncToken(token: string | null) {
-	_authToken = token;
-}
 
 function syncToFirebase(items: CartItem[]) {
 	if (_syncTimeout) clearTimeout(_syncTimeout);
 	_syncTimeout = setTimeout(async () => {
-		if (!_authToken || items.length === 0) return;
+		if (items.length === 0) return;
 		try {
 			const { getAuthInstance } = await import('$lib/firebase');
 			const auth = await getAuthInstance();
 			const user = auth?.currentUser;
 			if (!user) return;
+
+			const { getDatabase, ref, set } = await import('firebase/database');
+			const { getApp } = await import('firebase/app');
+			const db = getDatabase(getApp());
 
 			const data = {
 				uid: user.uid,
@@ -81,11 +79,7 @@ function syncToFirebase(items: CartItem[]) {
 				lastUpdated: Date.now(),
 			};
 
-			await fetch(`${FIREBASE_DB}/abandonedCarts/${user.uid}.json?auth=${_authToken}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(data),
-			});
+			await set(ref(db, `abandonedCarts/${user.uid}`), data);
 		} catch {
 			// Silent fail — don't block cart operations
 		}
@@ -125,18 +119,17 @@ function createCartStore() {
 	async function clear() {
 		items.set([]);
 		// Remove from Firebase abandoned carts
-		if (_authToken) {
-			try {
-				const { getAuthInstance } = await import('$lib/firebase');
-				const auth = await getAuthInstance();
-				const uid = auth?.currentUser?.uid;
-				if (uid) {
-					await fetch(`${FIREBASE_DB}/abandonedCarts/${uid}.json?auth=${_authToken}`, {
-						method: 'DELETE',
-					});
-				}
-			} catch { /* silent */ }
-		}
+		try {
+			const { getAuthInstance } = await import('$lib/firebase');
+			const auth = await getAuthInstance();
+			const uid = auth?.currentUser?.uid;
+			if (uid) {
+				const { getDatabase, ref, set } = await import('firebase/database');
+				const { getApp } = await import('firebase/app');
+				const db = getDatabase(getApp());
+				await set(ref(db, `abandonedCarts/${uid}`), null);
+			}
+		} catch { /* silent */ }
 	}
 
 	function isInCart(beatId: string, licenseIndex?: number) {

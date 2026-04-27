@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
+import { FIREBASE_DB } from '$lib/firebaseDb';
 
 /**
  * POST /api/upload
@@ -60,7 +61,7 @@ async function checkIsAdmin(uid: string, idToken?: string): Promise<boolean> {
 
 	try {
 		const authParam = idToken ? `?auth=${idToken}` : '';
-		const resp = await fetch(`https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/adminWhitelist/approved/${uid}.json${authParam}`);
+		const resp = await fetch(`${FIREBASE_DB}/adminWhitelist/approved/${uid}.json${authParam}`);
 		if (!resp.ok) return false;
 		const data = await resp.json();
 		return data !== null;

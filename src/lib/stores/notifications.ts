@@ -3,11 +3,12 @@
  *
  * Types: wishlist_discount, new_beat, price_change
  * Each notification has: id, type, title, message, beatId?, read, createdAt
+ *
+ * Uses Firebase SDK (not REST) for reliable auth + automatic token refresh.
  */
 
 import { writable, derived } from 'svelte/store';
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
+import { browser } from '$app/environment';
 
 export type NotificationType = 'wishlist_discount' | 'new_beat' | 'price_change' | 'system';
 
@@ -23,25 +24,7 @@ export type Notification = {
 
 let currentUid: string | null = null;
 let _notifications = writable<Notification[]>([]);
-
-/** Get current user's Firebase ID token for authenticated REST calls */
-async function getAuthToken(): Promise<string | null> {
-	try {
-		const { getAuthInstance } = await import('$lib/firebase');
-		const auth = await getAuthInstance();
-		const user = auth?.currentUser;
-		if (!user) return null;
-		return await user.getIdToken();
-	} catch {
-		return null;
-	}
-}
-
-/** Build URL with auth token */
-async function authUrl(path: string): Promise<string> {
-	const token = await getAuthToken();
-	return token ? `${FIREBASE_DB}${path}?auth=${token}` : `${FIREBASE_DB}${path}`;
-}
+let _unsub: (() => void) | null = null;
 
 export const notifications = {
 	subscribe: _notifications.subscribe,
@@ -51,29 +34,49 @@ export const unreadCount = derived(_notifications, ($n) => $n.filter((n) => !n.r
 
 /**
  * Initialize notifications sync for authenticated user.
+ * Uses Firebase SDK onValue for real-time sync.
  */
 export async function initNotifications(uid: string | null) {
+	// Cleanup previous listener
+	if (_unsub) { _unsub(); _unsub = null; }
+
 	currentUid = uid;
-	if (!uid) {
+	if (!uid || !browser) {
 		_notifications.set([]);
 		return;
 	}
 
 	try {
-		const url = await authUrl(`/userNotifications/${uid}`);
-		const resp = await fetch(url);
-		const data = await resp.json() as Record<string, Omit<Notification, 'id'>> | null;
+		const { getDatabase, ref, onValue, query, orderByChild } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
 
-		if (data) {
-			const list = Object.entries(data)
-				.map(([id, n]) => ({ ...n, id }))
-				.sort((a, b) => b.createdAt - a.createdAt);
-			_notifications.set(list);
-		} else {
-			_notifications.set([]);
-		}
+		const app = getApp();
+		const db = getDatabase(app);
+		const notifRef = ref(db, `userNotifications/${uid}`);
+
+		_unsub = onValue(notifRef, (snap) => {
+			const val = snap.val();
+			if (val) {
+				const list = Object.entries(val)
+					.map(([id, n]: [string, any]) => ({
+						id,
+						type: n.type || 'system',
+						title: n.title || '',
+						message: n.message || '',
+						beatId: n.beatId,
+						read: n.read ?? false,
+						createdAt: n.createdAt || 0,
+					}))
+					.sort((a, b) => b.createdAt - a.createdAt);
+				_notifications.set(list);
+			} else {
+				_notifications.set([]);
+			}
+		}, (err) => {
+			console.error('[Notifications] Realtime sync error:', err);
+		});
 	} catch (err) {
-		console.error('[Notifications] Load failed:', err);
+		console.error('[Notifications] Init failed:', err);
 	}
 }
 
@@ -81,19 +84,18 @@ export async function initNotifications(uid: string | null) {
  * Mark a single notification as read.
  */
 export async function markAsRead(notificationId: string) {
-	if (!currentUid) return;
+	if (!currentUid || !browser) return;
 
+	// Optimistic update
 	_notifications.update((list) =>
 		list.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
 	);
 
 	try {
-		const url = await authUrl(`/userNotifications/${currentUid}/${notificationId}/read`);
-		await fetch(url, {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(true),
-		});
+		const { getDatabase, ref, update } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+		const db = getDatabase(getApp());
+		await update(ref(db, `userNotifications/${currentUid}/${notificationId}`), { read: true });
 	} catch (err) {
 		console.error('[Notifications] Mark read failed:', err);
 	}
@@ -103,9 +105,8 @@ export async function markAsRead(notificationId: string) {
  * Mark all notifications as read.
  */
 export async function markAllAsRead() {
-	if (!currentUid) return;
+	if (!currentUid || !browser) return;
 
-	// Get IDs of unread notifications before updating
 	const unreadIds: string[] = [];
 	_notifications.subscribe((list) => {
 		for (const n of list) {
@@ -113,17 +114,19 @@ export async function markAllAsRead() {
 		}
 	})();
 
+	// Optimistic update
 	_notifications.update((list) => list.map((n) => ({ ...n, read: true })));
 
 	try {
+		const { getDatabase, ref, update } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+		const db = getDatabase(getApp());
+
+		const updates: Record<string, unknown> = {};
 		for (const id of unreadIds) {
-			const url = await authUrl(`/userNotifications/${currentUid}/${id}/read`);
-			await fetch(url, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(true),
-			});
+			updates[`userNotifications/${currentUid}/${id}/read`] = true;
 		}
+		await update(ref(db), updates);
 	} catch (err) {
 		console.error('[Notifications] Mark all read failed:', err);
 	}
@@ -133,15 +136,15 @@ export async function markAllAsRead() {
  * Delete a notification.
  */
 export async function deleteNotification(notificationId: string) {
-	if (!currentUid) return;
+	if (!currentUid || !browser) return;
 
 	_notifications.update((list) => list.filter((n) => n.id !== notificationId));
 
 	try {
-		const url = await authUrl(`/userNotifications/${currentUid}/${notificationId}`);
-		await fetch(url, {
-			method: 'DELETE',
-		});
+		const { getDatabase, ref, remove } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+		const db = getDatabase(getApp());
+		await remove(ref(db, `userNotifications/${currentUid}/${notificationId}`));
 	} catch (err) {
 		console.error('[Notifications] Delete failed:', err);
 	}
@@ -149,24 +152,24 @@ export async function deleteNotification(notificationId: string) {
 
 /**
  * Send a notification to a specific user (admin use).
+ * Uses Firebase SDK — works with admin auth context.
  */
 export async function sendNotification(
 	targetUid: string,
 	notification: Omit<Notification, 'id' | 'read' | 'createdAt'>
-) {
+): Promise<string | null> {
 	try {
-		const url = await authUrl(`/userNotifications/${targetUid}`);
-		const resp = await fetch(url, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				...notification,
-				read: false,
-				createdAt: Date.now(),
-			}),
+		const { getDatabase, ref, push, set } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+		const db = getDatabase(getApp());
+
+		const newRef = push(ref(db, `userNotifications/${targetUid}`));
+		await set(newRef, {
+			...notification,
+			read: false,
+			createdAt: Date.now(),
 		});
-		const result = await resp.json() as { name?: string };
-		return result.name ?? null; // Firebase push ID
+		return newRef.key;
 	} catch (err) {
 		console.error('[Notifications] Send failed:', err);
 		return null;
@@ -181,20 +184,20 @@ export async function notifyWishlistDiscount(
 	beatId: string,
 	beatName: string,
 	discountPercent: number
-) {
+): Promise<number> {
 	try {
-		// Get all wishlists to find users who have this beat
-		const wishUrl = await authUrl('/userWishlist');
-		const resp = await fetch(wishUrl);
-		const allWishlists = await resp.json() as Record<string, Record<string, unknown>> | null;
+		const { getDatabase, ref, get } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+		const db = getDatabase(getApp());
 
+		const wishSnap = await get(ref(db, 'userWishlist'));
+		const allWishlists = wishSnap.val() as Record<string, Record<string, unknown>> | null;
 		if (!allWishlists) return 0;
 
 		const uids = Object.entries(allWishlists)
 			.filter(([, wishlist]) => beatId in wishlist)
 			.map(([uid]) => uid);
 
-		// Send notification to each user
 		let sent = 0;
 		for (const uid of uids) {
 			const result = await sendNotification(uid, {
@@ -216,13 +219,14 @@ export async function notifyWishlistDiscount(
 /**
  * Broadcast: new beat added.
  */
-export async function notifyNewBeat(beatId: string, beatName: string) {
+export async function notifyNewBeat(beatId: string, beatName: string): Promise<number> {
 	try {
-		// Get all user IDs from users/ node
-		const usersUrl = await authUrl('/users');
-		const resp = await fetch(usersUrl);
-		const users = await resp.json() as Record<string, unknown> | null;
+		const { getDatabase, ref, get } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+		const db = getDatabase(getApp());
 
+		const usersSnap = await get(ref(db, 'users'));
+		const users = usersSnap.val() as Record<string, unknown> | null;
 		if (!users) return 0;
 
 		let sent = 0;
@@ -251,15 +255,17 @@ export async function notifyPriceChange(
 	beatName: string,
 	oldPrice: number,
 	newPrice: number
-) {
+): Promise<number> {
 	const direction = newPrice < oldPrice ? 'bajó' : 'subió';
 	const emoji = newPrice < oldPrice ? '📉' : '📈';
 
 	try {
-		const wishUrl = await authUrl('/userWishlist');
-		const resp = await fetch(wishUrl);
-		const allWishlists = await resp.json() as Record<string, Record<string, unknown>> | null;
+		const { getDatabase, ref, get } = await import('firebase/database');
+		const { getApp } = await import('firebase/app');
+		const db = getDatabase(getApp());
 
+		const wishSnap = await get(ref(db, 'userWishlist'));
+		const allWishlists = wishSnap.val() as Record<string, Record<string, unknown>> | null;
 		if (!allWishlists) return 0;
 
 		const uids = Object.entries(allWishlists)
@@ -286,6 +292,7 @@ export async function notifyPriceChange(
 
 /** Cleanup on logout */
 export function destroyNotifications() {
+	if (_unsub) { _unsub(); _unsub = null; }
 	currentUid = null;
 	_notifications.set([]);
 }

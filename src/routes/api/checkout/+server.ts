@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { FIREBASE_DB } from '$lib/firebaseDb';
 
 /**
  * POST /api/checkout
@@ -9,8 +10,6 @@ import type { RequestHandler } from './$types';
  * Expects JSON body: { items: CartItem[], customerEmail?: string }
  * Requires STRIPE_SECRET_KEY env var.
  */
-
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 /** Validate cart item shape */
 function isValidItem(item: unknown): item is {

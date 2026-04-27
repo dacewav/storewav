@@ -3,8 +3,8 @@
  */
 
 import { sendAbandonedCartEmail } from '$lib/abandonedCart';
+import { FIREBASE_DB } from '$lib/firebaseDb';
 
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 const ABANDON_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 

@@ -3,7 +3,7 @@
  * Call from client when cart changes and user is logged in.
  */
 
-const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
+import { FIREBASE_DB } from '$lib/firebaseDb';
 
 export type CartAbandonmentData = {
 	uid: string;
@@ -27,7 +27,8 @@ export type CartAbandonmentData = {
  */
 export async function sendAbandonedCartEmail(
 	data: CartAbandonmentData,
-	env: { RESEND_API_KEY?: string }
+	env: { RESEND_API_KEY?: string },
+	brandName?: string
 ): Promise<{ ok: boolean; error?: string }> {
 	const apiKey = env.RESEND_API_KEY;
 	if (!apiKey) {
@@ -35,7 +36,7 @@ export async function sendAbandonedCartEmail(
 		return { ok: true };
 	}
 
-	const brandName = 'DACEWAV';
+	brandName = brandName || 'DACEWAV';
 	const beatNames = data.items.map(i => i.beatName).join(', ');
 	const itemsHtml = data.items.map(item => `
 		<div style="padding: 12px 16px; background: #1a1a1a; border-radius: 8px; margin-bottom: 8px;">

@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { cart, settings, analytics } from '$lib/stores';
 	import Icon from '$lib/components/Icon.svelte';
+	import { FIREBASE_DB } from '$lib/firebaseDb';
 
 	let s = $derived($settings.data);
 	let sessionId = $derived(page.url.searchParams.get('session_id'));
@@ -30,7 +31,7 @@
 			// Fetch order details from Firebase
 			try {
 				const resp = await fetch(
-					`https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/paidOrders/${sessionId}.json`
+					`${FIREBASE_DB}/paidOrders/${sessionId}.json`
 				);
 				if (resp.ok) {
 					const data = await resp.json();

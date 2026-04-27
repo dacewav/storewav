@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { auth } from '$lib/stores';
 	import { settings } from '$lib/stores';
+	import { FIREBASE_DB } from '$lib/firebaseDb';
 
 	let authState = $derived($auth);
 	let user = $derived(authState.user);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
-
-	const FIREBASE_DB = 'https://dacewav-store-3b0f5-default-rtdb.firebaseio.com';
 
 	/** Get auth token for API calls */
 	async function getAuthToken(): Promise<string | null> {
