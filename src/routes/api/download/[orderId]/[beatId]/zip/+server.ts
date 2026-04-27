@@ -82,9 +82,11 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 
 	const { item, customerEmail, customerName } = orderData;
 
-	// 1. Fetch beat audio
+	// 1. Fetch beat audio + stems
 	let audioData: Uint8Array | null = null;
+	let stemsData: Uint8Array | null = null;
 	let audioFilename = 'beat.mp3';
+	let stemsFilename = 'stems.zip';
 
 	try {
 		const beatResp = await fetch(`${FIREBASE_DB}/beats/${beatId}.json`);
@@ -98,11 +100,12 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 				stemsUrl?: string;
 			} | null;
 
+			const r2 = platform?.env?.MEDIA;
+
 			if (beat?.audioUrl) {
 				audioFilename = `${sanitizeFilename(beat.name || item.beatName || 'beat')}.mp3`;
 
 				// Try R2 binding first
-				const r2 = platform?.env?.MEDIA;
 				if (r2) {
 					const key = r2KeyFromUrl(beat.audioUrl);
 					if (key) {
@@ -112,9 +115,7 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 								const buffer = await obj.arrayBuffer();
 								audioData = new Uint8Array(buffer);
 							}
-						} catch {
-							// Fall through to proxy
-						}
+						} catch { /* Fall through */ }
 					}
 				}
 
@@ -127,9 +128,35 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 					}
 				}
 			}
+
+			// Fetch stems if available
+			if (beat?.stemsUrl) {
+				stemsFilename = `${sanitizeFilename(beat.name || item.beatName || 'beat')}_stems.zip`;
+
+				if (r2) {
+					const key = r2KeyFromUrl(beat.stemsUrl);
+					if (key) {
+						try {
+							const obj = await r2.get(key);
+							if (obj) {
+								const buffer = await obj.arrayBuffer();
+								stemsData = new Uint8Array(buffer);
+							}
+						} catch { /* Fall through */ }
+					}
+				}
+
+				if (!stemsData) {
+					const resp = await fetch(beat.stemsUrl);
+					if (resp.ok) {
+						const buffer = await resp.arrayBuffer();
+						stemsData = new Uint8Array(buffer);
+					}
+				}
+			}
 		}
 	} catch {
-		// Audio fetch failed — continue with contract only
+		// Audio/stems fetch failed — continue with what we have
 	}
 
 	// 2. Generate contract PDF
@@ -156,6 +183,10 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 
 	if (audioData) {
 		zipFiles[audioFilename] = audioData;
+	}
+
+	if (stemsData) {
+		zipFiles[stemsFilename] = stemsData;
 	}
 
 	if (contractPdf) {
