@@ -25,6 +25,11 @@
 			<span class="dash-label">Favoritos</span>
 			<span class="dash-desc">Beats que te gustaron</span>
 		</a>
+		<a href="/account/playlists" class="dash-card">
+			<span class="dash-icon">🎵</span>
+			<span class="dash-label">Playlists</span>
+			<span class="dash-desc">Colecciones de beats</span>
+		</a>
 		<a href="/" class="dash-card">
 			<span class="dash-icon">🎵</span>
 			<span class="dash-label">Catálogo</span>
