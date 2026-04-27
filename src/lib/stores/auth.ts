@@ -128,20 +128,34 @@ export async function initAuth() {
 	}
 }
 
-/** Login con Google — redirect-only (COOP-safe, no popups) */
+/** Login con Google — popup-first, redirect como fallback (COOP-safe) */
 export async function loginWithGoogle() {
 	try {
 		const auth = await getAuthInstance();
 		if (!auth) throw new Error('Firebase no inicializado');
 
-		const { GoogleAuthProvider, signInWithRedirect } = await import('firebase/auth');
+		const { GoogleAuthProvider, signInWithPopup, signInWithRedirect } = await import('firebase/auth');
 		const provider = new GoogleAuthProvider();
 		provider.addScope('email');
 		provider.addScope('profile');
 
-		if (dev) console.log('[Auth] signInWithRedirect...');
-		await signInWithRedirect(auth, provider);
-		// Page will navigate away — redirect result handled in initAuth()
+		// Try popup first — works reliably with multi-account Google
+		try {
+			if (dev) console.log('[Auth] Trying signInWithPopup...');
+			const result = await signInWithPopup(auth, provider);
+			if (dev) console.log('[Auth] Popup sign-in successful:', result.user.email);
+			return; // Success — no redirect needed
+		} catch (popupErr) {
+			const code = (popupErr as { code?: string })?.code ?? '';
+			// If popup was blocked by COOP/browser policy, fall back to redirect
+			if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+				if (dev) console.log('[Auth] Popup blocked/closed, falling back to redirect...');
+				await signInWithRedirect(auth, provider);
+				return;
+			}
+			// For other errors (like auth/unauthorized-domain), throw
+			throw popupErr;
+		}
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
 		console.error('[Auth] loginWithGoogle error:', msg);
