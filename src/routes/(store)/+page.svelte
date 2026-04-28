@@ -105,8 +105,12 @@
 	let ctaTitle = $derived(s?.cta?.title ?? '');
 	let ctaSub = $derived(s?.cta?.subtitle ?? '');
 	let ctaBtn = $derived(s?.cta?.buttonText ?? '');
-	let whatsappNum = $derived(s?.brand?.whatsapp ?? '');
-	let ctaUrl = $derived(s?.cta?.buttonUrl ?? (whatsappNum ? `https://wa.me/${whatsappNum}` : 'https://wa.me'));
+	let whatsappNum = $derived((s?.brand?.whatsapp ?? '').replace(/^\+/, ''));
+	let ctaUrl = $derived.by(() => {
+		const url = s?.cta?.buttonUrl ?? '';
+		if (url && url !== 'https://wa.me') return url;
+		return whatsappNum ? `https://wa.me/${whatsappNum}` : 'https://wa.me';
+	});
 
 	// Labels
 	let labels = $derived((s?.labels ?? {}) as LabelSettings);
