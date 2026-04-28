@@ -5,10 +5,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, initNotifications, destroyNotifications } from '$lib/stores/notifications';
-	import { auth } from '$lib/stores';
+	import { auth, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
 
 	let loading = $state(true);
+	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
 	onMount(() => {
 		const unsub = auth.subscribe((state) => {
@@ -55,7 +56,7 @@
 </script>
 
 <svelte:head>
-	<title>Notificaciones — DACEWAV</title>
+	<title>Notificaciones — {brandName}</title>
 </svelte:head>
 
 <div class="notif-page">

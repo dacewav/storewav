@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { auth } from '$lib/stores';
+	import { auth, settings } from '$lib/stores';
 	import Icon from '$lib/components/Icon.svelte';
 
 	let { children } = $props();
 
 	let authState = $derived($auth);
 	let user = $derived(authState.user);
+	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
 	const tabs: Array<{ href: string; label: string; icon: 'export' | 'shoppingCart' | 'heart' | 'music' }> = [
 		{ href: '/account/profile', label: 'Perfil', icon: 'export' },
@@ -19,7 +20,7 @@
 </script>
 
 <svelte:head>
-	<title>Mi cuenta — DACEWAV</title>
+	<title>Mi cuenta — {brandName}</title>
 </svelte:head>
 
 <div class="account-page">

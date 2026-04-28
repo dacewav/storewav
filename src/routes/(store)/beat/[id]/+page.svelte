@@ -153,7 +153,7 @@
 			} : undefined
 		})}</script>`}
 	{:else}
-		<title>Beat — DACEWAV</title>
+		<title>Beat — {s?.brand?.name ?? 'DACEWAV'}</title>
 	{/if}
 </svelte:head>
 
