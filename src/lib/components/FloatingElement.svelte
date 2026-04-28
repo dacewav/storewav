@@ -59,7 +59,7 @@
 		will-change: transform;
 	}
 
-	.floating-el img {
+	img.floating-el {
 		width: 100%;
 		height: 100%;
 		object-fit: contain;

@@ -83,7 +83,7 @@
 						<textarea id="test-text-{i}" value={t.text} placeholder="Excelente calidad, beats profesionales..." rows={2} oninput={(e) => updateField(i, 'text', e.currentTarget.value)}></textarea>
 					</div>
 					<div class="field">
-						<label>Avatar (opcional)</label>
+						<span class="form-label">Avatar (opcional)</span>
 						<FileUpload
 							value={t.avatar ?? ''}
 							folder="testimonials"
@@ -117,7 +117,6 @@
 	.editor { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }
 	.editor-title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
 	.editor-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; }
-	.section-title { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--text); margin-bottom: var(--space-4); }
 	.empty-msg { font-size: var(--text-sm); color: var(--text-muted); font-style: italic; padding: var(--space-4) 0; }
 
 	.testimonial-row {

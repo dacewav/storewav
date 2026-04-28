@@ -14,7 +14,14 @@
 	} = $props();
 
 	let editing = $state(false);
-	let editName = $state(preset.name);
+	let editName = $state('');
+	let inputEl = $state<HTMLInputElement | null>(null);
+
+	$effect(() => {
+		if (editing && inputEl) {
+			inputEl.focus();
+		}
+	});
 
 	function startRename() {
 		editing = true;
@@ -67,12 +74,12 @@
 				class="preset-rename-input"
 				type="text"
 				bind:value={editName}
+				bind:this={inputEl}
 				onkeydown={handleKeydown}
 				onblur={commitRename}
-				autofocus
 			/>
 		{:else}
-			<span class="preset-name" ondblclick={startRename} title="Doble click para renombrar">{preset.name}</span>
+			<span class="preset-name" role="button" tabindex="0" ondblclick={startRename} onkeydown={(e) => e.key === 'Enter' && startRename()} title="Doble click para renombrar">{preset.name}</span>
 		{/if}
 		<span class="preset-date">{dateStr}</span>
 	</div>

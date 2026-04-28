@@ -470,14 +470,6 @@
 		line-height: 1.6;
 	}
 
-	.section-title {
-		font-family: var(--font-display);
-		font-size: var(--text-sm);
-		font-weight: 700;
-		color: var(--text);
-		margin-bottom: var(--space-4);
-	}
-
 	.field-desc {
 		font-size: var(--text-xs);
 		color: var(--text-muted);

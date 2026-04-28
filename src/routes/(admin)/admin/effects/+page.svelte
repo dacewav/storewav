@@ -268,8 +268,8 @@
 				</div>
 
 				<!-- Type selector as visual pills -->
-				<div class="field">
-					<label>Tipo de partícula</label>
+				<div class="field" role="group" aria-label="Tipo de partícula">
+					<span class="form-label">Tipo de partícula</span>
 					<div class="type-pills">
 						{#each PARTICLE_TYPES as pt}
 							<button
@@ -370,7 +370,7 @@
 					<input id="t-piu" type="text" value={t.particlesImgUrl ?? ''} oninput={(e) => updateField('theme.particlesImgUrl', e.currentTarget.value)} placeholder="https://cdn.dacewav.store/..." />
 				</div>
 				<div class="field">
-					<label>O subir imagen local</label>
+					<span class="form-label">O subir imagen local</span>
 					<label class="upload-zone" class:uploading={particleUploading}>
 						<input type="file" accept="image/*" onchange={handleParticleImageUpload} disabled={particleUploading} />
 						{#if particleUploading}

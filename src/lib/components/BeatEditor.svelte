@@ -716,8 +716,7 @@
 	.field input[type="text"],
 	.field input[type="number"],
 	.field input[type="url"],
-	.field select,
-	.field textarea {
+	.field select {
 		padding: var(--space-2) var(--space-3);
 		background: var(--surface);
 		border: 1px solid var(--border);
@@ -730,7 +729,7 @@
 		font-family: inherit;
 	}
 
-	.field input:focus, .field select:focus, .field textarea:focus { border-color: rgba(var(--accent-rgb), 0.5); }
+	.field input:focus, .field select:focus { border-color: rgba(var(--accent-rgb), 0.5); }
 	.field input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 
 	.toggle-label { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; }

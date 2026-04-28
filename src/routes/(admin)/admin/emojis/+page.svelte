@@ -55,7 +55,7 @@
 				<input id="emoji-name" type="text" bind:value={newName} placeholder="ej: fire, star, wave" />
 			</div>
 			<div class="field">
-				<label>Imagen del emoji</label>
+				<span class="form-label">Imagen del emoji</span>
 				<FileUpload
 					value={newUrl}
 					folder="emojis"

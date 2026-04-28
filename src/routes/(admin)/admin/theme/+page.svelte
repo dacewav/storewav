@@ -808,7 +808,7 @@
 							{#if editingPresetId === preset.id}
 								<input type="text" class="preset-rename" bind:value={editingPresetName} onkeydown={(e) => e.key === 'Enter' && handleRenamePreset(preset.id)} onblur={() => handleRenamePreset(preset.id)} />
 							{:else}
-								<span class="preset-name" ondblclick={() => startRename(preset)}>{preset.name}</span>
+								<span class="preset-name" role="button" tabindex="0" ondblclick={() => startRename(preset)} onkeydown={(e) => e.key === 'Enter' && startRename(preset)}>{preset.name}</span>
 							{/if}
 							<span class="preset-date">{new Date(preset.createdAt).toLocaleDateString()}</span>
 						</div>
@@ -899,13 +899,10 @@
 	.fp-body { color: var(--text-secondary); }
 	.fp-sample { color: var(--accent); font-weight: 500; margin-top: var(--space-1); }
 
-	.mini-card-preview { border: 1px solid var(--border); overflow: hidden; }
-
 	/* === Existing styles === */
 	.editor { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }
 	.editor-title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
 	.editor-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; }
-	.section-title { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--text); margin-bottom: var(--space-4); }
 	.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
 	.field label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: var(--space-2); }
 	.field input[type="text"], .field select, .field textarea { padding: var(--space-2) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: var(--text-sm); min-height: var(--touch-min); outline: none; transition: border-color var(--duration-fast); }

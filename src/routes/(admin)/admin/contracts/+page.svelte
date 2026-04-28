@@ -349,7 +349,7 @@
 		font-family: var(--font-mono);
 	}
 
-	input, select {
+	input {
 		padding: var(--space-2) var(--space-3);
 		background: var(--bg);
 		border: 1px solid var(--border);
@@ -361,7 +361,7 @@
 		transition: border-color var(--duration-fast);
 	}
 
-	input:focus, select:focus {
+	input:focus {
 		border-color: var(--accent);
 	}
 

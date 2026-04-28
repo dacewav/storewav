@@ -544,9 +544,7 @@
 	}
 
 	.field input[type="text"],
-	.field input[type="url"],
-	.field textarea,
-	.field select {
+	.field textarea {
 		padding: var(--space-2) var(--space-3);
 		background: var(--surface2);
 		border: 1px solid var(--border);

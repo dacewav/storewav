@@ -422,7 +422,6 @@
 	.editor { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }
 	.editor-title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
 	.editor-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; }
-	.section-title { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--text); margin-bottom: var(--space-3); }
 	.section-desc { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-3); line-height: 1.5; }
 	.sub-section-title { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin: var(--space-3) 0 var(--space-2); }
 	.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }

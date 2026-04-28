@@ -73,8 +73,8 @@
 	<p class="subtitle">Enviar notificaciones a usuarios.</p>
 
 	<!-- Type selector -->
-	<div class="section">
-		<label class="label">Tipo de envío</label>
+	<div class="section" role="group" aria-label="Tipo de envío">
+		<span class="label">Tipo de envío</span>
 		<div class="radio-group">
 			<label class="radio-option">
 				<input type="radio" bind:group={targetType} value="broadcast_wishlist" />

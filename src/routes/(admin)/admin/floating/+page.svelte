@@ -327,8 +327,8 @@
 
 			<div class="form-body">
 				<!-- Type -->
-				<div class="form-group">
-					<label class="form-label">Tipo</label>
+				<div class="form-group" role="group" aria-label="Tipo">
+					<span class="form-label">Tipo</span>
 					<div class="type-toggle">
 						<button
 							class="type-btn"
@@ -361,8 +361,9 @@
 							onRemove={() => { form.content = ''; }}
 						/>
 						<div class="url-fallback">
-							<label class="form-label">O pega una URL:</label>
+							<label class="form-label" for="fl-url-fallback">O pega una URL:</label>
 							<input
+								id="fl-url-fallback"
 								type="text"
 								class="form-input"
 								value={form.content ?? ''}
@@ -444,8 +445,9 @@
 
 				<!-- Animation -->
 				<div class="form-group">
-					<label class="form-label">Animación</label>
+					<label class="form-label" for="fl-animation">Animación</label>
 					<select
+						id="fl-animation"
 						class="form-select"
 						value={form.animation ?? 'none'}
 						onchange={(e) => (form.animation = e.currentTarget.value as FloatingAnimation)}
@@ -468,8 +470,8 @@
 				{/if}
 
 				<!-- Responsive -->
-				<div class="form-group">
-					<label class="form-label">Visibilidad</label>
+				<div class="form-group" role="group" aria-label="Visibilidad">
+					<span class="form-label">Visibilidad</span>
 					<div class="toggle-row">
 						<label class="toggle-label">
 							<input
@@ -566,17 +568,6 @@
 
 	/* Preview */
 	.preview-section { padding: var(--space-4); }
-
-	.section-title {
-		font-family: var(--font-display);
-		font-size: var(--text-sm);
-		font-weight: 700;
-		color: var(--text);
-		margin-bottom: var(--space-3);
-		display: flex;
-		align-items: center;
-		gap: var(--space-2);
-	}
 
 	.preview-box {
 		position: relative;

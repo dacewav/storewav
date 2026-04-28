@@ -243,8 +243,8 @@
 				</div>
 			</div>
 
-			<div class="form-group">
-				<label>Licencias aplicables</label>
+			<div class="form-group" role="group" aria-label="Licencias aplicables">
+				<span class="form-label">Licencias aplicables</span>
 				<div class="license-chips">
 					{#each licenseOptions as license}
 						<button
