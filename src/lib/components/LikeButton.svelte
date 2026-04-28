@@ -23,7 +23,7 @@
 
 	async function handleToggle() {
 		if (!uid) {
-			toast.info('Iniciá sesión para guardar favoritos');
+			toast.show('Iniciá sesión para guardar favoritos');
 			return;
 		}
 		if (loading) return;

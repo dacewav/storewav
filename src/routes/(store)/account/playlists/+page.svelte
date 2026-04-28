@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { auth, beats as beatsStore } from '$lib/stores';
+	import { auth, allBeatsList } from '$lib/stores';
 	import { playlists, initPlaylists, createPlaylist, deletePlaylist, addToPlaylist, removeFromPlaylist, type Playlist } from '$lib/stores/playlists';
 	import { onMount } from 'svelte';
 	import Icon from '$lib/components/Icon.svelte';
 
 	let authState = $derived($auth);
 	let user = $derived(authState.user);
-	let allBeats = $derived($beatsStore);
+	let allBeats = $derived($allBeatsList);
 	let playlistList = $derived($playlists);
 
 	let creating = $state(false);

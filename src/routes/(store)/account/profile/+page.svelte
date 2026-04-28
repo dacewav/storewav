@@ -31,7 +31,7 @@
 	let loading = $state(true);
 	let saving = $state(false);
 	let saveMsg = $state('');
-	let saveMsgType = $state<'success' | 'error'>('');
+	let saveMsgType = $state<'success' | 'error' | ''>('');
 
 	// Avatar upload state
 	let avatarUploading = $state(false);

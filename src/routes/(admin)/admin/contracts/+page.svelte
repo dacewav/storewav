@@ -67,7 +67,7 @@
 			// Revoke old URL
 			if (pdfUrl) URL.revokeObjectURL(pdfUrl);
 
-			const blob = new Blob([bytes], { type: 'application/pdf' });
+			const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
 			pdfUrl = URL.createObjectURL(blob);
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Error generando PDF';

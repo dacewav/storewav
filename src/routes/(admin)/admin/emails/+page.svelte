@@ -286,7 +286,7 @@
 						<div class="field">
 							<label for="emailSubject">Asunto del email</label>
 							<input id="emailSubject" type="text" bind:value={template.emailSubject} />
-							<span class="field-hint">Variables: {{brandName}}, {{buyerName}}, {{beatNames}}</span>
+							<span class="field-hint">Variables: {'{{'}brandName{'}}'}, {'{{'}buyerName{'}}'}, {'{{'}beatNames{'}}'}</span>
 						</div>
 						<div class="field">
 							<label for="headerEmoji">Emoji</label>
@@ -299,7 +299,7 @@
 						<div class="field">
 							<label for="headerSubtitle">Subtítulo</label>
 							<textarea id="headerSubtitle" bind:value={template.headerSubtitle} rows={2}></textarea>
-							<span class="field-hint">Variable: {{buyerName}}</span>
+							<span class="field-hint">Variable: {'{{'}buyerName{'}}'}</span>
 						</div>
 					</div>
 				</details>
@@ -406,12 +406,12 @@
 				<div class="variables-ref">
 					<span class="var-title">Variables disponibles:</span>
 					<div class="var-list">
-						<code>{{brandName}}</code>
-						<code>{{buyerName}}</code>
-						<code>{{beatNames}}</code>
-						<code>{{orderId}}</code>
-						<code>{{totalMXN}}</code>
-						<code>{{totalUSD}}</code>
+						<code>{'{{'}brandName{'}}'}</code>
+						<code>{'{{'}buyerName{'}}'}</code>
+						<code>{'{{'}beatNames{'}}'}</code>
+						<code>{'{{'}orderId{'}}'}</code>
+						<code>{'{{'}totalMXN{'}}'}</code>
+						<code>{'{{'}totalUSD{'}}'}</code>
 					</div>
 				</div>
 			</div>

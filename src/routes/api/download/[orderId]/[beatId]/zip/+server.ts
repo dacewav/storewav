@@ -203,7 +203,7 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 	// Return zip
 	const zipFilename = `${sanitizeFilename(item.beatName || 'beat')}_${item.licenseName}_dacewav.zip`;
 
-	return new Response(zipped, {
+	return new Response(zipped as BodyInit, {
 		headers: {
 			'Content-Type': 'application/zip',
 			'Content-Disposition': `attachment; filename="${zipFilename}"`,

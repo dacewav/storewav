@@ -18,6 +18,35 @@ declare global {
 			};
 		}
 	}
+
+	// FedCM API types (not yet in standard TS DOM lib)
+	interface IdentityCredential extends Credential {
+		token?: string;
+	}
+
+	interface IdentityCredentialRequestOptions extends CredentialRequestOptions {
+		identity?: {
+			context?: 'signin' | 'signup' | 'use';
+			providers: Array<{
+				configURL: string;
+				clientId: string;
+				hint?: string;
+			}>;
+			mode?: 'active' | 'passive';
+		};
+	}
+
+	interface Window {
+		google?: {
+			accounts?: {
+				id?: {
+					initialize(config: object): void;
+					prompt(callback?: (notification: object) => void): void;
+					cancel(): void;
+				};
+			};
+		};
+	}
 }
 
 export {};

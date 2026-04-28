@@ -177,7 +177,7 @@
 				<button
 					class="period-btn"
 					class:active={period === value}
-					onclick={() => period = value}
+					onclick={() => period = value as 'all' | '30d' | '7d' | 'today'}
 				>
 					{label}
 				</button>

@@ -78,9 +78,9 @@ async function initFedCM(
 					configURL: 'https://accounts.google.com/gsi/fedcm.json',
 					clientId,
 				}],
-				mode: 'passive', // Don't show UI if user hasn't consented
+				mode: 'passive',
 			},
-		}) as (IdentityCredential & { token?: string }) | null;
+		} as IdentityCredentialRequestOptions) as (IdentityCredential & { token?: string }) | null;
 
 		if (credential?.token) {
 			if (dev) console.log('[OneTap] FedCM credential received');
