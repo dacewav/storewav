@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { beatsList, player, wishlist, settings, analytics, beats as beatsStore, accentRgb as accentRgbStore, cart } from '$lib/stores';
+	import { beatsList, allBeatsList, player, wishlist, settings, analytics, beats as beatsStore, accentRgb as accentRgbStore, cart } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
 	import { Skeleton, Badge, BeatCard, EmptyState, InlineEmoji, LikeButton, CommentSection } from '$lib/components';
 	import { stripEmojis } from '$lib/emojiUtils';
 	import Waveform from '$lib/components/Waveform.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { staggerReveal } from '$lib/actions';
+	import { getBeatSlug } from '$lib/slug';
 	import { getRecommendations } from '$lib/stores/recommendations';
 	import { likeCounts } from '$lib/stores/likes';
 	import type { Action } from 'svelte/action';
@@ -37,20 +38,21 @@
 
 	let beatId = $derived(page.params.id);
 	let beats = $derived($beatsList);
+	let allBeats = $derived($allBeatsList);
 	let beatsRaw = $derived($beatsStore);
 	let s = $derived($settings.data);
 
-	// Current beat — look up by slug first, then by ID
+	// Current beat — look up by slug first, then by ID (use allBeats so inactive featured beats work)
 	let beat = $derived.by(() => {
 		const param = page.params.id;
 		// Try slug match first
-		const bySlug = beats.find(b => {
+		const bySlug = allBeats.find(b => {
 			const slug = b.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
 			return slug === param;
 		});
 		if (bySlug) return bySlug;
 		// Fallback to ID
-		return beats.find(b => b.id === param) ?? null;
+		return allBeats.find(b => b.id === param) ?? null;
 	});
 	let loading = $derived(beatsRaw.loading);
 
@@ -144,7 +146,7 @@
 			byArtist: { '@type': 'MusicGroup', name: beat.artist ?? (s?.brand?.name ?? 'DACEWAV') },
 			genre: beat.genre,
 			image: beat.imageUrl || undefined,
-			url: `https://dacewav.store/beat/${beat.id}`,
+			url: `https://dacewav.store/beat/${getBeatSlug(beat)}`,
 			offers: beat.licenses?.length ? {
 				'@type': 'Offer',
 				price: Math.min(...beat.licenses.map(l => l.priceUSD)),
