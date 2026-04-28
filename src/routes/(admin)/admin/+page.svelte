@@ -3,6 +3,7 @@
 	import { allBeatsList, wishlist, settings, auth, beats as beatsStore, beatsStats, createBeat, updateBeat } from '$lib/stores';
 	import { seedDemoBeats, SEED_COUNT } from '$lib/seed';
 	import { toast } from '$lib/toastStore';
+	import { genreGradient } from '$lib/visualUtils';
 	import type { Beat } from '$lib/stores/beats';
 
 	let beatsData = $derived($beatsStore);

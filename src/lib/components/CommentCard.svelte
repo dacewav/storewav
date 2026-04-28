@@ -2,6 +2,7 @@
 	import type { Comment } from '$lib/stores/comments';
 	import { auth, deleteComment, customEmojis } from '$lib/stores';
 	import { renderEmojis } from '$lib/emojiUtils';
+	import { sanitizeHtml } from '$lib/sanitize';
 
 	let {
 		comment,
@@ -17,7 +18,7 @@
 	let canDelete = $derived(isOwner || isAdmin);
 	let deleting = $state(false);
 	let emojis = $derived($customEmojis);
-	let renderedText = $derived(renderEmojis(comment.text, emojis));
+	let renderedText = $derived(renderEmojis(sanitizeHtml(comment.text), emojis));
 
 	function timeAgo(ts: number): string {
 		const diff = Date.now() - ts;

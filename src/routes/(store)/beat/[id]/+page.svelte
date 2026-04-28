@@ -612,8 +612,8 @@
 		flex-wrap: wrap;
 	}
 
-	/* Description */
-	.beat-description {
+	/* Description — :global() because class is applied via InlineEmoji component */
+	:global(.beat-description) {
 		font-size: var(--text-sm);
 		color: var(--text-secondary);
 		line-height: var(--leading-relaxed);
