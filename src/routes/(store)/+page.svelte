@@ -105,7 +105,8 @@
 	let ctaTitle = $derived(s?.cta?.title ?? '');
 	let ctaSub = $derived(s?.cta?.subtitle ?? '');
 	let ctaBtn = $derived(s?.cta?.buttonText ?? '');
-	let ctaUrl = $derived(s?.cta?.buttonUrl ?? 'https://wa.me');
+	let whatsappNum = $derived(s?.brand?.whatsapp ?? '');
+	let ctaUrl = $derived(s?.cta?.buttonUrl ?? (whatsappNum ? `https://wa.me/${whatsappNum}` : 'https://wa.me'));
 
 	// Labels
 	let labels = $derived((s?.labels ?? {}) as LabelSettings);
@@ -148,9 +149,6 @@
 	let visibleCount = $state(BATCH_SIZE);
 	let backToTopVisible = $state(false);
 
-	// ── Genre tabs ──
-	let activeGenre = $state('');
-
 	// Reset visible count when filters change
 	$effect(() => {
 		void filters.search;
@@ -158,7 +156,6 @@
 		void filters.key;
 		void filters.sort;
 		void filters.tags.length;
-		void activeGenre;
 		visibleCount = BATCH_SIZE;
 	});
 
@@ -174,21 +171,6 @@
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
 
-	// Genre counts for tabs
-	let genreCounts = $derived.by(() => {
-		const counts: Record<string, number> = {};
-		for (const b of beats) {
-			if (b.genre) counts[b.genre] = (counts[b.genre] ?? 0) + 1;
-		}
-		return counts;
-	});
-
-	let sortedGenres = $derived(
-		Object.entries(genreCounts)
-			.sort(([, a], [, b]) => b - a)
-			.map(([genre, count]) => ({ genre, count }))
-	);
-
 	function lowestPrice(beat: Beat & { id: string }): number {
 		if (!beat.licenses?.length) return 0;
 		return Math.min(...beat.licenses.map(l => l.priceMXN));
@@ -201,10 +183,9 @@
 		// Exclude featured (they have their own section)
 		list = list.filter(b => !b.featured);
 
-		// Genre tabs (takes priority over dropdown filter)
-		const genreFilter = activeGenre || filters.genre;
-		if (genreFilter) {
-			list = list.filter(b => b.genre === genreFilter);
+		// Genre filter (from Filters component)
+		if (filters.genre) {
+			list = list.filter(b => b.genre === filters.genre);
 		}
 
 		// Search
@@ -416,21 +397,7 @@
 		<div class="section-badge">{filteredBeats.length ? `${filteredBeats.length} beats` : '—'}</div>
 	</div>
 
-	<!-- Genre tabs -->
-	{#if sortedGenres.length > 1}
-		<div class="genre-tabs">
-			<button class="genre-tab" class:active={!activeGenre} onclick={() => { activeGenre = ''; }}>
-				Todos <span class="tab-count">{filteredBeats.length}</span>
-			</button>
-			{#each sortedGenres as { genre, count }}
-				<button class="genre-tab" class:active={activeGenre === genre} onclick={() => { activeGenre = activeGenre === genre ? '' : genre; }}>
-					{genre} <span class="tab-count">{count}</span>
-				</button>
-			{/each}
-		</div>
-	{/if}
-
-	<!-- Filters -->
+	<!-- Filters (includes genre pills) -->
 	{#if beats.length > 0}
 		<div class="filters-wrap">
 			<Filters
@@ -802,60 +769,6 @@
 	/* ── Filters ── */
 	.filters-wrap {
 		margin-bottom: var(--space-6);
-	}
-
-	/* ── Genre Tabs ── */
-	.genre-tabs {
-		display: flex;
-		gap: var(--space-2);
-		margin-bottom: var(--space-5);
-		padding-bottom: var(--space-4);
-		border-bottom: 1px solid var(--border);
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
-		scrollbar-width: none;
-		flex-wrap: nowrap;
-	}
-
-	.genre-tabs::-webkit-scrollbar {
-		display: none;
-	}
-
-	.genre-tab {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--space-2);
-		padding: var(--space-2) var(--space-4);
-		min-height: 36px;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-full);
-		background: transparent;
-		color: var(--text-secondary);
-		font-family: var(--font-mono);
-		font-size: var(--text-2xs);
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
-		cursor: pointer;
-		transition: all var(--duration-fast) var(--ease-out);
-		white-space: nowrap;
-	}
-
-	.genre-tab:hover {
-		border-color: rgba(var(--accent-rgb), 0.4);
-		color: var(--text);
-		background: rgba(var(--accent-rgb), 0.04);
-	}
-
-	.genre-tab.active {
-		border-color: var(--accent);
-		background: rgba(var(--accent-rgb), 0.1);
-		color: var(--accent);
-		box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.15);
-	}
-
-	.tab-count {
-		font-size: 10px;
-		opacity: 0.6;
 	}
 
 	/* ── Show More ── */
