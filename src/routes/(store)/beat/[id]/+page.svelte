@@ -227,6 +227,22 @@
 							>
 								<Icon name="heart" size={18} filled={inWishlist} />
 							</button>
+							<button
+								class="beat-share-btn"
+								onclick={async () => {
+									const url = window.location.href;
+									if (navigator.share) {
+										try { await navigator.share({ title: beat?.name, url }); } catch { /* cancelled */ }
+									} else {
+										await navigator.clipboard.writeText(url);
+										const { toast } = await import('$lib/toastStore');
+										toast.show('Link copiado');
+									}
+								}}
+								aria-label="Compartir beat"
+							>
+								<Icon name="share" size={18} />
+							</button>
 						</div>
 					</div>
 					{#if beat.artist}
@@ -566,6 +582,27 @@
 	.beat-wish-btn.active {
 		border-color: rgba(var(--accent-rgb), 0.3);
 		color: var(--accent);
+	}
+
+	.beat-share-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 48px;
+		min-height: 48px;
+		border: 1px solid var(--border);
+		border-radius: 50%;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		flex-shrink: 0;
+	}
+
+	.beat-share-btn:hover {
+		border-color: rgba(var(--accent-rgb), 0.3);
+		color: var(--accent);
+		transform: scale(1.05);
 	}
 
 	/* Badges */
