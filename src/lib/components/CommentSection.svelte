@@ -262,7 +262,7 @@
 	}
 
 	.comment-input {
-		flex: 1;
+		width: 100%;
 		padding: var(--space-2) var(--space-3);
 		padding-right: 36px;
 		background: var(--bg);
@@ -274,6 +274,7 @@
 		resize: vertical;
 		min-height: 60px;
 		outline: none;
+		box-sizing: border-box;
 	}
 
 	.comment-input:focus {

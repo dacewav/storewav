@@ -30,6 +30,24 @@
 	let listEl: HTMLDivElement | undefined = $state();
 	let pickerEl: HTMLDivElement | undefined = $state();
 
+	let pickerStyle = $derived.by(() => {
+		if (!visible) return '';
+		const vw = typeof window !== 'undefined' ? window.innerWidth : 1024;
+		const vh = typeof window !== 'undefined' ? window.innerHeight : 768;
+		let top = rect.bottom + 4;
+		let left = rect.left;
+		// Flip above if overflowing bottom
+		if (top + 280 > vh) {
+			top = Math.max(4, rect.top - 284);
+		}
+		// Clamp left to viewport
+		if (left + 320 > vw) {
+			left = Math.max(4, vw - 324);
+		}
+		if (left < 4) left = 4;
+		return `top: ${top}px; left: ${left}px;`;
+	});
+
 	let filtered = $derived(
 		query.length === 0
 			? emojis.slice(0, 24)
@@ -109,7 +127,7 @@
 {#if visible && (hasResults || showNoResults || showNoEmojis)}
 	<div
 		class="emoji-picker"
-		style="top: {rect.bottom + 4}px; left: {rect.left}px;"
+		style={pickerStyle}
 		role="listbox"
 		aria-label="Emojis personalizados"
 		bind:this={pickerEl}
