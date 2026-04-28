@@ -133,6 +133,7 @@
 		if (typeof document !== 'undefined') {
 			document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
 			document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+			try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch {}
 		}
 	}
 
@@ -204,12 +205,19 @@
 		// Hard timeout: max 3s loader
 		const timeout = setTimeout(startLoaderFade, 3000);
 
-		// Detect system theme preference
-		const mq = window.matchMedia('(prefers-color-scheme: light)');
-		isDark = !mq.matches;
+		// Detect theme: localStorage > system preference
+		let cleanupTheme: (() => void) | undefined;
+		const savedTheme = localStorage.getItem('theme');
+		if (savedTheme) {
+			isDark = savedTheme === 'dark';
+		} else {
+			const mq = window.matchMedia('(prefers-color-scheme: light)');
+			isDark = !mq.matches;
+			function onThemeChange(e: MediaQueryListEvent) { isDark = !e.matches; applyTheme(); }
+			mq.addEventListener('change', onThemeChange);
+			cleanupTheme = () => mq.removeEventListener('change', onThemeChange);
+		}
 		applyTheme();
-		function onThemeChange(e: MediaQueryListEvent) { isDark = !e.matches; applyTheme(); }
-		mq.addEventListener('change', onThemeChange);
 
 		function onScroll() {
 			const y = window.scrollY;
@@ -269,7 +277,7 @@
 			destroyCustomEmojis();
 			clearTimeout(timeout);
 			unsubSettings();
-			mq.removeEventListener('change', onThemeChange);
+			cleanupTheme?.();
 			window.removeEventListener('scroll', onScroll);
 			window.removeEventListener('mousemove', onMouseMove);
 			window.removeEventListener('keydown', onKeydown);
@@ -449,46 +457,70 @@
 	{#if menuOpen}
 		<div class="mobile-overlay" onclick={closeMenu} onkeydown={(e) => e.key === 'Escape' && closeMenu()} role="button" tabindex="-1" aria-label="Cerrar menú"></div>
 		<div class="mobile-menu" bind:this={mobileMenuEl}>
-			<a href="/#beats" class="mobile-link" onclick={(e) => { if (page.url.pathname === '/') { e.preventDefault(); document.getElementById('beats')?.scrollIntoView({ behavior: 'smooth' }); } closeMenu(); }}>{sectionTitle}</a>
-			{#if isAdmin}
-				<a href="/admin" class="mobile-link" onclick={closeMenu}>Admin</a>
-			{/if}
-			{#each navLinks as link}
-				<a href={link.url} class="mobile-link" target="_blank" rel="noopener" onclick={closeMenu}>{link.label}</a>
-			{/each}
-			<div class="mobile-actions">
-				<a href="/cart" class="icon-btn" title="Carrito" aria-label="Carrito" onclick={closeMenu}>
-					<Icon name="shoppingCart" size={16} />
-					<span>Carrito</span>
-					{#if $cartCount > 0}
-						<span class="nav-badge nav-badge-inline">{$cartCount}</span>
-					{/if}
+			<!-- Header -->
+			<div class="mm-header">
+				<span class="mm-brand">{brandSplit.last ? `${brandSplit.first}${brandSplit.last}` : brandName}</span>
+				<button class="mm-close" onclick={closeMenu} aria-label="Cerrar menú">
+					<Icon name="close" size={18} />
+				</button>
+			</div>
+
+			<!-- Main nav links -->
+			<div class="mm-nav">
+				<a href="/#beats" class="mm-link" onclick={(e) => { if (page.url.pathname === '/') { e.preventDefault(); document.getElementById('beats')?.scrollIntoView({ behavior: 'smooth' }); } closeMenu(); }}>
+					<span class="mm-link-icon">🎵</span>
+					<span>{sectionTitle}</span>
 				</a>
-				<a href="/account/orders" class="icon-btn" title="Mis órdenes" aria-label="Mis órdenes" onclick={closeMenu}>
-					<Icon name="export" size={16} />
+				{#if isAdmin}
+					<a href="/admin" class="mm-link" onclick={closeMenu}>
+						<span class="mm-link-icon">⚙️</span>
+						<span>Admin</span>
+					</a>
+				{/if}
+				{#each navLinks as link}
+					<a href={link.url} class="mm-link" target="_blank" rel="noopener" onclick={closeMenu}>
+						<span class="mm-link-icon">🔗</span>
+						<span>{link.label}</span>
+					</a>
+				{/each}
+			</div>
+
+			<!-- Quick actions -->
+			<div class="mm-actions">
+				<a href="/cart" class="mm-action" onclick={closeMenu}>
+					<span class="mm-action-icon">
+						<Icon name="shoppingCart" size={16} />
+						{#if $cartCount > 0}<span class="mm-badge">{$cartCount}</span>{/if}
+					</span>
+					<span>Carrito</span>
+				</a>
+				<a href="/account/orders" class="mm-action" onclick={closeMenu}>
+					<span class="mm-action-icon"><Icon name="export" size={16} /></span>
 					<span>Órdenes</span>
 				</a>
-				<button class="icon-btn" title="Favoritos" aria-label="Favoritos" onclick={() => { closeMenu(); wishlistOpen = true; }}>
-					<Icon name="heart" size={16} />
+				<button class="mm-action" onclick={() => { closeMenu(); wishlistOpen = true; }}>
+					<span class="mm-action-icon">
+						<Icon name="heart" size={16} />
+						{#if wishCount > 0}<span class="mm-badge">{wishCount}</span>{/if}
+					</span>
 					<span>Favoritos</span>
-					{#if wishCount > 0}
-						<span class="nav-badge nav-badge-inline">{wishCount}</span>
-					{/if}
 				</button>
-				<a href="/account/notifications" class="icon-btn" title="Notificaciones" aria-label="Notificaciones" onclick={closeMenu}>
-					<Icon name="bell" size={16} />
+				<a href="/account/notifications" class="mm-action" onclick={closeMenu}>
+					<span class="mm-action-icon">
+						<Icon name="bell" size={16} />
+						{#if $unreadCount > 0}<span class="mm-badge">{$unreadCount}</span>{/if}
+					</span>
 					<span>Notificaciones</span>
-					{#if $unreadCount > 0}
-						<span class="nav-badge nav-badge-inline">{$unreadCount}</span>
-					{/if}
 				</a>
-				<button class="icon-btn" title="Cambiar tema" aria-label="Cambiar tema" onclick={() => { toggleTheme(); closeMenu(); }}>
-					<Icon name={isDark ? 'sun' : 'moon'} size={16} />
-					<span>Tema</span>
+				<button class="mm-action" onclick={() => { toggleTheme(); closeMenu(); }}>
+					<span class="mm-action-icon"><Icon name={isDark ? 'sun' : 'moon'} size={16} /></span>
+					<span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
 				</button>
-				<div class="mobile-auth">
-					<AuthButton />
-				</div>
+			</div>
+
+			<!-- Auth -->
+			<div class="mm-footer">
+				<AuthButton />
 			</div>
 		</div>
 	{/if}
@@ -725,17 +757,24 @@
 		justify-content: center;
 		align-items: center;
 		gap: 5px;
-		width: var(--touch-min);
-		height: var(--touch-min);
-		background: transparent;
-		border: none;
+		width: 44px;
+		height: 44px;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
 		cursor: pointer;
 		padding: 0;
+		transition: all var(--duration-fast);
+	}
+
+	.hamburger:hover {
+		border-color: var(--accent);
+		background: rgba(var(--accent-rgb), 0.06);
 	}
 
 	.burger-line {
 		display: block;
-		width: 20px;
+		width: 18px;
 		height: 2px;
 		background: var(--text);
 		border-radius: 1px;
@@ -749,6 +788,7 @@
 
 	.burger-line.open:nth-child(2) {
 		opacity: 0;
+		transform: scaleX(0);
 	}
 
 	.burger-line.open:nth-child(3) {
@@ -761,8 +801,8 @@
 		position: fixed;
 		inset: 0;
 		z-index: calc(var(--z-nav) - 1);
-		background: var(--overlay-bg);
-		backdrop-filter: blur(4px);
+		background: rgba(0, 0, 0, 0.6);
+		backdrop-filter: blur(6px);
 		animation: fadeIn var(--duration-fast) var(--ease-out);
 	}
 
@@ -771,69 +811,158 @@
 		position: fixed;
 		top: 0;
 		right: 0;
-		width: min(300px, 85vw);
+		width: min(340px, 88vw);
 		height: 100dvh;
 		z-index: var(--z-nav);
-		background: var(--bg-secondary);
+		background: var(--bg);
 		border-left: 1px solid var(--border);
-		padding: 5rem var(--space-6) var(--space-6);
 		flex-direction: column;
-		gap: var(--space-2);
 		animation: slideInRight 0.3s var(--ease-out);
-		box-shadow: var(--shadow-menu);
+		box-shadow: -12px 0 40px rgba(0, 0, 0, 0.4);
+		overflow-y: auto;
+		overscroll-behavior: contain;
 	}
 
-	.mobile-link {
+	/* Mobile menu header */
+	.mm-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: var(--space-4) var(--space-5);
+		border-bottom: 1px solid var(--border);
+		flex-shrink: 0;
+	}
+
+	.mm-brand {
 		font-family: var(--font-display);
-		font-size: var(--text-xl);
+		font-size: var(--text-lg);
+		font-weight: 800;
+		color: var(--text);
+		letter-spacing: -0.02em;
+	}
+
+	.mm-close {
+		width: 40px;
+		height: 40px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border);
+		background: var(--surface);
+		color: var(--text-secondary);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.mm-close:hover {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+
+	/* Mobile nav links */
+	.mm-nav {
+		padding: var(--space-4) var(--space-4);
+		border-bottom: 1px solid var(--border);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+	}
+
+	.mm-link {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius-md);
+		font-family: var(--font-display);
+		font-size: var(--text-base);
 		font-weight: 600;
 		color: var(--text);
 		text-decoration: none;
-		padding: var(--space-3) var(--space-4);
-		border-radius: var(--radius-md);
 		transition: all var(--duration-fast) var(--ease-out);
-		min-height: var(--touch-min);
-		display: flex;
-		align-items: center;
-		animation: fadeInUp 0.3s var(--ease-out) both;
+		min-height: 48px;
 	}
 
-	.mobile-link:nth-child(2) {
-		animation-delay: 60ms;
-	}
-
-	.mobile-link:hover {
+	.mm-link:hover {
 		background: var(--surface);
 		color: var(--accent);
 		transform: translateX(4px);
 	}
 
-	.mobile-actions {
-		display: flex;
-		gap: var(--space-3);
-		margin-top: var(--space-4);
-		padding-top: var(--space-4);
-		border-top: 1px solid var(--border);
-		animation: fadeInUp 0.3s var(--ease-out) 120ms both;
+	.mm-link-icon {
+		font-size: 1.1rem;
+		width: 24px;
+		text-align: center;
+		flex-shrink: 0;
 	}
 
-	.mobile-actions .icon-btn {
-		flex: 1;
-		border-radius: var(--radius-md);
+	/* Mobile quick actions grid */
+	.mm-actions {
+		padding: var(--space-4);
+		display: grid;
+		grid-template-columns: 1fr 1fr;
 		gap: var(--space-2);
-		font-size: var(--text-sm);
 	}
 
-	.mobile-actions .icon-btn span {
+	.mm-action {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-3);
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border);
+		background: var(--surface);
+		color: var(--text-secondary);
 		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		text-decoration: none;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		min-height: 48px;
 	}
 
-	.mobile-auth {
-		margin-top: var(--space-4);
-		padding-top: var(--space-4);
+	.mm-action:hover {
+		border-color: rgba(var(--accent-rgb), 0.3);
+		color: var(--text);
+		background: var(--surface-hover);
+	}
+
+	.mm-action-icon {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+	.mm-badge {
+		position: absolute;
+		top: -6px;
+		right: -8px;
+		font-family: var(--font-mono);
+		font-size: 9px;
+		min-width: 16px;
+		height: 16px;
+		padding: 0 4px;
+		border-radius: var(--radius-full);
+		background: var(--accent);
+		color: var(--bg);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		line-height: 1;
+	}
+
+	/* Mobile auth footer */
+	.mm-footer {
+		margin-top: auto;
+		padding: var(--space-4) var(--space-5);
 		border-top: 1px solid var(--border);
 		display: flex;
 		justify-content: center;
+		flex-shrink: 0;
 	}
 
 	@keyframes slideInRight {

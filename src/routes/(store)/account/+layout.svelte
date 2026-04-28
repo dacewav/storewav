@@ -173,6 +173,13 @@
 		border-bottom: 1px solid var(--border);
 		padding-bottom: var(--space-3);
 		margin-bottom: var(--space-6);
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+
+	.account-tabs::-webkit-scrollbar {
+		display: none;
 	}
 
 	.tab {
@@ -188,6 +195,8 @@
 		color: var(--text-secondary);
 		text-decoration: none;
 		transition: all var(--duration-fast);
+		flex-shrink: 0;
+		white-space: nowrap;
 	}
 
 	.tab:hover {
