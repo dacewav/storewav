@@ -5,6 +5,7 @@
 	 */
 	import { customEmojis } from '$lib/stores';
 	import { renderEmojis, stripEmojis } from '$lib/emojiUtils';
+	import { sanitizeHtml } from '$lib/sanitize';
 
 	let {
 		text = '',
@@ -20,7 +21,7 @@
 
 	let emojis = $derived($customEmojis);
 	let rendered = $derived(
-		strip ? stripEmojis(text) : renderEmojis(text, emojis)
+		strip ? stripEmojis(text) : renderEmojis(sanitizeHtml(text), emojis)
 	);
 </script>
 
