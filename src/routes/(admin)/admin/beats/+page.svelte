@@ -907,7 +907,7 @@
 		.filters-bar { flex-direction: column; }
 		.search-wrap { min-width: auto; width: 100%; }
 		.filter-select { width: 100%; }
-		.beat-actions .btn-move { display: none; }
+		.beat-actions .btn-move { font-size: 10px; padding: 2px 6px; min-width: 24px; }
 	}
 
 	@media (max-width: 480px) {

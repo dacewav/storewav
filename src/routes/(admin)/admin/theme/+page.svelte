@@ -622,11 +622,11 @@
 				<input id="t-fw" type="range" min="100" max="900" step="100" value={local.fontWeight ?? 400} oninput={(e) => onSlide('theme.fontWeight', 'fontWeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-fs">Base font size ({t.fontSize ?? 14}px)</label>
+				<label for="t-fs">Base font size ({f("fontSize", 20, "px")})</label>
 				<input id="t-fs" type="range" min="10" max="20" step="1" value={local.fontSize ?? 14} oninput={(e) => onSlide('theme.fontSize', 'fontSize', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-flh">Line height ({t.lineHeight ?? 1.6})</label>
+				<label for="t-flh">Line height ({f("lineHeight", 2.5)})</label>
 				<input id="t-flh" type="range" min="1" max="2.5" step="0.1" value={local.lineHeight ?? 1.6} oninput={(e) => onSlide('theme.lineHeight', 'lineHeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
@@ -637,15 +637,15 @@
 		<p class="field-desc">Espaciado entre elementos y forma de bordes. <HelpTip text="Gap: espacio entre cards del grid. Container padding: margen lateral de la página. Radius: redondez de bordes (0 = cuadrado, 9999px = píldora)." /></p>
 		<div class="row">
 			<div class="field">
-				<label for="t-r">Border radius ({t.radiusGlobal ?? 12}px)</label>
+				<label for="t-r">Border radius ({f("radiusGlobal", 30, "px")})</label>
 				<input id="t-r" type="range" min="0" max="30" step="1" value={local.radiusGlobal ?? 12} oninput={(e) => onSlide('theme.radiusGlobal', 'radiusGlobal', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-sp">Section padding ({t.sectionPadding ?? 4}rem)</label>
+				<label for="t-sp">Section padding ({f("sectionPadding", 10, "rem")})</label>
 				<input id="t-sp" type="range" min="1" max="10" step="0.5" value={local.sectionPadding ?? 4} oninput={(e) => onSlide('theme.sectionPadding', 'sectionPadding', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label for="t-bg">Beat gap ({t.beatGap ?? 16}px)</label>
+				<label for="t-bg">Beat gap ({f("beatGap", 40, "px")})</label>
 				<input id="t-bg" type="range" min="4" max="40" step="2" value={local.beatGap ?? 16} oninput={(e) => onSlide('theme.beatGap', 'beatGap', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 		</div>
@@ -745,7 +745,7 @@
 			</select>
 		</div>
 		<div class="field">
-			<label for="t-stw">Peso ({t.sectionTitleWeight || 'auto'})</label>
+			<label for="t-stw">Peso ({t.sectionTitleWeight ?? 700})</label>
 			<input id="t-stw" type="range" min="100" max="900" step="100" value={t.sectionTitleWeight || 700} oninput={(e) => update('theme.sectionTitleWeight', +e.currentTarget.value || 0)} />
 		</div>
 		<div class="field">

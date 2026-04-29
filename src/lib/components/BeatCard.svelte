@@ -443,9 +443,22 @@
 		z-index: 2;
 	}
 
-	.beat-card:hover .beat-play {
+	.beat-card:hover .beat-play,
+	.beat-card:focus-within .beat-play {
 		opacity: 1;
 		transform: translate(-50%, -50%) scale(1);
+	}
+
+	/* Always show action buttons on touch devices */
+	@media (hover: none), (max-width: 640px) {
+		.beat-play,
+		.beat-wish,
+		.beat-cart-btn {
+			opacity: 1 !important;
+		}
+		.beat-play {
+			transform: translate(-50%, -50%) scale(1) !important;
+		}
 	}
 
 	.beat-play:hover {
@@ -474,6 +487,7 @@
 	}
 
 	.beat-card:hover .beat-wish,
+	.beat-card:focus-within .beat-wish,
 	.beat-wish.active {
 		opacity: 1;
 	}
@@ -509,7 +523,8 @@
 		z-index: 2;
 	}
 
-	.beat-card:hover .beat-cart-btn {
+	.beat-card:hover .beat-cart-btn,
+	.beat-card:focus-within .beat-cart-btn {
 		opacity: 1;
 	}
 

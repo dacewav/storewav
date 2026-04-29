@@ -18,6 +18,17 @@
 			toast.error('Nombre y URL son requeridos');
 			return;
 		}
+		// Validate URL protocol — only allow http/https
+		try {
+			const parsed = new URL(newUrl);
+			if (!['http:', 'https:'].includes(parsed.protocol)) {
+				toast.error('URL debe usar http:// o https://');
+				return;
+			}
+		} catch {
+			toast.error('URL inválida');
+			return;
+		}
 		await customEmojis.addEmoji(newName, newUrl);
 		newName = '';
 		newUrl = '';

@@ -124,12 +124,12 @@
 				<div class="anim-timing">
 					<div class="timing-row">
 						<div class="timing-field">
-							<span class="timing-label">Dur: {fmt(item.durKey, 10, 's')}</span>
-							<input type="range" min="0.2" max="10" step="0.1" value={local[item.durKey] ?? 2} oninput={(e) => onSlide(`animations.${item.durKey}`, item.durKey, +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+							<label for="dur-{item.key}" class="timing-label">Dur: {fmt(item.durKey, 10, 's')}</label>
+							<input id="dur-{item.key}" type="range" min="0.2" max="10" step="0.1" value={local[item.durKey] ?? 2} oninput={(e) => onSlide(`animations.${item.durKey}`, item.durKey, +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 						</div>
 						<div class="timing-field">
-							<span class="timing-label">Del: {fmt(item.delKey, 5, 's')}</span>
-							<input type="range" min="0" max="5" step="0.1" value={local[item.delKey] ?? 0} oninput={(e) => onSlide(`animations.${item.delKey}`, item.delKey, +e.currentTarget.value)} onkeydown={handleShiftArrows} />
+							<label for="del-{item.key}" class="timing-label">Del: {fmt(item.delKey, 5, 's')}</label>
+							<input id="del-{item.key}" type="range" min="0" max="5" step="0.1" value={local[item.delKey] ?? 0} oninput={(e) => onSlide(`animations.${item.delKey}`, item.delKey, +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 						</div>
 						<div class="timing-field">
 							<select value={getEase(item.easeKey)} onchange={(e) => update(`animations.${item.easeKey}`, e.currentTarget.value)}>
