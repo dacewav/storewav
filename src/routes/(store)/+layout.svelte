@@ -265,6 +265,36 @@
 		function onKeydown(e: KeyboardEvent) {
 			if (e.key === 'Escape' && menuOpen) closeMenu();
 			trapFocus(e);
+
+			// Player keyboard shortcuts (only when not typing in an input)
+			const tag = (e.target as HTMLElement)?.tagName;
+			const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+			if (isInput) return;
+
+			// Space = play/pause toggle
+			if (e.key === ' ' || e.code === 'Space') {
+				e.preventDefault();
+				const state = $player;
+				if (state.playing) {
+					player.pause();
+				} else if (state.beatId) {
+					player.resume();
+				}
+			}
+
+			// Left/Right = seek ±5s
+			if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+				const audio = player.getAudioElement();
+				if (audio && audio.duration) {
+					const delta = e.key === 'ArrowLeft' ? -5 : 5;
+					player.seek(Math.max(0, Math.min(audio.duration, audio.currentTime + delta)));
+				}
+			}
+
+			// M = toggle mute
+			if (e.key === 'm' || e.key === 'M') {
+				player.toggleMute();
+			}
 		}
 
 		window.addEventListener('scroll', onScroll, { passive: true });

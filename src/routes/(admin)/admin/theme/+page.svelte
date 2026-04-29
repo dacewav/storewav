@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { settings, themePresets as themePresetsStore, savePreset, loadPreset, deletePreset, renamePreset } from '$lib/stores';
 	import { Card, AdminSkeleton, Collapsible, HelpTip } from '$lib/components';
+	import { toast } from '$lib/toastStore';
 	import type { ThemeSettings } from '$lib/stores/settings';
 	import type { ThemePreset } from '$lib/stores';
 	import { fmt, handleShiftArrows, hexToRgb } from '$lib/themeShared';
@@ -82,6 +83,50 @@
 		}
 		editingPresetId = null;
 		editingPresetName = '';
+	}
+
+	// ── Built-in Theme Presets ──
+	const builtinPresets: { name: string; emoji: string; theme: Partial<ThemeSettings> }[] = [
+		{
+			name: 'Dark Red',
+			emoji: '🔴',
+			theme: { accent: '#dc2626', glowColor: '#dc2626', bgColor: '#060404', surfaceColor: '#0f0808', textColor: '#f5eeee', glowActive: true, glowIntensity: 1, glowBlur: 40 }
+		},
+		{
+			name: 'Midnight Blue',
+			emoji: '🔵',
+			theme: { accent: '#3b82f6', glowColor: '#3b82f6', bgColor: '#0a0e1a', surfaceColor: '#0f1629', textColor: '#e8edf5', glowActive: true, glowIntensity: 1, glowBlur: 40 }
+		},
+		{
+			name: 'Neon Purple',
+			emoji: '🟣',
+			theme: { accent: '#a855f7', glowColor: '#a855f7', bgColor: '#0a0412', surfaceColor: '#130a20', textColor: '#f0e8f5', glowActive: true, glowIntensity: 1.5, glowBlur: 60, glowAnim: 'breathe', glowAnimSpeed: 4 }
+		},
+		{
+			name: 'Emerald',
+			emoji: '🟢',
+			theme: { accent: '#10b981', glowColor: '#10b981', bgColor: '#040f0a', surfaceColor: '#081a10', textColor: '#e8f5ee', glowActive: true, glowIntensity: 1, glowBlur: 40 }
+		},
+		{
+			name: 'Sunset',
+			emoji: '🟠',
+			theme: { accent: '#f97316', glowColor: '#f97316', bgColor: '#0f0804', surfaceColor: '#1a0e08', textColor: '#f5ede8', glowActive: true, glowIntensity: 1, glowBlur: 40 }
+		},
+		{
+			name: 'Minimal Light',
+			emoji: '⚪',
+			theme: { accent: '#111111', glowColor: '#111111', bgColor: '#fafafa', surfaceColor: '#ffffff', textColor: '#111111', lightMode: true, glowActive: false }
+		}
+	];
+
+	async function applyBuiltinPreset(preset: typeof builtinPresets[number]) {
+		if (!confirm(`¿Aplicar tema "${preset.name}"? Esto sobreescribirá tu configuración actual.`)) return;
+		for (const [key, value] of Object.entries(preset.theme)) {
+			if (value !== undefined) {
+				settings.updateField(`theme.${key}`, value);
+			}
+		}
+		toast.success(`Tema "${preset.name}" aplicado`);
 	}
 
 	function update(path: string, value: unknown) {
@@ -776,8 +821,24 @@
 	</Collapsible>
 
 	<!-- Theme Presets -->
-	<Collapsible id="presets" icon="💾" title="Presets de Tema" open={false}>
-		<p class="field-desc">Guarda y carga configuraciones completas de tema.</p>
+	<Collapsible id="presets" icon="💾" title="Presets de Tema" open={true}>
+		<p class="field-desc">Un clic para aplicar un tema completo. Los presets guardados aparecen abajo.</p>
+
+		<!-- Built-in presets -->
+		<div class="builtin-presets-grid">
+			{#each builtinPresets as preset}
+				<button class="builtin-preset-card" onclick={() => applyBuiltinPreset(preset)}>
+					<div class="bp-preview" style="background: {preset.theme.bgColor ?? '#0f0f0f'}; border-color: {preset.theme.accent ?? '#dc2626'}">
+						<div class="bp-dot" style="background: {preset.theme.accent ?? '#dc2626'}"></div>
+						<div class="bp-bar" style="background: {preset.theme.surfaceColor ?? '#1a1a1a'}"></div>
+						<div class="bp-bar sm" style="background: {preset.theme.surfaceColor ?? '#1a1a1a'}; opacity: 0.6"></div>
+					</div>
+					<span class="bp-name">{preset.emoji} {preset.name}</span>
+				</button>
+			{/each}
+		</div>
+
+		<div class="preset-divider"><span>o guarda tu propio tema</span></div>
 
 		<!-- Save current as preset -->
 		<div class="field">
@@ -983,6 +1044,94 @@
 		.preview-panel { display: none; }
 		.theme-layout { max-width: 800px; }
 		.preview-toggle { display: none; }
+	}
+
+	/* Built-in Presets */
+	.builtin-presets-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+		gap: var(--space-2);
+		margin-bottom: var(--space-4);
+	}
+
+	.builtin-preset-card {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		padding: var(--space-3);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		text-align: center;
+	}
+
+	.builtin-preset-card:hover {
+		border-color: rgba(var(--accent-rgb), 0.4);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	}
+
+	.bp-preview {
+		width: 100%;
+		aspect-ratio: 16/10;
+		border-radius: var(--radius-sm);
+		border: 1px solid;
+		padding: 8px;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.bp-dot {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+	}
+
+	.bp-bar {
+		width: 60%;
+		height: 4px;
+		border-radius: 2px;
+	}
+
+	.bp-bar.sm {
+		width: 40%;
+		height: 3px;
+	}
+
+	.bp-name {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-secondary);
+		letter-spacing: 0.04em;
+	}
+
+	.builtin-preset-card:hover .bp-name {
+		color: var(--text);
+	}
+
+	.preset-divider {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		margin: var(--space-4) 0;
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-hint);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.preset-divider::before,
+	.preset-divider::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background: var(--border);
 	}
 
 

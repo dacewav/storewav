@@ -29,6 +29,17 @@
 	let genreList = $derived($genres);
 	let tagList = $derived($allTags);
 	let showTags = $state(false);
+	let filtersExpanded = $state(typeof window !== 'undefined' ? window.innerWidth > 768 : true);
+
+	// Listen for resize to auto-expand on desktop
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+		function onResize() {
+			if (window.innerWidth > 768) filtersExpanded = true;
+		}
+		window.addEventListener('resize', onResize);
+		return () => window.removeEventListener('resize', onResize);
+	});
 
 	// Match BeatEditor's key list exactly
 	const allKeys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
@@ -67,73 +78,88 @@
 	}
 
 	let hasActive = $derived(filters.search || filters.genre || filters.key || filters.tags.length > 0 || filters.sort !== 'newest');
+
+	function toggleFiltersExpand() {
+		filtersExpanded = !filtersExpanded;
+	}
 </script>
 
 <div class="filters">
-	<!-- Search -->
-	<div class="filter-search">
-		<span class="search-icon"><Icon name="search" size={14} /></span>
-		<input
-			class="search-input"
-			type="text"
-			placeholder={placeholder}
-			bind:value={filters.search}
-			oninput={() => onchange?.(filters)}
-		/>
-		{#if filters.search}
-			<button class="search-clear" onclick={() => { update('search', ''); }} aria-label="Limpiar">
-				<Icon name="close" size={12} />
-			</button>
-		{/if}
-	</div>
-
-	<!-- Genre pills -->
-	{#if genreList.length > 0}
-		<div class="filter-pills">
-			<button class="pill" class:active={!filters.genre} onclick={() => update('genre', '')}>{labelAll}</button>
-			{#each genreList as genre}
-				<button class="pill" class:active={filters.genre === genre} onclick={() => update('genre', genre)}>{genre}</button>
-			{/each}
+	<!-- Search + mobile toggle row -->
+	<div class="filter-search-row">
+		<div class="filter-search">
+			<span class="search-icon"><Icon name="search" size={14} /></span>
+			<input
+				class="search-input"
+				type="text"
+				placeholder={placeholder}
+				bind:value={filters.search}
+				oninput={() => onchange?.(filters)}
+			/>
+			{#if filters.search}
+				<button class="search-clear" onclick={() => { update('search', ''); }} aria-label="Limpiar">
+					<Icon name="close" size={12} />
+				</button>
+			{/if}
 		</div>
-	{/if}
-
-	<!-- Dropdowns row -->
-	<div class="filter-row">
-		<div class="filter-select-wrap">
-			<select class="filter-select" bind:value={filters.key} onchange={() => onchange?.(filters)}>
-				<option value="">{labelKey}</option>
-				{#each allKeys as k}
-					<option value={k}>{k}</option>
-				{/each}
-			</select>
-		</div>
-
-		<div class="filter-select-wrap">
-			<select class="filter-select" bind:value={filters.sort} onchange={() => onchange?.(filters)}>
-				{#each sortOptions as opt}
-					<option value={opt.value}>{opt.label}</option>
-				{/each}
-			</select>
-		</div>
-
-		<button class="tags-toggle" class:active={showTags} onclick={() => showTags = !showTags}>
-			<Icon name="tag" size={14} />
-			{labelTags}
-			{#if filters.tags.length}
-				<span class="tags-count">{filters.tags.length}</span>
+		<button class="filters-expand-btn" class:expanded={filtersExpanded} onclick={toggleFiltersExpand} aria-label={filtersExpanded ? 'Ocultar filtros' : 'Mostrar filtros'}>
+			<Icon name="chevronDown" size={14} />
+			{#if hasActive && !filtersExpanded}
+				<span class="expand-badge"></span>
 			{/if}
 		</button>
 	</div>
 
-	<!-- Tag cloud -->
-	{#if showTags && tagList.length > 0}
-		<div class="tag-cloud" role="group" aria-label="Tags">
-			{#each tagList as tag (tag)}
-				<button class="tag-btn" class:active={filters.tags.includes(tag)} onclick={() => toggleTag(tag)}>
-					{tag}
-				</button>
-			{/each}
+	<!-- Collapsible filters body -->
+	{#if filtersExpanded}
+		<!-- Genre pills -->
+		{#if genreList.length > 0}
+			<div class="filter-pills">
+				<button class="pill" class:active={!filters.genre} onclick={() => update('genre', '')}>{labelAll}</button>
+				{#each genreList as genre}
+					<button class="pill" class:active={filters.genre === genre} onclick={() => update('genre', genre)}>{genre}</button>
+				{/each}
+			</div>
+		{/if}
+
+		<!-- Dropdowns row -->
+		<div class="filter-row">
+			<div class="filter-select-wrap">
+				<select class="filter-select" bind:value={filters.key} onchange={() => onchange?.(filters)}>
+					<option value="">{labelKey}</option>
+					{#each allKeys as k}
+						<option value={k}>{k}</option>
+					{/each}
+				</select>
+			</div>
+
+			<div class="filter-select-wrap">
+				<select class="filter-select" bind:value={filters.sort} onchange={() => onchange?.(filters)}>
+					{#each sortOptions as opt}
+						<option value={opt.value}>{opt.label}</option>
+					{/each}
+				</select>
+			</div>
+
+			<button class="tags-toggle" class:active={showTags} onclick={() => showTags = !showTags}>
+				<Icon name="tag" size={14} />
+				{labelTags}
+				{#if filters.tags.length}
+					<span class="tags-count">{filters.tags.length}</span>
+				{/if}
+			</button>
 		</div>
+
+		<!-- Tag cloud -->
+		{#if showTags && tagList.length > 0}
+			<div class="tag-cloud" role="group" aria-label="Tags">
+				{#each tagList as tag (tag)}
+					<button class="tag-btn" class:active={filters.tags.includes(tag)} onclick={() => toggleTag(tag)}>
+						{tag}
+					</button>
+				{/each}
+			</div>
+		{/if}
 	{/if}
 
 	<!-- Active filters -->
@@ -166,8 +192,66 @@
 	}
 
 	/* ── Search ── */
+	.filter-search-row {
+		display: flex;
+		gap: var(--space-2);
+		align-items: stretch;
+	}
+
 	.filter-search {
 		position: relative;
+		flex: 1;
+	}
+
+	.filters-expand-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 48px;
+		min-height: var(--touch-min);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		color: var(--text-secondary);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		position: relative;
+		flex-shrink: 0;
+	}
+
+	.filters-expand-btn:hover {
+		border-color: var(--border-hover);
+		color: var(--text);
+	}
+
+	.filters-expand-btn.expanded {
+		background: rgba(var(--accent-rgb), 0.08);
+		border-color: rgba(var(--accent-rgb), 0.3);
+		color: var(--accent);
+	}
+
+	.filters-expand-btn.expanded :global(.icon) {
+		transform: rotate(180deg);
+	}
+
+	.filters-expand-btn :global(.icon) {
+		transition: transform var(--duration-fast);
+	}
+
+	.expand-badge {
+		position: absolute;
+		top: 6px;
+		right: 6px;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--accent);
+		animation: pulseDot 1.5s ease-in-out infinite;
+	}
+
+	@keyframes pulseDot {
+		0%, 100% { opacity: 1; transform: scale(1); }
+		50% { opacity: 0.6; transform: scale(1.3); }
 	}
 
 	.search-icon {
@@ -422,6 +506,12 @@
 	}
 
 	/* ── Responsive ── */
+	@media (min-width: 769px) {
+		.filters-expand-btn {
+			display: none;
+		}
+	}
+
 	@media (max-width: 768px) {
 		.filter-row {
 			flex-wrap: wrap;
@@ -430,5 +520,15 @@
 		.filter-select-wrap {
 			flex: 1 1 45%;
 		}
+
+		/* Collapse animation */
+		.filters :global(> *:not(.filter-search-row):not(.active-filters)) {
+			animation: filtersSlideIn 0.2s var(--ease-out);
+		}
+	}
+
+	@keyframes filtersSlideIn {
+		from { opacity: 0; transform: translateY(-8px); }
+		to { opacity: 1; transform: translateY(0); }
 	}
 </style>

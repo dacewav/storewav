@@ -380,6 +380,41 @@
 	{/if}
 </div>
 
+<!-- ── Sticky Mobile Purchase Bar ── -->
+{#if beat && beat.licenses?.length && selectedLicense >= 0 && beat.licenses[selectedLicense]}
+	{@const lic = beat.licenses[selectedLicense]}
+	{@const isInCart = $cart.some(c => c.beatId === beat.id && c.licenseIndex === selectedLicense)}
+	<div class="sticky-purchase-bar">
+		<div class="sp-info">
+			<span class="sp-name">{lic.name}</span>
+			<span class="sp-price">${lic.priceMXN}</span>
+		</div>
+		<div class="sp-actions">
+			<button
+				class="sp-add"
+				class:in-cart={isInCart}
+				onclick={() => {
+					if (!isInCart) {
+						cart.add({
+							beatId: beat.id,
+							beatName: beat.name,
+							imageUrl: beat.imageUrl ?? '',
+							licenseName: lic.name,
+							licenseIndex: selectedLicense,
+							priceMXN: lic.priceMXN,
+							priceUSD: lic.priceUSD,
+						});
+						analytics.track('cart', 'add', { lbl: beat.id, val: lic.priceMXN, meta: lic.name });
+					}
+				}}
+			>
+				<Icon name={isInCart ? 'check' : 'shoppingCart'} size={14} />
+				{isInCart ? labelInCart : labelAddToCart}
+			</button>
+		</div>
+	</div>
+{/if}
+
 <style>
 	.beat-page {
 		padding: var(--space-6) var(--container-padding) var(--space-16);
@@ -872,6 +907,96 @@
 
 		.licenses-grid {
 			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	/* ── Sticky Mobile Purchase Bar ── */
+	.sticky-purchase-bar {
+		display: none;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: var(--z-nav);
+		background: var(--bg);
+		border-top: 1px solid var(--border);
+		padding: var(--space-3) var(--container-padding);
+		padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+		backdrop-filter: blur(16px);
+		animation: slideUp 0.25s var(--ease-out);
+	}
+
+	@keyframes slideUp {
+		from { transform: translateY(100%); opacity: 0; }
+		to { transform: translateY(0); opacity: 1; }
+	}
+
+	.sp-info {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-2);
+	}
+
+	.sp-name {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-secondary);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.sp-price {
+		font-family: var(--font-display);
+		font-size: var(--text-lg);
+		font-weight: 800;
+		color: var(--accent);
+	}
+
+	.sp-actions {
+		display: flex;
+		gap: var(--space-2);
+	}
+
+	.sp-add {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		padding: var(--space-3);
+		background: var(--accent);
+		color: var(--bg);
+		border: none;
+		border-radius: var(--radius-lg);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		cursor: pointer;
+		min-height: 48px;
+		transition: all var(--duration-normal) var(--ease-out);
+	}
+
+	.sp-add:hover:not(.in-cart) {
+		background: var(--accent-dim);
+		box-shadow: var(--glow-sm);
+	}
+
+	.sp-add.in-cart {
+		background: var(--surface);
+		color: var(--text-muted);
+		border: 1px solid var(--border);
+	}
+
+	@media (max-width: 900px) {
+		.sticky-purchase-bar {
+			display: block;
+		}
+
+		/* Add bottom padding so content isn't hidden behind sticky bar */
+		.beat-page {
+			padding-bottom: calc(var(--space-16) + 100px);
 		}
 	}
 

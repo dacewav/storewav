@@ -155,6 +155,16 @@
 		<span class="featured-badge">TOP</span>
 	{/if}
 
+	<!-- Now playing indicator -->
+	{#if isCurrentBeat}
+		<div class="now-playing-indicator">
+			<span class="eq-bar"></span>
+			<span class="eq-bar"></span>
+			<span class="eq-bar"></span>
+			<span class="eq-bar"></span>
+		</div>
+	{/if}
+
 	<!-- Cover -->
 	<div class="beat-cover">
 		{#if beat.imageUrl}
@@ -281,6 +291,35 @@
 		letter-spacing: 0.14em;
 		z-index: 3;
 		font-weight: 600;
+	}
+
+	/* Now Playing Indicator */
+	.now-playing-indicator {
+		position: absolute;
+		bottom: var(--space-3);
+		left: var(--space-3);
+		display: flex;
+		align-items: flex-end;
+		gap: 2px;
+		height: 16px;
+		z-index: 3;
+	}
+
+	.eq-bar {
+		width: 3px;
+		background: var(--accent);
+		border-radius: 1px;
+		animation: eqBounce 0.8s ease-in-out infinite alternate;
+	}
+
+	.eq-bar:nth-child(1) { height: 60%; animation-delay: 0s; }
+	.eq-bar:nth-child(2) { height: 100%; animation-delay: 0.15s; }
+	.eq-bar:nth-child(3) { height: 40%; animation-delay: 0.3s; }
+	.eq-bar:nth-child(4) { height: 80%; animation-delay: 0.45s; }
+
+	@keyframes eqBounce {
+		0% { transform: scaleY(0.3); }
+		100% { transform: scaleY(1); }
 	}
 
 	/* ── Shimmer overlay ── */
