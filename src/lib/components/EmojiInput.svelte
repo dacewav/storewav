@@ -10,6 +10,7 @@
 	 */
 	import { customEmojis } from '$lib/stores';
 	import { findEmojiQuery, insertEmoji, renderEmojis } from '$lib/emojiUtils';
+	import { sanitizeHtml } from '$lib/sanitize';
 	import EmojiPicker from './EmojiPicker.svelte';
 	import type { CustomEmoji } from '$lib/stores/customEmojis';
 	import type { Snippet } from 'svelte';
@@ -67,7 +68,7 @@
 	// Show raw text with styled shortcodes when emojis aren't loaded yet
 	let previewHtml = $derived(
 		renderedPreview || (hasShortcodes
-			? inputValue.replace(/:([a-zA-Z0-9_+-]+):?/g, '<span class="emoji-pending">:$1:</span>')
+			? sanitizeHtml(inputValue).replace(/:([a-zA-Z0-9_+-]+):?/g, '<span class="emoji-pending">:$1:</span>')
 			: '')
 	);
 
