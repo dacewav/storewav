@@ -3,6 +3,7 @@
  * Call from client when cart changes and user is logged in.
  */
 
+import { dev } from '$app/environment';
 import { FIREBASE_DB } from '$lib/firebaseDb';
 
 export type CartAbandonmentData = {
@@ -121,7 +122,7 @@ export async function sendAbandonedCartEmail(
 			return { ok: false, error: err };
 		}
 
-		console.log(`[Email] Abandoned cart sent to ${data.email}`);
+		if (dev) console.log(`[Email] Abandoned cart sent to ${data.email}`);
 		return { ok: true };
 	} catch (err) {
 		console.error('[Email] Abandoned cart failed:', err);

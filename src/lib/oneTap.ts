@@ -127,7 +127,10 @@ async function initGSI(
 	});
 
 	// Show the One Tap prompt
-	google.accounts.id.prompt((notification: any) => {
+	/** Type for Google Identity Services prompt notification */
+	type GsiPromptNotification = { getMomentType: () => string };
+
+	google.accounts.id.prompt((notification: GsiPromptNotification) => {
 		if (dev) console.log('[OneTap] Prompt:', notification.getMomentType());
 	});
 

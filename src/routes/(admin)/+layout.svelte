@@ -184,6 +184,7 @@
 			label: 'Ventas',
 			items: [
 				{ href: '/admin/analytics', label: 'Analytics', icon: '📈' },
+				{ href: '/admin/customers', label: 'Clientes', icon: '👥' },
 				{ href: '/admin/discounts', label: 'Descuentos', icon: '🏷️' },
 				{ href: '/admin/contracts', label: 'Contratos', icon: '📄' },
 				{ href: '/admin/contracts/editor', label: 'Editor', icon: '✏️' },

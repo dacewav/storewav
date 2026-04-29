@@ -198,7 +198,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			writeFileSync(filePath, Buffer.from(arrayBuffer));
 
 			const url = `/uploads/${flatName}`;
-			console.log(`[Upload] Dev mode — saved to ${filePath}`);
+			if (dev) console.log(`[Upload] Dev mode — saved to ${filePath}`);
 			return json({ ok: true, path, url });
 		} else {
 			return json({ ok: false, error: 'R2 bucket no configurado (binding: MEDIA)' }, { status: 500 });

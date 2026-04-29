@@ -4,7 +4,7 @@
  * and all clauses for all 5 license types.
  */
 
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 import { getContractTemplate, type ContractClause } from './contractText';
 
 export type ContractData = {
@@ -62,16 +62,16 @@ type TextSegment = { text: string; bold?: boolean };
 
 type RenderState = {
 	doc: PDFDocument;
-	fontRegular: any;
-	fontBold: any;
-	page: any;
+	fontRegular: PDFFont;
+	fontBold: PDFFont;
+	page: PDFPage;
 	y: number;
 	pageNum: number;
 };
 
 // ─── Text Rendering ─────────────────────────────────────────────────
 
-function wrapText(text: string, font: any, fontSize: number, maxWidth: number): string[] {
+function wrapText(text: string, font: PDFFont, fontSize: number, maxWidth: number): string[] {
 	const words = text.split(' ');
 	const lines: string[] = [];
 	let currentLine = '';
@@ -102,7 +102,7 @@ function addPage(st: RenderState) {
 	st.pageNum++;
 }
 
-function drawLine(st: RenderState, text: string, fontSize: number, font: any, indent = 0, gap?: number) {
+function drawLine(st: RenderState, text: string, fontSize: number, font: PDFFont, indent = 0, gap?: number) {
 	const lines = wrapText(text, font, fontSize, CONTENT_W - indent);
 	for (const line of lines) {
 		ensureSpace(st, LINE_H + 2);

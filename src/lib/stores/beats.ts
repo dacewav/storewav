@@ -255,6 +255,12 @@ export async function swapBeatOrders(id1: string, order1: number, id2: string, o
 	]);
 }
 
+/** Bulk reorder — assigns sequential order values to a list of beat IDs */
+export async function bulkReorderBeats(beatIds: string[]) {
+	const updates = beatIds.map((id, i) => updateBeat(id, { order: (i + 1) * 1000 }));
+	await Promise.all(updates);
+}
+
 /** Beat vacío para nuevo */
 export function emptyBeat(): Omit<Beat, 'date'> {
 	return {

@@ -3,7 +3,7 @@ export { theme, initTheme, destroyTheme, updateThemeField } from './theme';
 export { auth, initAuth, loginWithGoogle, loginWithEmailLink, completeEmailLinkSignIn, loginAnonymously, logout, destroyAuth, type AuthState, type AuthUser } from './auth';
 export {
 	beats, beatsList, allBeatsList, trashedBeatsList, beatsStats, genres, allTags,
-	createBeat, updateBeat, deleteBeat, duplicateBeat, reorderBeat, swapBeatOrders, emptyBeat, incrementPlay,
+	createBeat, updateBeat, deleteBeat, duplicateBeat, reorderBeat, swapBeatOrders, bulkReorderBeats, emptyBeat, incrementPlay,
 	trashBeat, restoreBeat, permanentDelete,
 	type Beat, type BeatWithId, type BeatsMap, type LicenseItem
 } from './beats';

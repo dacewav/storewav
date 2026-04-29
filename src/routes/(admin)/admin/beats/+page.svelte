@@ -1,7 +1,7 @@
 	<svelte:head><title>Beats — Admin</title></svelte:head>
 <script lang="ts">
 	import { Badge, EmptyState, Skeleton } from '$lib/components';
-	import { allBeatsList, trashedBeatsList, beatsStats, beats as beatsStore, trashBeat, restoreBeat, permanentDelete, duplicateBeat, swapBeatOrders, genres } from '$lib/stores';
+	import { allBeatsList, trashedBeatsList, beatsStats, beats as beatsStore, trashBeat, restoreBeat, permanentDelete, duplicateBeat, swapBeatOrders, bulkReorderBeats, genres } from '$lib/stores';
 	import type { BeatWithId } from '$lib/stores/beats';
 	import { toast } from '$lib/toastStore';
 
@@ -56,6 +56,56 @@
 
 	let deleting = $state<string | null>(null);
 	let deleteTarget = $state<BeatWithId | null>(null);
+
+	// Drag & drop reorder
+	let draggedId = $state<string | null>(null);
+	let dragOverId = $state<string | null>(null);
+
+	function onDragStart(e: DragEvent, beatId: string) {
+		draggedId = beatId;
+		e.dataTransfer!.effectAllowed = 'move';
+		e.dataTransfer!.setData('text/plain', beatId);
+	}
+
+	function onDragOver(e: DragEvent, beatId: string) {
+		e.preventDefault();
+		e.dataTransfer!.dropEffect = 'move';
+		dragOverId = beatId;
+	}
+
+	function onDragLeave() {
+		dragOverId = null;
+	}
+
+	async function onDrop(e: DragEvent, targetId: string) {
+		e.preventDefault();
+		dragOverId = null;
+		if (!draggedId || draggedId === targetId) return;
+
+		const list = filteredBeats;
+		const fromIdx = list.findIndex(b => b.id === draggedId);
+		const toIdx = list.findIndex(b => b.id === targetId);
+		if (fromIdx < 0 || toIdx < 0) return;
+
+		// Reorder: remove from old position, insert at new
+		const reordered = [...list];
+		const [moved] = reordered.splice(fromIdx, 1);
+		reordered.splice(toIdx, 0, moved);
+
+		try {
+			await bulkReorderBeats(reordered.map(b => b.id));
+			toast.success('Orden actualizado');
+		} catch (err) {
+			console.error('[DragReorder]', err);
+			toast.error('Error al reordenar');
+		}
+		draggedId = null;
+	}
+
+	function onDragEnd() {
+		draggedId = null;
+		dragOverId = null;
+	}
 
 	// Bulk actions
 	let selected = $state<Set<string>>(new Set());
@@ -278,9 +328,24 @@
 			{/each}
 		</div>
 	{:else if filteredBeats.length > 0}
-		<div class="beat-list">
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex — draggable list for beat reorder -->
+		<div class="beat-list" role="list">
 			{#each filteredBeats as beat (beat.id)}
-				<div class="beat-row" class:inactive={!beat.active}>
+				<!-- svelte-ignore a11y_no_noninteractive_tabindex — draggable beat row for reorder -->
+				<div
+					class="beat-row"
+					class:inactive={!beat.active}
+					class:dragging={draggedId === beat.id}
+					class:drag-over={dragOverId === beat.id && draggedId !== beat.id}
+					draggable="true"
+					role="listitem"
+					tabindex="0"
+					ondragstart={(e) => onDragStart(e, beat.id)}
+					ondragover={(e) => onDragOver(e, beat.id)}
+					ondragleave={onDragLeave}
+					ondrop={(e) => onDrop(e, beat.id)}
+					ondragend={onDragEnd}
+				>
 					<!-- Select checkbox -->
 					<label class="beat-select">
 						<input type="checkbox" checked={selected.has(beat.id)} onchange={() => toggleSelect(beat.id)} />
@@ -632,6 +697,8 @@
 
 	.beat-row:hover { background: var(--surface-hover); }
 	.beat-row.inactive { opacity: 0.5; }
+	.beat-row.dragging { opacity: 0.4; transform: scale(0.98); }
+	.beat-row.drag-over { box-shadow: inset 0 -2px 0 0 var(--accent); background: rgba(var(--accent-rgb), 0.04); }
 
 	.beat-cover {
 		width: 48px;

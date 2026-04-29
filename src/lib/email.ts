@@ -6,6 +6,8 @@
  * Supports customizable templates stored in Firebase.
  */
 
+import { dev } from '$app/environment';
+
 export type DeliveryEmailData = {
 	orderId: string;
 	buyerEmail: string;
@@ -274,7 +276,7 @@ export async function sendDeliveryEmail(
 			return { ok: false, error: err };
 		}
 
-		console.log(`[Email] Sent to ${data.buyerEmail} — order ${data.orderId}`);
+		if (dev) console.log(`[Email] Sent to ${data.buyerEmail} — order ${data.orderId}`);
 		return { ok: true };
 	} catch (err) {
 		console.error('[Email] Send failed:', err);
