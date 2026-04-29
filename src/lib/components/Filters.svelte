@@ -5,10 +5,10 @@
 	import { goto } from '$app/navigation';
 	import { getBeatSlug } from '$lib/slug';
 
-	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
+	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[]; priceMin: number; priceMax: number };
 
 	let {
-		filters = $bindable({ search: '', genre: '', key: '', sort: 'newest', tags: [] as string[] }),
+		filters = $bindable({ search: '', genre: '', key: '', sort: 'newest', tags: [] as string[], priceMin: 0, priceMax: 0 }),
 		onchange,
 		total = 0,
 		filtered = 0,
@@ -94,11 +94,21 @@
 	}
 
 	function clearAll() {
-		filters = { search: '', genre: '', key: '', sort: 'newest', tags: [] };
+		filters = { search: '', genre: '', key: '', sort: 'newest', tags: [], priceMin: 0, priceMax: 0 };
 		onchange?.(filters);
 	}
 
-	let hasActive = $derived(filters.search || filters.genre || filters.key || filters.tags.length > 0 || filters.sort !== 'newest');
+	let hasActive = $derived(filters.search || filters.genre || filters.key || filters.tags.length > 0 || filters.sort !== 'newest' || filters.priceMin > 0 || filters.priceMax > 0);
+
+	// Price range from all beats
+	let priceRange = $derived.by(() => {
+		if (allBeats.length === 0) return { min: 0, max: 5000 };
+		const prices = allBeats.flatMap(b => (b.licenses?.length ? b.licenses.map(l => l.priceMXN) : [0]));
+		return { min: Math.min(...prices), max: Math.max(...prices) };
+	});
+	let localPriceMin = $state(0);
+	let localPriceMax = $state(0);
+	let showPriceRange = $state(false);
 
 	function toggleFiltersExpand() {
 		filtersExpanded = !filtersExpanded;
@@ -218,6 +228,56 @@
 				{/each}
 			</div>
 		{/if}
+
+		<!-- Price range -->
+		{#if priceRange.max > priceRange.min}
+			<div class="price-range-section">
+				<button class="price-toggle" class:active={showPriceRange || filters.priceMin > 0 || filters.priceMax > 0} onclick={() => showPriceRange = !showPriceRange}>
+					💰 Precio
+					{#if filters.priceMin > 0 || filters.priceMax > 0}
+						<span class="price-badge">${filters.priceMin || 0} – ${filters.priceMax || '∞'}</span>
+					{/if}
+				</button>
+				{#if showPriceRange}
+					<div class="price-range-body">
+						<div class="price-labels">
+							<span class="price-val">${localPriceMin || priceRange.min}</span>
+							<span class="price-val">${localPriceMax || priceRange.max}</span>
+						</div>
+						<div class="range-sliders">
+							<input
+								type="range"
+								class="range-input"
+								min={priceRange.min}
+								max={priceRange.max}
+								step="50"
+								value={localPriceMin || priceRange.min}
+								oninput={(e) => {
+									localPriceMin = +e.currentTarget.value;
+									if (localPriceMax > 0 && localPriceMin > localPriceMax) localPriceMin = localPriceMax;
+									update('priceMin', localPriceMin);
+								}}
+								aria-label="Precio mínimo"
+							/>
+							<input
+								type="range"
+								class="range-input"
+								min={priceRange.min}
+								max={priceRange.max}
+								step="50"
+								value={localPriceMax || priceRange.max}
+								oninput={(e) => {
+									localPriceMax = +e.currentTarget.value;
+									if (localPriceMin > 0 && localPriceMax < localPriceMin) localPriceMax = localPriceMin;
+									update('priceMax', localPriceMax);
+								}}
+								aria-label="Precio máximo"
+							/>
+						</div>
+					</div>
+				{/if}
+			</div>
+		{/if}
 	{/if}
 
 	<!-- Active filters -->
@@ -235,6 +295,9 @@
 			{#each filters.tags as tag (tag)}
 				<span class="active-tag">{tag} <button onclick={() => toggleTag(tag)} aria-label="Quitar tag {tag}">×</button></span>
 			{/each}
+			{#if filters.priceMin > 0 || filters.priceMax > 0}
+				<span class="active-tag">${filters.priceMin || 0} – ${filters.priceMax || '∞'} <button onclick={() => { update('priceMin', 0); update('priceMax', 0); localPriceMin = 0; localPriceMax = 0; }} aria-label="Quitar filtro de precio">×</button></span>
+			{/if}
 			{#if hasActive}
 				<button class="clear-all" onclick={clearAll} aria-label="Limpiar todos los filtros">{labelClear}</button>
 			{/if}
@@ -588,6 +651,115 @@
 	@keyframes filtersSlideIn {
 		from { opacity: 0; transform: translateY(-8px); }
 		to { opacity: 1; transform: translateY(0); }
+	}
+
+	/* Price Range */
+	.price-range-section {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+
+	.price-toggle {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-3);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		min-height: var(--touch-min);
+	}
+
+	.price-toggle:hover {
+		border-color: var(--border-hover);
+		color: var(--text);
+	}
+
+	.price-toggle.active {
+		background: rgba(var(--accent-rgb), 0.08);
+		border-color: rgba(var(--accent-rgb), 0.3);
+		color: var(--accent);
+	}
+
+	.price-badge {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		background: var(--accent);
+		color: var(--bg);
+		padding: 1px 6px;
+		border-radius: var(--radius-full);
+		margin-left: auto;
+	}
+
+	.price-range-body {
+		padding: var(--space-3);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		animation: filtersSlideIn 0.15s var(--ease-out);
+	}
+
+	.price-labels {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: var(--space-2);
+	}
+
+	.price-val {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		color: var(--accent);
+	}
+
+	.range-sliders {
+		position: relative;
+		height: 32px;
+		display: flex;
+		align-items: center;
+	}
+
+	.range-input {
+		position: absolute;
+		width: 100%;
+		height: 4px;
+		background: transparent;
+		appearance: none;
+		pointer-events: none;
+		outline: none;
+	}
+
+	.range-input::-webkit-slider-thumb {
+		appearance: none;
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		background: var(--accent);
+		border: 2px solid var(--bg);
+		cursor: pointer;
+		pointer-events: all;
+		box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.4);
+	}
+
+	.range-input::-moz-range-thumb {
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		background: var(--accent);
+		border: 2px solid var(--bg);
+		cursor: pointer;
+		pointer-events: all;
+	}
+
+	.range-input::-webkit-slider-runnable-track {
+		height: 4px;
+		background: var(--border);
+		border-radius: 2px;
 	}
 
 	/* Typeahead */

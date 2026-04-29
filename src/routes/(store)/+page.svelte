@@ -141,8 +141,8 @@
 	// Recently played (from localStorage)
 	let recentBeats = $derived($recentlyPlayed);
 
-	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
-	let filters: FilterState = $state({ search: '', genre: '', key: '', sort: 'newest', tags: [] });
+	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[]; priceMin: number; priceMax: number };
+	let filters: FilterState = $state({ search: '', genre: '', key: '', sort: 'newest', tags: [], priceMin: 0, priceMax: 0 });
 
 	// ── Show More batching ──
 	const BATCH_SIZE = 8;
@@ -206,6 +206,16 @@
 		// Tags
 		if (filters.tags.length > 0) {
 			list = list.filter(b => filters.tags.some(t => b.tags?.includes(t)));
+		}
+
+		// Price range
+		if (filters.priceMin > 0 || filters.priceMax > 0) {
+			list = list.filter(b => {
+				const price = lowestPrice(b);
+				if (filters.priceMin > 0 && price < filters.priceMin) return false;
+				if (filters.priceMax > 0 && price > filters.priceMax) return false;
+				return true;
+			});
 		}
 
 		// Sort

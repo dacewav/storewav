@@ -26,6 +26,11 @@ describe('sanitizeHtml', () => {
 		expect(sanitizeHtml('<span>text</span>')).toBe('<span>text</span>');
 	});
 
+	it('strips attributes from allowed tags', () => {
+		expect(sanitizeHtml('<span class="foo">text</span>')).toBe('<span>text</span>');
+		expect(sanitizeHtml('<em style="color:red">text</em>')).toBe('<em>text</em>');
+	});
+
 	it('strips <script> tags but keeps inner text', () => {
 		expect(sanitizeHtml('<script>alert("xss")</script>')).toBe('alert("xss")');
 	});
@@ -132,5 +137,36 @@ describe('sanitizeCSS', () => {
 		const result = sanitizeCSS(css);
 		expect(result).not.toContain('javascript:');
 		expect(result).not.toContain('JaVaScRiPt');
+	});
+});
+
+describe('sanitizeHtml — EmojiInput XSS prevention', () => {
+	it('strips script tags from user input before emoji rendering', () => {
+		const malicious = '<script>alert("xss")</script>:fire:';
+		const sanitized = sanitizeHtml(malicious);
+		expect(sanitized).not.toContain('<script>');
+		expect(sanitized).toContain(':fire:');
+	});
+
+	it('strips img onerror from user input', () => {
+		const malicious = '<img src=x onerror=alert(1)>:heart:';
+		const sanitized = sanitizeHtml(malicious);
+		expect(sanitized).not.toContain('<img');
+		expect(sanitized).not.toContain('onerror');
+		expect(sanitized).toContain(':heart:');
+	});
+
+	it('allows safe inline tags in user input', () => {
+		const input = '<strong>bold</strong> and <em>italic</em> :fire:';
+		const sanitized = sanitizeHtml(input);
+		expect(sanitized).toBe('<strong>bold</strong> and <em>italic</em> :fire:');
+	});
+
+	it('strips event handlers from span tags', () => {
+		const malicious = '<span onmouseover="alert(1)">hover me</span>';
+		const sanitized = sanitizeHtml(malicious);
+		// Event handlers are now stripped from allowed tags
+		expect(sanitized).not.toContain('onmouseover');
+		expect(sanitized).toBe('<span>hover me</span>');
 	});
 });
