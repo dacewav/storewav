@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { EmptyState } from '$lib/components';
-	import { FIREBASE_DB } from '$lib/firebaseDb';
+	import { getDb } from '$lib/firebase';
 
 	type OrderItem = {
 		beatId: string;
@@ -136,12 +136,12 @@
 	async function loadOrders() {
 		loading = true;
 		try {
-			const resp = await fetch(`${FIREBASE_DB}/orders.json`);
-			if (resp.ok) {
-				const data = await resp.json();
-				if (data) {
-					orders = Object.values(data) as Order[];
-				}
+			const db = await getDb();
+			if (!db) return;
+			const { ref, get, query, orderByChild } = await import('firebase/database');
+			const snap = await get(ref(db, 'orders'));
+			if (snap.exists()) {
+				orders = Object.values(snap.val()) as Order[];
 			}
 		} catch (err) {
 			console.error('[Customers] Failed to load orders:', err);
