@@ -44,7 +44,7 @@
 <div class="comment-card" class:deleting>
 	<div class="comment-avatar">
 		{#if comment.photoURL}
-			<img src={comment.photoURL} alt="" />
+			<img src={comment.photoURL} alt="" loading="lazy" decoding="async" />
 		{:else}
 			<div class="avatar-placeholder">
 				{(comment.displayName || '?')[0].toUpperCase()}

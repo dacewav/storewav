@@ -213,7 +213,7 @@
 		<div class="avatar-section">
 			<button class="avatar-wrapper" onclick={() => avatarFileInput?.click()} disabled={avatarUploading}>
 				{#if displayAvatar}
-					<img src={displayAvatar} alt="Avatar" class="avatar-img" />
+					<img src={displayAvatar} alt="Avatar" class="avatar-img" loading="lazy" decoding="async" />
 				{:else}
 					<div class="avatar-placeholder">
 						{(profile.artistName || user?.displayName || user?.email || '?')[0].toUpperCase()}

@@ -63,7 +63,7 @@
 				{#key trackKey}
 					<div class="player-cover-wrap">
 						{#if ps.imageUrl}
-							<img class="player-cover" src={ps.imageUrl} alt="{ps.name} cover" decoding="async" />
+							<img class="player-cover" src={ps.imageUrl} alt="{ps.name} cover" loading="lazy" decoding="async" />
 						{:else}
 							<div class="player-cover player-cover-placeholder">🎵</div>
 						{/if}

@@ -39,7 +39,7 @@
 	{#if user}
 		<button class="auth-btn logged-in" onclick={toggleMenu} title={user.displayName || user.email || 'Cuenta'}>
 			{#if user.photoURL}
-				<img src={user.photoURL} alt="" class="auth-avatar" />
+				<img src={user.photoURL} alt="" class="auth-avatar" loading="lazy" decoding="async" />
 			{:else}
 				<div class="auth-avatar-placeholder">
 					{(user.displayName || user.email || '?')[0].toUpperCase()}

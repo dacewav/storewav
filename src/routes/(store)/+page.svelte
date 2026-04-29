@@ -388,7 +388,7 @@
 			<button class="recent-card" onclick={() => goto(`/beat/${rBeat.id}`)}>
 				<div class="recent-cover">
 					{#if rBeat.imageUrl}
-						<img src={rBeat.imageUrl} alt={rBeat.name} loading="lazy" />
+						<img src={rBeat.imageUrl} alt={rBeat.name} loading="lazy" decoding="async" />
 					{:else}
 						<div class="recent-ph" style="background: {genreGradient(rBeat.genre)}"></div>
 					{/if}

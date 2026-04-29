@@ -96,7 +96,7 @@
 					<div class="cart-item">
 						<div class="item-image">
 							{#if item.imageUrl}
-								<img src={item.imageUrl} alt={item.beatName} />
+								<img src={item.imageUrl} alt={item.beatName} loading="lazy" decoding="async" />
 							{:else}
 								<div class="item-image-placeholder">
 									<Icon name="music" size={24} />

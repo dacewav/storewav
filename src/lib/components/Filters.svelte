@@ -146,7 +146,7 @@
 						>
 							<div class="ta-cover">
 								{#if result.imageUrl}
-									<img src={result.imageUrl} alt="" />
+									<img src={result.imageUrl} alt="" loading="lazy" decoding="async" />
 								{:else}
 									<div class="ta-ph">🎵</div>
 								{/if}

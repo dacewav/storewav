@@ -132,7 +132,7 @@
 		<form class="comment-form" onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
 			<div class="comment-input-row">
 				{#if user.photoURL}
-					<img src={user.photoURL} alt="" class="form-avatar" />
+					<img src={user.photoURL} alt="" class="form-avatar" loading="lazy" decoding="async" />
 				{:else}
 					<div class="form-avatar-placeholder">
 						{(user.displayName || '?')[0].toUpperCase()}

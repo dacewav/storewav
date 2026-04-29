@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { FIREBASE_DB } from '$lib/firebaseDb';
+	import { getDb } from '$lib/firebase';
 
 	type Order = {
 		sessionId: string;
@@ -117,21 +117,22 @@
 	async function loadOrders() {
 		loading = true;
 		try {
-			const [ordersResp, likesResp] = await Promise.all([
-				fetch(`${FIREBASE_DB}/orders.json`),
-				fetch(`${FIREBASE_DB}/beats.json?shallow=true`),
+			const db = await getDb();
+			if (!db) return;
+			const { ref, get } = await import('firebase/database');
+
+			const [ordersSnap, beatsSnap] = await Promise.all([
+				get(ref(db, 'orders')),
+				get(ref(db, 'beats')),
 			]);
 
-			if (ordersResp.ok) {
-				const data = await ordersResp.json();
-				if (data) {
-					orders = Object.values(data) as Order[];
-				}
+			if (ordersSnap.exists()) {
+				orders = Object.values(ordersSnap.val()) as Order[];
 			}
 
 			// Load like counts from beats
-			if (likesResp.ok) {
-				const beatsData = await likesResp.json() as Record<string, { likeCount?: number }> | null;
+			if (beatsSnap.exists()) {
+				const beatsData = beatsSnap.val() as Record<string, { likeCount?: number }> | null;
 				if (beatsData) {
 					const counts: Record<string, number> = {};
 					for (const [id, beat] of Object.entries(beatsData)) {

@@ -38,7 +38,7 @@
 		<div class="account-header">
 			<div class="account-avatar">
 				{#if user.photoURL}
-					<img src={user.photoURL} alt="" />
+					<img src={user.photoURL} alt="" loading="lazy" decoding="async" />
 				{:else}
 					<div class="avatar-placeholder">
 						{(user.displayName || user.email || '?')[0].toUpperCase()}
