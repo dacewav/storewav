@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Beat } from '$lib/stores/beats';
-	import { wishlist, settings, player, analytics, incrementPlay, accentRgb as accentRgbStore, cart, likeCounts, subscribeToLikeCount } from '$lib/stores';
+	import { wishlist, settings, player, analytics, incrementPlay, accentRgb as accentRgbStore, cart, likeCounts, subscribeToLikeCount, lowestPrice } from '$lib/stores';
 	import { tilt } from '$lib/actions';
 	import { toast } from '$lib/toastStore';
 	import { genreGradient } from '$lib/visualUtils';
@@ -84,11 +84,6 @@
 		`--shimmer-duration: ${cardStyle.shimmerDuration ?? '2.5s'}`,
 		cardStyle.shimmerColor ? `--shimmer-color: ${cardStyle.shimmerColor}` : ''
 	].filter(Boolean).join('; ') : '');
-
-	function lowestPrice(beat: Beat & { id: string }): number {
-		if (!beat.licenses?.length) return 0;
-		return Math.min(...beat.licenses.map(l => l.priceMXN));
-	}
 
 	function handleWishlist(e: MouseEvent) {
 		e.stopPropagation();

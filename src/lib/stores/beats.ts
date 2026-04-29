@@ -58,6 +58,12 @@ export type BeatWithId = Beat & { id: string };
 
 export type BeatsMap = Record<string, Beat>;
 
+/** Get the lowest license price for a beat (shared utility) */
+export function lowestPrice(beat: { licenses?: { priceMXN: number }[] }): number {
+	if (!beat.licenses?.length) return 0;
+	return Math.min(...beat.licenses.map(l => l.priceMXN));
+}
+
 export const beats = createFirebaseStore<BeatsMap>('beats', {});
 
 /** Todos los beats como array (activos e inactivos), ordenados por order then date */

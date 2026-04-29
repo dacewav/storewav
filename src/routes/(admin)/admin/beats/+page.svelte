@@ -1,7 +1,7 @@
 	<svelte:head><title>Beats — Admin</title></svelte:head>
 <script lang="ts">
 	import { Badge, EmptyState, Skeleton } from '$lib/components';
-	import { allBeatsList, trashedBeatsList, beatsStats, beats as beatsStore, trashBeat, restoreBeat, permanentDelete, duplicateBeat, swapBeatOrders, bulkReorderBeats, genres } from '$lib/stores';
+	import { allBeatsList, trashedBeatsList, beatsStats, beats as beatsStore, trashBeat, restoreBeat, permanentDelete, duplicateBeat, swapBeatOrders, bulkReorderBeats, genres, lowestPrice } from '$lib/stores';
 	import type { BeatWithId } from '$lib/stores/beats';
 	import { toast } from '$lib/toastStore';
 
@@ -17,11 +17,6 @@
 	let search = $state('');
 	let filterGenre = $state('');
 	let sortBy = $state('newest');
-
-	function lowestPrice(beat: BeatWithId): number {
-		if (!beat.licenses?.length) return 0;
-		return Math.min(...beat.licenses.map(l => l.priceMXN));
-	}
 
 	let filteredBeats = $derived.by(() => {
 		let list = [...beats];

@@ -3,7 +3,7 @@
 	import { Skeleton, EmptyState, BeatCard, Filters, Testimonials, InlineEmoji } from '$lib/components';
 	import { renderEmojis, stripEmojis } from '$lib/emojiUtils';
 	import Icon from '$lib/components/Icon.svelte';
-	import { beats as beatsStore, beatsList, allBeatsList, genres, settings, player, analytics, customEmojis, auth } from '$lib/stores';
+	import { beats as beatsStore, beatsList, allBeatsList, genres, settings, player, analytics, customEmojis, auth, lowestPrice } from '$lib/stores';
 	import { userLikes } from '$lib/stores/likes';
 	import { recentlyPlayed } from '$lib/stores/recentlyPlayed';
 	import { getForYouRecommendations } from '$lib/stores/recommendations';
@@ -169,11 +169,6 @@
 
 	function scrollToTop() {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}
-
-	function lowestPrice(beat: Beat & { id: string }): number {
-		if (!beat.licenses?.length) return 0;
-		return Math.min(...beat.licenses.map(l => l.priceMXN));
 	}
 
 	// Filtered + sorted beats — excludes featured from main grid

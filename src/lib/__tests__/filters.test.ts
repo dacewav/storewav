@@ -1,10 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { lowestPrice } from '../stores/beats';
 
 // Test the filtering logic that lives in the store page (extracted for testing)
-function lowestPrice(beat: { licenses?: { priceMXN: number }[] }): number {
-	if (!beat.licenses?.length) return 0;
-	return Math.min(...beat.licenses.map(l => l.priceMXN));
-}
 
 function filterBeats(
 	beats: Array<{
