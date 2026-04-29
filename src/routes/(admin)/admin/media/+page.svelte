@@ -6,7 +6,7 @@
 	let images = $derived($gallery);
 	let loading = $derived($galleryLoading);
 	let beatsData = $derived($beatsStore);
-	let beats = $derived(beatsData?.data ? Object.entries(beatsData.data).map(([id, b]: [string, any]) => ({ id, name: b.name ?? '(Sin nombre)' })) : []);
+	let beats = $derived(beatsData?.data ? Object.entries(beatsData.data).map(([id, b]: [string, { name?: string }]) => ({ id, name: b.name ?? '(Sin nombre)' })) : []);
 
 	let uploading = $state(false);
 	let uploadProgress = $state(0);

@@ -55,7 +55,7 @@
 			if (resp.ok) {
 				const data = await resp.json();
 				if (data) {
-					codes = Object.entries(data).map(([key, val]: [string, any]) => ({
+					codes = Object.entries(data as Record<string, DiscountCode>).map(([key, val]) => ({
 						...val,
 						code: key,
 					}));
@@ -236,8 +236,8 @@
 				</div>
 
 				<div class="form-group">
-					<label>
-						<input type="checkbox" bind:checked={form.active} />
+					<label for="discount-active">
+						<input id="discount-active" type="checkbox" bind:checked={form.active} />
 						Activo
 					</label>
 				</div>

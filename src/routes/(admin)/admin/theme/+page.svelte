@@ -732,23 +732,23 @@
 		</div>
 		{#if t.bgPattern && t.bgPattern !== 'none'}
 			<div class="field">
-				<label for="t-bgc">Color patrón</label>
+				<label for="t-bpgc">Color patrón</label>
 				<div class="color-row">
-					<input id="t-bgc" type="color" value={t.bgPatternColor || '#ffffff'} oninput={(e) => updateDebounced('theme.bgPatternColor', e.currentTarget.value)} />
+					<input id="t-bpgc" type="color" value={t.bgPatternColor || '#ffffff'} oninput={(e) => updateDebounced('theme.bgPatternColor', e.currentTarget.value)} />
 					<input type="text" value={t.bgPatternColor ?? ''} placeholder="(default)" oninput={(e) => updateDebounced('theme.bgPatternColor', e.currentTarget.value)} />
 				</div>
 			</div>
 			<div class="field">
-				<label for="t-bgo">Opacidad patrón ({Math.round((t.bgPatternOpacity ?? 0.05) * 100)}%)</label>
-				<input id="t-bgo" type="range" min="0" max="0.3" step="0.01" value={t.bgPatternOpacity ?? 0.05} oninput={(e) => update('theme.bgPatternOpacity', +e.currentTarget.value)} />
+				<label for="t-bpgo">Opacidad patrón ({Math.round((t.bgPatternOpacity ?? 0.05) * 100)}%)</label>
+				<input id="t-bpgo" type="range" min="0" max="0.3" step="0.01" value={t.bgPatternOpacity ?? 0.05} oninput={(e) => update('theme.bgPatternOpacity', +e.currentTarget.value)} />
 			</div>
 		{/if}
 	</Collapsible>
 	<!-- Scrollbar -->
 	<Collapsible id="scrollbar" icon="📏" title="Scrollbar" open={false}>
 		<div class="field">
-			<label>
-				<input type="checkbox" checked={t.scrollbarThin ?? false} onchange={(e) => update('theme.scrollbarThin', e.currentTarget.checked)} />
+			<label for="scrollbar-thin">
+				<input id="scrollbar-thin" type="checkbox" checked={t.scrollbarThin ?? false} onchange={(e) => update('theme.scrollbarThin', e.currentTarget.checked)} />
 				Scrollbar delgado
 			</label>
 		</div>

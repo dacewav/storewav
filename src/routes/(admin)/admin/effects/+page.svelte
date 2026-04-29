@@ -89,8 +89,8 @@
 		{/snippet}
 		<HelpTip text="El glow crea un resplandor alrededor de elementos importantes. Actívalo para un look más llamativo, desactívalo para uno más limpio." />
 		<div class="field">
-			<label>
-				<input type="checkbox" checked={t.glowActive === true} onchange={(e) => updateField('theme.glowActive', e.currentTarget.checked)} />
+			<label for="glow-active">
+				<input id="glow-active" type="checkbox" checked={t.glowActive === true} onchange={(e) => updateField('theme.glowActive', e.currentTarget.checked)} />
 				Glow global activado
 			</label>
 		</div>
@@ -177,8 +177,8 @@
 	<Collapsible id="hero-glow" icon="💫" title="Hero Glow" open={false}>
 		<HelpTip text="Añade un resplandor de color detrás del hero. Intensidad controla el brillo, blur qué tan difuso es. Color vacío usa el accent." />
 		<div class="field">
-			<label>
-				<input type="checkbox" checked={t.heroGlowOn === true} onchange={(e) => updateField('theme.heroGlowOn', e.currentTarget.checked)} />
+			<label for="hero-glow-on">
+				<input id="hero-glow-on" type="checkbox" checked={t.heroGlowOn === true} onchange={(e) => updateField('theme.heroGlowOn', e.currentTarget.checked)} />
 				Hero glow activado
 			</label>
 		</div>
@@ -206,8 +206,8 @@
 		<HelpTip text="Añade un borde/stroke alrededor del hero. Grosor controla el ancho del borde en píxeles. Color vacío usa el accent." />
 		<div class="row">
 			<div class="field">
-				<label>
-					<input type="checkbox" checked={t.heroStrokeOn === true} onchange={(e) => updateField('theme.heroStrokeOn', e.currentTarget.checked)} />
+				<label for="stroke-on">
+					<input id="stroke-on" type="checkbox" checked={t.heroStrokeOn === true} onchange={(e) => updateField('theme.heroStrokeOn', e.currentTarget.checked)} />
 					Stroke activado
 				</label>
 			</div>
@@ -260,8 +260,8 @@
 		<div class="particles-layout">
 			<div class="particles-controls">
 				<div class="toggle-row">
-					<label class="toggle-label">
-						<input type="checkbox" checked={t.particlesOn === true} onchange={(e) => updateField('theme.particlesOn', e.currentTarget.checked)} />
+					<label class="toggle-label" for="particles-on">
+						<input id="particles-on" type="checkbox" checked={t.particlesOn === true} onchange={(e) => updateField('theme.particlesOn', e.currentTarget.checked)} />
 						<span class="toggle-text">Partículas {t.particlesOn === true ? 'activadas' : 'desactivadas'}</span>
 					</label>
 					<span class="toggle-badge" class:active={t.particlesOn === true}>{t.particlesOn === true ? 'ON' : 'OFF'}</span>

@@ -136,8 +136,8 @@
 	<Collapsible id="banner-main" icon="📢" title="Banner" open={true}>
 		<p class="field-desc">Banner superior scrollable. <HelpTip text="El banner aparece arriba del hero. Textos: array de mensajes que scrollean. Velocidad: qué rápido se mueven. Separador: emoji entre mensajes." /></p>
 		<div class="field">
-			<label>
-				<input type="checkbox" checked={b.enabled === true} onchange={(e) => bannerUpdate('banner.enabled', e.currentTarget.checked)} />
+			<label for="banner-enabled">
+				<input id="banner-enabled" type="checkbox" checked={b.enabled === true} onchange={(e) => bannerUpdate('banner.enabled', e.currentTarget.checked)} />
 				Banner activado
 			</label>
 		</div>
@@ -473,16 +473,18 @@
 				<div class="form-group" role="group" aria-label="Visibilidad">
 					<span class="form-label">Visibilidad</span>
 					<div class="toggle-row">
-						<label class="toggle-label">
+						<label class="toggle-label" for="float-visible">
 							<input
+								id="float-visible"
 								type="checkbox"
 								checked={form.visible ?? true}
 								onchange={(e) => (form.visible = e.currentTarget.checked)}
 							/>
 							<span>Visible</span>
 						</label>
-						<label class="toggle-label">
+						<label class="toggle-label" for="float-desktop">
 							<input
+								id="float-desktop"
 								type="checkbox"
 								checked={form.desktopOnly ?? false}
 								onchange={(e) => {
@@ -492,8 +494,9 @@
 							/>
 							<span>Solo desktop</span>
 						</label>
-						<label class="toggle-label">
+						<label class="toggle-label" for="float-mobile">
 							<input
+								id="float-mobile"
 								type="checkbox"
 								checked={form.mobileOnly ?? false}
 								onchange={(e) => {

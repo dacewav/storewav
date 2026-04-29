@@ -326,8 +326,8 @@
 	<!-- ═══ Loader ═══ -->
 	<Collapsible id="brand-loader" icon="⏳" title="⏳ Loader" open={false}>
 				<div class="field">
-			<label>
-				<input type="checkbox" checked={loader.enabled !== false} onchange={(e) => update('loader.enabled', e.currentTarget.checked)} />
+			<label for="b-loader-on">
+				<input id="b-loader-on" type="checkbox" checked={loader.enabled !== false} onchange={(e) => update('loader.enabled', e.currentTarget.checked)} />
 				Mostrar loader al cargar
 			</label>
 		</div>
@@ -345,8 +345,8 @@
 				<input id="ly-cards" type="range" min="1" max="6" step="1" value={layoutLocal.cardsPerRow ?? 3} oninput={(e) => layoutSlide('layout.cardsPerRow', 'cardsPerRow', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label>
-					<input type="checkbox" checked={layout.showWishlist !== false} onchange={(e) => update('layout.showWishlist', e.currentTarget.checked)} />
+				<label for="b-show-wishlist">
+					<input id="b-show-wishlist" type="checkbox" checked={layout.showWishlist !== false} onchange={(e) => update('layout.showWishlist', e.currentTarget.checked)} />
 					Mostrar wishlist
 				</label>
 			</div>
@@ -375,8 +375,8 @@
 				<input id="ly-lr" type="range" min="-180" max="180" step="5" value={layoutLocal.logoRotation ?? 0} oninput={(e) => layoutSlide('layout.logoRotation', 'logoRotation', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label>
-					<input type="checkbox" checked={layout.showLogoText !== false} onchange={(e) => update('layout.showLogoText', e.currentTarget.checked)} />
+				<label for="b-show-logo-text">
+					<input id="b-show-logo-text" type="checkbox" checked={layout.showLogoText !== false} onchange={(e) => update('layout.showLogoText', e.currentTarget.checked)} />
 					Mostrar texto junto al logo
 				</label>
 			</div>
@@ -403,15 +403,15 @@
 				<input id="ly-nh" type="range" min="40" max="100" step="4" value={layoutLocal.navHeight ?? 64} oninput={(e) => layoutSlide('layout.navHeight', 'navHeight', +e.currentTarget.value)} onkeydown={handleShiftArrows} />
 			</div>
 			<div class="field">
-				<label>
-					<input type="checkbox" checked={layout.showBanner !== false} onchange={(e) => update('layout.showBanner', e.currentTarget.checked)} />
+				<label for="b-show-banner">
+					<input id="b-show-banner" type="checkbox" checked={layout.showBanner !== false} onchange={(e) => update('layout.showBanner', e.currentTarget.checked)} />
 					Mostrar banner superior
 				</label>
 			</div>
 		</div>
 		<div class="field">
-			<label>
-				<input type="checkbox" checked={layout.footerVisible !== false} onchange={(e) => update('layout.footerVisible', e.currentTarget.checked)} />
+			<label for="b-footer-visible">
+				<input id="b-footer-visible" type="checkbox" checked={layout.footerVisible !== false} onchange={(e) => update('layout.footerVisible', e.currentTarget.checked)} />
 				Mostrar footer
 			</label>
 		</div>

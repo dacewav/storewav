@@ -185,8 +185,8 @@
 	<Collapsible id="hero-glow-word" icon="✏️" title="Glow de la palabra" open={false}>
 				<div class="row">
 			<div class="field">
-				<label>
-					<input type="checkbox" checked={hv.glowOn !== false} onchange={(e) => update('heroVisual.glowOn', e.currentTarget.checked)} />
+				<label for="hv-glow-on">
+					<input id="hv-glow-on" type="checkbox" checked={hv.glowOn !== false} onchange={(e) => update('heroVisual.glowOn', e.currentTarget.checked)} />
 					Glow activado
 				</label>
 			</div>
@@ -224,8 +224,8 @@
 	<Collapsible id="hero-stroke" icon="👁️" title="Stroke mode (outline)" open={false}>
 				<div class="row">
 			<div class="field">
-				<label>
-					<input type="checkbox" checked={hv.strokeOn === true} onchange={(e) => update('heroVisual.strokeOn', e.currentTarget.checked)} />
+				<label for="hv-stroke-on">
+					<input id="hv-stroke-on" type="checkbox" checked={hv.strokeOn === true} onchange={(e) => update('heroVisual.strokeOn', e.currentTarget.checked)} />
 					Stroke activado
 				</label>
 			</div>
@@ -269,8 +269,8 @@
 	<Collapsible id="hero-eyebrow" icon="📊" title="Eyebrow badge" open={false}>
 				<div class="row">
 			<div class="field">
-				<label>
-					<input type="checkbox" checked={hv.eyebrowOn !== false} onchange={(e) => update('heroVisual.eyebrowOn', e.currentTarget.checked)} />
+				<label for="hv-eyebrow-on">
+					<input id="hv-eyebrow-on" type="checkbox" checked={hv.eyebrowOn !== false} onchange={(e) => update('heroVisual.eyebrowOn', e.currentTarget.checked)} />
 					Mostrar eyebrow
 				</label>
 			</div>
@@ -292,8 +292,8 @@
 	<Collapsible id="hero-visual" icon="🎨" title="Gradiente de fondo" open={false}>
 				<div class="row">
 			<div class="field">
-				<label>
-					<input type="checkbox" checked={hv.gradOn !== false} onchange={(e) => update('heroVisual.gradOn', e.currentTarget.checked)} />
+				<label for="hv-grad-on">
+					<input id="hv-grad-on" type="checkbox" checked={hv.gradOn !== false} onchange={(e) => update('heroVisual.gradOn', e.currentTarget.checked)} />
 					Gradiente activado
 				</label>
 			</div>
@@ -395,8 +395,8 @@
 		</div>
 		<div class="row">
 			<div class="field">
-				<label>
-					<input type="checkbox" checked={section.dividerGlowOn === true} onchange={(e) => update('section.dividerGlowOn', e.currentTarget.checked)} />
+				<label for="hv-divider-glow">
+					<input id="hv-divider-glow" type="checkbox" checked={section.dividerGlowOn === true} onchange={(e) => update('section.dividerGlowOn', e.currentTarget.checked)} />
 					Glow en divider
 				</label>
 			</div>

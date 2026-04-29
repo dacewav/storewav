@@ -129,22 +129,22 @@
 			<fieldset>
 				<legend>🎵 Beat</legend>
 				<div class="fields">
-					<label>
+					<label for="c-beat-name">
 						<span>Nombre</span>
-						<input type="text" bind:value={form.beatName} placeholder="Midnight Dreams" />
+						<input id="c-beat-name" type="text" bind:value={form.beatName} placeholder="Midnight Dreams" />
 					</label>
 					<div class="row-3">
-						<label>
+						<label for="c-beat-bpm">
 							<span>BPM</span>
-							<input type="text" bind:value={form.beatBpm} placeholder="140" />
+							<input id="c-beat-bpm" type="text" bind:value={form.beatBpm} placeholder="140" />
 						</label>
-						<label>
+						<label for="c-beat-key">
 							<span>Tonalidad</span>
-							<input type="text" bind:value={form.beatKey} placeholder="Am" />
+							<input id="c-beat-key" type="text" bind:value={form.beatKey} placeholder="Am" />
 						</label>
-						<label>
+						<label for="c-beat-genre">
 							<span>Género</span>
-							<input type="text" bind:value={form.beatGenre} placeholder="Trap" />
+							<input id="c-beat-genre" type="text" bind:value={form.beatGenre} placeholder="Trap" />
 						</label>
 					</div>
 				</div>
@@ -154,17 +154,17 @@
 			<fieldset>
 				<legend>🎤 Artista (Comprador)</legend>
 				<div class="fields">
-					<label>
+					<label for="c-buyer-name">
 						<span>Nombre completo</span>
-						<input type="text" bind:value={form.buyerName} placeholder="Juan Pérez" />
+						<input id="c-buyer-name" type="text" bind:value={form.buyerName} placeholder="Juan Pérez" />
 					</label>
-					<label>
+					<label for="c-buyer-email">
 						<span>Email</span>
-						<input type="email" bind:value={form.buyerEmail} placeholder="juan@email.com" />
+						<input id="c-buyer-email" type="email" bind:value={form.buyerEmail} placeholder="juan@email.com" />
 					</label>
-					<label>
+					<label for="c-buyer-artist">
 						<span>Nombre artístico</span>
-						<input type="text" bind:value={form.buyerArtist} placeholder="JP" />
+						<input id="c-buyer-artist" type="text" bind:value={form.buyerArtist} placeholder="JP" />
 					</label>
 				</div>
 			</fieldset>
@@ -173,13 +173,13 @@
 			<fieldset>
 				<legend>💰 Precio</legend>
 				<div class="row-2">
-					<label>
+					<label for="c-price-mxn">
 						<span>MXN</span>
-						<input type="number" bind:value={form.priceMXN} />
+						<input id="c-price-mxn" type="number" bind:value={form.priceMXN} />
 					</label>
-					<label>
+					<label for="c-price-usd">
 						<span>USD</span>
-						<input type="number" bind:value={form.priceUSD} />
+						<input id="c-price-usd" type="number" bind:value={form.priceUSD} />
 					</label>
 				</div>
 			</fieldset>

@@ -327,8 +327,8 @@
 					<summary class="section-title">📄 Contrato</summary>
 					<div class="fields">
 						<div class="field">
-							<label>
-								<input type="checkbox" bind:checked={template.showContractNote} />
+							<label for="show-contract">
+								<input id="show-contract" type="checkbox" bind:checked={template.showContractNote} />
 								Mostrar nota del contrato
 							</label>
 						</div>
@@ -350,14 +350,14 @@
 					<summary class="section-title">📝 Footer</summary>
 					<div class="fields">
 						<div class="field">
-							<label>
-								<input type="checkbox" bind:checked={template.showOrderNumber} />
+							<label for="show-order">
+								<input id="show-order" type="checkbox" bind:checked={template.showOrderNumber} />
 								Mostrar número de pedido
 							</label>
 						</div>
 						<div class="field">
-							<label>
-								<input type="checkbox" bind:checked={template.showTotal} />
+							<label for="show-total">
+								<input id="show-total" type="checkbox" bind:checked={template.showTotal} />
 								Mostrar total
 							</label>
 						</div>
