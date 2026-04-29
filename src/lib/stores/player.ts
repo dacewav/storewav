@@ -80,7 +80,7 @@ function detachAudioListeners() {
 	audioListenersAttached = false;
 }
 
-function play(beat: { id: string; name: string; artist: string; imageUrl: string; audioUrl: string }, retries = 2) {
+function play(beat: { id: string; name: string; artist: string; imageUrl: string; audioUrl: string; genre?: string }, retries = 2) {
 	const a = getAudio();
 	if (!a) return; // SSR guard
 
@@ -89,6 +89,19 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 		console.warn('[Player] Beat sin audio:', beat.name);
 		store.update((s) => ({ ...s, playing: false }));
 		return;
+	}
+
+	// Track recently played (lazy import to avoid circular deps)
+	if (beat.genre) {
+		import('./recentlyPlayed').then(({ recentlyPlayed }) => {
+			recentlyPlayed.add({
+				id: beat.id,
+				name: beat.name,
+				artist: beat.artist,
+				imageUrl: beat.imageUrl,
+				genre: beat.genre!
+			});
+		}).catch(() => {});
 	}
 
 	// Si es el mismo beat, toggle play/pause

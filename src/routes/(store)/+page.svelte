@@ -5,13 +5,14 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { beats as beatsStore, beatsList, allBeatsList, genres, settings, player, analytics, customEmojis, auth } from '$lib/stores';
 	import { userLikes } from '$lib/stores/likes';
+	import { recentlyPlayed } from '$lib/stores/recentlyPlayed';
 	import { getForYouRecommendations } from '$lib/stores/recommendations';
 	import { getBeatSlug } from '$lib/slug';
 	import { sanitizeHtml } from '$lib/sanitize';
 	import type { HeroVisualSettings, LabelSettings, AnimationSettings } from '$lib/stores/settings';
 	import type { IconName } from '$lib/icons';
 	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
-	import { hexToRgba } from '$lib/visualUtils';
+	import { hexToRgba, genreGradient } from '$lib/visualUtils';
 	import type { Beat } from '$lib/stores/beats';
 
 	let beatsLoading = $derived($beatsStore.loading);
@@ -137,6 +138,9 @@
 		return recs.map(r => r.beat);
 	});
 
+	// Recently played (from localStorage)
+	let recentBeats = $derived($recentlyPlayed);
+
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
 	let filters: FilterState = $state({ search: '', genre: '', key: '', sort: 'newest', tags: [] });
 
@@ -239,7 +243,8 @@
 			name: beat.name,
 			artist: beat.artist ?? '',
 			imageUrl: beat.imageUrl ?? '',
-			audioUrl: beat.audioUrl || beat.previewUrl || ''
+			audioUrl: beat.audioUrl || beat.previewUrl || '',
+			genre: beat.genre
 		});
 		analytics.track('beat', 'play', { lbl: beat.id, meta: beat.name });
 	}
@@ -370,6 +375,32 @@
 </section>
 {/if}
 
+<!-- Recently played -->
+{#if recentBeats.length > 0}
+<section class="featured-section" use:reveal={{}}>
+	<div class="section-header">
+		<h2 class="section-title" style={sectionTitleStyle}>🕐 Escuchado recientemente</h2>
+		<div class="section-line"></div>
+		<button class="clear-recent-btn" onclick={() => recentlyPlayed.clear()} aria-label="Limpiar historial">Limpiar</button>
+	</div>
+	<div class="recent-scroll">
+		{#each recentBeats as rBeat (rBeat.id)}
+			<button class="recent-card" onclick={() => goto(`/beat/${rBeat.id}`)}>
+				<div class="recent-cover">
+					{#if rBeat.imageUrl}
+						<img src={rBeat.imageUrl} alt={rBeat.name} loading="lazy" />
+					{:else}
+						<div class="recent-ph" style="background: {genreGradient(rBeat.genre)}"></div>
+					{/if}
+				</div>
+				<span class="recent-name">{rBeat.name}</span>
+				<span class="recent-artist">{rBeat.artist}</span>
+			</button>
+		{/each}
+	</div>
+</section>
+{/if}
+
 <!-- Section divider -->
 {#if dividerTitle}
 <div class="section-divider" use:reveal={{}}>
@@ -405,6 +436,7 @@
 				labelKey={labels.filterKey ?? 'Tonalidad'}
 				labelTags={labels.tags ?? 'Tags'}
 				labelClear={labels.clearAll ?? 'Limpiar todo'}
+				allBeats={beats}
 			/>
 		</div>
 	{/if}
@@ -823,6 +855,94 @@
 
 	.show-all-btn:hover {
 		color: var(--text);
+	}
+
+	/* ── Recently Played ── */
+	.recent-scroll {
+		display: flex;
+		gap: var(--space-3);
+		overflow-x: auto;
+		scrollbar-width: none;
+		padding-bottom: var(--space-2);
+	}
+
+	.recent-scroll::-webkit-scrollbar {
+		display: none;
+	}
+
+	.recent-card {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		width: 120px;
+		flex-shrink: 0;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		text-align: left;
+		padding: 0;
+		color: inherit;
+		transition: transform var(--duration-fast);
+	}
+
+	.recent-card:hover {
+		transform: translateY(-2px);
+	}
+
+	.recent-cover {
+		width: 120px;
+		height: 120px;
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		background: var(--surface2);
+	}
+
+	.recent-cover img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.recent-ph {
+		width: 100%;
+		height: 100%;
+	}
+
+	.recent-name {
+		font-family: var(--font-body);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		color: var(--text);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.recent-artist {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.clear-recent-btn {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		background: transparent;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		padding: 3px 10px;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		letter-spacing: 0.04em;
+	}
+
+	.clear-recent-btn:hover {
+		color: var(--danger);
+		border-color: var(--danger-dim);
 	}
 
 	/* ── Back to Top ── */

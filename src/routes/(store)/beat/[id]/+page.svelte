@@ -100,7 +100,8 @@
 			name: beat.name,
 			artist: beat.artist ?? '',
 			imageUrl: beat.imageUrl ?? '',
-			audioUrl: beat.audioUrl || beat.previewUrl || ''
+			audioUrl: beat.audioUrl || beat.previewUrl || '',
+			genre: beat.genre
 		});
 		analytics.track('beat', 'play', { lbl: beat.id, meta: beat.name });
 	}
@@ -118,7 +119,8 @@
 			name: b.name,
 			artist: b.artist ?? '',
 			imageUrl: b.imageUrl ?? '',
-			audioUrl: b.audioUrl || b.previewUrl || ''
+			audioUrl: b.audioUrl || b.previewUrl || '',
+			genre: b.genre
 		});
 	}
 

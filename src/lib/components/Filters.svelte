@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { genres, allTags } from '$lib/stores';
+	import type { Beat } from '$lib/stores/beats';
 	import Icon from './Icon.svelte';
+	import { goto } from '$app/navigation';
+	import { getBeatSlug } from '$lib/slug';
 
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[] };
 
@@ -13,7 +16,8 @@
 		labelAll = 'Todos',
 		labelKey = 'Tonalidad',
 		labelTags = 'Tags',
-		labelClear = 'Limpiar todo'
+		labelClear = 'Limpiar todo',
+		allBeats = []
 	}: {
 		filters?: FilterState;
 		onchange?: (filters: FilterState) => void;
@@ -24,12 +28,29 @@
 		labelKey?: string;
 		labelTags?: string;
 		labelClear?: string;
+		allBeats?: (Beat & { id: string })[];
 	} = $props();
 
 	let genreList = $derived($genres);
 	let tagList = $derived($allTags);
 	let showTags = $state(false);
 	let filtersExpanded = $state(typeof window !== 'undefined' ? window.innerWidth > 768 : true);
+	let searchFocused = $state(false);
+	let typeaheadIndex = $state(-1);
+
+	// Typeahead results — top 5 matching beats
+	let typeaheadResults = $derived.by(() => {
+		const q = filters.search?.trim().toLowerCase();
+		if (!q || q.length < 2 || allBeats.length === 0) return [];
+		return allBeats
+			.filter(b =>
+				b.name?.toLowerCase().includes(q) ||
+				b.artist?.toLowerCase().includes(q) ||
+				b.genre?.toLowerCase().includes(q)
+			)
+			.slice(0, 5);
+	});
+	let showTypeahead = $derived(searchFocused && typeaheadResults.length > 0);
 
 	// Listen for resize to auto-expand on desktop
 	$effect(() => {
@@ -87,19 +108,56 @@
 <div class="filters">
 	<!-- Search + mobile toggle row -->
 	<div class="filter-search-row">
-		<div class="filter-search">
+		<div class="filter-search" class:typeahead-open={showTypeahead}>
 			<span class="search-icon"><Icon name="search" size={14} /></span>
 			<input
 				class="search-input"
 				type="text"
 				placeholder={placeholder}
 				bind:value={filters.search}
-				oninput={() => onchange?.(filters)}
+				oninput={() => { onchange?.(filters); typeaheadIndex = -1; }}
+				onfocus={() => searchFocused = true}
+				onblur={() => setTimeout(() => searchFocused = false, 200)}
+				onkeydown={(e) => {
+					if (!showTypeahead) return;
+					if (e.key === 'ArrowDown') { e.preventDefault(); typeaheadIndex = Math.min(typeaheadIndex + 1, typeaheadResults.length - 1); }
+					else if (e.key === 'ArrowUp') { e.preventDefault(); typeaheadIndex = Math.max(typeaheadIndex - 1, -1); }
+					else if (e.key === 'Enter' && typeaheadIndex >= 0) { e.preventDefault(); goto(`/beat/${getBeatSlug(typeaheadResults[typeaheadIndex])}`); }
+					else if (e.key === 'Escape') { typeaheadIndex = -1; searchFocused = false; }
+				}}
 			/>
 			{#if filters.search}
 				<button class="search-clear" onclick={() => { update('search', ''); }} aria-label="Limpiar">
 					<Icon name="close" size={12} />
 				</button>
+			{/if}
+
+			<!-- Typeahead dropdown -->
+			{#if showTypeahead}
+				<div class="typeahead-dropdown" role="listbox">
+					{#each typeaheadResults as result, i}
+						<a
+							href="/beat/{getBeatSlug(result)}"
+							class="typeahead-item"
+							class:highlighted={typeaheadIndex === i}
+							role="option"
+							aria-selected={typeaheadIndex === i}
+							onmousedown={(e) => e.preventDefault()}
+						>
+							<div class="ta-cover">
+								{#if result.imageUrl}
+									<img src={result.imageUrl} alt="" />
+								{:else}
+									<div class="ta-ph">🎵</div>
+								{/if}
+							</div>
+							<div class="ta-info">
+								<span class="ta-name">{result.name}</span>
+								<span class="ta-meta">{result.artist ?? ''} · {result.genre} · {result.bpm} BPM</span>
+							</div>
+						</a>
+					{/each}
+				</div>
 			{/if}
 		</div>
 		<button class="filters-expand-btn" class:expanded={filtersExpanded} onclick={toggleFiltersExpand} aria-label={filtersExpanded ? 'Ocultar filtros' : 'Mostrar filtros'}>
@@ -530,5 +588,93 @@
 	@keyframes filtersSlideIn {
 		from { opacity: 0; transform: translateY(-8px); }
 		to { opacity: 1; transform: translateY(0); }
+	}
+
+	/* Typeahead */
+	.filter-search.typeahead-open {
+		position: relative;
+	}
+
+	.typeahead-dropdown {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		z-index: 50;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-top: none;
+		border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+		box-shadow: var(--shadow-lg);
+		overflow: hidden;
+		animation: typeaheadIn 0.15s var(--ease-out);
+	}
+
+	@keyframes typeaheadIn {
+		from { opacity: 0; transform: translateY(-4px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	.typeahead-item {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-2) var(--space-3);
+		text-decoration: none;
+		color: inherit;
+		transition: background var(--duration-fast);
+		cursor: pointer;
+	}
+
+	.typeahead-item:hover,
+	.typeahead-item.highlighted {
+		background: var(--surface-hover);
+	}
+
+	.ta-cover {
+		width: 36px;
+		height: 36px;
+		border-radius: var(--radius-sm);
+		overflow: hidden;
+		flex-shrink: 0;
+		background: var(--surface2);
+	}
+
+	.ta-cover img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.ta-ph {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 14px;
+	}
+
+	.ta-info {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+	}
+
+	.ta-name {
+		font-size: var(--text-sm);
+		font-weight: 600;
+		color: var(--text);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.ta-meta {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
 	}
 </style>
