@@ -18,6 +18,25 @@
 	let topBeatName = $derived(stats.topBeat?.name ?? '—');
 	let topBeatPlays = $derived(stats.topBeat?.plays ?? 0);
 
+	// Genre distribution for chart
+	let genreDistribution = $derived.by(() => {
+		const counts: Record<string, number> = {};
+		beats.forEach(b => { counts[b.genre] = (counts[b.genre] || 0) + 1; });
+		return Object.entries(counts)
+			.sort((a, b) => b[1] - a[1])
+			.slice(0, 6);
+	});
+	let maxGenreCount = $derived(genreDistribution.length > 0 ? Math.max(...genreDistribution.map(g => g[1])) : 1);
+
+	// Top beats by plays for chart
+	let topBeatsByPlays = $derived(
+		beats
+			.filter(b => (b.plays ?? 0) > 0)
+			.sort((a, b) => (b.plays ?? 0) - (a.plays ?? 0))
+			.slice(0, 5)
+	);
+	let maxPlays = $derived(topBeatsByPlays.length > 0 ? Math.max(...topBeatsByPlays.map(b => b.plays ?? 0)) : 1);
+
 	const statCards = $derived([
 		{ label: 'Beats', value: String(stats.total || '—'), icon: '🎵' },
 		{ label: 'Activos', value: String(stats.active || '—'), icon: '✅' },
@@ -330,6 +349,51 @@
 			</div>
 		</Card>
 	</div>
+
+	<!-- Charts row -->
+	{#if beats.length > 0}
+		<div class="dash-charts">
+			<!-- Genre distribution -->
+			{#if genreDistribution.length > 0}
+				<Card>
+					<div class="card-section">
+						<h3 class="section-label">🎵 Distribución por género</h3>
+						<div class="bar-chart">
+							{#each genreDistribution as [genre, count]}
+								<div class="bar-row">
+									<span class="bar-label">{genre}</span>
+									<div class="bar-track">
+										<div class="bar-fill" style="width: {(count / maxGenreCount) * 100}%"></div>
+									</div>
+									<span class="bar-value">{count}</span>
+								</div>
+							{/each}
+						</div>
+					</div>
+				</Card>
+			{/if}
+
+			<!-- Top beats by plays -->
+			{#if topBeatsByPlays.length > 0}
+				<Card>
+					<div class="card-section">
+						<h3 class="section-label">🔥 Top beats por reproducciones</h3>
+						<div class="bar-chart">
+							{#each topBeatsByPlays as beat}
+								<a href="/admin/beats/{beat.id}" class="bar-row bar-link">
+									<span class="bar-label">{beat.name}</span>
+									<div class="bar-track">
+										<div class="bar-fill accent" style="width: {((beat.plays ?? 0) / maxPlays) * 100}%"></div>
+									</div>
+									<span class="bar-value">{beat.plays ?? 0}</span>
+								</a>
+							{/each}
+						</div>
+					</div>
+				</Card>
+			{/if}
+		</div>
+	{/if}
 
 	<!-- Recent beats -->
 	{#if beats.length > 0}
@@ -892,6 +956,84 @@
 		}
 
 		.quick-actions {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	/* Charts */
+	.dash-charts {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-4);
+		margin-bottom: var(--space-6);
+	}
+
+	.bar-chart {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+
+	.bar-row {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+	}
+
+	.bar-link {
+		text-decoration: none;
+		color: inherit;
+		padding: var(--space-1) 0;
+		border-radius: var(--radius-sm);
+		transition: background var(--duration-fast);
+	}
+
+	.bar-link:hover {
+		background: var(--surface-hover);
+	}
+
+	.bar-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-secondary);
+		width: 100px;
+		flex-shrink: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.bar-track {
+		flex: 1;
+		height: 8px;
+		background: var(--surface);
+		border-radius: 4px;
+		overflow: hidden;
+	}
+
+	.bar-fill {
+		height: 100%;
+		border-radius: 4px;
+		background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.6), rgba(var(--accent-rgb), 0.3));
+		transition: width 0.6s var(--ease-out);
+		min-width: 4px;
+	}
+
+	.bar-fill.accent {
+		background: linear-gradient(90deg, var(--accent), rgba(var(--accent-rgb), 0.5));
+	}
+
+	.bar-value {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		width: 40px;
+		text-align: right;
+		flex-shrink: 0;
+	}
+
+	@media (max-width: 768px) {
+		.dash-charts {
 			grid-template-columns: 1fr;
 		}
 	}

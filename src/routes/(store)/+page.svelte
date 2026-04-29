@@ -942,14 +942,40 @@
 		transform: translateY(-2px);
 	}
 
+	@media (max-width: 768px) {
+		.hero {
+			padding: clamp(2.5rem, 10vw, 4rem) var(--container-padding) clamp(2rem, 6vw, 3rem);
+		}
+	}
+
 	@media (max-width: 480px) {
 		.beat-grid {
 			grid-template-columns: 1fr;
 			gap: var(--space-3);
 		}
 
+		.hero {
+			padding: clamp(2rem, 8vw, 3rem) var(--container-padding) clamp(1.5rem, 5vw, 2.5rem);
+			min-height: auto !important;
+		}
+
 		.hero-title {
-			font-size: clamp(2rem, 10vw, 2.8rem);
+			font-size: clamp(1.8rem, 9vw, 2.5rem);
+		}
+
+		.hero-sub {
+			font-size: var(--text-xs);
+			margin-bottom: var(--space-4);
+		}
+
+		.hero-stats {
+			gap: var(--space-4);
+			padding-top: var(--space-4);
+			margin-top: var(--space-4);
+		}
+
+		.stat-num {
+			font-size: var(--text-xl);
 		}
 
 		.section-header {

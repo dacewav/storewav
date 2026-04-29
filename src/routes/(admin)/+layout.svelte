@@ -55,6 +55,17 @@
 	}
 	function closeSidebar() { sidebarOpen = false; }
 
+	// Sidebar collapsed (icon-only mode)
+	let sidebarCollapsed = $state(false);
+	onMount(() => {
+		const saved = localStorage.getItem('admin-sidebar-collapsed');
+		if (saved === 'true') sidebarCollapsed = true;
+	});
+	function toggleSidebarCollapsed() {
+		sidebarCollapsed = !sidebarCollapsed;
+		localStorage.setItem('admin-sidebar-collapsed', String(sidebarCollapsed));
+	}
+
 	// Preview panel (split view)
 	let previewOpen = $state(false);
 	function togglePreview() { previewOpen = !previewOpen; }
@@ -257,7 +268,10 @@
 		{#if sidebarOpen}
 			<div class="sidebar-backdrop" onclick={closeSidebar} onkeydown={(e) => e.key === 'Escape' && closeSidebar()} role="button" tabindex="-1" aria-label="Cerrar menú"></div>
 		{/if}
-		<aside class="sidebar" class:open={sidebarOpen}>
+		<aside class="sidebar" class:open={sidebarOpen} class:collapsed={sidebarCollapsed}>
+			<button class="sidebar-collapse-btn" onclick={toggleSidebarCollapsed} title={sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'} aria-label={sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}>
+				<span class="collapse-icon" class:rotated={sidebarCollapsed}>◀</span>
+			</button>
 			{#each navGroups as group, gi}
 				{#if gi > 0}
 					<div class="sep"></div>
@@ -268,12 +282,12 @@
 						href={item.href}
 						class="si"
 						class:active={item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
-						title={item.label}
+						title={sidebarCollapsed ? item.label : ''}
 						onclick={closeSidebar}
 					>
 						<span class="si-icon">{item.icon}</span>
 						<span class="si-label">{item.label}</span>
-						{#if item.shortcut}
+						{#if item.shortcut && !sidebarCollapsed}
 							<span class="si-shortcut">{item.shortcut}</span>
 						{/if}
 					</a>
@@ -430,6 +444,62 @@
 		padding: var(--space-4) 0;
 		overflow-y: auto;
 		height: 100%;
+		transition: width var(--duration-normal) var(--ease-out);
+		position: relative;
+	}
+
+	.sidebar.collapsed {
+		width: 56px;
+	}
+
+	.sidebar.collapsed .group-label {
+		display: none;
+	}
+
+	.sidebar.collapsed .si {
+		justify-content: center;
+		padding: var(--space-2) var(--space-1);
+	}
+
+	.sidebar.collapsed .si-label {
+		display: none;
+	}
+
+	.sidebar.collapsed .si-shortcut {
+		display: none;
+	}
+
+	.sidebar.collapsed .sep {
+		margin: var(--space-2) var(--space-2);
+	}
+
+	.sidebar-collapse-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 32px;
+		background: transparent;
+		border: none;
+		border-bottom: 1px solid var(--border);
+		color: var(--text-hint);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.sidebar-collapse-btn:hover {
+		color: var(--text-secondary);
+		background: var(--surface-hover);
+	}
+
+	.collapse-icon {
+		font-size: 10px;
+		transition: transform var(--duration-fast);
+		display: inline-block;
+	}
+
+	.collapse-icon.rotated {
+		transform: rotate(180deg);
 	}
 
 	.sep {
