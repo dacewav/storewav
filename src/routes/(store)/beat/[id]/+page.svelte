@@ -85,11 +85,24 @@
 	// Selected license
 	let selectedLicense = $state(-1);
 
-	// Reset on beat change + track page view
+	// Reset on beat change + track page view + auto-select cheapest license
 	$effect(() => {
 		if (beatId) {
-			selectedLicense = -1;
 			analytics.track('beat', 'page_view', { lbl: beatId });
+			// Auto-select cheapest license when beat loads
+			if (beat?.licenses?.length) {
+				let cheapestIdx = 0;
+				let lowest = Infinity;
+				for (let i = 0; i < beat.licenses.length; i++) {
+					if (beat.licenses[i].priceUSD < lowest) {
+						lowest = beat.licenses[i].priceUSD;
+						cheapestIdx = i;
+					}
+				}
+				selectedLicense = cheapestIdx;
+			} else {
+				selectedLicense = -1;
+			}
 		}
 	});
 
@@ -312,6 +325,7 @@
 						</div>
 						<div class="licenses-grid" use:staggerReveal={{ delay: 80 }}>
 							{#each beat.licenses as lic, i}
+								{@const parts = (lic.description ?? '').split('·').map(s => s.trim()).filter(Boolean)}
 								<button
 									class="license-item"
 									class:selected={selectedLicense === i}
@@ -319,8 +333,12 @@
 								>
 									<div class="license-name">{lic.name}</div>
 									<div class="license-price">${lic.priceMXN}</div>
-									{#if lic.description}
-										<div class="license-desc">{lic.description}</div>
+									{#if parts.length > 0}
+										<div class="license-details">
+											{#each parts as part}
+												<span class="license-detail-chip">{part}</span>
+											{/each}
+										</div>
 									{/if}
 								</button>
 							{/each}
@@ -808,10 +826,30 @@
 		color: var(--accent);
 	}
 
-	.license-desc {
-		font-size: var(--text-2xs);
-		color: var(--text-muted);
-		margin-top: var(--space-1);
+	.license-details {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1);
+		justify-content: center;
+		margin-top: var(--space-2);
+	}
+
+	.license-detail-chip {
+		font-family: var(--font-mono);
+		font-size: 9px;
+		padding: 2px 8px;
+		border-radius: var(--radius-full);
+		background: rgba(var(--accent-rgb), 0.06);
+		border: 1px solid rgba(var(--accent-rgb), 0.15);
+		color: var(--text-secondary);
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.license-item.selected .license-detail-chip {
+		background: rgba(var(--accent-rgb), 0.12);
+		border-color: rgba(var(--accent-rgb), 0.3);
+		color: var(--accent);
 	}
 
 	/* Buy actions */

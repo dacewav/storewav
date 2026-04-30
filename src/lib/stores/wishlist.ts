@@ -193,7 +193,10 @@ export function destroyWishlistSync() {
 	currentUid = null;
 	// Clear UID tracking so next login starts fresh
 	if (browser) localStorage.removeItem(STORAGE_UID_KEY);
-	// Keep localStorage wishlist for anonymous browsing
+	// Reload from localStorage (now anonymous — no UID match).
+	// This clears stale logged-in items from the store while
+	// preserving any anonymous browsing items.
+	store.set(loadLocal());
 }
 
 export const wishlist = {

@@ -118,14 +118,14 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 	}
 
 	// Parse body
-	let body: { items?: unknown[]; customerEmail?: string; discountCode?: string };
+	let body: { items?: unknown[]; customerEmail?: string; discountCode?: string; validateOnly?: boolean };
 	try {
 		body = await request.json();
 	} catch {
 		return json({ ok: false, error: 'Body inválido — esperaba JSON' }, { status: 400 });
 	}
 
-	const { items, customerEmail, discountCode } = body;
+	const { items, customerEmail, discountCode, validateOnly } = body;
 
 	if (!Array.isArray(items) || items.length === 0) {
 		return json({ ok: false, error: 'El carrito está vacío' }, { status: 400 });
@@ -150,7 +150,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		priceMXN: number;
 	}[];
 
-	// Validate and apply discount code
+	// Validate discount code (shared by validateOnly and full checkout)
 	let appliedDiscount: { code: string; type: 'percent' | 'fixed'; amount: number } | null = null;
 	let finalItems = validItems;
 
@@ -179,6 +179,14 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		} catch {
 			// If discount fetch fails, proceed without discount
 		}
+	}
+
+	// If only validating the discount code, return early
+	if (validateOnly) {
+		return json({
+			ok: true,
+			discount: appliedDiscount,
+		});
 	}
 
 	// Build Stripe line items

@@ -4,6 +4,7 @@
 	import Icon from './Icon.svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import { goto } from '$app/navigation';
 
 	let {
 		open = $bindable(false),
@@ -50,7 +51,13 @@
 
 		<div class="panel-body">
 			{#if wishBeats.length === 0}
-				<EmptyState icon="♡" title={emptyTitle} subtitle={emptySub} />
+				<EmptyState icon="♡" title={emptyTitle} subtitle={emptySub}>
+					{#snippet action()}
+						<button class="wish-cta" onclick={() => { open = false; goto('/'); }}>
+							Explorar beats
+						</button>
+					{/snippet}
+				</EmptyState>
 			{:else}
 				{#each wishBeats as beat (beat.id)}
 					<div class="wish-item">
@@ -223,5 +230,27 @@
 	.wish-remove:hover {
 		background: var(--danger-glow);
 		color: var(--danger);
+	}
+
+	.wish-cta {
+		display: inline-flex;
+		align-items: center;
+		padding: var(--space-3) var(--space-6);
+		min-height: var(--touch-min);
+		border: 1px solid rgba(var(--accent-rgb), 0.5);
+		border-radius: var(--radius-lg);
+		background: rgba(var(--accent-rgb), 0.1);
+		color: var(--accent);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.wish-cta:hover {
+		background: var(--accent);
+		color: var(--bg);
+		box-shadow: var(--glow-sm);
 	}
 </style>

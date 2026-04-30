@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { onNavigate } from '$app/navigation';
+	import { onNavigate, goto } from '$app/navigation';
 	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis, cartCount, unreadCount } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji, AuthButton } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { initLikes, destroyLikes } from '$lib/stores/likes';
-	import { initWishlistSync } from '$lib/stores/wishlist';
+	import { initWishlistSync, destroyWishlistSync } from '$lib/stores/wishlist';
 	import { initNotifications, destroyNotifications } from '$lib/stores/notifications';
 	import { initOneTap, signInWithIdToken, dismissOneTap } from '$lib/oneTap';
 	import { PUBLIC_GOOGLE_CLIENT_ID } from '$env/static/public';
@@ -28,6 +28,7 @@
 	let isDark = $state(true);
 	let mobileMenuEl: HTMLElement | undefined = $state();
 	let wishlistOpen = $state(false);
+	let mobileSearch = $state('');
 
 	// Settings from Firebase
 	let settingsData = $derived($settings.data);
@@ -95,7 +96,7 @@
 			dismissOneTap();
 		}
 
-		return () => { destroyLikes(); destroyNotifications(); };
+		return () => { destroyLikes(); destroyWishlistSync(); destroyNotifications(); };
 	});
 
 	// Floating elements
@@ -144,6 +145,21 @@
 
 	function closeMenu() {
 		menuOpen = false;
+	}
+
+	function handleMobileSearch() {
+		const q = mobileSearch.trim();
+		closeMenu();
+		if (page.url.pathname === '/') {
+			// Already on home — scroll to beats section and dispatch search
+			document.getElementById('beats')?.scrollIntoView({ behavior: 'smooth' });
+			// Dispatch a custom event that the Filters component can listen to
+			window.dispatchEvent(new CustomEvent('mobile-search', { detail: q }));
+		} else {
+			// Navigate to home with search query
+			goto(`/?q=${encodeURIComponent(q)}#beats`);
+		}
+		mobileSearch = '';
 	}
 
 	/** Focus trap para mobile menu */
@@ -492,6 +508,20 @@
 				<span class="mm-brand">{brandSplit.last ? `${brandSplit.first}${brandSplit.last}` : brandName}</span>
 				<button class="mm-close" onclick={closeMenu} aria-label="Cerrar menú">
 					<Icon name="close" size={18} />
+				</button>
+			</div>
+
+			<!-- Search bar -->
+			<div class="mm-search">
+				<input
+					type="text"
+					class="mm-search-input"
+					placeholder="Buscar beats..."
+					bind:value={mobileSearch}
+					onkeydown={(e) => e.key === 'Enter' && handleMobileSearch()}
+				/>
+				<button class="mm-search-btn" onclick={handleMobileSearch} aria-label="Buscar">
+					<Icon name="search" size={16} />
 				</button>
 			</div>
 
@@ -888,6 +918,56 @@
 	.mm-close:hover {
 		border-color: var(--accent);
 		color: var(--accent);
+	}
+
+	/* Mobile search */
+	.mm-search {
+		display: flex;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-4);
+		border-bottom: 1px solid var(--border);
+	}
+
+	.mm-search-input {
+		flex: 1;
+		padding: var(--space-3) var(--space-4);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		outline: none;
+		min-height: var(--touch-min);
+		transition: border-color var(--duration-fast);
+	}
+
+	.mm-search-input:focus {
+		border-color: var(--accent);
+	}
+
+	.mm-search-input::placeholder {
+		color: var(--text-muted);
+	}
+
+	.mm-search-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--touch-min);
+		min-height: var(--touch-min);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		background: var(--accent);
+		color: var(--bg);
+		cursor: pointer;
+		flex-shrink: 0;
+		transition: all var(--duration-fast);
+	}
+
+	.mm-search-btn:hover {
+		background: var(--accent-dim);
+		box-shadow: var(--glow-sm);
 	}
 
 	/* Mobile nav links */

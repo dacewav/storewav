@@ -19,6 +19,33 @@
 	let discountError = $state('');
 	let appliedDiscount = $state<{ code: string; type: 'percent' | 'fixed'; amount: number } | null>(null);
 
+	async function applyDiscount() {
+		if (!discountCode.trim()) return;
+		discountLoading = true;
+		discountError = '';
+
+		try {
+			const resp = await fetch('/api/checkout', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ items, discountCode: discountCode.trim(), validateOnly: true }),
+			});
+
+			const data = await resp.json() as { ok?: boolean; discount?: { code: string; type: 'percent' | 'fixed'; amount: number }; error?: string };
+
+			if (data.ok && data.discount) {
+				appliedDiscount = data.discount;
+				analytics.track('discount', 'apply', { lbl: discountCode.trim() });
+			} else {
+				discountError = data.error ?? 'Código inválido';
+			}
+		} catch {
+			discountError = 'Error de conexión';
+		} finally {
+			discountLoading = false;
+		}
+	}
+
 	function removeItem(item: CartItem) {
 		cart.remove(item.beatId, item.licenseIndex);
 		analytics.track('cart', 'remove', { lbl: item.beatId, meta: item.licenseName });
@@ -86,8 +113,11 @@
 			icon="🛒"
 			title="Tu carrito está vacío"
 			subtitle="Agrega beats desde el catálogo para empezar tu compra"
-		/>
-		<a href="/" class="cart-back">Volver al catálogo</a>
+		>
+			{#snippet action()}
+				<a href="/" class="cart-back">Explorar beats</a>
+			{/snippet}
+		</EmptyState>
 	{:else}
 		<div class="cart-layout">
 			<!-- Items list -->
@@ -122,6 +152,11 @@
 				{/each}
 			</div>
 
+			<!-- Continue shopping -->
+			<a href="/" class="continue-shopping">
+				← Seguir comprando
+			</a>
+
 			<!-- Summary -->
 			<div class="cart-summary">
 				<h2 class="summary-title">Resumen</h2>
@@ -148,7 +183,15 @@
 								bind:value={discountCode}
 								disabled={discountLoading}
 								maxlength={30}
+								onkeydown={(e) => e.key === 'Enter' && applyDiscount()}
 							/>
+							<button
+								class="discount-apply-btn"
+								onclick={applyDiscount}
+								disabled={discountLoading || !discountCode.trim()}
+							>
+								{discountLoading ? '...' : 'Aplicar'}
+							</button>
 						</div>
 						{#if discountError}
 							<p class="discount-error">{discountError}</p>
@@ -208,12 +251,25 @@
 	}
 
 	.cart-back {
-		display: inline-block;
-		margin-top: var(--space-4);
+		display: inline-flex;
+		align-items: center;
+		padding: var(--space-3) var(--space-6);
+		min-height: var(--touch-min);
+		border: 1px solid rgba(var(--accent-rgb), 0.5);
+		border-radius: var(--radius-lg);
+		background: rgba(var(--accent-rgb), 0.1);
+		color: var(--accent);
 		font-family: var(--font-mono);
 		font-size: var(--text-sm);
-		color: var(--accent);
+		font-weight: 600;
 		text-decoration: none;
+		transition: all var(--duration-fast);
+	}
+
+	.cart-back:hover {
+		background: var(--accent);
+		color: var(--bg);
+		box-shadow: var(--glow-sm);
 	}
 
 	.cart-layout {
@@ -228,6 +284,23 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-3);
+	}
+
+	.continue-shopping {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		text-decoration: none;
+		letter-spacing: 0.04em;
+		transition: color var(--duration-fast);
+		margin-top: var(--space-2);
+	}
+
+	.continue-shopping:hover {
+		color: var(--accent);
 	}
 
 	.cart-item {
@@ -498,6 +571,30 @@
 
 	.discount-input:disabled {
 		opacity: 0.5;
+	}
+
+	.discount-apply-btn {
+		padding: var(--space-2) var(--space-4);
+		background: var(--accent);
+		color: var(--bg);
+		border: none;
+		border-radius: var(--radius-sm);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+		transition: all var(--duration-fast);
+		min-height: 36px;
+	}
+
+	.discount-apply-btn:hover:not(:disabled) {
+		background: var(--accent-dim);
+	}
+
+	.discount-apply-btn:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
 	}
 
 	.discount-applied {
