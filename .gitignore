@@ -34,6 +34,10 @@ IDENTITY.md
 HEARTBEAT.md
 BOOTSTRAP.md
 
+# Session prompts and rules archive
+SESSION-*.md
+rules-pack.tar.gz
+
 # Rules backup archive
 rules-pack.tar.gz
 static/uploads/

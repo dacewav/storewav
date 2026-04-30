@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
 import { FIREBASE_DB } from '$lib/firebaseDb';
+import { PUBLIC_ADMIN_UIDS } from '$env/static/public';
 
 /**
  * POST /api/upload
@@ -56,8 +57,9 @@ async function verifyFirebaseToken(idToken: string): Promise<{ uid: string; emai
 
 /** Check if user is admin via Firebase RTDB REST API (with auth token) */
 async function checkIsAdmin(uid: string, idToken?: string): Promise<boolean> {
-	// Hardcoded super-admin
-	if (uid === 'Uks9YGSd6rS40zqlRujoe6pE6N22') return true;
+	// Fast path: local UIDs from env var
+	const adminUids = (PUBLIC_ADMIN_UIDS ?? '').split(',').map(s => s.trim()).filter(Boolean);
+	if (adminUids.includes(uid)) return true;
 
 	try {
 		const authParam = idToken ? `?auth=${idToken}` : '';
