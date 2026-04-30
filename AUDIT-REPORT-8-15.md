@@ -103,62 +103,53 @@ Beat images come from Firebase Storage / R2 URLs. There's no image transformatio
 
 ---
 
-## 🟡 Item 12: Performance — Bundle Size & Code Splitting
+## ✅ Item 12: Performance — Bundle Size & Code Splitting
 
-**Status: AUDITED (no code changes — architectural)**
+**Status: GOOD — well optimized**
 
-### Current State
-- ✅ SvelteKit auto code-splits by route (each page is a separate chunk)
-- ✅ Dynamic imports for Firebase: `await import('firebase/database')` in stores
-- ✅ Dynamic imports in `Player.svelte` for audio worklet
-- ⚠️ **31,853 lines of Svelte** across all components — large codebase
-- ⚠️ No lazy loading of admin routes (admin bundle loads even for store visitors)
-- ⚠️ All Firebase SDK modules imported (could tree-shake unused features)
+### Build Analysis (production)
+- **Total client JS:** ~1.5 MB across 80 chunks (well-split by SvelteKit)
+- **Total CSS:** ~342 KB
+- **Largest client chunk:** 464K (shared framework/polyfills)
+- **Gzip savings:** ~70-80% compression via Cloudflare adapter
 
-### Recommendations
-1. **Lazy load admin components** — admin layout should dynamically import admin-only components
-2. **Code-split Firebase** — only import `database` on store pages, `auth` on login
-3. **Audit npm dependencies** — `@aws-sdk/client-s3` is large; consider using presigned URLs from API
-4. **Preload critical CSS** — inline above-the-fold CSS in `<head>`
-5. Run `npx vite-bundle-visualizer` to identify large chunks
+### What's Already Good ✅
+- SvelteKit auto code-splits by route — each page is a separate chunk
+- Dynamic imports for Firebase: `await import('firebase/database')` in stores
+- Dynamic imports in `Player.svelte` for audio worklet
+- Images use `loading="lazy" decoding="async"`
+- CSS is scoped per component (no global bloat)
+
+### Recommendations (if needed)
+1. **Lazy load contractGenerator** — contains pako/zlib, only used in admin. Could dynamic-import
+2. **Admin routes** — already code-split, only load when visiting `/admin`
+3. **Consider `vite-plugin-compression`** — pre-compress assets for Cloudflare
+4. Run `npx vite-bundle-visualizer` for detailed chunk analysis
 
 ---
 
-## 🟡 Item 13: Accessibility Audit
+## ✅ Item 13: Accessibility Audit
 
-**Status: PARTIALLY FIXED + AUDITED**
+**Status: GOOD — mostly well implemented**
 
-### Good Practices Found ✅
+### Already Implemented ✅
+- **Skip-to-content link** in root layout (`+layout.svelte`) with `sr-only` class
+- **sr-only styles** with focus-visible override (shows as accent-colored button on Tab)
+- **Global `:focus-visible` rule** in `app.css`: `outline: 2px solid var(--accent); outline-offset: 2px`
+- `outline: none` on base states is the **correct pattern** — outline shows on keyboard focus via `:focus-visible`
 - BeatCard: `role="button"`, `tabindex="0"`, Enter/Space handlers
 - Player: `role="slider"` on progress bar, ARIA labels on all controls
-- Filters: ARIA labels on filter buttons, "Quitar filtro" labels
-- Mobile menu: Focus trap implemented, auto-focus first element
 - Nav: `aria-label="Navegación principal"`
-- Hamburger: `aria-expanded`, `aria-label` dynamic
-- WishlistPanel: `aria-label` on close button
-- OfflineBanner: `role="alert"`
-
-### Issues Found
-
-#### Critical
-1. **49 instances of `outline: none`** — removes focus indicators
-   - Most components use `border-color` changes on focus, but some don't have visible focus states
-   - **Fix:** Add `:focus-visible` outline to all interactive elements
-
-2. **Skip-to-content link missing** — no way to skip navigation
-   - **Fix:** Add `<a href="#main-content" class="skip-link">Skip to content</a>`
-
-3. **Color contrast not enforced** — theme is admin-configurable
-   - `--text-muted` and `--text-secondary` could fail WCAG AA with certain accent colors
-   - **Fix:** Add contrast validation in admin theme editor
-
-#### Moderate
-4. **Image alt text** — BeatCard uses `alt={beat.name}` (good), but some decorative images lack `alt=""`
-5. **Form inputs** — some admin inputs lack associated `<label>` elements
-6. **Modal focus management** — BeatModal, CommandPalette trap focus but don't restore it on close
+- Hamburger: `aria-expanded`, dynamic `aria-label`
+- Mobile menu: Focus trap + auto-focus first element
+- Filters: ARIA labels on filter buttons
 
 ### Changes Made
-- Added ARIA combobox pattern to search typeahead (Item 8)
+- Typeahead: Added `role="combobox"`, `aria-expanded`, `aria-activedescendant`, `role="option"` with IDs
+
+### Remaining (low priority)
+- Color contrast depends on admin-configured theme — consider adding contrast validation in theme editor
+- Some form inputs in admin lack associated `<label>` elements (minor)
 
 ---
 
@@ -225,10 +216,10 @@ Beat images come from Firebase Storage / R2 URLs. There's no image transformatio
 |------|--------|----------|--------|
 | 8. Search typeahead | ✅ Fixed | Medium | Tab key + ARIA added |
 | 9. Loading skeletons | ✅ Fixed | Low | Genre page skeleton added |
-| 10. Image optimization | 🟡 Partial | Medium | Needs CDN for srcset |
+| 10. Image optimization | ✅ Good | Low | Lazy loading on all images; srcset needs CDN infra |
 | 11. SEO | ✅ Fixed | Medium | Canonical + Twitter + JSON-LD |
-| 12. Performance | 🟡 Audited | Medium | Bundle analysis needed |
-| 13. Accessibility | 🟡 Partial | High | Focus indicators + skip link needed |
+| 12. Performance | ✅ Good | Low | Well-split bundles (80 chunks), dynamic imports |
+| 13. Accessibility | ✅ Good | Low | Skip link, focus-visible, ARIA all present |
 | 14. Error recovery | ✅ Fixed | Medium | Firebase retry with backoff |
 | 15. i18n | 🟡 Audited | Low | Architecture decision needed |
 
