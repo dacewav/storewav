@@ -248,39 +248,60 @@
 				</button>
 				{#if showPriceRange}
 					<div class="price-range-body">
-						<div class="price-labels">
-							<span class="price-val">${localPriceMin || priceRange.min}</span>
-							<span class="price-val">${localPriceMax || priceRange.max}</span>
+						<div class="price-inputs">
+							<div class="price-field">
+								<label class="price-label" for="price-min-input">Mín</label>
+								<div class="price-input-wrap">
+									<span class="price-symbol">$</span>
+									<input
+										id="price-min-input"
+										type="number"
+										class="price-input"
+										min={priceRange.min}
+										max={priceRange.max}
+										step="50"
+										placeholder={String(priceRange.min)}
+										value={localPriceMin || ''}
+										oninput={(e) => {
+											localPriceMin = Math.max(0, +e.currentTarget.value);
+											if (localPriceMax > 0 && localPriceMin > localPriceMax) localPriceMin = localPriceMax;
+											update('priceMin', localPriceMin);
+										}}
+										aria-label="Precio mínimo"
+									/>
+								</div>
+							</div>
+							<span class="price-dash">—</span>
+							<div class="price-field">
+								<label class="price-label" for="price-max-input">Máx</label>
+								<div class="price-input-wrap">
+									<span class="price-symbol">$</span>
+									<input
+										id="price-max-input"
+										type="number"
+										class="price-input"
+										min={priceRange.min}
+										max={priceRange.max}
+										step="50"
+										placeholder={String(priceRange.max)}
+										value={localPriceMax || ''}
+										oninput={(e) => {
+											localPriceMax = Math.max(0, +e.currentTarget.value);
+											if (localPriceMin > 0 && localPriceMax < localPriceMin) localPriceMax = localPriceMin;
+											update('priceMax', localPriceMax);
+										}}
+										aria-label="Precio máximo"
+									/>
+								</div>
+							</div>
+							<span class="price-currency">MXN</span>
 						</div>
-						<div class="range-sliders">
-							<input
-								type="range"
-								class="range-input"
-								min={priceRange.min}
-								max={priceRange.max}
-								step="50"
-								value={localPriceMin || priceRange.min}
-								oninput={(e) => {
-									localPriceMin = +e.currentTarget.value;
-									if (localPriceMax > 0 && localPriceMin > localPriceMax) localPriceMin = localPriceMax;
-									update('priceMin', localPriceMin);
-								}}
-								aria-label="Precio mínimo"
-							/>
-							<input
-								type="range"
-								class="range-input"
-								min={priceRange.min}
-								max={priceRange.max}
-								step="50"
-								value={localPriceMax || priceRange.max}
-								oninput={(e) => {
-									localPriceMax = +e.currentTarget.value;
-									if (localPriceMin > 0 && localPriceMax < localPriceMin) localPriceMax = localPriceMin;
-									update('priceMax', localPriceMax);
-								}}
-								aria-label="Precio máximo"
-							/>
+						<!-- Quick presets -->
+						<div class="price-presets">
+							<button class="preset-btn" onclick={() => { localPriceMin = 0; localPriceMax = 500; update('priceMin', 0); update('priceMax', 500); }}>{"< $500"}</button>
+							<button class="preset-btn" onclick={() => { localPriceMin = 500; localPriceMax = 1000; update('priceMin', 500); update('priceMax', 1000); }}>$500 – $1k</button>
+							<button class="preset-btn" onclick={() => { localPriceMin = 1000; localPriceMax = 2000; update('priceMin', 1000); update('priceMax', 2000); }}>$1k – $2k</button>
+							<button class="preset-btn" onclick={() => { localPriceMin = 2000; localPriceMax = 0; update('priceMin', 2000); update('priceMax', 0); }}>{"$2k+"}</button>
 						</div>
 					</div>
 				{/if}
@@ -709,65 +730,123 @@
 		background: var(--surface);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
 		animation: filtersSlideIn 0.15s var(--ease-out);
 	}
 
-	.price-labels {
+	.price-inputs {
 		display: flex;
-		justify-content: space-between;
-		margin-bottom: var(--space-2);
+		align-items: flex-end;
+		gap: var(--space-2);
 	}
 
-	.price-val {
+	.price-field {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+	}
+
+	.price-label {
 		font-family: var(--font-mono);
-		font-size: var(--text-sm);
-		font-weight: 600;
-		color: var(--accent);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
 	}
 
-	.range-sliders {
-		position: relative;
-		height: 32px;
+	.price-input-wrap {
 		display: flex;
 		align-items: center;
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		transition: border-color var(--duration-fast);
 	}
 
-	.range-input {
-		position: absolute;
-		width: 100%;
-		height: 4px;
-		background: transparent;
-		appearance: none;
+	.price-input-wrap:focus-within {
+		border-color: var(--accent);
+		box-shadow: 0 0 0 3px var(--accent-glow);
+	}
+
+	.price-symbol {
+		padding: 0 var(--space-2);
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
 		pointer-events: none;
+	}
+
+	.price-input {
+		flex: 1;
+		width: 100%;
+		padding: var(--space-2) var(--space-2);
+		background: transparent;
+		border: none;
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
 		outline: none;
+		min-width: 0;
 	}
 
-	.range-input::-webkit-slider-thumb {
-		appearance: none;
-		width: 18px;
-		height: 18px;
-		border-radius: 50%;
-		background: var(--accent);
-		border: 2px solid var(--bg);
+	.price-input::placeholder {
+		color: var(--text-muted);
+		opacity: 0.5;
+	}
+
+	/* Hide number input spinners */
+	.price-input::-webkit-outer-spin-button,
+	.price-input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+	.price-input[type="number"] {
+		appearance: textfield;
+		-moz-appearance: textfield;
+	}
+
+	.price-dash {
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		padding-bottom: var(--space-2);
+	}
+
+	.price-currency {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		padding-bottom: var(--space-2);
+		letter-spacing: 0.04em;
+	}
+
+	.price-presets {
+		display: flex;
+		gap: var(--space-1);
+		flex-wrap: wrap;
+	}
+
+	.preset-btn {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		padding: var(--space-1) var(--space-3);
+		border-radius: var(--radius-full);
+		border: 1px solid var(--border);
+		background: transparent;
+		color: var(--text-muted);
 		cursor: pointer;
-		pointer-events: all;
-		box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.4);
+		transition: all var(--duration-fast);
+		white-space: nowrap;
+		letter-spacing: 0.02em;
 	}
 
-	.range-input::-moz-range-thumb {
-		width: 18px;
-		height: 18px;
-		border-radius: 50%;
-		background: var(--accent);
-		border: 2px solid var(--bg);
-		cursor: pointer;
-		pointer-events: all;
-	}
-
-	.range-input::-webkit-slider-runnable-track {
-		height: 4px;
-		background: var(--border);
-		border-radius: 2px;
+	.preset-btn:hover {
+		border-color: var(--accent);
+		color: var(--accent);
+		background: rgba(var(--accent-rgb), 0.06);
 	}
 
 	/* Typeahead */

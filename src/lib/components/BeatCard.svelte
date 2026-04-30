@@ -140,136 +140,167 @@
 	tabindex="0"
 	style={inlineCSS || undefined}
 >
-	<!-- Shimmer overlay -->
+	<!-- Shimmer overlay (on outer, covers glow area) -->
 	{#if hasShimmer}
 		<div class="shimmer-overlay" style={shimmerInlineCSS}></div>
 	{/if}
 
-	<!-- Featured badge -->
+	<!-- Featured badge (on outer, above inner) -->
 	{#if beat.featured}
 		<span class="featured-badge">TOP</span>
 	{/if}
 
-	<!-- Now playing indicator -->
-	{#if isCurrentBeat}
-		<div class="now-playing-indicator">
-			<span class="eq-bar"></span>
-			<span class="eq-bar"></span>
-			<span class="eq-bar"></span>
-			<span class="eq-bar"></span>
-		</div>
-	{/if}
-
-	<!-- Cover -->
-	<div class="beat-cover">
-		{#if beat.imageUrl}
-			<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" style={imageCSS || undefined} />
-		{:else}
-			<div class="beat-cover-placeholder" style="background: {genreGradient(beat.genre)}">
-				<span class="placeholder-genre">{beat.genre}</span>
-			</div>
-		{/if}
-
-		<!-- Play overlay -->
-		<button class="beat-play" onclick={handlePlay} aria-label="Reproducir {beat.name}">
-			<Icon name="play" size={20} />
-		</button>
-
-		<!-- Wishlist -->
-		<button class="beat-wish" class:active={$inWishlist} onclick={handleWishlist} aria-label="{$inWishlist ? 'Quitar de' : 'Añadir a'} favoritos" aria-pressed={$inWishlist}>
-			<Icon name="heart" size={14} filled={$inWishlist} />
-		</button>
-
-		<!-- Quick add to cart -->
-		<button class="beat-cart-btn" onclick={handleAddToCart} aria-label="Agregar al carrito" title="Agregar al carrito">
-			<Icon name="shoppingCart" size={14} />
-		</button>
-
-		<!-- Plays badge -->
-		{#if (beat.plays ?? 0) > 0}
-			<span class="beat-plays">🔥 {beat.plays}</span>
-		{/if}
-
-		<!-- Genre badge -->
-		<span class="beat-genre">{beat.genre}</span>
-
-		<!-- Cover overlay from style engine -->
-		{#if cardStyle.coverOverlay}
-			<div class="beat-cover-overlay" style="background: {cardStyle.coverOverlay};"></div>
-		{/if}
-
-		<!-- Waveform bars when playing — organic heights with gradient -->
+	<div class="beat-card-inner">
+		<!-- Now playing indicator -->
 		{#if isCurrentBeat}
-			<div class="card-waveform">
-				{#each Array(16) as _, i}
-					{@const t = i / 15}
-					{@const seed = (beat.name?.charCodeAt(i % (beat.name.length || 1)) ?? 0) * 7}
-					{@const h = 18 + 15 * Math.sin(t * Math.PI * 2 + seed * 0.1) + (seed % 35)}
-					<div class="wave-bar" style="--delay: {i * 0.06}s; --h: {h}%"></div>
-				{/each}
+			<div class="now-playing-indicator">
+				<span class="eq-bar"></span>
+				<span class="eq-bar"></span>
+				<span class="eq-bar"></span>
+				<span class="eq-bar"></span>
 			</div>
 		{/if}
-	</div>
 
-	<!-- Info -->
-	<div class="beat-info" style={layoutCSS || undefined}>
-		<div class="beat-title" style={titleCSS || undefined}>{beat.name}</div>
-		<div class="beat-meta">
-			<span>{beat.bpm} BPM</span>
-			<span class="meta-dot">·</span>
-			<span>{beat.key}</span>
-			{#if beatLikeCount > 0}
-				<span class="meta-dot">·</span>
-				<span class="meta-likes">❤️ {beatLikeCount}</span>
+		<!-- Cover -->
+		<div class="beat-cover">
+			{#if beat.imageUrl}
+				<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" style={imageCSS || undefined} />
+			{:else}
+				<div class="beat-cover-placeholder" style="background: {genreGradient(beat.genre)}">
+					<span class="placeholder-genre">{beat.genre}</span>
+				</div>
+			{/if}
+
+			<!-- Play overlay -->
+			<button class="beat-play" onclick={handlePlay} aria-label="Reproducir {beat.name}">
+				<Icon name="play" size={20} />
+			</button>
+
+			<!-- Wishlist -->
+			<button class="beat-wish" class:active={$inWishlist} onclick={handleWishlist} aria-label="{$inWishlist ? 'Quitar de' : 'Añadir a'} favoritos" aria-pressed={$inWishlist}>
+				<Icon name="heart" size={14} filled={$inWishlist} />
+			</button>
+
+			<!-- Quick add to cart -->
+			<button class="beat-cart-btn" onclick={handleAddToCart} aria-label="Agregar al carrito" title="Agregar al carrito">
+				<Icon name="shoppingCart" size={14} />
+			</button>
+
+			<!-- Plays badge -->
+			{#if (beat.plays ?? 0) > 0}
+				<span class="beat-plays">🔥 {beat.plays}</span>
+			{/if}
+
+			<!-- Genre badge -->
+			<span class="beat-genre">{beat.genre}</span>
+
+			<!-- Cover overlay from style engine -->
+			{#if cardStyle.coverOverlay}
+				<div class="beat-cover-overlay" style="background: {cardStyle.coverOverlay};"></div>
+			{/if}
+
+			<!-- Waveform bars when playing — organic heights with gradient -->
+			{#if isCurrentBeat}
+				<div class="card-waveform">
+					{#each Array(16) as _, i}
+						{@const t = i / 15}
+						{@const seed = (beat.name?.charCodeAt(i % (beat.name.length || 1)) ?? 0) * 7}
+						{@const h = 18 + 15 * Math.sin(t * Math.PI * 2 + seed * 0.1) + (seed % 35)}
+						<div class="wave-bar" style="--delay: {i * 0.06}s; --h: {h}%"></div>
+					{/each}
+				</div>
 			{/if}
 		</div>
-		{#if beat.tags?.length}
-			<div class="beat-tags">
-				{#each beat.tags.slice(0, 3) as tag}
-					<span class="beat-tag" style={tagCSS || undefined}>{tag}</span>
-				{/each}
+
+		<!-- Info -->
+		<div class="beat-info" style={layoutCSS || undefined}>
+			<div class="beat-title" style={titleCSS || undefined}>{beat.name}</div>
+			<div class="beat-meta">
+				<span>{beat.bpm} BPM</span>
+				<span class="meta-dot">·</span>
+				<span>{beat.key}</span>
+				{#if beatLikeCount > 0}
+					<span class="meta-dot">·</span>
+					<span class="meta-likes">❤️ {beatLikeCount}</span>
+				{/if}
 			</div>
-		{/if}
-		<div class="beat-price" style={priceCSS || undefined}>
-			<span class="price-from">{labelFrom}</span>
-			<span class="price-amount">${lowestPrice(beat)}</span>
+			{#if beat.tags?.length}
+				<div class="beat-tags">
+					{#each beat.tags.slice(0, 3) as tag}
+						<span class="beat-tag" style={tagCSS || undefined}>{tag}</span>
+					{/each}
+				</div>
+			{/if}
+			<div class="beat-price" style={priceCSS || undefined}>
+				<span class="price-from">{labelFrom}</span>
+				<span class="price-amount">${lowestPrice(beat)}</span>
+			</div>
 		</div>
 	</div>
 </div>
 
 <style>
+	/* ── Outer card (glow, transforms, animations) ── */
 	.beat-card {
 		position: relative;
-		background: var(--surface);
-		border: 1px solid var(--border);
 		border-radius: var(--card-radius);
-		overflow: hidden;
 		cursor: pointer;
 		transition: all var(--duration-normal) var(--ease-out);
-		box-shadow: var(--card-shadow);
 		--hover-scale: 1;
 		--hover-translate-y: -3px;
 	}
 
-	.beat-card:hover {
+	/* ── Inner card (background, border, shadow, content) ── */
+	.beat-card-inner {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--card-radius);
+		overflow: hidden;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		transition: border-color var(--duration-normal), box-shadow var(--duration-normal);
+		box-shadow: var(--card-shadow);
+	}
+
+	.beat-card:hover .beat-card-inner {
 		border-color: var(--hover-border-color, var(--border-hover-accent));
 		box-shadow: var(--card-shadow-hover);
+	}
+
+	.beat-card:hover {
 		transform: scale(var(--hover-scale)) translateY(var(--hover-translate-y));
 		filter: brightness(var(--hover-brightness, 1)) saturate(var(--hover-saturate, 1)) hue-rotate(var(--hover-hue-rotate, 0deg)) blur(0px) !important;
 		opacity: var(--hover-opacity, 1);
 		transition-duration: var(--hover-transition, var(--duration-normal));
 	}
 
+	/* Tint overlay on inner (CATALOG-style accent wash) */
+	.beat-card-inner::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 0.4s;
+		background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.3), transparent);
+		mix-blend-mode: overlay;
+		border-radius: inherit;
+	}
+
+	.beat-card:hover .beat-card-inner::after {
+		opacity: 0.15;
+	}
+
 	/* ── Play Pulse Ring ── */
 	.beat-card.play-pulse {
-		/* Override inline animation from cardStyleEngine */
 		animation: playPulseRing 0.6s ease-out !important;
 	}
 
 	@keyframes playPulseRing {
-		0% { box-shadow: var(--card-shadow), 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
-		70% { box-shadow: var(--card-shadow), 0 0 0 12px rgba(var(--accent-rgb), 0); }
-		100% { box-shadow: var(--card-shadow), 0 0 0 0 rgba(var(--accent-rgb), 0); }
+		0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
+		70% { box-shadow: 0 0 0 12px rgba(var(--accent-rgb), 0); }
+		100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
 	}
 
 	/* ── Featured Badge ── */
