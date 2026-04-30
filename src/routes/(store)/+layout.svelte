@@ -34,7 +34,13 @@
 	let settingsData = $derived($settings.data);
 	let brandName = $derived(settingsData?.brand?.name ?? 'DACEWAV');
 	let brandLogo = $derived(settingsData?.brand?.logo ?? '');
+	let logoFailed = $state(false);
 	let logoHeight = $derived(settingsData?.layout?.logoHeight ?? 28);
+
+	// Reset logo failure state when URL changes
+	$effect(() => {
+		if (brandLogo) logoFailed = false;
+	});
 	let brandSplit = $derived.by(() => {
 		const name = brandName;
 		if (name.length > 4) {
@@ -441,8 +447,8 @@
 	<!-- Nav -->
 	<nav class="nav" class:n-hidden={navHidden} class:n-scrolled={navScrolled} aria-label="Navegación principal" style="min-height: {navHeight}px">
 		<a href="/" class="nav-brand{animLogo && animLogo !== 'none' ? ` anim-${animLogo}` : ''}" onclick={closeMenu}>
-			{#if brandLogo}
-				<img class="nav-logo" src={brandLogo} alt={brandName} decoding="async" style="height: {logoHeight > 0 ? logoHeight : 28}px" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
+			{#if brandLogo && !logoFailed}
+				<img class="nav-logo" src={brandLogo} alt={brandName} decoding="async" style="height: {logoHeight > 0 ? logoHeight : 28}px" onerror={() => { logoFailed = true; }} />
 			{:else if brandSplit.last}
 				<span>{brandSplit.first}</span><em>{brandSplit.last}</em>.
 			{:else}
