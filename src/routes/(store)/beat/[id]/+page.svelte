@@ -133,14 +133,21 @@
 	{#if beat}
 		<title>{beat.name} — {beat.artist ?? ''}</title>
 		<meta name="description" content={stripEmojis(beat.description ?? '') || `${beat.name}${beat.artist ? ` de ${beat.artist}` : ''}. ${beat.bpm} BPM, ${beat.key}, ${beat.genre}.`} />
+		<link rel="canonical" href="https://dacewav.store/beat/{getBeatSlug(beat)}" />
 		<meta property="og:title" content="{beat.name}{beat.artist ? ` — ${beat.artist}` : ''}" />
 		<meta property="og:description" content={stripEmojis(beat.description ?? '') || `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`} />
+		<meta property="og:url" content="https://dacewav.store/beat/{getBeatSlug(beat)}" />
 		{#if beat.imageUrl}
 			<meta property="og:image" content={beat.imageUrl} />
+			<meta name="twitter:image" content={beat.imageUrl} />
 		{:else if s?.brand?.logo}
 			<meta property="og:image" content={s.brand.logo} />
+			<meta name="twitter:image" content={s.brand.logo} />
 		{/if}
 		<meta property="og:type" content="music.song" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="{beat.name}{beat.artist ? ` — ${beat.artist}` : ''}" />
+		<meta name="twitter:description" content={stripEmojis(beat.description ?? '') || `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`} />
 		{@html `<script type="application/ld+json">${JSON.stringify({
 			'@context': 'https://schema.org',
 			'@type': 'MusicRecording',

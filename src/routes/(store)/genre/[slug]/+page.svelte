@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { beatsList, settings, player, analytics } from '$lib/stores';
+	import { beatsList, settings, player, analytics, beats as beatsStore } from '$lib/stores';
 	import { BeatCard, EmptyState, Skeleton } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { getBeatSlug } from '$lib/slug';
@@ -28,7 +28,7 @@
 
 	// Beats for this genre
 	let genreBeats = $derived(beats.filter(b => b.genre.toLowerCase() === genreName.toLowerCase()));
-	let loading = $derived(false); // beatsList is already loaded from store
+	let loading = $derived($beatsStore.loading);
 
 	// Other genres for "explore more"
 	let otherGenres = $derived.by(() => {
@@ -71,8 +71,20 @@
 <svelte:head>
 	<title>{genreName} — {brandName}</title>
 	<meta name="description" content="Beats de {genreName}. Explora instrumentales de {genreName.toLowerCase()} profesionales para tu próximo hit." />
+	<link rel="canonical" href="https://dacewav.store/genre/{slug}" />
 	<meta property="og:title" content="{genreName} — {brandName}" />
 	<meta property="og:description" content="Beats de {genreName} profesionales" />
+	<meta property="og:url" content="https://dacewav.store/genre/{slug}" />
+	<meta property="og:type" content="music.genre" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content="{genreName} — {brandName}" />
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		'@context': 'https://schema.org',
+		'@type': 'MusicGenre',
+		name: genreName,
+		url: `https://dacewav.store/genre/${slug}`,
+		description: `Beats de ${genreName.toLowerCase()} profesionales`
+	})}</script>`}
 </svelte:head>
 
 <div class="genre-page">
@@ -92,7 +104,13 @@
 	</section>
 
 	<!-- Beats grid -->
-	{#if genreBeats.length > 0}
+	{#if loading}
+		<div class="genre-grid">
+			{#each Array(6) as _}
+				<Skeleton lines={3} />
+			{/each}
+		</div>
+	{:else if genreBeats.length > 0}
 		<div class="genre-grid">
 			{#each genreBeats as beat (beat.id)}
 				<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom="Desde" />

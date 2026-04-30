@@ -128,11 +128,18 @@
 				oninput={() => { onchange?.(filters); typeaheadIndex = -1; }}
 				onfocus={() => searchFocused = true}
 				onblur={() => setTimeout(() => searchFocused = false, 200)}
+				role="combobox"
+				aria-expanded={showTypeahead}
+				aria-controls="typeahead-listbox"
+				aria-activedescendant={typeaheadIndex >= 0 ? `typeahead-option-${typeaheadIndex}` : undefined}
+				aria-label="Buscar beats"
+				autocomplete="off"
 				onkeydown={(e) => {
 					if (!showTypeahead) return;
 					if (e.key === 'ArrowDown') { e.preventDefault(); typeaheadIndex = Math.min(typeaheadIndex + 1, typeaheadResults.length - 1); }
 					else if (e.key === 'ArrowUp') { e.preventDefault(); typeaheadIndex = Math.max(typeaheadIndex - 1, -1); }
 					else if (e.key === 'Enter' && typeaheadIndex >= 0) { e.preventDefault(); goto(`/beat/${getBeatSlug(typeaheadResults[typeaheadIndex])}`); }
+					else if (e.key === 'Tab' && typeaheadIndex >= 0) { e.preventDefault(); goto(`/beat/${getBeatSlug(typeaheadResults[typeaheadIndex])}`); }
 					else if (e.key === 'Escape') { typeaheadIndex = -1; searchFocused = false; }
 				}}
 			/>
@@ -144,12 +151,13 @@
 
 			<!-- Typeahead dropdown -->
 			{#if showTypeahead}
-				<div class="typeahead-dropdown" role="listbox">
+				<div class="typeahead-dropdown" id="typeahead-listbox" role="listbox" aria-label="Resultados de búsqueda">
 					{#each typeaheadResults as result, i}
 						<a
 							href="/beat/{getBeatSlug(result)}"
 							class="typeahead-item"
 							class:highlighted={typeaheadIndex === i}
+							id="typeahead-option-{i}"
 							role="option"
 							aria-selected={typeaheadIndex === i}
 							onmousedown={(e) => e.preventDefault()}
