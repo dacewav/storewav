@@ -3,6 +3,7 @@
 	import { settings } from '$lib/stores';
 	import { Card , Collapsible, HelpTip} from '$lib/components';
 	import type { AnimationSettings } from '$lib/stores/settings';
+	import { handleShiftArrows } from '$lib/themeShared';
 
 	let s = $derived($settings.data);
 	let anim = $derived((s?.animations ?? {}) as AnimationSettings);
@@ -47,21 +48,6 @@
 		return unit ? `${Math.min(n, max)}${unit}` : String(Math.min(n, max));
 	}
 
-	function handleShiftArrows(e: KeyboardEvent) {
-		if (!e.shiftKey) return;
-		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
-		e.preventDefault();
-		const input = e.currentTarget as HTMLInputElement;
-		const min = parseFloat(input.min);
-		const max = parseFloat(input.max);
-		const step = parseFloat(input.step) || 1;
-		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
-		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
-		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-		if (nativeSetter) nativeSetter.call(input, String(newVal));
-		else input.value = String(newVal);
-		input.dispatchEvent(new Event('input', { bubbles: true }));
-	}
 
 	const PRESETS = [
 		{ value: 'none', label: 'Ninguna' },

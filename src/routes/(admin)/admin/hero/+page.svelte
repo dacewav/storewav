@@ -3,6 +3,7 @@
 	import { settings } from '$lib/stores';
 	import { Card, EmojiInput , Collapsible} from '$lib/components';
 	import type { HeroVisualSettings, HeroSettings, ThemeSettings, HeroColorSegment, SectionSettings, CtaSettings, LabelSettings } from '$lib/stores/settings';
+	import { handleShiftArrows } from '$lib/themeShared';
 
 	let s = $derived($settings.data);
 	let hv = $derived((s?.heroVisual ?? {}) as HeroVisualSettings);
@@ -108,22 +109,6 @@
 		update('heroVisual.segments', segs);
 	}
 
-	/** Shift+Arrow for 10x step on sliders */
-	function handleShiftArrows(e: KeyboardEvent) {
-		if (!e.shiftKey) return;
-		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
-		e.preventDefault();
-		const input = e.currentTarget as HTMLInputElement;
-		const min = parseFloat(input.min);
-		const max = parseFloat(input.max);
-		const step = parseFloat(input.step) || 1;
-		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
-		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
-		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-		if (nativeSetter) nativeSetter.call(input, String(newVal));
-		else input.value = String(newVal);
-		input.dispatchEvent(new Event('input', { bubbles: true }));
-	}
 </script>
 
 <div class="editor" role="form" aria-label="Editor de hero">

@@ -6,6 +6,7 @@
 	import { generatePalette, generateHarmony, contrastRatio, type PaletteShade } from '$lib/colorPalette';
 	import { uploadFile } from '$lib/upload';
 	import { toast } from '$lib/toastStore';
+	import { handleShiftArrows } from '$lib/themeShared';
 
 	let s = $derived($settings.data);
 	let brand = $derived((s?.brand ?? {}) as BrandSettings);
@@ -36,22 +37,6 @@
 	function layoutFmt(key: string, max: number, unit = ''): string {
 		const n = layoutLocal[key] ?? 0;
 		return unit ? `${Math.min(n, max)}${unit}` : String(Math.min(n, max));
-	}
-
-	function handleShiftArrows(e: KeyboardEvent) {
-		if (!e.shiftKey) return;
-		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
-		e.preventDefault();
-		const input = e.currentTarget as HTMLInputElement;
-		const min = parseFloat(input.min);
-		const max = parseFloat(input.max);
-		const step = parseFloat(input.step) || 1;
-		const dir = (e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -1 : 1;
-		const newVal = Math.max(min, Math.min(max, parseFloat(input.value) + dir * step * 10));
-		const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-		if (nativeSetter) nativeSetter.call(input, String(newVal));
-		else input.value = String(newVal);
-		input.dispatchEvent(new Event('input', { bubbles: true }));
 	}
 
 	function update(path: string, value: unknown) {
