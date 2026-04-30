@@ -30,6 +30,9 @@
 	let hv = $derived((s?.heroVisual ?? {}) as HeroVisualSettings);
 	let accent = $derived(s?.theme?.accent ?? '#dc2626');
 
+	// Layout
+	let cardsPerRow = $derived(s?.layout?.cardsPerRow ?? 3);
+
 	// Sibling hover config from global cardStyle
 	let cardStyle = $derived((s?.cardStyle ?? {}) as Record<string, unknown>);
 	let siblingHoverEffect = $derived((cardStyle.siblingHoverEffect ?? 'none') as 'blur' | 'dim' | 'scale-down' | 'none');
@@ -356,7 +359,7 @@
 		<div class="section-line"></div>
 		<div class="section-badge">{featuredBeats.length} beats</div>
 	</div>
-	<div class="beat-grid" use:staggerReveal={{ delay: 60 }}>
+	<div class="beat-grid" style="grid-template-columns: repeat({cardsPerRow}, 1fr)" use:staggerReveal={{ delay: 60 }}>
 		{#each featuredBeats as beat (beat.id)}
 			<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 		{/each}
@@ -372,7 +375,7 @@
 		<div class="section-line"></div>
 		<div class="section-badge">Basado en tus likes</div>
 	</div>
-	<div class="beat-grid" use:staggerReveal={{ delay: 60 }}>
+	<div class="beat-grid" style="grid-template-columns: repeat({cardsPerRow}, 1fr)" use:staggerReveal={{ delay: 60 }}>
 		{#each forYouBeats as beat (beat.id)}
 			<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 		{/each}
@@ -449,7 +452,7 @@
 	<!-- Beat grid (batched) -->
 	{#if beats.length > 0}
 		{#if filteredBeats.length > 0}
-			<div class="beat-grid{animCards && animCards !== 'none' ? ` anim-${animCards}` : ''}" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ effect: siblingHoverEffect, blur: siblingHoverBlur, opacity: siblingHoverOpacity, scale: siblingHoverScale, duration: siblingHoverDuration }} style="{animCards && animCards !== 'none' ? `--anim-dur: ${animCardsDur}s; --anim-del: ${animCardsDel}s; --anim-ease: ${animCardsEase}` : ''}">
+			<div class="beat-grid{animCards && animCards !== 'none' ? ` anim-${animCards}` : ''}" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ effect: siblingHoverEffect, blur: siblingHoverBlur, opacity: siblingHoverOpacity, scale: siblingHoverScale, duration: siblingHoverDuration }} style="grid-template-columns: repeat({cardsPerRow}, 1fr); {animCards && animCards !== 'none' ? `--anim-dur: ${animCardsDur}s; --anim-del: ${animCardsDel}s; --anim-ease: ${animCardsEase}` : ''}">
 				{#each visibleBeats as beat (beat.id)}
 					<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 				{/each}
@@ -982,7 +985,7 @@
 	/* ── Beat Grid ── */
 	.beat-grid {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(var(--cards-per-row, 3), 1fr);
 		gap: var(--beat-gap);
 		align-items: stretch;
 	}

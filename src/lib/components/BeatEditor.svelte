@@ -325,6 +325,12 @@
 					<span class="toggle-text">Beat activo <span class="toggle-hint">(visible en la tienda)</span></span>
 				</label>
 			</div>
+			<div class="field">
+				<label class="toggle-label">
+					<input type="checkbox" bind:checked={beat.featured} />
+					<span class="toggle-text">⭐ Destacado <span class="toggle-hint">(aparece en sección "Destacados" del hero)</span></span>
+				</label>
+			</div>
 		</Card>
 	{/if}
 
