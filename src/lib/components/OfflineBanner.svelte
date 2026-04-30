@@ -6,14 +6,14 @@
 	let dismissed = $state(false);
 	let timer: ReturnType<typeof setTimeout> | null = null;
 
-	// Only show banner after 3s of disconnection (avoids flash during initial load)
+	// Only show banner after 8s of disconnection (avoids flash during initial load + Firebase auth reconnection)
 	$effect(() => {
 		if (!connected) {
 			if (!timer && !dismissed) {
 				timer = setTimeout(() => {
 					showBanner = true;
 					timer = null;
-				}, 3000);
+				}, 8000);
 			}
 		} else {
 			// Connected — hide immediately and reset
