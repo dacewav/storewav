@@ -16,8 +16,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Content Security Policy — allows Firebase, Google Auth, Stripe, Resend, R2 CDN
 	const csp = [
 		"default-src 'self'",
-		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://www.gstatic.com https://js.stripe.com",
-		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://www.gstatic.com https://js.stripe.com https://static.cloudflareinsights.com",
+		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
 		"img-src 'self' data: blob: https://cdn.dacewav.store https://*.firebasestorage.app https://*.googleusercontent.com https://*.r2.dev",
 		"font-src 'self' https://fonts.gstatic.com",
 		"connect-src 'self' https://dacewav-store-3b0f5-default-rtdb.firebaseio.com https://*.firebaseio.com https://*.googleapis.com https://accounts.google.com https://identitytoolkit.googleapis.com https://securetoken.google.com https://api.stripe.com https://api.resend.com https://cdn.dacewav.store wss://*.firebaseio.com",
