@@ -35,8 +35,9 @@ export const unreadCount = derived(_notifications, ($n) => $n.filter((n) => !n.r
 /**
  * Initialize notifications sync for authenticated user.
  * Uses Firebase SDK onValue for real-time sync.
+ * Returns a Promise that resolves after the first data load completes.
  */
-export async function initNotifications(uid: string | null) {
+export async function initNotifications(uid: string | null): Promise<void> {
 	// Cleanup previous listener
 	if (_unsub) { _unsub(); _unsub = null; }
 
@@ -47,33 +48,39 @@ export async function initNotifications(uid: string | null) {
 	}
 
 	try {
-		const { getDatabase, ref, onValue, query, orderByChild } = await import('firebase/database');
+		const { getDatabase, ref, onValue } = await import('firebase/database');
 		const { getApp } = await import('firebase/app');
 
 		const app = getApp();
 		const db = getDatabase(app);
 		const notifRef = ref(db, `userNotifications/${uid}`);
 
-		_unsub = onValue(notifRef, (snap) => {
-			const val = snap.val();
-			if (val) {
-				const list = Object.entries(val)
-					.map(([id, n]: [string, any]) => ({
-						id,
-						type: n.type || 'system',
-						title: n.title || '',
-						message: n.message || '',
-						beatId: n.beatId,
-						read: n.read ?? false,
-						createdAt: n.createdAt || 0,
-					}))
-					.sort((a, b) => b.createdAt - a.createdAt);
-				_notifications.set(list);
-			} else {
-				_notifications.set([]);
-			}
-		}, (err) => {
-			console.error('[Notifications] Realtime sync error:', err);
+		// Wait for the first data callback before resolving
+		await new Promise<void>((resolve) => {
+			let first = true;
+			_unsub = onValue(notifRef, (snap) => {
+				const val = snap.val();
+				if (val) {
+					const list = Object.entries(val)
+						.map(([id, n]: [string, any]) => ({
+							id,
+							type: n.type || 'system',
+							title: n.title || '',
+							message: n.message || '',
+							beatId: n.beatId,
+							read: n.read ?? false,
+							createdAt: n.createdAt || 0,
+						}))
+						.sort((a, b) => b.createdAt - a.createdAt);
+					_notifications.set(list);
+				} else {
+					_notifications.set([]);
+				}
+				if (first) { first = false; resolve(); }
+			}, (err) => {
+				console.error('[Notifications] Realtime sync error:', err);
+				if (first) { first = false; resolve(); }
+			});
 		});
 	} catch (err) {
 		console.error('[Notifications] Init failed:', err);
