@@ -1,8 +1,7 @@
-/**
- * /account/notifications — User notifications page
- */
-
 <script lang="ts">
+	/**
+	 * /account/notifications — User notifications page
+	 */
 	import { onMount } from 'svelte';
 	import { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, initNotifications, destroyNotifications } from '$lib/stores/notifications';
 	import { auth, settings } from '$lib/stores';

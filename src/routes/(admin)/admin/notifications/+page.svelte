@@ -1,8 +1,7 @@
-/**
- * /admin/notifications — Admin panel for sending/broadcasting notifications
- */
-
 <script lang="ts">
+	/**
+	 * /admin/notifications — Admin panel for sending/broadcasting notifications
+	 */
 	import { onMount } from 'svelte';
 	import { auth } from '$lib/stores';
 	import { beatsList, type BeatWithId } from '$lib/stores/beats';
