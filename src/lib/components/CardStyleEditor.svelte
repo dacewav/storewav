@@ -405,7 +405,7 @@
 						</div>
 						<div class="field">
 							<label for="cse-hbl">Blur siblings ({getNum('hoverSiblingsBlur', 0)}px)</label>
-							<input id="cse-hbl" type="range" min="0" max="10" step="0.5" value={getNum('hoverBlur', 0)} oninput={(e) => set('hoverSiblingsBlur', +e.currentTarget.value || undefined)} />
+							<input id="cse-hbl" type="range" min="0" max="10" step="0.5" value={getNum('hoverSiblingsBlur', 0)} oninput={(e) => set('hoverSiblingsBlur', +e.currentTarget.value || undefined)} />
 								<small class="field-hint">Difumina las demás cards al hacer hover</small>
 						</div>
 						<div class="field">
