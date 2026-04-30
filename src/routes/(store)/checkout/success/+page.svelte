@@ -4,6 +4,7 @@
 	import { cart, settings, analytics } from '$lib/stores';
 	import Icon from '$lib/components/Icon.svelte';
 	import { FIREBASE_DB } from '$lib/firebaseDb';
+	import { toast } from '$lib/toastStore';
 
 	let s = $derived($settings.data);
 	let sessionId = $derived(page.url.searchParams.get('session_id'));
@@ -90,7 +91,7 @@
 			item.downloadUrl = url;
 			analytics.track('download', 'start', { lbl: item.beatId });
 		} catch {
-			alert('Error al descargar. Intenta de nuevo.');
+			toast.error('Error al descargar. Intenta de nuevo.');
 		} finally {
 			item.downloading = false;
 		}
@@ -110,7 +111,7 @@
 			document.body.removeChild(a);
 			analytics.track('download', 'zip', { lbl: beatId });
 		} catch {
-			alert('Error al descargar el paquete. Intenta de nuevo.');
+			toast.error('Error al descargar el paquete. Intenta de nuevo.');
 		} finally {
 			downloadingZip = false;
 		}
