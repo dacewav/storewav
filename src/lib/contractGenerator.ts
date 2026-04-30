@@ -2,6 +2,8 @@
  * Full Contract PDF Generator — pdf-lib based, Cloudflare Workers compatible.
  * Generates complete multi-page contracts with proper formatting, accented characters,
  * and all clauses for all 5 license types.
+ *
+ * Uses Helvetica with WinAnsi encoding — supports Latin-1 chars (á, é, í, ó, ú, ñ, ü).
  */
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
