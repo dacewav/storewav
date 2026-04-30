@@ -144,16 +144,6 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 				body: JSON.stringify(updateData),
 			});
 
-			// Also create a record under paidOrders for easy lookup
-			await fetch(`${FIREBASE_DB}/paidOrders/${sessionId}.json`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json'},
-				body: JSON.stringify({
-					...updateData,
-					items,
-				}),
-			});
-
 			// Increment discount code usage (only on successful payment)
 			if (discountCode) {
 				try {

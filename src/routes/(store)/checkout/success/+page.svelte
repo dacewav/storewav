@@ -3,7 +3,6 @@
 	import { onMount } from 'svelte';
 	import { cart, settings, analytics } from '$lib/stores';
 	import Icon from '$lib/components/Icon.svelte';
-	import { FIREBASE_DB } from '$lib/firebaseDb';
 	import { toast } from '$lib/toastStore';
 
 	let s = $derived($settings.data);
@@ -29,39 +28,40 @@
 		if (sessionId) {
 			analytics.track('checkout', 'success', { lbl: sessionId });
 
-			// Fetch order details from Firebase
+			// Fetch order details via server API (avoids direct Firebase access)
 			try {
-				const resp = await fetch(
-					`${FIREBASE_DB}/paidOrders/${sessionId}.json`
-				);
+				const resp = await fetch(`/api/orders?sessionId=${encodeURIComponent(sessionId)}`);
 				if (resp.ok) {
-					const data = await resp.json();
-					if (data?.items) {
-						orderItems = data.items.map((i: {
-							beatId?: string;
-							beatName?: string;
-							licenseName?: string;
-						}) => ({
-							beatId: i.beatId || '',
-							beatName: i.beatName || 'Beat',
-							licenseName: i.licenseName || 'Licencia',
-						}));
-					}
-					if (data?.customerName) {
-						customerName = data.customerName;
-					}
-					if (data?.discountCode) {
-						orderDiscount = {
-							code: data.discountCode,
-							type: data.discountType || 'percent',
-							amount: data.discountAmount || 0,
-						};
-					}
-					// Calculate totals from items
-					if (data?.items) {
-						for (const item of data.items) {
-							orderTotalMXN += item.priceMXN || 0;
-							orderTotalUSD += item.priceUSD || 0;
+					const result = await resp.json() as { ok: boolean; order?: Record<string, unknown> };
+					if (result.ok && result.order) {
+						const data = result.order;
+						if (data.items && Array.isArray(data.items)) {
+							orderItems = (data.items as Array<{
+								beatId?: string;
+								beatName?: string;
+								licenseName?: string;
+							}>).map((i) => ({
+								beatId: i.beatId || '',
+								beatName: i.beatName || 'Beat',
+								licenseName: i.licenseName || 'Licencia',
+							}));
+						}
+						if (data.customerName) {
+							customerName = data.customerName as string;
+						}
+						if (data.discountCode) {
+							orderDiscount = {
+								code: data.discountCode as string,
+								type: (data.discountType as string) || 'percent',
+								amount: (data.discountAmount as number) || 0,
+							};
+						}
+						// Calculate totals from items
+						if (data.items && Array.isArray(data.items)) {
+							for (const item of data.items as Array<{ priceMXN?: number; priceUSD?: number }>) {
+								orderTotalMXN += item.priceMXN || 0;
+								orderTotalUSD += item.priceUSD || 0;
+							}
 						}
 					}
 				}

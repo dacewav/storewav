@@ -63,3 +63,14 @@ export function r2KeyFromUrl(url: string): string | null {
 		return null;
 	}
 }
+
+/**
+ * Sanitize a filename for safe Content-Disposition headers.
+ * Strips special characters, limits length.
+ */
+export function sanitizeFilename(name: string): string {
+	return name
+		.replace(/[^\w\s.-]/g, '')
+		.replace(/\s+/g, '_')
+		.slice(0, 80);
+}

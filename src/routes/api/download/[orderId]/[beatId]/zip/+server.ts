@@ -2,6 +2,7 @@ import type { RequestHandler } from './$types';
 import { generateContractPDF, getContractFile } from '$lib/contractGenerator';
 import { zipSync } from 'fflate';
 import { FIREBASE_DB } from '$lib/firebaseDb';
+import { r2KeyFromUrl, sanitizeFilename } from '$lib/r2Presign';
 
 /**
  * GET /api/download/[orderId]/[beatId]/zip
@@ -48,22 +49,6 @@ async function verifyAndGetOrder(orderId: string, beatId: string) {
 	} catch {
 		return null;
 	}
-}
-
-function r2KeyFromUrl(url: string): string | null {
-	try {
-		const u = new URL(url);
-		return u.pathname.slice(1) || null;
-	} catch {
-		return null;
-	}
-}
-
-function sanitizeFilename(name: string): string {
-	return name
-		.replace(/[^\w\s.-]/g, '')
-		.replace(/\s+/g, '_')
-		.slice(0, 80);
 }
 
 export const GET: RequestHandler = async ({ params, platform }) => {

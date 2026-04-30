@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { settings, analytics } from '$lib/stores';
 	import Icon from '$lib/components/Icon.svelte';
-	import { FIREBASE_DB } from '$lib/firebaseDb';
 
 	let s = $derived($settings.data);
 
@@ -35,7 +34,7 @@
 
 		try {
 			const resp = await fetch(
-				`${FIREBASE_DB}/paidOrders.json?orderBy="customerEmail"&equalTo="${encodeURIComponent(email.trim())}"`
+				`/api/orders?email=${encodeURIComponent(email.trim())}`
 			);
 
 			if (!resp.ok) {
@@ -43,36 +42,28 @@
 				return;
 			}
 
-			const data = await resp.json() as Record<string, {
-				sessionId?: string;
-				items?: Array<{
-					beatId: string;
-					beatName: string;
-					licenseName: string;
-					priceMXN: number;
-					priceUSD: number;
+			const result = await resp.json() as {
+				ok: boolean;
+				orders?: Array<{
+					sessionId: string;
+					items: Array<{
+						beatId: string;
+						beatName: string;
+						licenseName: string;
+						priceMXN: number;
+						priceUSD: number;
+					}>;
+					paidAt: number;
+					totalMXN: number;
+					totalUSD: number;
 				}>;
-				paidAt?: number;
-				customerEmail?: string;
-				discountCode?: string;
-				discountType?: string;
-				discountAmount?: number;
-			}> | null;
+				error?: string;
+			};
 
-			if (data) {
-				orders = Object.entries(data)
-					.filter(([, o]) => o.customerEmail?.toLowerCase() === email.trim().toLowerCase())
-					.map(([id, o]) => ({
-						sessionId: o.sessionId || id,
-						items: o.items || [],
-						paidAt: o.paidAt || 0,
-						totalMXN: (o.items || []).reduce((s, i) => s + i.priceMXN, 0),
-						totalUSD: (o.items || []).reduce((s, i) => s + i.priceUSD, 0),
-						discountCode: o.discountCode,
-						discountType: o.discountType,
-						discountAmount: o.discountAmount,
-					}))
-					.sort((a, b) => b.paidAt - a.paidAt);
+			if (result.ok && result.orders) {
+				orders = result.orders;
+			} else {
+				error = result.error || 'Error al buscar órdenes';
 			}
 
 			searched = true;

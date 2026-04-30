@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { getPresignedDownloadUrl, r2KeyFromUrl } from '$lib/r2Presign';
+import { getPresignedDownloadUrl, r2KeyFromUrl, sanitizeFilename } from '$lib/r2Presign';
 import { FIREBASE_DB } from '$lib/firebaseDb';
 
 /**
@@ -133,10 +133,3 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 		return new Response('Download error', { status: 500 });
 	}
 };
-
-function sanitizeFilename(name: string): string {
-	return name
-		.replace(/[^\w\s.-]/g, '')
-		.replace(/\s+/g, '_')
-		.slice(0, 80);
-}
