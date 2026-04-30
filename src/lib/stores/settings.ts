@@ -1161,7 +1161,12 @@ export function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	const brand = d.brand as Record<string, unknown>;
 	if (d.siteName) brand.name = d.siteName;
 	if (!brand.name) brand.name = 'DACEWAV';
-	if (t.logoUrl) brand.logo = t.logoUrl;
+	if (d.logoUrl) brand.logo = d.logoUrl;
+	else if (t.logoUrl) brand.logo = t.logoUrl;
+	if (d.faviconUrl) brand.favicon = d.faviconUrl;
+	else if (t.faviconUrl) brand.favicon = t.faviconUrl;
+	if (d.ogImageUrl) brand.ogImage = d.ogImageUrl;
+	else if (t.ogImageUrl) brand.ogImage = t.ogImageUrl;
 	if (d.whatsapp) brand.whatsapp = d.whatsapp;
 	if (!brand.footerText) brand.footerText = 'Todos los derechos reservados · 2026';
 	if (!brand.metaDescription) brand.metaDescription = 'Beats que rompen';

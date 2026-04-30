@@ -99,4 +99,34 @@ describe('migrateOldData', () => {
 		expect(result.banner).toBeDefined();
 		expect(result.cardStyle).toBeDefined();
 	});
+
+	it('migrates flat logoUrl to brand.logo', () => {
+		const result = migrateOldData({ logoUrl: 'https://pub-xxx.r2.dev/logo.png' });
+		expect(result.brand.logo).toBe('https://pub-xxx.r2.dev/logo.png');
+	});
+
+	it('prefers settings logoUrl over theme logoUrl', () => {
+		const result = migrateOldData({
+			logoUrl: 'https://settings.r2.dev/logo.png',
+			_theme: { logoUrl: 'https://theme.r2.dev/logo.png' }
+		});
+		expect(result.brand.logo).toBe('https://settings.r2.dev/logo.png');
+	});
+
+	it('falls back to theme logoUrl when settings logoUrl is absent', () => {
+		const result = migrateOldData({
+			_theme: { logoUrl: 'https://theme.r2.dev/logo.png' }
+		});
+		expect(result.brand.logo).toBe('https://theme.r2.dev/logo.png');
+	});
+
+	it('migrates flat faviconUrl to brand.favicon', () => {
+		const result = migrateOldData({ faviconUrl: 'https://cdn.example.com/favicon.ico' });
+		expect(result.brand.favicon).toBe('https://cdn.example.com/favicon.ico');
+	});
+
+	it('migrates flat ogImageUrl to brand.ogImage', () => {
+		const result = migrateOldData({ ogImageUrl: 'https://cdn.example.com/og.png' });
+		expect(result.brand.ogImage).toBe('https://cdn.example.com/og.png');
+	});
 });
