@@ -34,7 +34,26 @@ if (dev) console.log('[Auth] Admin UIDs configured:', ADMIN_UIDS.length);
 const store = writable<AuthState>({ user: null, isAdmin: false, adminChecked: false, loading: true, error: null });
 let unsub: (() => void) | null = null;
 
-/** Verifica si el UID o email es admin */
+/** RTDB get with timeout — prevents hanging when Firebase reconnects post-auth */
+async function getWithTimeout(dbRef: { key: string | null }, timeoutMs = 5000) {
+	const { get } = await import('firebase/database');
+	return new Promise<Awaited<ReturnType<typeof get>> | null>((resolve) => {
+		const timer = setTimeout(() => {
+			console.warn('[Auth] RTDB read timed out after', timeoutMs, 'ms');
+			resolve(null);
+		}, timeoutMs);
+		get(dbRef as any).then((snap) => {
+			clearTimeout(timer);
+			resolve(snap);
+		}).catch((err) => {
+			clearTimeout(timer);
+			console.error('[Auth] RTDB read error:', err);
+			resolve(null);
+		});
+	});
+}
+
+/** Verifica si el UID o email es admin — with retry for post-auth token propagation */
 async function checkAdmin(uid: string, email?: string | null): Promise<boolean> {
 	// Fast path: local UIDs
 	if (ADMIN_UIDS.includes(uid)) {
@@ -48,35 +67,58 @@ async function checkAdmin(uid: string, email?: string | null): Promise<boolean> 
 		return true;
 	}
 
-	try {
-		const db = await (await import('$lib/firebase')).getDb();
-		if (!db) {
-			console.warn('[Auth] Firebase not available for admin check');
-			return false;
+	// Retry up to 3 times — after signInWithPopup, Firebase RTDB may need a moment
+	// to reconnect with the new auth token. First attempt may timeout or return stale data.
+	const maxAttempts = 3;
+	for (let attempt = 0; attempt < maxAttempts; attempt++) {
+		try {
+			const db = await (await import('$lib/firebase')).getDb();
+			if (!db) {
+				console.warn('[Auth] Firebase not available for admin check');
+				return false;
+			}
+
+			const { ref } = await import('firebase/database');
+
+			// Check adminWhitelist/approved/{uid}
+			const approvedSnap = await getWithTimeout(ref(db, `adminWhitelist/approved/${uid}`));
+			if (approvedSnap && (approvedSnap as any).exists()) {
+				if (dev) console.log('[Auth] Admin confirmed via Firebase whitelist');
+				return true;
+			}
+
+			// Fallback: legacy admins/{uid} (backward compat)
+			const legacySnap = await getWithTimeout(ref(db, `admins/${uid}`));
+			if (legacySnap && (legacySnap as any).val() === true) {
+				if (dev) console.log('[Auth] Admin confirmed via legacy admins/');
+				return true;
+			}
+
+			// Got a valid response but user is not admin — no need to retry
+			if (approvedSnap !== null) {
+				if (dev) console.log('[Auth] NOT admin. UID:', uid);
+				return false;
+			}
+
+			// Null response = timeout/error — retry after delay
+			if (attempt < maxAttempts - 1) {
+				const delay = 1000 * (attempt + 1);
+				if (dev) console.log(`[Auth] Admin check attempt ${attempt + 1} inconclusive, retrying in ${delay}ms...`);
+				await new Promise((r) => setTimeout(r, delay));
+			}
+		} catch (err) {
+			if (attempt < maxAttempts - 1) {
+				const delay = 1000 * (attempt + 1);
+				if (dev) console.log(`[Auth] Admin check attempt ${attempt + 1} failed, retrying in ${delay}ms...`);
+				await new Promise((r) => setTimeout(r, delay));
+			} else {
+				console.error('[Auth] Admin check failed after', maxAttempts, 'attempts:', err);
+			}
 		}
-
-		const { ref, get } = await import('firebase/database');
-
-		// Check adminWhitelist/approved/{uid}
-		const approvedSnap = await get(ref(db, `adminWhitelist/approved/${uid}`));
-		if (approvedSnap.exists()) {
-			if (dev) console.log('[Auth] Admin confirmed via Firebase whitelist');
-			return true;
-		}
-
-		// Fallback: legacy admins/{uid} (backward compat)
-		const legacySnap = await get(ref(db, `admins/${uid}`));
-		if (legacySnap.val() === true) {
-			if (dev) console.log('[Auth] Admin confirmed via legacy admins/');
-			return true;
-		}
-
-		console.warn('[Auth] NOT admin. UID:', uid);
-		return false;
-	} catch (err) {
-		console.error('[Auth] Admin check failed:', err);
-		return false;
 	}
+
+	console.warn('[Auth] Admin check exhausted retries. UID:', uid);
+	return false;
 }
 
 /** Iniciar listener de auth */

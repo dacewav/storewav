@@ -36,10 +36,10 @@
 		}
 	});
 
-	// Si ya está logueado, redirigir al admin (run once)
+	// Si ya está logueado, redirigir al admin (run once, wait for admin check)
 	let redirected = $state(false);
 	$effect(() => {
-		if (!redirected && authState.user && authState.isAdmin) {
+		if (!redirected && authState.user && authState.adminChecked && authState.isAdmin) {
 			redirected = true;
 			goto('/admin');
 		}
@@ -112,14 +112,21 @@
 			</div>
 		{/if}
 
-		{#if authState.user && !authState.isAdmin}
+		{#if authState.user && !authState.adminChecked}
+			<div class="uid-display" style="border-color: rgba(var(--accent-rgb), 0.3); background: rgba(var(--accent-rgb), 0.05);">
+				<p class="uid-label">Verificando permisos...</p>
+				<div class="g-spinner" style="margin: 0 auto;"></div>
+			</div>
+		{/if}
+
+		{#if authState.user && authState.adminChecked && !authState.isAdmin}
 			<div class="uid-display">
 				<p class="uid-label">Tu UID (copialo y agregalo como admin):</p>
 				<code class="uid-code">{authState.user.uid}</code>
 			</div>
 		{/if}
 
-		{#if authState.user && authState.isAdmin}
+		{#if authState.user && authState.adminChecked && authState.isAdmin}
 			<div class="uid-display" style="border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08);">
 				<p class="uid-label" style="color: #22c55e;">✅ Sos admin — </p>
 				<a href="/admin" class="uid-link">Ir al panel →</a>

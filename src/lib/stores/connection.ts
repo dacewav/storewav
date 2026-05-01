@@ -14,6 +14,7 @@ const onlineStore = writable(typeof navigator !== 'undefined' ? navigator.onLine
 const firebaseStore = writable(false);
 
 let unsubFirebase: (() => void) | null = null;
+let disconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 /** Inicializar connection monitoring */
 export async function initConnection() {
@@ -33,7 +34,22 @@ export async function initConnection() {
 		const { ref, onValue } = await import('firebase/database');
 		const connectedRef = ref(db, '.info/connected');
 		unsubFirebase = onValue(connectedRef, (snap) => {
-			firebaseStore.set(snap.val() === true);
+			const connected = snap.val() === true;
+			if (connected) {
+				// Reconnected — cancel any pending disconnect timer and show connected immediately
+				if (disconnectTimer) { clearTimeout(disconnectTimer); disconnectTimer = null; }
+				firebaseStore.set(true);
+			} else {
+				// Disconnected — grace period of 3s before showing offline.
+				// During signInWithPopup, Firebase RTDB briefly disconnects to refresh the auth token.
+				// Without grace period, the offline banner would flash every time a user logs in.
+				if (!disconnectTimer) {
+					disconnectTimer = setTimeout(() => {
+						firebaseStore.set(false);
+						disconnectTimer = null;
+					}, 3000);
+				}
+			}
 		});
 	} catch (err) {
 		console.error('[Connection] Firebase connection check failed:', err);
@@ -44,6 +60,10 @@ export function destroyConnection() {
 	if (unsubFirebase) {
 		unsubFirebase();
 		unsubFirebase = null;
+	}
+	if (disconnectTimer) {
+		clearTimeout(disconnectTimer);
+		disconnectTimer = null;
 	}
 }
 
