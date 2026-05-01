@@ -1,39 +1,53 @@
 # StoreWav — Guía de Auditoría & Mejoras
-**Fecha:** 2026-05-01 | **Session 61** | **Commits:** `e144da1` → `d0e944c`
+**Fecha:** 2026-05-01 | **Session 62** | **Commits:** `d0e944c` → `1552af7`
 
 ---
 
 ## 📋 Resumen Ejecutivo
 
-Sesión enfocada en 3 bugs críticos en producción: logo no se mostraba, Firebase no conectaba (banner offline), y CSP bloqueando Google One Tap.
+Sesión enfocada en 3 issues: admin login roto post-Google auth, CSP bloqueando Firebase auth iframe, y configuración de env vars faltantes.
 
-**Estado final:** 222 tests pasando, svelte-check 0 errores, 4 deploys a producción.
+**Estado final:** 222 tests passing, deployed (`d9bb45a`), login NO funciona todavía — falta autorizar `dacewav.store` en Google Cloud Console OAuth client.
 
 ---
 
 ## 🔧 Fixes Implementados
 
-### 1. Logo no se muestra (commit `7e2c421`)
-**Root cause:** `migrateOldData` en `settings.ts` solo leía `brand.logo` desde `t.logoUrl` (path `theme/` de Firebase), pero `updateField('brand.logo', url)` escribe a `settings/logoUrl` (flat key en path `settings/`). El flat key se ignoraba silenciosamente → `brand.logo` quedaba vacío → fallback de texto "DACEWAV".
+### 1. Admin Login — checkAdmin retry + timeout (commit `8055151`)
+**Root cause:** `checkAdmin()` hacía un `get()` a Firebase RTDB que podía colgarse indefinidamente si la conexión no estaba lista post-auth (token refresh).
 
-**Fix:** `settings.ts` línea ~1164: check `d.logoUrl` primero, fallback a `t.logoUrl`. Mismo fix para `faviconUrl` y `ogImageUrl`.
+**Fix:** 
+- `getWithTimeout()` helper con timeout de 5s por lectura RTDB
+- `checkAdmin()` reintenta hasta 3 veces con backoff (1s, 2s, 3s)
+- Si la RTDB devuelve null (timeout), reintenta. Si devuelve datos válidos (user not admin), no reintenta.
 
-**Tests nuevos:** 5 tests cubriendo migración logo/favicon/ogImage.
+### 2. Connection grace period (commit `8055151`)
+**Root cause:** Firebase RTDB se desconecta brevemente durante `signInWithPopup` para refrescar el auth token. `.info/connected` dispara `false` inmediatamente → banner "Sin conexión" aparece en cada login.
 
-### 2. Firebase no conecta — banner "Sin conexión" (commit `d1ab4a6`)
-**Root cause:** CSP `connect-src` tenía `wss://*.firebaseio.com` para WebSocket pero NO `https://*.firebaseio.com` para long-polling fallback. Cuando WebSocket está bloqueado (ISP, firewall, extensión), Firebase RTDB intenta HTTPS long-polling a `https://s-usc1b-nss-*.firebaseio.com/.lp` — que no estaba en el CSP → conexión fallaba silenciosamente.
+**Fix:** 3s de delay en `connection.ts` antes de marcar como desconectado. Reconexión es instantánea (cancela timer pendiente).
 
-**Fix:** Agregado `https://*.firebaseio.com` a `connect-src` en `hooks.server.ts`.
+### 3. Login page UX (commit `8055151`)
+- Muestra "Verificando permisos..." spinner mientras `adminChecked` es false
+- Redirect a `/admin` espera `adminChecked && isAdmin` (antes solo `isAdmin`)
 
-### 3. CSP — Google One Tap + Cloudflare Analytics (commits `d1ab4a6`, `752ac86`)
-**Root cause:** `script-src` no incluía `accounts.google.com` ni `static.cloudflareinsights.com`. `style-src` no incluía `accounts.google.com` para el stylesheet de GSI.
+### 4. signInWithRedirect directo (commit `0d8ca48`)
+**Root cause:** `signInWithPopup` abre popup → Google pone `COOP: same-origin` en sus páginas OAuth → `firebaseapp.com/__/auth/handler` no puede hacer `postMessage` al opener → popup se cuelga. El fallback a redirect también falla porque el popup ya consumió el código OAuth.
 
-**Fix:** Agregados ambos dominios a sus directivas CSP correspondientes.
+**Fix:** `loginWithGoogle()` ahora usa `signInWithRedirect` directo. Sin popup. Navega la página completa.
 
-### 4. Offline banner timeout agresivo (commit `d0e944c`)
-**Root cause:** Timeout de 3 segundos para mostrar banner offline. En conexiones lentas o durante re-autenticación post-login, Firebase tarda más de 3s en conectar → banner falso positivo.
+### 5. CSP frame-src — firebaseapp.com (commit `1552af7`)
+**Root cause:** Firebase SDK usa un iframe a `dacewav-store-3b0f5.firebaseapp.com/__/auth/iframe` para auth. CSP `frame-src` no incluía `firebaseapp.com` → iframe bloqueado → auth no funciona.
 
-**Fix:** Timeout subido de 3s → 8s en `OfflineBanner.svelte`.
+**Fix:** Agregado `https://*.firebaseapp.com` a `frame-src` en `hooks.server.ts`.
+
+### 6. CSP connect-src — firebaseapp.com (commit `d62ba28`)
+**Fix:** Agregado `https://*.firebaseapp.com` a `connect-src`.
+
+### 7. .env configuración
+- `PUBLIC_FIREBASE_MESSAGING_SENDER_ID=163354805352`
+- `PUBLIC_FIREBASE_APP_ID=1:163354805352:web:d8a99d1d71323de1ed27dd`
+- `PUBLIC_GOOGLE_CLIENT_ID=163354805352-v4jmd8qnck443j2qca4t405c0ciem9h3.apps.googleusercontent.com`
+- `PUBLIC_ADMIN_UIDS=Uks9YGSd6rS40zqlRujoe6pE6N22`
 
 ---
 
@@ -41,42 +55,56 @@ Sesión enfocada en 3 bugs críticos en producción: logo no se mostraba, Fireba
 
 | Commit | Contenido | Deploy |
 |--------|-----------|--------|
-| `7e2c421` | Logo migration fix | ❌ GitHub Actions falló (secrets faltantes) |
-| `d1ab4a6` | CSP firebaseio + Google One Tap | ✅ Manual via wrangler |
-| `752ac86` | CSP cloudflareinsights + style | ✅ Manual via wrangler |
-| `d0e944c` | Offline timeout 8s | ✅ Manual via wrangler |
-
-**Nota:** GitHub Actions deploy falla porque faltan secrets (`PUBLIC_*`, `CF_API_TOKEN`, `CF_ACCOUNT_ID`). Deploy manual con wrangler funciona.
+| `8055151` | auth retry + connection grace + login UX | ✅ wrangler |
+| `6485377` | .env.example populated | ✅ wrangler |
+| `d62ba28` | popup timeout + admin UID + firebaseapp CSP | ✅ wrangler |
+| `0d8ca48` | signInWithRedirect directo | ✅ wrangler |
+| `1552af7` | CSP frame-src firebaseapp.com | ✅ wrangler (current) |
 
 ---
 
 ## ⚠️ Issues Pendientes
 
-### Admin Login — se queda cargando post-Google auth
-**Status:** No resuelto en esta sesión. El `signInWithPopup` abre el popup correctamente, pero al volver al sitio, algo causa que Firebase RTDB desconecte temporalmente. El banner offline aparece (ahora con timeout 8s, puede que desaparezca). Necesita debug más profundo del flujo post-auth.
+### 1. Login NO funciona — falta autorizar origen en Google OAuth
+**Status:** No resuelto. Error en consola:
+```
+[GSI_LOGGER]: The given origin is not allowed for the given client ID.
+```
 
-**Posibles causas:**
-- Firebase RTDB re-autenticación post-login causa desconexión temporal
-- `checkAdmin` hace un `get()` a Firebase que puede fallar si auth token no está listo
-- CSP puede estar bloqueando algún endpoint de re-autenticación
+**Root cause:** El OAuth 2.0 Client ID (`163354805352-v4jmd8qnck443j2qca4t405c0ciem9h3.apps.googleusercontent.com`) no tiene `https://dacewav.store` como Authorized JavaScript Origin.
 
-**Archivos relevantes:**
-- `src/lib/stores/auth.ts` — `loginWithGoogle()`, `checkAdmin()`
-- `src/lib/stores/connection.ts` — `initConnection()`, `.info/connected`
-- `src/lib/components/OfflineBanner.svelte` — timeout logic
-- `src/routes/(store)/+layout.svelte` — init flow post-auth
+**Fix manual (el usuario tiene que hacerlo):**
+1. Google Cloud Console → APIs & Services → Credentials
+2. Buscar OAuth 2.0 Client ID
+3. Agregar `https://dacewav.store` a Authorized JavaScript origins
+4. Firebase Console → Authentication → Settings → Authorized domains → agregar `dacewav.store`
 
-### GitHub Actions Deploy roto
-**Status:** No resuelto. Los secrets no están configurados en el repo.
-**Fix:** Configurar en GitHub → Settings → Secrets → Actions:
+### 2. GitHub Actions Deploy roto
+**Status:** No resuelto. Secrets no configurados en el repo.
+**Fix:** GitHub → Settings → Secrets → Actions:
 - `CF_API_TOKEN`, `CF_ACCOUNT_ID`
-- Todos los `PUBLIC_*` (Firebase keys, Google Client ID, Admin UIDs)
+- `PUBLIC_FIREBASE_API_KEY`, `PUBLIC_FIREBASE_AUTH_DOMAIN`, `PUBLIC_FIREBASE_DATABASE_URL`, `PUBLIC_FIREBASE_PROJECT_ID`, `PUBLIC_FIREBASE_STORAGE_BUCKET`, `PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `PUBLIC_FIREBASE_APP_ID`
+- `PUBLIC_GOOGLE_CLIENT_ID`, `PUBLIC_ADMIN_UIDS`
 
 ---
 
 ## 📊 Estado Actual
 
-- **Tests:** 222 passing (217 originales + 5 nuevos)
-- **svelte-check:** 0 errores
-- **Producción:** Deployed via Cloudflare Workers (manual)
-- **CSP:** Limpio — Firebase, Google Auth, Stripe, Cloudflare Analytics cubiertos
+- **Tests:** 222 passing
+- **Producción:** Deployed via Cloudflare Workers (manual wrangler) — `d9bb45a`
+- **CSP:** Firebase auth iframe habilitado (`frame-src` + `connect-src` incluyen `firebaseapp.com`)
+- **Auth flow:** `signInWithRedirect` directo (sin popup)
+- **Admin UID:** Configurado (`Uks9YGSd6rS40zqlRujoe6pE6N22`)
+- **Login:** ❌ Bloqueado — falta autorizar origen en Google Cloud Console
+
+---
+
+## 📁 Archivos Modificados (Session 62)
+
+| Archivo | Cambios |
+|---------|---------|
+| `src/lib/stores/auth.ts` | `getWithTimeout()`, `checkAdmin()` retry 3x, `loginWithGoogle()` → redirect directo, logging verbose |
+| `src/lib/stores/connection.ts` | Grace period 3s antes de marcar desconectado |
+| `src/routes/(store)/login/+page.svelte` | Spinner "Verificando permisos...", redirect espera `adminChecked` |
+| `src/hooks.server.ts` | CSP: `firebaseapp.com` en `connect-src` + `frame-src` |
+| `.env.example` | Poblado con Firebase keys, Google Client ID, Admin UID |
