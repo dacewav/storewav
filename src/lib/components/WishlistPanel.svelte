@@ -44,9 +44,16 @@
 					<span class="wish-count">{wishBeats.length}</span>
 				{/if}
 			</h3>
-			<button class="panel-close" onclick={() => open = false} aria-label="Cerrar">
-				<Icon name="close" size={16} />
-			</button>
+			<div class="panel-header-actions">
+				{#if wishBeats.length > 0}
+					<button class="panel-clear" onclick={() => { if (confirm('¿Limpiar todos los favoritos?')) wishlist.clear(); }} aria-label="Limpiar todo">
+						🗑️
+					</button>
+				{/if}
+				<button class="panel-close" onclick={() => open = false} aria-label="Cerrar">
+					<Icon name="close" size={16} />
+				</button>
+			</div>
 		</div>
 
 		<div class="panel-body">
@@ -131,6 +138,32 @@
 		border: 1px solid rgba(var(--accent-rgb), 0.2);
 		color: var(--accent);
 		letter-spacing: 0.04em;
+	}
+
+	.panel-header-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--space-1);
+	}
+
+	.panel-clear {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-width: var(--touch-min);
+		min-height: var(--touch-min);
+		border: none;
+		border-radius: var(--radius-md);
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		font-size: 14px;
+		transition: all var(--duration-fast);
+	}
+
+	.panel-clear:hover {
+		background: var(--danger-glow);
+		color: var(--danger);
 	}
 
 	.panel-close {
