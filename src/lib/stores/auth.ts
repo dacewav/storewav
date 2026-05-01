@@ -138,9 +138,9 @@ export async function initAuth() {
 		try {
 			const result = await getRedirectResult(auth);
 			if (result?.user) {
-				if (dev) console.log('[Auth] Redirect sign-in successful:', result.user.email);
-			} else if (dev) {
-				console.log('[Auth] No redirect result (user may have navigated directly)');
+				console.log('[Auth] Redirect sign-in successful:', result.user.email, 'UID:', result.user.uid);
+			} else {
+				console.log('[Auth] No redirect result (user may have navigated directly or redirect failed)');
 			}
 		} catch (redirectErr) {
 			const code = (redirectErr as { code?: string })?.code ?? 'unknown';
@@ -149,6 +149,7 @@ export async function initAuth() {
 
 		unsub = onAuthStateChanged(auth, async (fbUser) => {
 			if (fbUser) {
+				console.log('[Auth] onAuthStateChanged: signed in as', fbUser.email, 'UID:', fbUser.uid);
 				const user: AuthUser = {
 					uid: fbUser.uid,
 					displayName: fbUser.displayName,
@@ -158,9 +159,11 @@ export async function initAuth() {
 				// Set user immediately, admin check pending
 				store.set({ user, isAdmin: false, adminChecked: false, loading: false, error: null });
 				const isAdmin = await checkAdmin(fbUser.uid, fbUser.email);
+				console.log('[Auth] Admin check result:', isAdmin, 'for UID:', fbUser.uid);
 				// Single update: admin check complete
 				store.update((s) => ({ ...s, isAdmin, adminChecked: true }));
 			} else {
+				console.log('[Auth] onAuthStateChanged: signed out');
 				store.set({ user: null, isAdmin: false, adminChecked: true, loading: false, error: null });
 			}
 		});
@@ -170,43 +173,30 @@ export async function initAuth() {
 	}
 }
 
-/** Login con Google — popup-first, redirect como fallback (COOP-safe) */
+/** Login con Google — redirect directo (sin popup)
+ *
+ * signInWithPopup está roto en navegadores modernos: Google pone
+ * COOP: same-origin en sus páginas de OAuth, lo que rompe
+ * window.opener.postMessage() en el auth handler de Firebase.
+ * El popup se queda colgado en firebaseapp.com/__/auth/handler.
+ *
+ * signInWithRedirect es más confiable: navega la página completa
+ * a Google → auth handler → de vuelta a la app. No necesita
+ * comunicación popup↔opener.
+ */
 export async function loginWithGoogle() {
 	try {
 		const auth = await getAuthInstance();
 		if (!auth) throw new Error('Firebase no inicializado');
 
-		const { GoogleAuthProvider, signInWithPopup, signInWithRedirect } = await import('firebase/auth');
+		const { GoogleAuthProvider, signInWithRedirect } = await import('firebase/auth');
 		const provider = new GoogleAuthProvider();
 		provider.addScope('email');
 		provider.addScope('profile');
 
-		// Try popup first — but with 10s timeout.
-		// Modern browsers + Google's COOP headers can break the popup→opener
-		// postMessage chain, causing signInWithPopup to hang forever at
-		// firebaseapp.com/__/auth/handler. Timeout catches this and falls
-		// back to redirect which doesn't need popup↔opener communication.
-		try {
-			if (dev) console.log('[Auth] Trying signInWithPopup (10s timeout)...');
-			const popupPromise = signInWithPopup(auth, provider);
-			const timeoutPromise = new Promise<never>((_, reject) => {
-				setTimeout(() => reject(new Error('popup-timeout')), 10000);
-			});
-			const result = await Promise.race([popupPromise, timeoutPromise]);
-			if (dev) console.log('[Auth] Popup sign-in successful:', (result as any).user.email);
-			return; // Success — no redirect needed
-		} catch (popupErr) {
-			const code = (popupErr as { code?: string })?.code ?? '';
-			const msg = (popupErr as Error)?.message ?? '';
-			// If popup was blocked, closed, cancelled, or timed out → redirect
-			if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || msg === 'popup-timeout') {
-				if (dev) console.log('[Auth] Popup failed (' + (msg === 'popup-timeout' ? 'timeout' : code) + '), falling back to redirect...');
-				await signInWithRedirect(auth, provider);
-				return;
-			}
-			// For other errors (like auth/unauthorized-domain), throw
-			throw popupErr;
-		}
+		if (dev) console.log('[Auth] signInWithRedirect...');
+		await signInWithRedirect(auth, provider);
+		// Page navigates away — result picked up by getRedirectResult() in initAuth()
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
 		console.error('[Auth] loginWithGoogle error:', msg);
