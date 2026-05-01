@@ -92,8 +92,8 @@
 		initWishlistSync(uid);
 		initNotifications(uid);
 
-		// Google One Tap when not logged in
-		if (!uid && !$auth.loading && PUBLIC_GOOGLE_CLIENT_ID) {
+		// Google One Tap when not logged in (skip on /login — login page has its own GSI flow)
+		if (!uid && !$auth.loading && PUBLIC_GOOGLE_CLIENT_ID && !page.url.pathname.startsWith('/login')) {
 			initOneTap(
 				async (idToken) => { await signInWithIdToken(idToken); },
 				PUBLIC_GOOGLE_CLIENT_ID

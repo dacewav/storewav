@@ -132,20 +132,7 @@ export async function initAuth() {
 			return;
 		}
 
-		const { onAuthStateChanged, getRedirectResult } = await import('firebase/auth');
-
-		// Handle redirect result (for signInWithRedirect flow)
-		try {
-			const result = await getRedirectResult(auth);
-			if (result?.user) {
-				console.log('[Auth] Redirect sign-in successful:', result.user.email, 'UID:', result.user.uid);
-			} else {
-				console.log('[Auth] No redirect result (user may have navigated directly or redirect failed)');
-			}
-		} catch (redirectErr) {
-			const code = (redirectErr as { code?: string })?.code ?? 'unknown';
-			console.error('[Auth] Redirect result error:', code, redirectErr);
-		}
+		const { onAuthStateChanged } = await import('firebase/auth');
 
 		unsub = onAuthStateChanged(auth, async (fbUser) => {
 			if (fbUser) {
@@ -173,35 +160,116 @@ export async function initAuth() {
 	}
 }
 
-/** Login con Google — redirect directo (sin popup)
+/** Login con Google — credential directo vía GSI (sin redirect/popup)
  *
- * signInWithPopup está roto en navegadores modernos: Google pone
- * COOP: same-origin en sus páginas de OAuth, lo que rompe
- * window.opener.postMessage() en el auth handler de Firebase.
- * El popup se queda colgado en firebaseapp.com/__/auth/handler.
+ * signInWithRedirect está roto porque CORS bloquea la comunicación
+ * entre dacewav.store y dacewav-store-3b0f5.firebaseapp.com (authDomain).
+ * Firebase Hosting no está desplegado → init.json 404.
  *
- * signInWithRedirect es más confiable: navega la página completa
- * a Google → auth handler → de vuelta a la app. No necesita
- * comunicación popup↔opener.
+ * signInWithPopup está roto por COOP: same-origin de Google.
+ *
+ * Solución: usar Google Identity Services (GSI) directamente
+ * para obtener el ID token, luego signInWithCredential en Firebase.
+ * No depende del authDomain, no necesita popup ni redirect.
  */
 export async function loginWithGoogle() {
 	try {
 		const auth = await getAuthInstance();
 		if (!auth) throw new Error('Firebase no inicializado');
 
-		const { GoogleAuthProvider, signInWithRedirect } = await import('firebase/auth');
-		const provider = new GoogleAuthProvider();
-		provider.addScope('email');
-		provider.addScope('profile');
+		if (dev) console.log('[Auth] GSI credential flow...');
 
-		if (dev) console.log('[Auth] signInWithRedirect...');
-		await signInWithRedirect(auth, provider);
-		// Page navigates away — result picked up by getRedirectResult() in initAuth()
+		// Load GSI script if not already loaded
+		await loadGSIScript();
+
+		const google = (window as any).google;
+		if (!google?.accounts?.id) {
+			throw new Error('Google Identity Services no disponible');
+		}
+
+		// Get client ID
+		const { PUBLIC_GOOGLE_CLIENT_ID } = await import('$env/static/public');
+		if (!PUBLIC_GOOGLE_CLIENT_ID) throw new Error('PUBLIC_GOOGLE_CLIENT_ID no configurado');
+
+		// Use a promise to wait for the GSI credential callback
+		const idToken: string = await new Promise((resolve, reject) => {
+			let resolved = false;
+
+			google.accounts.id.initialize({
+				client_id: PUBLIC_GOOGLE_CLIENT_ID,
+				callback: (response: { credential: string }) => {
+					if (response.credential) {
+						resolved = true;
+						resolve(response.credential);
+					}
+				},
+				auto_select: false,
+				cancel_on_tap_outside: true,
+			});
+
+			// Show the One Tap prompt (this is the active sign-in UI)
+			google.accounts.id.prompt((notification: any) => {
+				if (dev) console.log('[Auth] GSI prompt moment:', notification.getMomentType());
+				// If the prompt was dismissed or skipped without getting a credential
+				if (!resolved && notification.getMomentType() === 'dismissed') {
+					reject(new Error('Login cancelado'));
+				}
+				if (!resolved && notification.getMomentType() === 'skipped') {
+					// 'skipped' can mean browser doesn't support the prompt UI
+					// Don't reject — the credential callback might still fire
+					if (dev) console.log('[Auth] GSI prompt skipped (credential may still arrive)');
+				}
+			});
+
+			// Timeout after 60s (user might be slow to pick account)
+			setTimeout(() => {
+				if (!resolved) reject(new Error('Login timeout — no se recibió credencial'));
+			}, 60000);
+		});
+
+		// Sign in to Firebase with the GSI credential
+		const { GoogleAuthProvider, signInWithCredential } = await import('firebase/auth');
+		const credential = GoogleAuthProvider.credential(idToken);
+		const result = await signInWithCredential(auth, credential);
+
+		if (dev) console.log('[Auth] GSI sign-in successful:', result.user.email, 'UID:', result.user.uid);
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
 		console.error('[Auth] loginWithGoogle error:', msg);
 		store.update((s) => ({ ...s, error: msg }));
 	}
+}
+
+/** Load GSI script (shared with oneTap.ts) */
+function loadGSIScript(): Promise<void> {
+	return new Promise((resolve, reject) => {
+		if ((window as any).google?.accounts?.id) { resolve(); return; }
+		if (typeof document === 'undefined') { reject(new Error('No document')); return; }
+
+		// Check if script already exists
+		const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+		if (existing) {
+			existing.addEventListener('load', () => resolve());
+			existing.addEventListener('error', () => reject(new Error('Failed to load GSI')));
+			// If already loaded
+			if ((window as any).google?.accounts?.id) resolve();
+			return;
+		}
+
+		const script = document.createElement('script');
+		script.src = 'https://accounts.google.com/gsi/client';
+		script.async = true;
+		script.defer = true;
+		script.onload = () => {
+			// Give it a tick to initialize
+			setTimeout(() => {
+				if ((window as any).google?.accounts?.id) resolve();
+				else reject(new Error('GSI loaded but not available'));
+			}, 100);
+		};
+		script.onerror = () => reject(new Error('Failed to load Google Identity Services'));
+		document.head.appendChild(script);
+	});
 }
 
 /** Login con email link (passwordless) — envía link al email */
