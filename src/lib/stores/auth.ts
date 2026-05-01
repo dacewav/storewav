@@ -181,17 +181,26 @@ export async function loginWithGoogle() {
 		provider.addScope('email');
 		provider.addScope('profile');
 
-		// Try popup first — works reliably with multi-account Google
+		// Try popup first — but with 10s timeout.
+		// Modern browsers + Google's COOP headers can break the popup→opener
+		// postMessage chain, causing signInWithPopup to hang forever at
+		// firebaseapp.com/__/auth/handler. Timeout catches this and falls
+		// back to redirect which doesn't need popup↔opener communication.
 		try {
-			if (dev) console.log('[Auth] Trying signInWithPopup...');
-			const result = await signInWithPopup(auth, provider);
-			if (dev) console.log('[Auth] Popup sign-in successful:', result.user.email);
+			if (dev) console.log('[Auth] Trying signInWithPopup (10s timeout)...');
+			const popupPromise = signInWithPopup(auth, provider);
+			const timeoutPromise = new Promise<never>((_, reject) => {
+				setTimeout(() => reject(new Error('popup-timeout')), 10000);
+			});
+			const result = await Promise.race([popupPromise, timeoutPromise]);
+			if (dev) console.log('[Auth] Popup sign-in successful:', (result as any).user.email);
 			return; // Success — no redirect needed
 		} catch (popupErr) {
 			const code = (popupErr as { code?: string })?.code ?? '';
-			// If popup was blocked by COOP/browser policy, fall back to redirect
-			if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-				if (dev) console.log('[Auth] Popup blocked/closed, falling back to redirect...');
+			const msg = (popupErr as Error)?.message ?? '';
+			// If popup was blocked, closed, cancelled, or timed out → redirect
+			if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || msg === 'popup-timeout') {
+				if (dev) console.log('[Auth] Popup failed (' + (msg === 'popup-timeout' ? 'timeout' : code) + '), falling back to redirect...');
 				await signInWithRedirect(auth, provider);
 				return;
 			}
