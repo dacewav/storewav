@@ -21,7 +21,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		"img-src 'self' data: blob: https://cdn.dacewav.store https://*.firebasestorage.app https://*.googleusercontent.com https://*.r2.dev",
 		"font-src 'self' https://fonts.gstatic.com",
 		"connect-src 'self' https://dacewav-store-3b0f5-default-rtdb.firebaseio.com https://*.firebaseio.com https://*.firebaseapp.com https://*.googleapis.com https://accounts.google.com https://identitytoolkit.googleapis.com https://securetoken.google.com https://api.stripe.com https://api.resend.com https://cdn.dacewav.store wss://*.firebaseio.com",
-		"frame-src 'self' https://accounts.google.com https://js.stripe.com",
+		"frame-src 'self' https://accounts.google.com https://js.stripe.com https://*.firebaseapp.com",
 		"media-src 'self' blob: https://cdn.dacewav.store https://*.firebasestorage.app https://*.r2.dev",
 		"worker-src 'self' blob:",
 	].join('; ');
