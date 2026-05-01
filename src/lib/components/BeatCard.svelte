@@ -91,6 +91,13 @@
 		wishlist.toggle(beat.id);
 		analytics.track('wishlist', 'toggle', { lbl: beat.id, val: wasIn ? 0 : 1, meta: beat.name });
 		toast.show(wasIn ? 'Quitado de favoritos' : '❤️ Añadido a favoritos');
+
+		// Burst effect on like (not on unlike)
+		if (!wasIn) {
+			const btn = (e.currentTarget as HTMLElement);
+			btn.classList.add('just-liked');
+			setTimeout(() => btn.classList.remove('just-liked'), 500);
+		}
 	}
 
 	function handlePlay(e: MouseEvent) {
@@ -531,6 +538,26 @@
 
 	.beat-wish.active {
 		color: var(--accent);
+	}
+
+	/* Wishlist burst effect */
+	.beat-wish.just-liked {
+		position: relative;
+	}
+
+	.beat-wish.just-liked::after {
+		content: '';
+		position: absolute;
+		inset: -4px;
+		border-radius: 50%;
+		background: radial-gradient(circle, rgba(var(--accent-rgb), 0.4), transparent 70%);
+		animation: wishBurst 0.5s ease-out forwards;
+		pointer-events: none;
+	}
+
+	@keyframes wishBurst {
+		0% { transform: scale(0.5); opacity: 1; }
+		100% { transform: scale(2.5); opacity: 0; }
 	}
 
 	/* Quick add to cart */

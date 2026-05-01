@@ -809,6 +809,13 @@
 		font-weight: 600;
 		line-height: 1;
 		box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.4);
+		animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	@keyframes badgePop {
+		0% { transform: scale(0); opacity: 0; }
+		60% { transform: scale(1.2); }
+		100% { transform: scale(1); opacity: 1; }
 	}
 
 	.nav-badge-inline {
@@ -1084,6 +1091,17 @@
 	@keyframes slideInRight {
 		from { transform: translateX(100%); }
 		to { transform: translateX(0); }
+	}
+
+	/* ── Scroll Progress ── */
+	#scroll-progress {
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 3px;
+		background: var(--accent);
+		z-index: calc(var(--z-nav) + 1);
+		transition: width 0.1s linear;
 	}
 
 	/* ── Main ── */

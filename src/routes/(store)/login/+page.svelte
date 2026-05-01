@@ -2,6 +2,7 @@
 	import { Icon } from '$lib/components';
 	import { auth, loginWithGoogle, loginWithEmailLink, completeEmailLinkSignIn, loginAnonymously, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
+	import { dev } from '$app/environment';
 	import type { LabelSettings } from '$lib/stores/settings';
 
 	let loading = $state(false);
@@ -183,9 +184,11 @@
 			</form>
 		{/if}
 
-		<button class="anon-btn" onclick={handleAnonLogin} disabled={loading}>
-			🧪 Entrar como tester (anónimo)
-		</button>
+		{#if dev}
+			<button class="anon-btn" onclick={handleAnonLogin} disabled={loading}>
+				🧪 Entrar como tester (anónimo)
+			</button>
+		{/if}
 
 		<div class="login-footer">
 			<a href="/" class="back-link">{loginBack}</a>

@@ -158,6 +158,13 @@
 		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 		z-index: 100;
 		overflow: hidden;
+		animation: dropdownIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+		transform-origin: top right;
+	}
+
+	@keyframes dropdownIn {
+		from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+		to { opacity: 1; transform: scale(1) translateY(0); }
 	}
 
 	.dropdown-header {
