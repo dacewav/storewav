@@ -33,6 +33,7 @@
 
 	let inWishlist = $derived(wishlist.isIn(beat.id));
 	let playing = $state(false);
+	let justLiked = $state(false);
 	let isCurrentBeat = $derived($player.beatId === beat.id && $player.playing);
 	let beatLikeCount = $derived($likeCounts[beat.id] ?? 0);
 
@@ -87,17 +88,17 @@
 
 	function handleWishlist(e: MouseEvent) {
 		e.stopPropagation();
-		const wasIn = wishlist.isIn(beat.id);
+		const wasIn = $inWishlist;
+
+		// Set burst BEFORE toggle (toggle triggers re-render that may replace DOM)
+		if (!wasIn) {
+			justLiked = true;
+			setTimeout(() => { justLiked = false; }, 500);
+		}
+
 		wishlist.toggle(beat.id);
 		analytics.track('wishlist', 'toggle', { lbl: beat.id, val: wasIn ? 0 : 1, meta: beat.name });
 		toast.show(wasIn ? 'Quitado de favoritos' : '❤️ Añadido a favoritos');
-
-		// Burst effect on like (not on unlike)
-		if (!wasIn) {
-			const btn = (e.currentTarget as HTMLElement);
-			btn.classList.add('just-liked');
-			setTimeout(() => btn.classList.remove('just-liked'), 500);
-		}
 	}
 
 	function handlePlay(e: MouseEvent) {
@@ -186,6 +187,9 @@
 			<!-- Wishlist -->
 			<button class="beat-wish" class:active={$inWishlist} onclick={handleWishlist} aria-label="{$inWishlist ? 'Quitar de' : 'Añadir a'} favoritos" aria-pressed={$inWishlist}>
 				<Icon name="heart" size={14} filled={$inWishlist} />
+				{#if justLiked}
+					<span class="wish-burst"></span>
+				{/if}
 			</button>
 
 			<!-- Quick add to cart -->
@@ -541,12 +545,7 @@
 	}
 
 	/* Wishlist burst effect */
-	.beat-wish.just-liked {
-		position: relative;
-	}
-
-	.beat-wish.just-liked::after {
-		content: '';
+	.wish-burst {
 		position: absolute;
 		inset: -4px;
 		border-radius: 50%;
