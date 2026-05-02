@@ -231,6 +231,16 @@
 	});
 
 	onMount(() => {
+		// Global error handler — catch unhandled JS errors
+		function onGlobalError(e: ErrorEvent) {
+			console.error('[GlobalError]', e.message, e.filename, e.lineno);
+		}
+		function onUnhandledRejection(e: PromiseRejectionEvent) {
+			console.error('[UnhandledRejection]', e.reason);
+		}
+		window.addEventListener('error', onGlobalError);
+		window.addEventListener('unhandledrejection', onUnhandledRejection);
+
 		// Initialize custom emojis for store rendering
 		initCustomEmojis();
 
@@ -348,6 +358,8 @@
 		// Reveal handled by use:reveal action per-element
 
 		return () => {
+			window.removeEventListener('error', onGlobalError);
+			window.removeEventListener('unhandledrejection', onUnhandledRejection);
 			destroyCustomEmojis();
 			clearTimeout(timeout);
 			unsubSettings();

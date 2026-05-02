@@ -269,7 +269,7 @@
 							<label for="accentColor">Color de acento</label>
 							<div class="color-row">
 								<input id="accentColor" type="color" bind:value={template.accentColor} />
-								<input type="text" bind:value={template.accentColor} class="color-text" />
+								<input type="text" bind:value={template.accentColor} class="color-text" aria-label="Color de acento" />
 							</div>
 						</div>
 						<div class="field">
@@ -316,7 +316,7 @@
 							<label for="downloadBtnColor">Color del botón</label>
 							<div class="color-row">
 								<input id="downloadBtnColor" type="color" bind:value={template.downloadBtnColor} />
-								<input type="text" bind:value={template.downloadBtnColor} class="color-text" />
+								<input type="text" bind:value={template.downloadBtnColor} class="color-text" aria-label="Color del botón de descarga" />
 							</div>
 						</div>
 					</div>

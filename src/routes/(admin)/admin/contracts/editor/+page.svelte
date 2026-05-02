@@ -349,6 +349,7 @@
 					class="var-search"
 					placeholder="Buscar variable..."
 					bind:value={searchVar}
+					aria-label="Buscar variable"
 				/>
 
 				<div class="var-groups">
@@ -407,6 +408,7 @@
 					bind:value={editorText}
 					spellcheck="false"
 					placeholder="Cargando texto del contrato..."
+					aria-label="Editor de contrato"
 				></textarea>
 			{/if}
 		</div>

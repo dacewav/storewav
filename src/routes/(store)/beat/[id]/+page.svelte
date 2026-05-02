@@ -176,6 +176,15 @@
 				availability: 'https://schema.org/InStock'
 			} : undefined
 		})}</script>`}
+		{@html `<script type="application/ld+json">${JSON.stringify({
+			'@context': 'https://schema.org',
+			'@type': 'BreadcrumbList',
+			itemListElement: [
+				{ '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://dacewav.store' },
+				{ '@type': 'ListItem', position: 2, name: 'Catálogo', item: 'https://dacewav.store/#beats' },
+				{ '@type': 'ListItem', position: 3, name: beat.name, item: `https://dacewav.store/beat/${getBeatSlug(beat)}` }
+			]
+		})}</script>`}
 	{:else}
 		<title>Beat — {s?.brand?.name ?? 'DACEWAV'}</title>
 	{/if}

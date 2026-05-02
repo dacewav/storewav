@@ -367,22 +367,6 @@
 </section>
 {/if}
 
-<!-- For You recommendations -->
-{#if forYouBeats.length > 0}
-<section class="featured-section" use:reveal={{}}>
-	<div class="section-header">
-		<h2 class="section-title" style={sectionTitleStyle}>✨ Para ti</h2>
-		<div class="section-line"></div>
-		<div class="section-badge">Basado en tus likes</div>
-	</div>
-	<div class="beat-grid" style="grid-template-columns: repeat({cardsPerRow}, 1fr)" use:staggerReveal={{ delay: 60 }}>
-		{#each forYouBeats as beat (beat.id)}
-			<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
-		{/each}
-	</div>
-</section>
-{/if}
-
 <!-- Recently played -->
 {#if recentBeats.length > 0}
 <section class="featured-section" use:reveal={{}}>
@@ -482,6 +466,22 @@
 		<EmptyState icon="🎵" title="No hay beats todavía" subtitle="Pronto habrá contenido disponible." />
 	{/if}
 </section>
+
+<!-- For You recommendations (after catalog — user has context to appreciate personalization) -->
+{#if forYouBeats.length > 0}
+<section class="featured-section" use:reveal={{}}>
+	<div class="section-header">
+		<h2 class="section-title" style={sectionTitleStyle}>✨ Para ti</h2>
+		<div class="section-line"></div>
+		<div class="section-badge">Basado en tus likes</div>
+	</div>
+	<div class="beat-grid" style="grid-template-columns: repeat({cardsPerRow}, 1fr)" use:staggerReveal={{ delay: 60 }}>
+		{#each forYouBeats as beat (beat.id)}
+			<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
+		{/each}
+	</div>
+</section>
+{/if}
 
 <!-- Testimonials -->
 {#if s?.testimonials?.length}

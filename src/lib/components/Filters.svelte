@@ -64,6 +64,14 @@
 		return () => window.removeEventListener('resize', onResize);
 	});
 
+	// Debounced search — fires 200ms after last keystroke
+	let searchTimer: ReturnType<typeof setTimeout> | null = null;
+	function handleSearchInput() {
+		typeaheadIndex = -1;
+		if (searchTimer) clearTimeout(searchTimer);
+		searchTimer = setTimeout(() => { onchange?.(filters); }, 200);
+	}
+
 	// Match BeatEditor's key list exactly
 	const allKeys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
 		'Am', 'Bbm', 'Bm', 'Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m'];
@@ -127,7 +135,7 @@
 				type="text"
 				placeholder={placeholder}
 				bind:value={filters.search}
-				oninput={() => { onchange?.(filters); typeaheadIndex = -1; }}
+				oninput={() => handleSearchInput()}
 				onfocus={() => searchFocused = true}
 				onblur={() => setTimeout(() => searchFocused = false, 200)}
 				role="combobox"
