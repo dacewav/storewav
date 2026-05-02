@@ -182,6 +182,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 22. Toast Container — Posición subóptima en mobile
 **Severidad:** Baja | **Esfuerzo:** Bajo | **Impacto:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** Los toasts aparecen centrados abajo. En mobile, pueden tapar el player bar o los botones de acción.
 
@@ -207,6 +208,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 24. Admin Sidebar — Colapsar sin transición de labels
 **Severidad:** Baja | **Esfuerzo:** Bajo | **Impacto:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** Al colapsar el sidebar, los labels desaparecen instantáneamente (`display: none`). No hay fade ni width transition suave.
 
@@ -226,6 +228,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 25. Admin Import Modal — Sin loading state visual
 **Severidad:** Media | **Esfuerzo:** Bajo | **Impacto:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** Al confirmar la importación, el botón dice "Importando..." pero no hay spinner ni progress visual. Para imports grandes, el usuario no sabe si está funcionando.
 
@@ -279,6 +282,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 29. Admin Topbar — Save status sin transición entre estados
 **Severidad:** Baja | **Esfuerzo:** Bajo | **Impacto:** Bajo
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** Los dots de estado (saved/saving/error/unsaved) cambian instantáneamente. Ya tienen animaciones individuales (`popIn`, `pulse`, `shake`) pero la transición entre estados no es fluida.
 
@@ -338,6 +342,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 34. EmptyState Component — Animación de float repetitiva
 **Severidad:** Baja | **Esfuerzo:** Bajo
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** El ícono del EmptyState tiene `animation: float 3s ease-in-out infinite` que se repite indefinidamente. En contextos largos (usuario viendo la pantalla), puede resultar molesto.
 
@@ -360,6 +365,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 36. Loader — Genérico, no refleja la marca
 **Severidad:** Baja | **Esfuerzo:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** El loader muestra el nombre de la marca + 3 dots. Es funcional pero genérico. Para una tienda de beats, podría ser más engaging.
 

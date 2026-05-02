@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { Icon } from '$lib/components';
+	import { fade } from 'svelte/transition';
 
 	let {
 		brandName = 'DACEWAV',
@@ -47,14 +48,14 @@
 
 	<div class="save-status" class:saving={saveStatus === 'saving'} class:error={saveStatus === 'error'}>
 		{#if saveStatus === 'saving'}
-			<span class="sdot saving-dot"></span>
+			<span class="sdot saving-dot" transition:fade={{ duration: 150 }}></span>
 			<span class="status-text">Guardando...</span>
 		{:else if saveStatus === 'error'}
-			<span class="sdot error-dot"></span>
+			<span class="sdot error-dot" transition:fade={{ duration: 150 }}></span>
 			<span class="status-text">Error</span>
 			<button class="retry-btn" onclick={onSave} title="Reintentar">↻</button>
 		{:else if saveStatus === 'saved'}
-			<span class="sdot saved-dot">✓</span>
+			<span class="sdot saved-dot" transition:fade={{ duration: 150 }}>✓</span>
 			<span class="status-text">Guardado</span>
 		{:else}
 			<span class="sdot" style="background: var(--warning)"></span>

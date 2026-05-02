@@ -39,7 +39,7 @@
 		font-size: var(--text-5xl);
 		margin-bottom: var(--space-4);
 		opacity: 0.25;
-		animation: float 3s ease-in-out infinite;
+		animation: float 3s ease-in-out 5;
 	}
 
 	.empty-title {

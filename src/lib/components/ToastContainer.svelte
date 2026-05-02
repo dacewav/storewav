@@ -40,6 +40,13 @@
 		pointer-events: none;
 	}
 
+	/* On mobile, position above the player bar */
+	@media (max-width: 768px) {
+		.toast-container {
+			bottom: 100px;
+		}
+	}
+
 	.toast {
 		display: flex;
 		align-items: center;

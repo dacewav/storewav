@@ -404,10 +404,12 @@
 			{loaderText}
 		{/if}
 	</div>
-	<div class="ld-dots">
-		<div class="ld"></div>
-		<div class="ld"></div>
-		<div class="ld"></div>
+	<div class="ld-eq">
+		<div class="eq-bar-loader"></div>
+		<div class="eq-bar-loader"></div>
+		<div class="eq-bar-loader"></div>
+		<div class="eq-bar-loader"></div>
+		<div class="eq-bar-loader"></div>
 	</div>
 </div>
 {/if}

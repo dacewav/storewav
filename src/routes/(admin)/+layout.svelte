@@ -454,7 +454,11 @@
 	}
 
 	.sidebar.collapsed .group-label {
-		display: none;
+		opacity: 0;
+		height: 0;
+		overflow: hidden;
+		padding: 0;
+		transition: opacity 0.15s, height 0.2s, padding 0.2s;
 	}
 
 	.sidebar.collapsed .si {
@@ -463,11 +467,17 @@
 	}
 
 	.sidebar.collapsed .si-label {
-		display: none;
+		opacity: 0;
+		width: 0;
+		overflow: hidden;
+		transition: opacity 0.15s, width 0.2s;
 	}
 
 	.sidebar.collapsed .si-shortcut {
-		display: none;
+		opacity: 0;
+		width: 0;
+		overflow: hidden;
+		transition: opacity 0.15s;
 	}
 
 	.sidebar.collapsed .sep {

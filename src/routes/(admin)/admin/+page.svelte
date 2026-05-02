@@ -513,7 +513,11 @@
 				<div class="modal-actions">
 					<button class="btn-cancel" onclick={cancelImport}>Cancelar</button>
 					<button class="btn-import" onclick={executeImport} disabled={importing}>
-						{importing ? 'Importando...' : 'Confirmar importación'}
+						{#if importing}
+							<span class="import-spinner"></span> Importando...
+						{:else}
+							Confirmar importación
+						{/if}
 					</button>
 				</div>
 			</div>
@@ -938,6 +942,22 @@
 	.btn-import:disabled {
 		opacity: 0.5;
 		cursor: wait;
+	}
+
+	.import-spinner {
+		display: inline-block;
+		width: 14px;
+		height: 14px;
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-top-color: #fff;
+		border-radius: 50%;
+		animation: spin 0.6s linear infinite;
+		vertical-align: middle;
+		margin-right: var(--space-1);
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
 	}
 
 	@media (max-width: 768px) {
