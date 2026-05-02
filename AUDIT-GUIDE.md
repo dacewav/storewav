@@ -37,6 +37,8 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 16. Nav Badges — Sin animación de aparición
 **Severidad:** Alta | **Esfuerzo:** Bajo | **Impacto:** Alto
+**Status:** ✅ IMPLEMENTADO (sesión anterior)
+**Animación:** `badgePop` keyframe con scale(0)→scale(1.2)→scale(1)
 
 **Problema:** Los badges del corazón ❤️ y campana 🔔 aparecen/desaparecen de golpe. Sin transición, sin "pop", sin feedback cuando cambia el valor.
 
@@ -73,6 +75,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 17. WishlistPanel — Items sin stagger, exit sin animación
 **Severidad:** Alta | **Esfuerzo:** Medio | **Impacto:** Alto
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:**
 - Items aparecen todos de golpe al abrir el panel (sin stagger)
@@ -92,6 +95,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 18. BeatCard Wishlist Button — Sin burst effect al dar like
 **Severidad:** Alta | **Esfuerzo:** Bajo | **Impacto:** Alto
+**Status:** ✅ IMPLEMENTADO (sesión anterior)
 
 **Problema:** El botón de wishlist en las BeatCards (`beat-wish`) solo cambia el ícono de outline a filled. Sin animación de "me gusta". El `LikeButton` tiene `heartBurst` pero el botón del card no.
 
@@ -138,6 +142,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 20. AuthButton Dropdown — Sin animación de entrada
 **Severidad:** Media | **Esfuerzo:** Bajo | **Impacto:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión anterior)
 
 **Problema:** El dropdown de usuario aparece de golpe. Sin fade, sin scale, sin transform-origin.
 
@@ -160,6 +165,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 21. Página de Favoritos — Grid estática, sin vida
 **Severidad:** Media | **Esfuerzo:** Medio | **Impacto:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** `/account/favorites` es una grid estática de BeatCards. Sin stagger, sin animación de entrada, sin filtros, sin acciones bulk.
 
@@ -189,6 +195,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 23. Admin Dashboard — Stats cards sin animación de números
 **Severidad:** Media | **Esfuerzo:** Bajo | **Impacto:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** Las stat cards del dashboard muestran números estáticos. La página principal tiene `use:countUp` para animar números, pero el admin dashboard no.
 
@@ -230,6 +237,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 26. Cart Page — Discount code sin feedback visual de éxito
 **Severidad:** Media | **Esfuerzo:** Bajo | **Impacto:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** Al aplicar un código de descuento, el feedback es solo un cambio de estado (el código aparece como "aplicado"). No hay animación de éxito, no hay visualización del ahorro.
 
@@ -259,6 +267,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 28. Filters Component — Expand/collapse sin animación de altura
 **Severidad:** Baja | **Esfuerzo:** Bajo | **Impacto:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** Los filtros expanden/colapsan con `filtersExpanded` boolean pero el cambio es instantáneo. No hay animación de altura (accordion-style).
 
@@ -294,6 +303,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 31. Login Page — Botón "Tester anónimo" visible en producción
 **Severidad:** Media | **Esfuerzo:** Bajo
+**Status:** ✅ IMPLEMENTADO (sesión anterior — gated behind `dev`)
 
 **Problema:** El botón `🧪 Entrar como tester (anónimo)` está siempre visible. En producción, usuarios reales podrían confundirse.
 
@@ -316,6 +326,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 33. Scroll Progress Bar — Usa gradiente genérico
 **Severidad:** Baja | **Esfuerzo:** Bajo
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** La barra de progreso de scroll en el layout usa un gradiente genérico. Podría usar el accent color del theme.
 
@@ -435,7 +446,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 - **Tests:** 222+ passing
 - **Producción:** Deployed via Cloudflare Workers
 - **Auth:** signInWithRedirect + retry logic
-- **UX Score:** 7/10 (solido, falta microinteracciones)
+- **UX Score:** 8/10 (microinteracciones implementadas)
 - **Accessibility:** Good (skip link, focus-visible, ARIA)
 - **Performance:** Good (code-split, lazy images, dynamic imports)
 - **i18n:** Spanish hardcoded (low priority)

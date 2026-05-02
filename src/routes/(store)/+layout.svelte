@@ -1099,9 +1099,10 @@
 		top: 0;
 		left: 0;
 		height: 3px;
-		background: var(--accent);
+		background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white));
 		z-index: calc(var(--z-nav) + 1);
 		transition: width 0.1s linear;
+		box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.4);
 	}
 
 	/* ── Main ── */

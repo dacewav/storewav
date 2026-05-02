@@ -4,6 +4,7 @@
 	import { seedDemoBeats, SEED_COUNT } from '$lib/seed';
 	import { toast } from '$lib/toastStore';
 	import { genreGradient } from '$lib/visualUtils';
+	import { countUp } from '$lib/actions';
 	import type { Beat } from '$lib/stores/beats';
 
 	let beatsData = $derived($beatsStore);
@@ -38,11 +39,11 @@
 	let maxPlays = $derived(topBeatsByPlays.length > 0 ? Math.max(...topBeatsByPlays.map(b => b.plays ?? 0)) : 1);
 
 	const statCards = $derived([
-		{ label: 'Beats', value: String(stats.total || '—'), icon: '🎵' },
-		{ label: 'Activos', value: String(stats.active || '—'), icon: '✅' },
-		{ label: 'Plays totales', value: stats.totalPlays > 0 ? stats.totalPlays.toLocaleString() : '—', icon: '🔥' },
-		{ label: 'Artistas', value: stats.uniqueArtists > 0 ? String(stats.uniqueArtists) : '—', icon: '🎤' },
-		{ label: 'Top beat', value: topBeatPlays > 0 ? `${topBeatName} (${topBeatPlays})` : '—', icon: '👑' }
+		{ label: 'Beats', value: String(stats.total || '—'), numValue: stats.total || 0, icon: '🎵' },
+		{ label: 'Activos', value: String(stats.active || '—'), numValue: stats.active || 0, icon: '✅' },
+		{ label: 'Plays totales', value: stats.totalPlays > 0 ? stats.totalPlays.toLocaleString() : '—', numValue: stats.totalPlays || 0, icon: '🔥' },
+		{ label: 'Artistas', value: stats.uniqueArtists > 0 ? String(stats.uniqueArtists) : '—', numValue: stats.uniqueArtists || 0, icon: '🎤' },
+		{ label: 'Top beat', value: topBeatPlays > 0 ? `${topBeatName} (${topBeatPlays})` : '—', numValue: topBeatPlays || 0, icon: '👑' }
 	]);
 
 	let seeding = $state(false);
@@ -280,7 +281,11 @@
 				<div class="stat-card">
 					<div class="stat-icon">{stat.icon}</div>
 					<div class="stat-info">
-						<div class="stat-value">{stat.value}</div>
+						{#if stat.numValue > 0 && stat.label !== 'Top beat'}
+							<div class="stat-value" use:countUp={stat.numValue}>{stat.value}</div>
+						{:else}
+							<div class="stat-value">{stat.value}</div>
+						{/if}
 						<div class="stat-label">{stat.label}</div>
 					</div>
 				</div>

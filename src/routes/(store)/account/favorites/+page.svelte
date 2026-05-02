@@ -4,6 +4,7 @@
 	import { auth, beatsList, player, settings, analytics, userLikes } from '$lib/stores';
 	import type { LabelSettings } from '$lib/stores/settings';
 	import { BeatCard, EmptyState, Skeleton } from '$lib/components';
+	import { staggerReveal } from '$lib/actions';
 
 	let authState = $derived($auth);
 	let uid = $derived(authState.user?.uid);
@@ -45,7 +46,7 @@
 		<a href="/" class="back-link">Explorar catálogo</a>
 	{:else}
 		<p class="favorites-count">{likedBeats.length} beat{likedBeats.length !== 1 ? 's' : ''} con like</p>
-		<div class="favorites-grid">
+		<div class="favorites-grid" use:staggerReveal={{ delay: 80 }}>
 			{#each likedBeats as beat (beat.id)}
 				<BeatCard
 					{beat}

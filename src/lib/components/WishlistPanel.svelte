@@ -23,6 +23,19 @@
 		beats.filter((b) => wishIds.includes(b.id))
 	);
 
+	// Track removing items for exit animation
+	let removingIds = $state(new Set<string>());
+
+	function removeWithAnimation(id: string) {
+		removingIds.add(id);
+		removingIds = new Set(removingIds); // trigger reactivity
+		setTimeout(() => {
+			wishlist.toggle(id);
+			removingIds.delete(id);
+			removingIds = new Set(removingIds);
+		}, 300);
+	}
+
 	function playBeat(beat: typeof wishBeats[0]) {
 		player.play({
 			id: beat.id,
@@ -31,6 +44,11 @@
 			imageUrl: beat.imageUrl ?? '',
 			audioUrl: beat.audioUrl ?? ''
 		});
+	}
+
+	// Stagger delay per item
+	function staggerDelay(index: number): number {
+		return Math.min(index * 60, 400);
 	}
 </script>
 
@@ -66,8 +84,12 @@
 					{/snippet}
 				</EmptyState>
 			{:else}
-				{#each wishBeats as beat (beat.id)}
-					<div class="wish-item">
+				{#each wishBeats as beat, i (beat.id)}
+					<div
+						class="wish-item"
+						class:removing={removingIds.has(beat.id)}
+						style="animation-delay: {staggerDelay(i)}ms"
+					>
 						<button class="wish-cover" onclick={() => playBeat(beat)} aria-label="Reproducir {beat.name}">
 							{#if beat.imageUrl}
 								<img src={beat.imageUrl} alt="{beat.name} cover" loading="lazy" decoding="async" />
@@ -79,7 +101,7 @@
 							<div class="wish-title">{beat.name}</div>
 							<div class="wish-meta">{beat.genre} · {beat.bpm} BPM</div>
 						</div>
-						<button class="wish-remove" onclick={() => wishlist.toggle(beat.id)} aria-label="Quitar">
+						<button class="wish-remove" onclick={() => removeWithAnimation(beat.id)} aria-label="Quitar">
 							<Icon name="close" size={12} />
 						</button>
 					</div>
@@ -198,11 +220,27 @@
 		padding: var(--space-3);
 		border-radius: var(--radius-md);
 		transition: all var(--duration-fast) var(--ease-out);
+		animation: wishItemIn 0.3s var(--ease-out) both;
+	}
+
+	.wish-item.removing {
+		animation: wishItemOut 0.3s var(--ease-out) forwards;
+	}
+
+	@keyframes wishItemIn {
+		from { opacity: 0; transform: translateX(20px); }
+		to { opacity: 1; transform: translateX(0); }
+	}
+
+	@keyframes wishItemOut {
+		from { opacity: 1; transform: translateX(0); height: auto; margin-bottom: 0; }
+		to { opacity: 0; transform: translateX(-40px); height: 0; margin-bottom: calc(-1 * var(--space-3)); padding: 0; overflow: hidden; }
 	}
 
 	.wish-item:hover {
 		background: var(--surface-hover);
-		transform: translateX(2px);
+		transform: translateX(4px) scale(1.02);
+		box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.15);
 	}
 
 	.wish-cover {

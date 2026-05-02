@@ -18,6 +18,7 @@
 	let discountLoading = $state(false);
 	let discountError = $state('');
 	let appliedDiscount = $state<{ code: string; type: 'percent' | 'fixed'; amount: number } | null>(null);
+	let discountJustApplied = $state(false);
 
 	async function applyDiscount() {
 		if (!discountCode.trim()) return;
@@ -35,6 +36,8 @@
 
 			if (data.ok && data.discount) {
 				appliedDiscount = data.discount;
+				discountJustApplied = true;
+				setTimeout(() => { discountJustApplied = false; }, 1500);
 				analytics.track('discount', 'apply', { lbl: discountCode.trim() });
 			} else {
 				discountError = data.error ?? 'Código inválido';
@@ -169,11 +172,21 @@
 				<!-- Discount code -->
 				<div class="discount-section">
 					{#if appliedDiscount}
-						<div class="discount-applied">
+						<div class="discount-applied" class:just-applied={discountJustApplied}>
+							<span class="discount-check">✓</span>
 							<span class="discount-badge">🏷️ {formatDiscount(appliedDiscount)}</span>
 							<span class="discount-code-label">{appliedDiscount.code}</span>
 							<button class="discount-remove" onclick={removeDiscount}>✕</button>
 						</div>
+						{#if discountJustApplied}
+							<div class="discount-savings">
+								{#if appliedDiscount.type === 'percent'}
+									Ahorras {appliedDiscount.amount}%
+								{:else}
+									Ahorras ${appliedDiscount.amount} USD
+								{/if}
+							</div>
+						{/if}
 					{:else}
 						<div class="discount-input-row">
 							<input
@@ -605,6 +618,52 @@
 		background: rgba(34, 197, 94, 0.08);
 		border: 1px solid rgba(34, 197, 94, 0.2);
 		border-radius: var(--radius-sm);
+		transition: all var(--duration-fast);
+	}
+
+	.discount-applied.just-applied {
+		animation: discountPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+		border-color: #22c55e;
+		box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
+	}
+
+	@keyframes discountPop {
+		0% { transform: scale(0.95); opacity: 0.5; }
+		50% { transform: scale(1.03); }
+		100% { transform: scale(1); opacity: 1; }
+	}
+
+	.discount-check {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: #22c55e;
+		color: white;
+		font-size: 11px;
+		font-weight: 700;
+		animation: checkIn 0.3s var(--ease-out) 0.1s both;
+	}
+
+	@keyframes checkIn {
+		from { transform: scale(0) rotate(-45deg); opacity: 0; }
+		to { transform: scale(1) rotate(0); opacity: 1; }
+	}
+
+	.discount-savings {
+		margin-top: var(--space-1);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: #22c55e;
+		text-align: center;
+		animation: savingsIn 0.3s var(--ease-out) 0.2s both;
+	}
+
+	@keyframes savingsIn {
+		from { opacity: 0; transform: translateY(-4px); }
+		to { opacity: 1; transform: translateY(0); }
 	}
 
 	.discount-badge {

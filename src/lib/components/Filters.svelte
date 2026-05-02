@@ -3,6 +3,8 @@
 	import type { Beat } from '$lib/stores/beats';
 	import Icon from './Icon.svelte';
 	import { goto } from '$app/navigation';
+	import { slide } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 	import { getBeatSlug } from '$lib/slug';
 
 	type FilterState = { search: string; genre: string; key: string; sort: string; tags: string[]; priceMin: number; priceMax: number };
@@ -188,6 +190,7 @@
 
 	<!-- Collapsible filters body -->
 	{#if filtersExpanded}
+		<div class="filters-body" transition:slide={{ duration: 250, easing: quintOut }}>
 		<!-- Genre pills -->
 		{#if genreList.length > 0}
 			<div class="filter-pills">
@@ -307,6 +310,7 @@
 				{/if}
 			</div>
 		{/if}
+		</div>
 	{/if}
 
 	<!-- Active filters -->
