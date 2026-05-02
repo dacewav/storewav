@@ -123,6 +123,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 19. Player — Cover sin rotación, mini waveform decorativo
 **Severidad:** Media | **Esfuerzo:** Medio | **Impacto:** Alto
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:**
 - Cover tiene `play-cover-pulse` (scale) pero no rotación sutil tipo vinilo
@@ -255,6 +256,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 27. Beat Detail Page — License cards sin interactividad
 **Severidad:** Media | **Esfuerzo:** Medio | **Impacto:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** Las licencias se muestran como cards estáticas. No hay visualización clara de qué incluye cada una (MP3 vs WAV vs Stems), no hay comparación side-by-side, no hay "recomendado" badge en la más popular.
 
@@ -354,6 +356,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ### 35. Mobile Menu — Search sin sugerencias recientes
 **Severidad:** Baja | **Esfuerzo:** Medio
+**Status:** ✅ IMPLEMENTADO (sesión 67)
 
 **Problema:** El search bar del mobile menu no tiene sugerencias recientes ni trending searches. El usuario debe escribir desde cero cada vez.
 

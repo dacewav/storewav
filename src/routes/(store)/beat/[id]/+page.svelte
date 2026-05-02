@@ -225,7 +225,7 @@
 
 				<!-- Waveform -->
 				<div class="beat-waveform">
-					<Waveform bars={80} height={48} />
+					<Waveform bars={80} height={48} mode="live" />
 				</div>
 
 				<!-- Play button -->
@@ -326,11 +326,15 @@
 						<div class="licenses-grid" use:staggerReveal={{ delay: 80 }}>
 							{#each beat.licenses as lic, i}
 								{@const parts = (lic.description ?? '').split('·').map(s => s.trim()).filter(Boolean)}
+								{@const isPopular = beat.licenses.length >= 3 && i === Math.floor(beat.licenses.length / 2)}
 								<button
 									class="license-item"
 									class:selected={selectedLicense === i}
 									onclick={() => selectLicense(i)}
 								>
+									{#if isPopular}
+										<span class="license-popular">Popular</span>
+									{/if}
 									<div class="license-name">{lic.name}</div>
 									<div class="license-price">${lic.priceMXN}</div>
 									{#if parts.length > 0}
@@ -782,6 +786,7 @@
 	}
 
 	.license-item {
+		position: relative;
 		padding: var(--space-3);
 		background: var(--surface);
 		border: 1px solid var(--border);
@@ -804,6 +809,28 @@
 		background: rgba(var(--accent-rgb), 0.08);
 		box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.2), inset 0 0 12px rgba(var(--accent-rgb), 0.04);
 		transform: translateY(-2px);
+	}
+
+	.license-popular {
+		position: absolute;
+		top: -8px;
+		right: var(--space-2);
+		font-family: var(--font-mono);
+		font-size: 9px;
+		padding: 1px 8px;
+		border-radius: var(--radius-full);
+		background: var(--accent);
+		color: var(--bg);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		font-weight: 700;
+		animation: popIn 0.3s var(--ease-out);
+	}
+
+	@keyframes popIn {
+		0% { transform: scale(0); opacity: 0; }
+		60% { transform: scale(1.15); }
+		100% { transform: scale(1); opacity: 1; }
 	}
 
 	.license-name {

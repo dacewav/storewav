@@ -29,6 +29,27 @@
 	let mobileMenuEl: HTMLElement | undefined = $state();
 	let wishlistOpen = $state(false);
 	let mobileSearch = $state('');
+	let recentSearches = $state<string[]>([]);
+
+	// Load recent searches from localStorage
+	$effect(() => {
+		if (typeof localStorage === 'undefined') return;
+		try {
+			const saved = localStorage.getItem('recent-searches');
+			if (saved) recentSearches = JSON.parse(saved);
+		} catch {}
+	});
+
+	function saveRecentSearch(q: string) {
+		if (!q || typeof localStorage === 'undefined') return;
+		recentSearches = [q, ...recentSearches.filter(s => s !== q)].slice(0, 5);
+		try { localStorage.setItem('recent-searches', JSON.stringify(recentSearches)); } catch {}
+	}
+
+	function clearRecentSearches() {
+		recentSearches = [];
+		try { localStorage.removeItem('recent-searches'); } catch {}
+	}
 
 	// Settings from Firebase
 	let settingsData = $derived($settings.data);
@@ -155,6 +176,7 @@
 
 	function handleMobileSearch() {
 		const q = mobileSearch.trim();
+		if (q) saveRecentSearch(q);
 		closeMenu();
 		if (page.url.pathname === '/') {
 			// Already on home — scroll to beats section and dispatch search
@@ -532,6 +554,24 @@
 					<Icon name="search" size={16} />
 				</button>
 			</div>
+
+			<!-- Recent searches -->
+			{#if recentSearches.length > 0}
+				<div class="mm-recent">
+					<div class="mm-recent-header">
+						<span class="mm-recent-label">Recientes</span>
+						<button class="mm-recent-clear" onclick={clearRecentSearches}>Limpiar</button>
+					</div>
+					<div class="mm-recent-pills">
+						{#each recentSearches as rs}
+							<button class="mm-recent-pill" onclick={() => { mobileSearch = rs; handleMobileSearch(); }}>
+								<Icon name="search" size={10} />
+								{rs}
+							</button>
+						{/each}
+					</div>
+				</div>
+			{/if}
 
 			<!-- Main nav links -->
 			<div class="mm-nav">
@@ -983,6 +1023,68 @@
 	.mm-search-btn:hover {
 		background: var(--accent-dim);
 		box-shadow: var(--glow-sm);
+	}
+
+	/* Recent searches */
+	.mm-recent {
+		padding: var(--space-2) var(--space-4) var(--space-3);
+		border-bottom: 1px solid var(--border);
+	}
+
+	.mm-recent-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-2);
+	}
+
+	.mm-recent-label {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.mm-recent-clear {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-hint);
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+	}
+
+	.mm-recent-clear:hover {
+		color: var(--accent);
+	}
+
+	.mm-recent-pills {
+		display: flex;
+		gap: var(--space-1);
+		flex-wrap: wrap;
+	}
+
+	.mm-recent-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		padding: var(--space-1) var(--space-3);
+		border-radius: var(--radius-full);
+		border: 1px solid var(--border);
+		background: var(--surface);
+		color: var(--text-secondary);
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.mm-recent-pill:hover {
+		border-color: rgba(var(--accent-rgb), 0.3);
+		color: var(--accent);
+		background: rgba(var(--accent-rgb), 0.06);
 	}
 
 	/* Mobile nav links */

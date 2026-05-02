@@ -77,7 +77,7 @@
 				</div>
 				<!-- Mini waveform -->
 				<div class="player-waveform">
-					<Waveform bars={20} height={24} compact={true} />
+					<Waveform bars={20} height={24} compact={true} mode="live" />
 				</div>
 			</div>
 
@@ -263,8 +263,10 @@
 	}
 
 	@keyframes play-cover-pulse {
-		0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
-		50% { transform: scale(1.04); box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.2); }
+		0%, 100% { transform: scale(1) rotate(0deg); box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
+		25% { transform: scale(1.03) rotate(1deg); }
+		50% { transform: scale(1.04) rotate(0deg); box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.2); }
+		75% { transform: scale(1.03) rotate(-1deg); }
 	}
 
 	.player-cover-placeholder {
