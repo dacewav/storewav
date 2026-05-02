@@ -11,7 +11,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 
 ---
 
-## ✅ Items Completados (Sesiones anteriores)
+## ✅ Items Completados (Sesiones anteriores + Sesión 67)
 
 | # | Item | Status | Sesión |
 |---|------|--------|--------|
@@ -30,6 +30,25 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 | 13 | Accessibility audit | ✅ | 63 |
 | 14 | Firebase retry + offline | ✅ | 63 |
 | 15 | i18n audit | ✅ | 63 |
+| 16 | Nav badge pop animation | ✅ | 66 |
+| 17 | WishlistPanel stagger + exit | ✅ | 67 |
+| 18 | BeatCard wishlist burst | ✅ | 66 |
+| 19 | Player waveform live + cover rotation | ✅ | 67 |
+| 20 | AuthButton dropdown animation | ✅ | 66 |
+| 21 | Favoritos page stagger | ✅ | 67 |
+| 22 | Toast mobile positioning | ✅ | 67 |
+| 23 | Admin dashboard countUp | ✅ | 67 |
+| 24 | Sidebar collapse transition | ✅ | 67 |
+| 25 | Import modal spinner | ✅ | 67 |
+| 26 | Cart discount feedback | ✅ | 67 |
+| 27 | License Popular badge | ✅ | 67 |
+| 28 | Filters accordion animation | ✅ | 67 |
+| 29 | Topbar status transitions | ✅ | 67 |
+| 31 | Hide tester button in prod | ✅ | 66 |
+| 33 | Scroll progress accent gradient | ✅ | 67 |
+| 34 | EmptyState float limit | ✅ | 67 |
+| 35 | Mobile search recents | ✅ | 67 |
+| 36 | Brand-aware loader | ✅ | 67 |
 
 ---
 
@@ -455,7 +474,7 @@ Auditoría profunda de UX/Visual/Performance en toda la aplicación: store (nav,
 - **Tests:** 222+ passing
 - **Producción:** Deployed via Cloudflare Workers
 - **Auth:** signInWithRedirect + retry logic
-- **UX Score:** 8/10 (microinteracciones implementadas)
+- **UX Score:** 9/10 (microinteracciones + waveform real + polish completo)
 - **Accessibility:** Good (skip link, focus-visible, ARIA)
 - **Performance:** Good (code-split, lazy images, dynamic imports)
 - **i18n:** Spanish hardcoded (low priority)
