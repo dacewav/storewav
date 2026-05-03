@@ -500,6 +500,49 @@
 		}
 		.beat-play {
 			transform: translate(-50%, -50%) scale(1) !important;
+			width: 56px;
+			height: 56px;
+		}
+		.beat-wish,
+		.beat-cart-btn {
+			width: 40px;
+			height: 40px;
+		}
+		.beat-wish {
+			top: var(--space-2);
+			right: var(--space-2);
+		}
+		.beat-cart-btn {
+			top: calc(var(--space-2) + 44px);
+			right: var(--space-2);
+		}
+	}
+
+	/* Mobile-specific beat card refinements */
+	@media (max-width: 640px) {
+		.beat-cover {
+			aspect-ratio: 16/10;
+		}
+
+		.beat-info {
+			padding: var(--space-3) var(--space-4);
+		}
+
+		.beat-title {
+			font-size: var(--text-lg);
+			white-space: normal;
+			-webkit-line-clamp: 2;
+			line-clamp: 2;
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+		}
+
+		.beat-price {
+			margin-top: var(--space-2);
+		}
+
+		.price-amount {
+			font-size: var(--text-xl);
 		}
 	}
 

@@ -359,7 +359,7 @@
 		<div class="section-line"></div>
 		<div class="section-badge">{featuredBeats.length} beats</div>
 	</div>
-	<div class="beat-grid" style="grid-template-columns: repeat({cardsPerRow}, 1fr)" use:staggerReveal={{ delay: 60 }}>
+	<div class="beat-grid" style="--cards-per-row: {cardsPerRow}" use:staggerReveal={{ delay: 60 }}>
 		{#each featuredBeats as beat (beat.id)}
 			<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 		{/each}
@@ -436,7 +436,7 @@
 	<!-- Beat grid (batched) -->
 	{#if beats.length > 0}
 		{#if filteredBeats.length > 0}
-			<div class="beat-grid{animCards && animCards !== 'none' ? ` anim-${animCards}` : ''}" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ effect: siblingHoverEffect, blur: siblingHoverBlur, opacity: siblingHoverOpacity, scale: siblingHoverScale, duration: siblingHoverDuration }} style="grid-template-columns: repeat({cardsPerRow}, 1fr); {animCards && animCards !== 'none' ? `--anim-dur: ${animCardsDur}s; --anim-del: ${animCardsDel}s; --anim-ease: ${animCardsEase}` : ''}">
+			<div class="beat-grid{animCards && animCards !== 'none' ? ` anim-${animCards}` : ''}" use:staggerReveal={{ delay: 60 }} use:siblingBlur={{ effect: siblingHoverEffect, blur: siblingHoverBlur, opacity: siblingHoverOpacity, scale: siblingHoverScale, duration: siblingHoverDuration }} style="--cards-per-row: {cardsPerRow}; {animCards && animCards !== 'none' ? `--anim-dur: ${animCardsDur}s; --anim-del: ${animCardsDel}s; --anim-ease: ${animCardsEase}` : ''}">
 				{#each visibleBeats as beat (beat.id)}
 					<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 				{/each}
@@ -475,7 +475,7 @@
 		<div class="section-line"></div>
 		<div class="section-badge">Basado en tus likes</div>
 	</div>
-	<div class="beat-grid" style="grid-template-columns: repeat({cardsPerRow}, 1fr)" use:staggerReveal={{ delay: 60 }}>
+	<div class="beat-grid" style="--cards-per-row: {cardsPerRow}" use:staggerReveal={{ delay: 60 }}>
 		{#each forYouBeats as beat (beat.id)}
 			<BeatCard {beat} onplay={handlePlay} onclick={handleBeatClick} labelFrom={labels.priceFrom ?? 'Desde'} />
 		{/each}
