@@ -3,6 +3,15 @@
  */
 
 /**
+ * Escape </script> in JSON-LD values to prevent script injection.
+ * Replaces </script with <\/script in string values.
+ */
+export function escapeJsonLd(str: string): string {
+	if (!str) return '';
+	return str.replace(/<\/script/gi, '<\\/script');
+}
+
+/**
  * Sanitize HTML — allow only whitelisted inline formatting tags.
  * Blocks all other tags to prevent XSS.
  * Strips all attributes (including event handlers) from allowed tags.

@@ -432,6 +432,39 @@
 		.ctrl-skip {
 			display: none;
 		}
+
+		/* Bigger touch targets for progress bar on mobile */
+		.progress-track {
+			height: 8px;
+		}
+
+		.progress-track:hover {
+			height: 10px;
+		}
+
+		.progress-thumb {
+			width: 20px;
+			height: 20px;
+		}
+
+		.progress-glow {
+			width: 12px;
+			height: 16px;
+		}
+
+		/* Mini-player compact: show cover + title + play only */
+		.player-cover {
+			width: 36px;
+			height: 36px;
+		}
+
+		.player-title {
+			font-size: var(--text-xs);
+		}
+
+		.player-artist {
+			display: none;
+		}
 	}
 
 	@media (max-width: 480px) {
@@ -447,6 +480,16 @@
 		.ctrl-play {
 			width: 44px;
 			height: 44px;
+		}
+
+		.player-inner {
+			padding: var(--space-1) var(--space-2);
+		}
+
+		.player-cover {
+			width: 32px;
+			height: 32px;
+			border-radius: var(--radius-sm);
 		}
 	}
 

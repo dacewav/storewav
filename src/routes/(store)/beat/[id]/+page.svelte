@@ -5,6 +5,7 @@
 	import type { LabelSettings } from '$lib/stores/settings';
 	import { Skeleton, Badge, BeatCard, EmptyState, InlineEmoji, LikeButton, CommentSection } from '$lib/components';
 	import { stripEmojis } from '$lib/emojiUtils';
+	import { escapeJsonLd } from '$lib/sanitize';
 	import Waveform from '$lib/components/Waveform.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { staggerReveal } from '$lib/actions';
@@ -161,7 +162,7 @@
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content="{beat.name}{beat.artist ? ` — ${beat.artist}` : ''}" />
 		<meta name="twitter:description" content={stripEmojis(beat.description ?? '') || `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`} />
-		{@html `<script type="application/ld+json">${JSON.stringify({
+		{@html `<script type="application/ld+json">${escapeJsonLd(JSON.stringify({
 			'@context': 'https://schema.org',
 			'@type': 'MusicRecording',
 			name: beat.name,
@@ -175,8 +176,8 @@
 				priceCurrency: 'USD',
 				availability: 'https://schema.org/InStock'
 			} : undefined
-		})}</script>`}
-		{@html `<script type="application/ld+json">${JSON.stringify({
+		}))}</script>`}
+		{@html `<script type="application/ld+json">${escapeJsonLd(JSON.stringify({
 			'@context': 'https://schema.org',
 			'@type': 'BreadcrumbList',
 			itemListElement: [
@@ -184,7 +185,7 @@
 				{ '@type': 'ListItem', position: 2, name: 'Catálogo', item: 'https://dacewav.store/#beats' },
 				{ '@type': 'ListItem', position: 3, name: beat.name, item: `https://dacewav.store/beat/${getBeatSlug(beat)}` }
 			]
-		})}</script>`}
+		}))}</script>`}
 	{:else}
 		<title>Beat — {s?.brand?.name ?? 'DACEWAV'}</title>
 	{/if}
@@ -223,7 +224,7 @@
 				<!-- Cover with parallax -->
 				<div class="beat-cover" use:parallaxCover>
 					{#if beat.imageUrl}
-						<img src={beat.imageUrl} alt={beat.name} decoding="async" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
+						<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
 					{:else}
 						<div class="beat-cover-placeholder">
 							<Icon name="music" size={64} />

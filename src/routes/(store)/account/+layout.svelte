@@ -2,12 +2,39 @@
 	import { page } from '$app/state';
 	import { auth, settings } from '$lib/stores';
 	import Icon from '$lib/components/Icon.svelte';
+	import BadgeDisplay from '$lib/components/BadgeDisplay.svelte';
 
 	let { children } = $props();
 
 	let authState = $derived($auth);
 	let user = $derived(authState.user);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
+
+	// Load user badges from Firebase
+	let userBadges = $state<string[]>([]);
+	import { FIREBASE_DB } from '$lib/firebaseDb';
+	import { onMount } from 'svelte';
+
+	async function loadBadges() {
+		if (!user) return;
+		try {
+			const resp = await fetch(`${FIREBASE_DB}/users/${user.uid}/badges.json`);
+			if (resp.ok) {
+				const data = await resp.json();
+				if (Array.isArray(data)) userBadges = data;
+				else if (data && typeof data === 'object') userBadges = Object.values(data) as string[];
+			}
+		} catch {}
+	}
+
+	onMount(() => {
+		if (user) loadBadges();
+	});
+
+	// Re-load when user changes
+	$effect(() => {
+		if (user?.uid) loadBadges();
+	});
 
 	const tabs: Array<{ href: string; label: string; icon: 'export' | 'shoppingCart' | 'heart' | 'music' }> = [
 		{ href: '/account/profile', label: 'Perfil', icon: 'export' },
@@ -48,6 +75,9 @@
 			<div class="account-info">
 				<h1>{user.displayName || 'Usuario'}</h1>
 				<p class="account-email">{user.email}</p>
+				{#if userBadges.length > 0}
+					<BadgeDisplay badges={userBadges} compact />
+				{/if}
 			</div>
 		</div>
 

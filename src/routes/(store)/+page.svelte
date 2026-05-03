@@ -8,7 +8,7 @@
 	import { recentlyPlayed } from '$lib/stores/recentlyPlayed';
 	import { getForYouRecommendations } from '$lib/stores/recommendations';
 	import { getBeatSlug } from '$lib/slug';
-	import { sanitizeHtml } from '$lib/sanitize';
+	import { sanitizeHtml, escapeJsonLd } from '$lib/sanitize';
 	import type { HeroVisualSettings, LabelSettings, AnimationSettings } from '$lib/stores/settings';
 	import type { IconName } from '$lib/icons';
 	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
@@ -271,7 +271,7 @@
 	<meta property="og:title" content="{heroTitle} — {s?.brand?.metaDescription ?? 'Beats que rompen'}" />
 	<meta property="og:description" content={s?.brand?.metaDescription ?? 'Beats profesionales para tu próximo hit. Explora, escucha y compra instrumentales únicos.'} />
 	<meta property="og:type" content="website" />
-	{@html `<script type="application/ld+json">${JSON.stringify({
+	{@html `<script type="application/ld+json">${escapeJsonLd(JSON.stringify({
 		'@context': 'https://schema.org',
 		'@type': 'WebSite',
 		name: heroTitle,
@@ -281,7 +281,7 @@
 			target: 'https://dacewav.store/?q={search_term_string}',
 			'query-input': 'required name=search_term_string'
 		}
-	})}</script>`}
+	}))}</script>`}
 </svelte:head>
 
 <!-- Hero -->
@@ -1097,9 +1097,13 @@
 		}
 
 		.hero-stats {
-			gap: var(--space-4);
+			gap: var(--space-3);
 			padding-top: var(--space-4);
 			margin-top: var(--space-4);
+			/* 2x2 grid on mobile */
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			justify-items: center;
 		}
 
 		.stat-num {
@@ -1108,6 +1112,16 @@
 
 		.section-header {
 			flex-wrap: wrap;
+		}
+
+		/* Hero links full-width on mobile */
+		.hero-links {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.hero-link {
+			justify-content: center;
 		}
 	}
 

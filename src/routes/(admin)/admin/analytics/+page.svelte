@@ -21,6 +21,9 @@
 
 	let orders = $state<Order[]>([]);
 	let likeCounts = $state<Record<string, number>>({});
+	let recentEvents = $state<Array<{ ts: number; cat: string; act: string; lbl?: string; meta?: string }>>([]);
+	let playCount = $state(0);
+	let cartCount = $state(0);
 	let loading = $state(true);
 	let period = $state<'all' | '30d' | '7d' | 'today'>('all');
 
@@ -121,9 +124,10 @@
 			if (!db) return;
 			const { ref, get } = await import('firebase/database');
 
-			const [ordersSnap, beatsSnap] = await Promise.all([
+			const [ordersSnap, beatsSnap, eventsSnap] = await Promise.all([
 				get(ref(db, 'orders')),
 				get(ref(db, 'beats')),
+				get(ref(db, 'analytics/events')),
 			]);
 
 			if (ordersSnap.exists()) {
@@ -142,6 +146,31 @@
 					}
 					likeCounts = counts;
 				}
+			}
+
+			// Load analytics events for plays and carts
+			if (eventsSnap.exists()) {
+				const eventsData = eventsSnap.val();
+				let plays = 0;
+				let carts = 0;
+				const recent: Array<{ ts: number; cat: string; act: string; lbl?: string; meta?: string }> = [];
+
+				for (const dayEvents of Object.values(eventsData)) {
+					if (dayEvents && typeof dayEvents === 'object') {
+						for (const evt of Object.values(dayEvents)) {
+							const e = evt as { ts: number; cat: string; act: string; lbl?: string; meta?: string };
+							if (e.cat === 'beat' && e.act === 'play') plays++;
+							if (e.cat === 'cart' && e.act === 'add') carts++;
+							recent.push(e);
+						}
+					}
+				}
+
+				playCount = plays;
+				cartCount = carts;
+				recentEvents = recent
+					.sort((a, b) => b.ts - a.ts)
+					.slice(0, 20);
 			}
 		} catch (e) {
 			console.error('Failed to load analytics data:', e);
@@ -200,6 +229,16 @@
 				<span class="kpi-label">Órdenes</span>
 				<span class="kpi-value">{stats.totalOrders}</span>
 				<span class="kpi-sub">{stats.totalItems} items</span>
+			</div>
+			<div class="kpi-card">
+				<span class="kpi-label">Reproducciones</span>
+				<span class="kpi-value">🔥 {playCount}</span>
+				<span class="kpi-sub">total plays</span>
+			</div>
+			<div class="kpi-card">
+				<span class="kpi-label">Carritos</span>
+				<span class="kpi-value">🛒 {cartCount}</span>
+				<span class="kpi-sub">agregados al carrito</span>
 			</div>
 			<div class="kpi-card">
 				<span class="kpi-label">Ticket promedio</span>
@@ -284,6 +323,35 @@
 				{/each}
 			</div>
 		</div>
+
+		<!-- Recent Activity Feed -->
+		{#if recentEvents.length > 0}
+			<div class="section">
+				<h2 class="section-title">⚡ Actividad reciente</h2>
+				<div class="activity-feed">
+					{#each recentEvents as evt}
+						<div class="activity-item">
+							<span class="activity-icon">
+								{#if evt.cat === 'beat' && evt.act === 'play'}🎵
+								{:else if evt.cat === 'cart'}🛒
+								{:else if evt.cat === 'wishlist'}❤️
+								{:else if evt.cat === 'license'}📄
+								{:else if evt.cat === 'comment'}💬
+								{:else}📌
+								{/if}
+							</span>
+							<div class="activity-info">
+								<span class="activity-action">{evt.cat} · {evt.act}</span>
+								{#if evt.meta}
+									<span class="activity-meta">{evt.meta}</span>
+								{/if}
+							</div>
+							<span class="activity-time">{new Date(evt.ts).toLocaleString('es-MX', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</span>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
 	{/if}
 </div>
 
@@ -536,6 +604,67 @@
 	.empty-text {
 		color: var(--text-muted);
 		font-size: var(--text-sm);
+	}
+
+	/* ── Activity Feed ── */
+	.activity-feed {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+
+	.activity-item {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-2) var(--space-3);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		transition: all var(--duration-fast);
+	}
+
+	.activity-item:hover {
+		border-color: var(--border-hover);
+	}
+
+	.activity-icon {
+		font-size: var(--text-base);
+		width: 28px;
+		text-align: center;
+		flex-shrink: 0;
+	}
+
+	.activity-info {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+	}
+
+	.activity-action {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--text);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.activity-meta {
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.activity-time {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-hint);
+		flex-shrink: 0;
 	}
 
 	@media (max-width: 600px) {

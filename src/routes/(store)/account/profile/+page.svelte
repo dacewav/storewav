@@ -20,12 +20,15 @@
 
 	let profile = $state({
 		artistName: '',
+		username: '',
+		bio: '',
 		country: '',
 		instagram: '',
 		youtube: '',
 		spotify: '',
 		phone: '',
 		avatarURL: '',
+		bannerURL: '',
 	});
 
 	let loading = $state(true);
@@ -54,12 +57,15 @@
 				const data = await resp.json();
 				if (data) {
 					profile.artistName = data.artistName || '';
+					profile.username = data.username || '';
+					profile.bio = data.bio || '';
 					profile.country = data.country || '';
 					profile.instagram = data.socials?.instagram || '';
 					profile.youtube = data.socials?.youtube || '';
 					profile.spotify = data.socials?.spotify || '';
 					profile.phone = data.phone || '';
 					profile.avatarURL = data.avatarURL || '';
+					profile.bannerURL = data.bannerURL || '';
 				}
 			}
 		} catch (err) {
@@ -160,7 +166,10 @@
 				displayName: user.displayName,
 				photoURL: user.photoURL,
 				avatarURL: profile.avatarURL || null,
+				bannerURL: profile.bannerURL || null,
 				artistName: profile.artistName.trim(),
+				username: profile.username.trim().toLowerCase().replace(/[^a-z0-9_-]/g, ''),
+				bio: profile.bio.trim().slice(0, 160),
 				country: profile.country.trim(),
 				phone: profile.phone.trim(),
 				socials: {
@@ -246,6 +255,16 @@
 					<label>
 						<span>Nombre artístico</span>
 						<input type="text" bind:value={profile.artistName} placeholder="Ej: JP" />
+					</label>
+					<label>
+						<span>Username (@handle)</span>
+						<input type="text" bind:value={profile.username} placeholder="ej: dacewav" maxlength="24" pattern="[a-z0-9_-]+" />
+						<span class="field-hint">Solo letras, números, guiones. Se usa para tu URL pública.</span>
+					</label>
+					<label>
+						<span>Bio (máx. 160 chars)</span>
+						<textarea bind:value={profile.bio} placeholder="Contá quién sos..." maxlength="160" rows="2"></textarea>
+						<span class="field-hint">{profile.bio.length}/160</span>
 					</label>
 					<label>
 						<span>País</span>
@@ -366,8 +385,28 @@
 		transition: border-color var(--duration-fast);
 	}
 
-	input:focus {
+	textarea {
+		padding: var(--space-2) var(--space-3);
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		color: var(--text);
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		outline: none;
+		transition: border-color var(--duration-fast);
+		resize: vertical;
+		min-height: 60px;
+	}
+
+	input:focus, textarea:focus {
 		border-color: var(--accent);
+	}
+
+	.field-hint {
+		font-size: var(--text-2xs);
+		color: var(--text-hint);
+		font-family: var(--font-mono);
 	}
 
 	.profile-actions {

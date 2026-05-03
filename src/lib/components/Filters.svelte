@@ -468,6 +468,10 @@
 		overflow-x: auto;
 		scrollbar-width: none;
 		padding-bottom: 2px;
+		position: relative;
+		/* Fade edges to indicate scrollable content */
+		-webkit-mask-image: linear-gradient(to right, transparent 0px, black 16px, black calc(100% - 16px), transparent 100%);
+		mask-image: linear-gradient(to right, transparent 0px, black 16px, black calc(100% - 16px), transparent 100%);
 	}
 
 	.filter-pills::-webkit-scrollbar {

@@ -1,5 +1,57 @@
 # Changelog
 
+## v1.1.0 — 2026-05-04 (Session 62 — Mega Audit Implementation)
+
+### 🔒 Security
+- **XSS fix: `escapeJsonLd()`** — JSON-LD scripts now escape `</script>` to prevent script injection via beat names/artist fields
+- **CSP headers** — `Content-Security-Policy` added to `_headers` for Cloudflare Pages (script-src, style-src, connect-src whitelisted)
+- **`_headers` moved to project root** — Cloudflare adapter requires it at root, not in `static/`
+
+### 📱 Mobile Responsive (Option A)
+- **Genre pills fade edge** — Horizontal scroll now has gradient mask on both sides to indicate more content
+- **Player progress bar** — Bigger touch targets on mobile (8px track, 20px thumb vs 4px/12px desktop)
+- **Player mini-mode** — Artist label hidden, cover shrunk to 32px on ≤480px
+- **Hero stats 2x2 grid** — Stats now display as 2×2 grid on mobile instead of cramped row
+- **Hero links full-width** — Social links stack vertically on mobile
+- **Beat detail cover** — Added `loading="lazy"` for performance
+
+### 📊 Analytics Dashboard (Option D)
+- **Plays KPI card** — Total plays from Firebase analytics events
+- **Carts KPI card** — Total cart additions from analytics events
+- **Recent activity feed** — Last 20 events (plays, likes, carts, comments) with timestamps and icons
+
+### 👤 User Profiles (Option B)
+- **Username field** — Unique @handle with validation (lowercase, alphanumeric, dashes)
+- **Bio field** — 160-char bio with live character counter
+- **BadgeDisplay component** — New component showing earned badges (🎵 first-beat, ❤️ fan, 🔥 super-fan, 💬 vocal, ⭐ early-bird, 👑 vip)
+- **Public profile page** — `/u/[username]` route showing user's profile, bio, badges, socials, and beats
+- **Badges in account header** — User's earned badges shown below their name
+- **Profile fields** — username, bio integrated into account profile page
+
+### 🧪 Testing
+- **6 new tests** — `escapeJsonLd` test suite (empty input, XSS escape, case-insensitive, safe strings, JSON roundtrip)
+- **228/228 tests passing** (was 222)
+- **svelte-check: 0 errors, 0 warnings**
+- **Build: clean** (Cloudflare adapter)
+
+### 📁 Files Changed
+- `src/lib/sanitize.ts` — Added `escapeJsonLd()`
+- `src/lib/__tests__/sanitize.test.ts` — 6 new tests
+- `src/lib/components/BadgeDisplay.svelte` — New component
+- `src/lib/components/index.ts` — Export BadgeDisplay
+- `src/lib/components/Filters.svelte` — Genre pills fade edge
+- `src/lib/components/Player.svelte` — Mobile touch targets
+- `src/routes/(store)/+page.svelte` — XSS fix, hero responsive
+- `src/routes/(store)/beat/[id]/+page.svelte` — XSS fix, lazy loading
+- `src/routes/(store)/account/+layout.svelte` — Badges display
+- `src/routes/(store)/account/profile/+page.svelte` — Username, bio fields
+- `src/routes/(store)/u/[username]/+page.svelte` — New public profile page
+- `src/routes/(admin)/admin/analytics/+page.svelte` — Plays, carts, activity feed
+- `_headers` — CSP headers (new file, project root)
+- `.env` — Created from `.env.example`
+
+---
+
 ## v1.0.0 — 2026-04-25 (Audit Complete + Integration Tests + A11Y)
 
 ### 🧪 Testing

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeHtml, sanitizeCSS } from '../sanitize';
+import { sanitizeHtml, sanitizeCSS, escapeJsonLd } from '../sanitize';
 
 describe('sanitizeHtml', () => {
 	it('returns empty string for empty input', () => {
@@ -168,5 +168,47 @@ describe('sanitizeHtml — EmojiInput XSS prevention', () => {
 		// Event handlers are now stripped from allowed tags
 		expect(sanitized).not.toContain('onmouseover');
 		expect(sanitized).toBe('<span>hover me</span>');
+	});
+});
+
+describe('escapeJsonLd', () => {
+	it('returns empty string for empty input', () => {
+		expect(escapeJsonLd('')).toBe('');
+	});
+
+	it('escapes </script> to prevent XSS', () => {
+		const input = '</script><script>alert(1)</script>';
+		const result = escapeJsonLd(input);
+		expect(result).not.toContain('</script>');
+		expect(result).toContain('<\\/script>');
+	});
+
+	it('is case-insensitive', () => {
+		const input = '</SCRIPT><script>alert(1)</script>';
+		const result = escapeJsonLd(input);
+		expect(result).not.toContain('</SCRIPT>');
+		expect(result).not.toContain('</script>');
+	});
+
+	it('does not modify safe strings', () => {
+		const input = 'Normal beat name with BPM 120';
+		expect(escapeJsonLd(input)).toBe(input);
+	});
+
+	it('handles JSON.stringify output with malicious name', () => {
+		const obj = { name: '</script><img src=x onerror=alert(1)>' };
+		const json = JSON.stringify(obj);
+		const escaped = escapeJsonLd(json);
+		expect(escaped).not.toContain('</script>');
+		expect(escaped).toContain('<\\/script>');
+	});
+
+	it('preserves valid JSON structure after escaping', () => {
+		const obj = { name: 'Test Beat', genre: 'Trap' };
+		const json = JSON.stringify(obj);
+		const escaped = escapeJsonLd(json);
+		// Should still be valid JSON after unescaping
+		const unescaped = escaped.replace(/<\\\/script>/gi, '</script>');
+		expect(JSON.parse(unescaped)).toEqual(obj);
 	});
 });
