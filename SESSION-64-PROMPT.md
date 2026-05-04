@@ -1,169 +1,87 @@
-# DACEWAV.STORE — SESSION 64 PROMPT
-> Generado: Mayo 2026 | Repo: github.com/dacewav/storewav | Stack: SvelteKit 2 + Svelte 5 + Firebase RTDB + Cloudflare Pages + R2 + TypeScript
+# DACEWAV.STORE — SESIÓN 64
+> Repo: https://github.com/dacewav/storewav
+> Stack: SvelteKit 2 + Svelte 5 + Firebase RTDB + Cloudflare Pages/Workers + R2 + TypeScript
 
----
+## Estado actual
 
-## 📊 ESTADO ACTUAL (post-Session 63)
+228 tests, 0 errors, 0 warnings, build clean. Session 63 hizo: Lucide icons (29 migrados), user profiles (banner/avatar/username/admin users), drumkits (/kits, /kit/[id], admin CRUD, cart integration).
 
-| Métrica | Estado |
-|---|---|
-| Tests | ✅ 228/228 passing |
-| TypeScript errors | ✅ 0 |
-| svelte-check | ✅ 0 errors, 0 warnings |
-| Build | ✅ Clean (Cloudflare adapter) |
-| Mobile responsive | ✅ Store + admin |
-| Lucide icons | ✅ 29 icons migrated |
-| User profiles | ✅ Banner, avatar, username, admin users |
-| Drumkits | ✅ /kits, /kit/[id], admin CRUD |
-| Pasarela de pago | ⚠️ Endpoints existen, falta conexión real |
+**Deploy pendiente:** `firebase deploy --only database` — rules de users (public read para /u/[username]) y kits (nuevo path).
 
----
+## Objetivo: Pulir todo lo que se construyó
 
-## ✅ LO QUE SE HIZO EN SESSION 63
+No features nuevos. Solo pulir, testear, y asegurar que todo funciona bien.
 
-### A) Lucide Icons Migration
-- 29 icons migrados de inline SVG a `lucide-svelte`
-- Tree-shakeable (individual imports)
-- Brand icons (whatsapp/instagram/youtube) kept as inline SVG
-- `icons.ts` reducido de 380+ lines a type re-export
-- XSS vector eliminado (`{@html svg}` minimizado)
+### 1. Lucide Icons — verificar que nada se rompió
+- [ ] Revisar que todos los iconos renderizan bien en store (search, cart, heart, play, share, chevrons, tag, bell, export, import, save, undo, redo, logout, settings, trash, plus, edit, warning, error, check, close, volumeOn, volumeOff, music, sun, moon, skipBack, skipForward, whatsapp, instagram, youtube)
+- [ ] Revisar que el filled state del heart funciona (wishlist toggle)
+- [ ] Verificar que brand icons (whatsapp/instagram/youtube) siguen como inline SVG
+- [ ] Mobile: iconos no se cortan ni se ven pequeños de más
 
-### B) User Profiles Completos
-- Banner upload `/api/upload/banner` → R2 (3:1 crop, 4MB max)
-- Username uniqueness validation (real-time, debounced 500ms)
-- Account layout muestra avatar R2 custom
-- Admin users page: lista, search, sort, badge editor, ban/unban
-- Firebase rules: public read, owner+admin write, field validation
+### 2. User Profiles — probar flujo completo
+- [ ] Login anónimo → /account/profile → llenar datos → guardar → verificar en Firebase
+- [ ] Banner upload: seleccionar imagen → crop 3:1 → subir a R2 → mostrar en perfil
+- [ ] Avatar upload: seleccionar imagen → crop cuadrado → subir a R2 → mostrar
+- [ ] Username: escribir "testuser" → verificar check en tiempo real (✓ o ✕)
+- [ ] Username duplicado: intentar usar el mismo username que otro usuario → debe mostrar error
+- [ ] Bio: escribir más de 160 chars → debe cortar
+- [ ] Guardar → ir a /u/[username] → verificar que muestra perfil público (banner, avatar, bio, badges)
+- [ ] Admin users: /admin/users → ver usuario → expandir → editar badges → banear/desbanear
+- [ ] Account layout: verificar que muestra avatar R2 en vez de Google photoURL
 
-### D) Drumkits Section
-- Kit type + Firebase store (`kits.ts`)
-- KitCard component (cover, genre badge, play, cart)
-- `/kits` store page con search + genre pills
-- `/kit/[id]` detail con inline audio previews
-- Admin CRUD: create/edit/delete kits, sample management
-- Cart integration (`kit-{id}` como beatId)
-- Nav links en store + admin sidebar
-- Firebase rules para kits
+### 3. Drumkits — probar flujo completo
+- [ ] Admin: /admin/kits → crear kit nuevo → llenar nombre, género, precio, samples → guardar
+- [ ] Store: /kits → verificar que aparece el kit creado
+- [ ] Buscar kit por nombre
+- [ ] Filtrar por género
+- [ ] Click en kit → /kit/[id] → verificar detalle (cover, nombre, precio, samples)
+- [ ] Play sample → verificar que suena audio
+- [ ] Add to cart → verificar que se agrega al carrito
+- [ ] Cart page → verificar que el kit aparece con precio correcto
+- [ ] Admin: editar kit → cambiar nombre/precio → guardar → verificar cambios
+- [ ] Admin: desactivar kit → verificar que no aparece en store
+- [ ] Admin: eliminar kit → verificar que desaparece
 
-### ⚠️ Pendientes (deploy)
-- `firebase deploy --only database` — rules para users (public read) y kits (new)
-- `/u/[username]` no funciona hasta deployar rules
+### 4. Responsive — verificar en mobile
+- [ ] 375px: /kits grid 2 columnas
+- [ ] 375px: /kit/[id] layout apilado (cover arriba, info abajo)
+- [ ] 375px: /account/profile form usable
+- [ ] 375px: /admin/users lista legible
+- [ ] 375px: /admin/kits CRUD usable
+- [ ] 375px: nav "Kits" link visible
 
----
+### 5. Edge cases
+- [ ] /kits sin kits en Firebase → empty state
+- [ ] /kit/[id] con ID inválido → "Kit no encontrado"
+- [ ] /u/[username] con username inexistente → "Usuario no encontrado"
+- [ ] Admin users sin usuarios → "Sin usuarios"
+- [ ] Admin kits sin kits → "Sin kits"
+- [ ] Username con caracteres especiales → debe sanitizar a lowercase alphanumeric
 
-## 🤖 PROMPT PARA SESIÓN 64
+### 6. Firebase rules (ya escritas, necesitan deploy)
+- [ ] Deploy: `firebase deploy --only database`
+- [ ] Verificar que /u/[username] funciona después del deploy
+- [ ] Verificar que admin puede leer todos los usuarios
+- [ ] Verificar que kits son legibles públicamente
 
-```
-DACEWAV.STORE — SESIÓN 64
-Repo: https://github.com/dacewav/storewav
-Stack: SvelteKit 2 + Svelte 5 + Firebase RTDB + Cloudflare Pages/Workers + R2 + TypeScript
-
-════════════════════════════════════════
-CONTEXTO
-════════════════════════════════════════
-
-Beat store personal. Brand: "YUGEN". Dev: Dace, Puebla MX.
-Aesthetic: dark luxury, minimal, premium.
-Géneros: Trap, Corrido Tumbado, R&B, Drill, Reggaeton, Hip-Hop.
-
-Estado post-Session 63:
-- 228/228 tests passing, 0 TS errors, 0 svelte-check warnings
-- Lucide icons migrados (29 icons)
-- User profiles: banner, avatar, username, admin users
-- Drumkits: /kits, /kit/[id], admin CRUD
-- Mobile responsive completo
-- Cart funcional (beats + kits)
-
-Lo que existe:
-STORE: hero, beat grid, filters, BeatCard, Player, WishlistPanel, cart, /kits, /kit/[id],
-       /u/[username], /account/profile, SEO, page transitions
-ADMIN: CRUD beats, CRUD kits, users (badges, ban), theme, content, brand, banner,
-       animations, discounts, analytics, customers, contracts, emails, command palette
-
-Lo que NO existe aún:
-- Pasarela de pago real (Stripe/Conekta) — endpoints /api/checkout y /api/webhook/stripe existen
-- Blog section (/blog)
-- Beat scheduling (lanzamiento programado)
-- Email de confirmación (Resend)
-- Download links con R2 presigned URLs
-
-════════════════════════════════════════
-OBJETIVO — ELEGIR UNO
-════════════════════════════════════════
-
-[OPCIÓN A — PASARELA DE PAGO (STRIPE)]
-Conectar checkout real con Stripe.
-
-1. Verificar STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET en env
-2. Revisar /api/checkout y /api/webhook/stripe existentes
-3. Implementar flujo: cart → checkout → Stripe session → webhook → order creation
-4. Order history en /account/orders
-5. Email de confirmación (Resend)
-6. Download links con R2 presigned URLs
-
-[OPCIÓN B — BLOG SECTION]
-Nuevo /blog con Markdown/CMS.
-
-1. Schema: Post { id, title, slug, excerpt, content, coverImage, author, tags, publishedAt }
-2. Firebase path: /blog/{postId}
-3. Admin CRUD para posts
-4. /blog página con listado
-5. /blog/[slug] detalle con contenido renderizado
-6. SEO meta tags por post
-
-[OPCIÓN C — BEAT SCHEDULING]
-Lanzamiento programado de beats.
-
-1. Campo `scheduledAt` en Beat schema
-2. Admin: date picker para programar lanzamiento
-3. Store: beats con scheduledAt futuro no aparecen en catálogo
-4. Countdown page para beats programados
-5. Notificación cuando beat se activa
-
-[OPCIÓN D — AUDIT + POLISH]
-Deep audit del código actual.
-
-1. Revisar todos los componentes nuevos (KitCard, admin users, admin kits)
-2. Accessibility audit (ARIA, keyboard nav, screen reader)
-3. Performance audit (lazy loading, bundle size)
-4. Error handling audit (try/catch, fallbacks)
-5. Mobile responsive audit profundo
-6. Test coverage gaps
-
-════════════════════════════════════════
-CONSTRAINTS
-════════════════════════════════════════
-
-- Svelte 5: $state, $derived, $effect, $props
-- 0 TypeScript errors al final
-- npm run test debe seguir pasando 228+
-- npm run check: 0 errors, 0 warnings
+## Constraints
+- Svelte 5: $state, $derived, $effect, $props (NO Svelte 4 stores en componentes nuevos)
+- 0 TypeScript errors
+- 228+ tests passing
 - No tocar: firebase.json, wrangler.jsonc
-- Usar CSS vars existentes (--primary, --accent, --bg, etc.)
-- R2 uploads: seguir patrón de src/routes/api/upload/
-- process-shim.ts ya existe en src/lib/
+- Usar CSS vars existentes
+- Browser test después de cada cambio
 
-════════════════════════════════════════
-PRIMERO: LEE ESTOS ARCHIVOS
-════════════════════════════════════════
-
-1. CHANGELOG.md — historial completo
-2. src/lib/types.ts (si existe) o src/lib/stores/beats.ts — tipos base
-3. src/lib/stores/cart.ts — sistema de carrito
-4. src/routes/api/checkout/+server.ts — endpoint checkout existente
-5. src/routes/api/webhook/stripe/+server.ts — webhook existente
-
-════════════════════════════════════════
-DESPUÉS DE CADA CAMBIO
-════════════════════════════════════════
-
-1. npm run check → 0 errors, 0 warnings
-2. npm run test → 228+ passing
-3. Browser test en mobile (375px) y desktop (1280px)
-4. Actualizar CHANGELOG.md
-5. Git commit + push
-
-════════════════════════════════════════
-FIN DEL PROMPT
-════════════════════════════════════════
-```
+## Archivos clave
+- `src/lib/components/Icon.svelte` — Lucide wrapper
+- `src/lib/icons.ts` — IconName type
+- `src/lib/stores/kits.ts` — drumkit store
+- `src/lib/components/KitCard.svelte` — kit card
+- `src/routes/(store)/kits/+page.svelte` — /kits page
+- `src/routes/(store)/kit/[id]/+page.svelte` — kit detail
+- `src/routes/(store)/account/profile/+page.svelte` — profile editor
+- `src/routes/(store)/u/[username]/+page.svelte` — public profile
+- `src/routes/(admin)/admin/users/+page.svelte` — admin users
+- `src/routes/(admin)/admin/kits/+page.svelte` — admin kits
+- `src/routes/api/upload/banner/+server.ts` — banner upload
+- `firebase.rules.json` — rules (deploy pendiente)
