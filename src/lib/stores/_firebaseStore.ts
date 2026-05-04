@@ -66,7 +66,8 @@ export function createFirebaseStore<T>(
 				},
 				(err) => {
 					console.error(`[Store:${path}]`, err.message);
-					store.set({ data: defaultValue, loading: false, error: err.message });
+					// Don't set defaultValue on error — let consumers handle null data
+					store.set({ data: null, loading: false, error: err.message });
 					scheduleRetry();
 				}
 			);

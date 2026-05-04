@@ -1342,13 +1342,17 @@ const settingsStore = writable<StoreState<SettingsData>>({
 // Listen to base settings store
 base.subscribe((state) => {
 	_rawData = state.data as Record<string, unknown> | null;
-	if (_rawData && typeof _rawData === 'object') {
+	if (state.loading) {
+		settingsStore.set({ data: null, loading: true, error: null });
+	} else if (state.error) {
+		// Firebase failed — keep loading true so loader stays visible
+		settingsStore.set({ data: null, loading: true, error: state.error });
+	} else if (_rawData && typeof _rawData === 'object') {
 		const merged = { ..._rawData, _theme: _themeData };
 		settingsStore.set({ data: migrateOldData(merged), loading: false, error: null });
-	} else if (!state.loading) {
-		settingsStore.set({ data: DEFAULT, loading: false, error: state.error });
 	} else {
-		settingsStore.set({ data: null, loading: true, error: null });
+		// No data, no error, not loading — first load with empty Firebase
+		settingsStore.set({ data: DEFAULT, loading: false, error: null });
 	}
 });
 
