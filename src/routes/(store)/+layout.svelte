@@ -244,20 +244,17 @@
 		// Initialize custom emojis for store rendering
 		initCustomEmojis();
 
-		// Loader: wait for settings OR timeout at 3s
+		// Loader: fade ONLY when settings load from Firebase (no hard timeout)
 		function startLoaderFade() {
 			if (loaderFading) return;
 			loaderFading = true;
 			setTimeout(() => { loaderVisible = false; }, 500);
 		}
 
-		// Fade when settings load
+		// Fade when settings load from Firebase
 		const unsubSettings = settings.subscribe((s) => {
 			if (s.data && !s.loading) startLoaderFade();
 		});
-
-		// Hard timeout: max 3s loader
-		const timeout = setTimeout(startLoaderFade, 3000);
 
 		// Detect theme: localStorage > system preference
 		let cleanupTheme: (() => void) | undefined;
@@ -361,7 +358,6 @@
 			window.removeEventListener('error', onGlobalError);
 			window.removeEventListener('unhandledrejection', onUnhandledRejection);
 			destroyCustomEmojis();
-			clearTimeout(timeout);
 			unsubSettings();
 			cleanupTheme?.();
 			window.removeEventListener('scroll', onScroll);

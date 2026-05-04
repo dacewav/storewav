@@ -5,7 +5,6 @@
 	import { onMount } from 'svelte';
 	import { initStores } from '$lib/stores/init';
 	import { settings } from '$lib/stores';
-	import { OfflineBanner } from '$lib/components';
 	import type { Snippet } from 'svelte';
 	import type { ThemeSettings } from '$lib/stores/settings';
 
@@ -61,5 +60,3 @@
 </a>
 
 {@render children()}
-
-<OfflineBanner />
