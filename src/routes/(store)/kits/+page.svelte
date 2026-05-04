@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { kitsList, kitGenres, settings, player } from '$lib/stores';
+	import { kits as kitsStore, kitsList, kitGenres, settings, player } from '$lib/stores';
 	import { KitCard, EmptyState, Skeleton } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { goto } from '$app/navigation';
 	import type { KitWithId } from '$lib/stores/kits';
 
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
+	let kitsData = $derived($kitsStore);
+	let kitsLoading = $derived(kitsData.loading);
 	let kits = $derived($kitsList);
 	let genres = $derived($kitGenres);
 
@@ -105,17 +107,23 @@
 	{/if}
 
 	<!-- Grid -->
-	{#if kits.length === 0}
+	{#if kitsLoading}
 		<div class="kits-loading">
 			{#each Array(4) as _}
 				<Skeleton variant="card" />
 			{/each}
 		</div>
+	{:else if kits.length === 0}
+		<EmptyState
+			icon="🥁"
+			title="Sin kits"
+			subtitle="Próximamente habrá drumkits disponibles"
+		/>
 	{:else if filteredKits.length === 0}
 		<EmptyState
 			icon="🥁"
 			title="Sin kits"
-			subtitle={search || filterGenre ? 'No hay kits que coincidan con tu búsqueda' : 'Próximamente habrá drumkits disponibles'}
+			subtitle="No hay kits que coincidan con tu búsqueda"
 		/>
 	{:else}
 		<div class="kits-grid">

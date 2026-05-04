@@ -1531,7 +1531,7 @@
     },
     "kits": {
       ".read": true,
-      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous'",
       "$kitId": {
         ".validate": "newData.hasChildren(['name', 'genre', 'priceMXN', 'priceUSD'])",
         "name": {
