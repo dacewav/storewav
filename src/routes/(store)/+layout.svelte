@@ -427,20 +427,7 @@
 <!-- Loader -->
 {#if loaderEnabled && loaderVisible}
 <div id="loader" class:fading={loaderFading}>
-	<div id="loader-brand">
-		{#if brandSplit.last}
-			{brandSplit.first}<em>{brandSplit.last}</em>
-		{:else}
-			{loaderText}
-		{/if}
-	</div>
-	<div class="ld-eq">
-		<div class="eq-bar-loader"></div>
-		<div class="eq-bar-loader"></div>
-		<div class="eq-bar-loader"></div>
-		<div class="eq-bar-loader"></div>
-		<div class="eq-bar-loader"></div>
-	</div>
+	<div class="loader-spinner"></div>
 </div>
 {/if}
 
@@ -647,7 +634,7 @@
 	{/if}
 
 	<!-- Main -->
-	<main class="main" class:has-player={hasPlayer} id="main-content">
+	<main class="main" class:has-player={hasPlayer} class:content-ready={!loaderVisible} id="main-content">
 		{@render children()}
 	</main>
 
@@ -1225,6 +1212,12 @@
 	/* ── Main ── */
 	.main {
 		flex: 1;
+		opacity: 0;
+		transition: opacity 0.4s ease;
+	}
+
+	.main.content-ready {
+		opacity: 1;
 	}
 
 	.main.has-player {
