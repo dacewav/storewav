@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { EmptyState } from '$lib/components';
+	import { EmptyState, ImageCropper } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { FIREBASE_DB } from '$lib/firebaseDb';
 	import type { Kit, KitSample } from '$lib/stores/kits';
@@ -21,6 +21,7 @@
 	let driveUrl = $state('');
 	let driveName = $state('');
 	let showDriveForm = $state(false);
+	let cropSrc = $state<string | null>(null);
 
 	const GENRES = ['Trap', 'Drill', 'Reggaeton', 'R&B', 'Hip-Hop', 'Corrido', 'Pop', 'Ambient', 'Lo-Fi', 'Other'];
 
@@ -64,8 +65,10 @@
 
 	/* ───── Editor ───── */
 	function startNew() {
+		// Generate stable ID upfront so uploads and Firebase save use the same path
+		const stableId = crypto.randomUUID().replace(/-/g, '').slice(0, 20);
 		editing = {
-			id: '', name: '', description: '', genre: 'Trap',
+			id: stableId, name: '', description: '', genre: 'Trap',
 			imageUrl: '', samples: [], priceMXN: 350, priceUSD: 20, active: true,
 		};
 		imagePreview = null;
@@ -81,6 +84,7 @@
 	function cancelEdit() {
 		editing = null;
 		imagePreview = null;
+		cropSrc = null;
 		isNew = false;
 	}
 
@@ -89,25 +93,26 @@
 		const input = e.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file || !editing) return;
-		await uploadImage(file);
-	}
-
-	async function uploadImage(file: File) {
-		if (!editing) return;
 		if (!file.type.startsWith('image/')) { alert('Solo imágenes'); return; }
 		if (file.size > 5 * 1024 * 1024) { alert('Máximo 5MB'); return; }
+		// Show cropper instead of direct upload
+		cropSrc = URL.createObjectURL(file);
+	}
 
-		// Preview local
-		const reader = new FileReader();
-		reader.onload = () => { imagePreview = reader.result as string; };
-		reader.readAsDataURL(file);
+	function handleCropCancel() {
+		cropSrc = null;
+	}
 
+	async function handleCropExport(blob: Blob, dataUrl: string) {
+		cropSrc = null;
+		imagePreview = dataUrl;
+		// Upload cropped image
 		uploadingImage = true;
 		try {
 			const token = await getAuthToken();
 			const fd = new FormData();
-			fd.append('file', file);
-			fd.append('kitId', editing!.id || 'new-' + Date.now());
+			fd.append('file', new File([blob], 'cover.jpg', { type: 'image/jpeg' }));
+			fd.append('kitId', editing!.id);
 
 			const resp = await fetch('/api/upload/kit-image', {
 				method: 'POST',
@@ -132,7 +137,10 @@
 		e.preventDefault();
 		dragOver = false;
 		const file = e.dataTransfer?.files[0];
-		if (file && file.type.startsWith('image/') && editing) uploadImage(file);
+		if (file && file.type.startsWith('image/') && editing) {
+			if (file.size > 5 * 1024 * 1024) { alert('Máximo 5MB'); return; }
+			cropSrc = URL.createObjectURL(file);
+		}
 	}
 
 	/* ───── ZIP upload ───── */
@@ -152,7 +160,7 @@
 		zipProgress = 'Procesando ZIP...';
 		try {
 			const token = await getAuthToken();
-			const kitId = editing!.id || 'new-' + Date.now();
+			const kitId = editing!.id;
 			const fd = new FormData();
 			fd.append('file', file);
 			fd.append('kitId', kitId);
@@ -243,13 +251,13 @@
 			};
 
 			if (isNew) {
-				const resp = await fetch(`${FIREBASE_DB}/kits.json${authParam}`, {
-					method: 'POST',
+				// Use PUT with the pre-generated stable ID (same ID used for uploads)
+				await fetch(`${FIREBASE_DB}/kits/${editing!.id}.json${authParam}`, {
+					method: 'PUT',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ ...body, createdAt: Date.now() }),
 				});
-				const data = await resp.json();
-				if (data.name) kits = [...kits, { id: data.name, ...body }];
+				kits = [...kits, { id: editing!.id, ...body }];
 			} else {
 				await fetch(`${FIREBASE_DB}/kits/${editing.id}.json${authParam}`, {
 					method: 'PATCH',
@@ -509,6 +517,25 @@
 		</div>
 	{/if}
 
+	<!-- ═══════════ IMAGE CROP MODAL ═══════════ -->
+	{#if cropSrc}
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="crop-modal" role="dialog" aria-modal="true" aria-label="Recortar imagen"
+			onkeydown={(e) => { if (e.key === 'Escape') handleCropCancel(); }}
+			onclick={(e) => { if (e.target === e.currentTarget) handleCropCancel(); }}
+			tabindex="-1"
+		>
+			<div class="crop-modal-content">
+				<ImageCropper
+					src={cropSrc}
+					aspectRatio={1}
+					oncrop={handleCropExport}
+					oncancel={handleCropCancel}
+				/>
+			</div>
+		</div>
+	{/if}
+
 	<!-- ═══════════ LIST ═══════════ -->
 	<div class="filters-bar">
 		<div class="search-wrap">
@@ -631,7 +658,7 @@
 	/* ─── Image upload ─── */
 	.image-section { margin-bottom: var(--space-4); }
 	.image-dropzone {
-		width: 100%; max-width: 400px; aspect-ratio: 16/9;
+		width: 100%; max-width: 300px; aspect-ratio: 1;
 		border: 2px dashed var(--border); border-radius: var(--radius-md);
 		cursor: pointer; overflow: hidden; position: relative;
 		transition: all var(--duration-fast); background: var(--bg);
@@ -771,6 +798,18 @@
 
 	/* ─── Editor actions ─── */
 	.editor-actions { display: flex; gap: var(--space-3); margin-top: var(--space-4); }
+
+	/* ─── Crop modal ─── */
+	.crop-modal {
+		position: fixed; inset: 0; z-index: 1000;
+		display: flex; align-items: center; justify-content: center;
+		background: rgba(0,0,0,0.8); padding: var(--space-4);
+	}
+	.crop-modal-content {
+		max-width: 640px; width: 100%;
+		background: var(--surface); border-radius: var(--radius-lg);
+		padding: var(--space-4); border: 1px solid var(--border);
+	}
 
 	/* ─── Filters ─── */
 	.filters-bar {

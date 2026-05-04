@@ -234,9 +234,20 @@
 		if (aspectRatio > 0) cropH = cropW / aspectRatio;
 		draw();
 	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			oncancel?.();
+		} else if (e.key === 'Enter') {
+			e.preventDefault();
+			handleExport();
+		}
+	}
 </script>
 
-<div class="cropper" bind:this={containerEl}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="cropper" bind:this={containerEl} onkeydown={handleKeydown}>
 	{#if imgLoaded}
 		<div class="canvas-wrap">
 			<canvas

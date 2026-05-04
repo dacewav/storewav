@@ -29,6 +29,11 @@
 
 	let playingSample = $state<string | null>(null);
 	let audioEl = $state<HTMLAudioElement | undefined>();
+	let copied = $state(false);
+
+	let totalDuration = $derived(
+		kit?.samples?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0
+	);
 
 	function playSample(sample: KitSample) {
 		if (playingSample === sample.url) {
@@ -63,6 +68,16 @@
 
 	function goBack() {
 		goto('/kits');
+	}
+
+	function shareKit() {
+		const url = window.location.href;
+		if (navigator.clipboard) {
+			navigator.clipboard.writeText(url).then(() => {
+				copied = true;
+				setTimeout(() => { copied = false; }, 2000);
+			});
+		}
 	}
 
 	onMount(() => {
@@ -128,6 +143,9 @@
 					{#if kit.samples?.length}
 						<span class="meta-item">🎵 {kit.samples.length} samples</span>
 					{/if}
+					{#if totalDuration > 0}
+						<span class="meta-item">⏱️ {Math.floor(totalDuration / 60)}:{(totalDuration % 60).toString().padStart(2, '0')}</span>
+					{/if}
 				</div>
 
 				<div class="kit-pricing">
@@ -135,10 +153,17 @@
 						<span class="price-label">Precio</span>
 						<span class="price-val">${kit.priceMXN} MXN / ${kit.priceUSD} USD</span>
 					</div>
-					<button class="cart-btn" class:in-cart={inCart} onclick={addToCart}>
-						<Icon name={inCart ? 'check' : 'shoppingCart'} size={16} />
-						{inCart ? 'En el carrito' : 'Agregar al carrito'}
-					</button>
+					<div class="price-actions">
+						<button class="cart-btn" class:in-cart={inCart} onclick={addToCart}>
+							<Icon name={inCart ? 'check' : 'shoppingCart'} size={16} />
+							{inCart ? 'En el carrito' : 'Agregar al carrito'}
+						</button>
+						<button class="share-btn" onclick={shareKit} aria-label="Compartir">
+							<Icon name={copied ? 'check' : 'share'} size={16} />
+							{copied ? 'Copiado' : 'Compartir'}
+						</button>
+					</div>
+					<p class="download-info">Descarga instantánea · WAV/Mp3 · Uso comercial incluido</p>
 				</div>
 			</div>
 		</div>
@@ -342,6 +367,40 @@
 
 	.cart-btn.in-cart {
 		background: #22c55e;
+	}
+
+	.price-actions {
+		display: flex;
+		gap: var(--space-2);
+		align-items: center;
+	}
+
+	.share-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-4);
+		background: transparent;
+		color: var(--text-secondary);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.share-btn:hover {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+
+	.download-info {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		margin: 0;
 	}
 
 	/* Samples */
