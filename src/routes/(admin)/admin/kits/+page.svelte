@@ -29,7 +29,9 @@
 		try {
 			const { getAuthInstance } = await import('$lib/firebase');
 			const auth = await getAuthInstance();
-			return await auth?.currentUser?.getIdToken() ?? null;
+			if (!auth?.currentUser) return null;
+			// Force refresh to avoid stale token (tokens expire after 1h)
+			return await auth.currentUser.getIdToken(true);
 		} catch {
 			return null;
 		}
@@ -110,13 +112,18 @@
 		uploadingImage = true;
 		try {
 			const token = await getAuthToken();
+			if (!token) {
+				alert('Sesión expirada. Recarga la página e inicia sesión de nuevo.');
+				uploadingImage = false;
+				return;
+			}
 			const fd = new FormData();
 			fd.append('file', new File([blob], 'cover.jpg', { type: 'image/jpeg' }));
 			fd.append('kitId', editing!.id);
 
 			const resp = await fetch('/api/upload/kit-image', {
 				method: 'POST',
-				headers: token ? { Authorization: `Bearer ${token}` } : {},
+				headers: { Authorization: `Bearer ${token}` },
 				body: fd,
 			});
 			const data = await resp.json();
@@ -160,6 +167,12 @@
 		zipProgress = 'Procesando ZIP...';
 		try {
 			const token = await getAuthToken();
+			if (!token) {
+				alert('Sesión expirada. Recarga la página e inicia sesión de nuevo.');
+				uploadingZip = false;
+				zipProgress = '';
+				return;
+			}
 			const kitId = editing!.id;
 			const fd = new FormData();
 			fd.append('file', file);
@@ -167,7 +180,7 @@
 
 			const resp = await fetch('/api/upload/kit-zip', {
 				method: 'POST',
-				headers: token ? { Authorization: `Bearer ${token}` } : {},
+				headers: { Authorization: `Bearer ${token}` },
 				body: fd,
 			});
 			const data = await resp.json();
@@ -237,7 +250,12 @@
 		saving = true;
 		try {
 			const token = await getAuthToken();
-			const authParam = token ? `?auth=${token}` : '';
+			if (!token) {
+				alert('Sesión expirada. Recarga la página e inicia sesión de nuevo.');
+				saving = false;
+				return;
+			}
+			const authParam = `?auth=${token}`;
 			const body = {
 				name: editing.name.trim(),
 				description: editing.description?.trim() || '',
@@ -279,9 +297,9 @@
 	async function toggleActive(kit: Kit & { id: string }) {
 		try {
 			const token = await getAuthToken();
-			const authParam = token ? `?auth=${token}` : '';
+			if (!token) { alert('Sesión expirada.'); return; }
 			const newActive = !kit.active;
-			await fetch(`${FIREBASE_DB}/kits/${kit.id}/active.json${authParam}`, {
+			await fetch(`${FIREBASE_DB}/kits/${kit.id}/active.json?auth=${token}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(newActive),
@@ -296,8 +314,8 @@
 		if (!confirm(`¿Eliminar "${kit.name}"? Esta acción no se puede deshacer.`)) return;
 		try {
 			const token = await getAuthToken();
-			const authParam = token ? `?auth=${token}` : '';
-			await fetch(`${FIREBASE_DB}/kits/${kit.id}.json${authParam}`, { method: 'DELETE' });
+			if (!token) { alert('Sesión expirada.'); return; }
+			await fetch(`${FIREBASE_DB}/kits/${kit.id}.json?auth=${token}`, { method: 'DELETE' });
 			kits = kits.filter(k => k.id !== kit.id);
 		} catch (err) {
 			console.error('[Admin Kits] Delete failed:', err);
