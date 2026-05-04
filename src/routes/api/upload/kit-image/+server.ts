@@ -18,13 +18,23 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 async function verifyFirebaseToken(idToken: string): Promise<{ uid: string; email?: string } | null> {
 	try {
 		const resp = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
-		if (!resp.ok) return null;
+		if (!resp.ok) {
+			console.error('[Kit Image] Token info failed:', resp.status, await resp.text().catch(() => ''));
+			return null;
+		}
 		const payload = await resp.json() as Record<string, string>;
-		if (payload.iss !== `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`) return null;
-		if (payload.aud !== FIREBASE_PROJECT_ID) return null;
+		if (payload.iss !== `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`) {
+			console.error('[Kit Image] Token iss mismatch:', payload.iss, 'expected:', FIREBASE_PROJECT_ID);
+			return null;
+		}
+		if (payload.aud !== FIREBASE_PROJECT_ID) {
+			console.error('[Kit Image] Token aud mismatch:', payload.aud, 'expected:', FIREBASE_PROJECT_ID);
+			return null;
+		}
 		if (!payload.sub) return null;
 		return { uid: payload.sub, email: payload.email };
-	} catch {
+	} catch (err) {
+		console.error('[Kit Image] Token verify error:', err);
 		return null;
 	}
 }
