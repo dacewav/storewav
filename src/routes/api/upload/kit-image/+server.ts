@@ -59,6 +59,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		user = { uid: 'dev-user', email: 'dev@localhost' };
 	} else {
 		const authHeader = request.headers.get('Authorization');
+		console.error('[Kit Image] Auth check — dev:', dev, 'hasHeader:', !!authHeader, 'startsBearer:', authHeader?.startsWith('Bearer '));
 		if (!authHeader?.startsWith('Bearer ')) return json({ ok: false, error: 'No autorizado' }, { status: 401 });
 		user = await verifyFirebaseToken(authHeader.slice(7));
 		if (!user) return json({ ok: false, error: 'Token inválido' }, { status: 401 });
