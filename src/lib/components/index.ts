@@ -43,4 +43,5 @@ export { default as LikeButton } from './LikeButton.svelte';
 export { default as CommentSection } from './CommentSection.svelte';
 export { default as CommentCard } from './CommentCard.svelte';
 export { default as BadgeDisplay } from './BadgeDisplay.svelte';
+export { default as KitCard } from './KitCard.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

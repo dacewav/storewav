@@ -27,13 +27,32 @@
 		} catch {}
 	}
 
+	let userAvatarURL = $state('');
+
+	async function loadAvatar() {
+		if (!user) return;
+		try {
+			const resp = await fetch(`${FIREBASE_DB}/users/${user.uid}/avatarURL.json`);
+			if (resp.ok) {
+				const url = await resp.json();
+				if (url) userAvatarURL = url;
+			}
+		} catch {}
+	}
+
 	onMount(() => {
-		if (user) loadBadges();
+		if (user) {
+			loadBadges();
+			loadAvatar();
+		}
 	});
 
 	// Re-load when user changes
 	$effect(() => {
-		if (user?.uid) loadBadges();
+		if (user?.uid) {
+			loadBadges();
+			loadAvatar();
+		}
 	});
 
 	const tabs: Array<{ href: string; label: string; icon: 'export' | 'shoppingCart' | 'heart' | 'music' }> = [
@@ -64,7 +83,9 @@
 		<!-- Header -->
 		<div class="account-header">
 			<div class="account-avatar">
-				{#if user.photoURL}
+				{#if userAvatarURL}
+					<img src={userAvatarURL} alt="" loading="lazy" decoding="async" />
+				{:else if user.photoURL}
 					<img src={user.photoURL} alt="" loading="lazy" decoding="async" />
 				{:else}
 					<div class="avatar-placeholder">

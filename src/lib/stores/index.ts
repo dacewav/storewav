@@ -23,5 +23,6 @@ export { customEmojis, initCustomEmojis, destroyCustomEmojis, type CustomEmoji }
 export { cart, cartCount, cartTotalMXN, cartTotalUSD, type CartItem } from './cart';
 export { contractTemplates, type ContractTemplateData } from './contractTemplates';
 export { initLikes, toggleLike, isLiked, subscribeToLikeCount, destroyLikes, userLikes, likeCounts } from './likes';
+export { kits, kitsList, allKitsList, kitsStats, kitGenres, createKit, updateKit, deleteKit, emptyKit, type Kit, type KitWithId, type KitsMap, type KitSample } from './kits';
 export { comments, commentsLoading, initComments, postComment, deleteComment, destroyComments } from './comments';
 export { notifications, unreadCount, initNotifications, destroyNotifications, sendNotification, notifyWishlistDiscount, notifyNewBeat, notifyPriceChange, markAsRead, markAllAsRead, deleteNotification } from './notifications';

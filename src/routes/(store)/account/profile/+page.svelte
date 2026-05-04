@@ -35,16 +35,27 @@
 	let saving = $state(false);
 	let saveMsg = $state('');
 	let saveMsgType = $state<'success' | 'error' | ''>('');
+	let usernameError = $state('');
+	let checkingUsername = $state(false);
 
 	// Avatar upload state
 	let avatarUploading = $state(false);
 	let avatarPreview = $state('');
 	let avatarFileInput: HTMLInputElement | undefined = $state();
 
+	// Banner upload state
+	let bannerUploading = $state(false);
+	let bannerPreview = $state('');
+	let bannerFileInput: HTMLInputElement | undefined = $state();
+
 	// Derived avatar: uploaded > profile > Google > placeholder
 	let displayAvatar = $derived(
 		avatarPreview || profile.avatarURL || user?.photoURL || ''
 	);
+
+	let displayBanner = $derived(bannerPreview || profile.bannerURL || '');
+
+	let originalUsername = $state('');
 
 	async function loadProfile() {
 		if (!user) return;
@@ -58,6 +69,7 @@
 				if (data) {
 					profile.artistName = data.artistName || '';
 					profile.username = data.username || '';
+					originalUsername = data.username || '';
 					profile.bio = data.bio || '';
 					profile.country = data.country || '';
 					profile.instagram = data.socials?.instagram || '';
@@ -98,28 +110,54 @@
 		});
 	}
 
+	/** Resize image to banner aspect (3:1 center crop) via canvas */
+	function cropToBanner(file: File): Promise<Blob> {
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			img.onload = () => {
+				const targetRatio = 3;
+				const imgRatio = img.width / img.height;
+				let sx = 0, sy = 0, sw = img.width, sh = img.height;
+				if (imgRatio > targetRatio) {
+					// Too wide — crop sides
+					sw = img.height * targetRatio;
+					sx = (img.width - sw) / 2;
+				} else {
+					// Too tall — crop top/bottom
+					sh = img.width / targetRatio;
+					sy = (img.height - sh) / 2;
+				}
+				const canvas = document.createElement('canvas');
+				canvas.width = 1200;
+				canvas.height = 400;
+				const ctx = canvas.getContext('2d')!;
+				ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 1200, 400);
+				canvas.toBlob((blob) => {
+					if (blob) resolve(blob);
+					else reject(new Error('Canvas conversion failed'));
+				}, 'image/jpeg', 0.85);
+			};
+			img.onerror = () => reject(new Error('Failed to load image'));
+			img.src = URL.createObjectURL(file);
+		});
+	}
+
 	async function handleAvatarSelect(e: Event) {
 		const input = e.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
 
-		// Preview immediately
 		avatarPreview = URL.createObjectURL(file);
-
-		// Upload
 		avatarUploading = true;
 		try {
-			// Crop to square
 			const cropped = await cropToSquare(file);
 			const croppedFile = new File([cropped], 'avatar.jpg', { type: 'image/jpeg' });
 
-			// Get auth token
 			const { getAuthInstance } = await import('$lib/firebase');
 			const authInstance = await getAuthInstance();
 			const token = await authInstance?.currentUser?.getIdToken();
 			if (!token) throw new Error('No autenticado');
 
-			// Upload via avatar endpoint
 			const formData = new FormData();
 			formData.append('file', croppedFile);
 			const resp = await fetch('/api/upload/avatar', {
@@ -131,11 +169,9 @@
 			const data = await resp.json();
 			if (!data.ok) throw new Error(data.error || 'Upload falló');
 
-			// Update profile with new avatar URL
 			profile.avatarURL = data.url;
 			avatarPreview = data.url;
 
-			// Save to Firebase immediately
 			const authToken = await getAuthToken();
 			const authP = authToken ? `?auth=${authToken}` : '';
 			await fetch(`${FIREBASE_DB}/users/${user!.uid}/avatarURL.json${authP}`, {
@@ -156,8 +192,102 @@
 		}
 	}
 
+	async function handleBannerSelect(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		bannerPreview = URL.createObjectURL(file);
+		bannerUploading = true;
+		try {
+			const cropped = await cropToBanner(file);
+			const croppedFile = new File([cropped], 'banner.jpg', { type: 'image/jpeg' });
+
+			const { getAuthInstance } = await import('$lib/firebase');
+			const authInstance = await getAuthInstance();
+			const token = await authInstance?.currentUser?.getIdToken();
+			if (!token) throw new Error('No autenticado');
+
+			const formData = new FormData();
+			formData.append('file', croppedFile);
+			const resp = await fetch('/api/upload/banner', {
+				method: 'POST',
+				headers: { Authorization: `Bearer ${token}` },
+				body: formData,
+			});
+
+			const data = await resp.json();
+			if (!data.ok) throw new Error(data.error || 'Upload falló');
+
+			profile.bannerURL = data.url;
+			bannerPreview = data.url;
+
+			const authToken = await getAuthToken();
+			const authP = authToken ? `?auth=${authToken}` : '';
+			await fetch(`${FIREBASE_DB}/users/${user!.uid}/bannerURL.json${authP}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data.url),
+			});
+
+			saveMsg = 'Banner actualizado';
+			saveMsgType = 'success';
+		} catch (err) {
+			saveMsg = err instanceof Error ? err.message : 'Error al subir banner';
+			saveMsgType = 'error';
+			bannerPreview = '';
+		} finally {
+			bannerUploading = false;
+			setTimeout(() => { saveMsg = ''; }, 3000);
+		}
+	}
+
+	/** Check username uniqueness against Firebase */
+	async function checkUsernameUnique(username: string): Promise<boolean> {
+		if (!username || username === originalUsername) return true;
+		try {
+			const resp = await fetch(`${FIREBASE_DB}/users.json?orderBy="username"&equalTo="${username}"&limitToFirst=1`);
+			if (resp.ok) {
+				const data = await resp.json();
+				return !data || Object.keys(data).length === 0;
+			}
+		} catch {}
+		return true;
+	}
+
+	let usernameDebounce: ReturnType<typeof setTimeout> | undefined;
+
+	function onUsernameInput() {
+		usernameError = '';
+		clearTimeout(usernameDebounce);
+		const val = profile.username.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+		profile.username = val;
+
+		if (val.length < 3) {
+			if (val.length > 0) usernameError = 'Mínimo 3 caracteres';
+			return;
+		}
+
+		checkingUsername = true;
+		usernameDebounce = setTimeout(async () => {
+			const unique = await checkUsernameUnique(val);
+			usernameError = unique ? '' : 'Este username ya está en uso';
+			checkingUsername = false;
+		}, 500);
+	}
+
 	async function saveProfile() {
 		if (!user) return;
+
+		// Validate username before save
+		if (profile.username && profile.username !== originalUsername) {
+			const unique = await checkUsernameUnique(profile.username);
+			if (!unique) {
+				usernameError = 'Este username ya está en uso';
+				return;
+			}
+		}
+
 		saving = true;
 		saveMsg = '';
 		try {
@@ -180,7 +310,6 @@
 				updatedAt: Date.now(),
 			};
 
-			// Merge with existing (don't overwrite createdAt)
 			const token = await getAuthToken();
 			const authParam = token ? `?auth=${token}` : '';
 			const resp = await fetch(`${FIREBASE_DB}/users/${user.uid}.json${authParam}`, {
@@ -190,6 +319,7 @@
 			});
 
 			if (resp.ok) {
+				originalUsername = data.username;
 				saveMsg = 'Perfil guardado';
 				saveMsgType = 'success';
 			} else {
@@ -205,7 +335,6 @@
 		}
 	}
 
-	// Load on mount
 	$effect(() => {
 		if (user) loadProfile();
 	});
@@ -218,6 +347,32 @@
 	{#if loading}
 		<div class="profile-loading">Cargando perfil...</div>
 	{:else}
+		<!-- Banner section -->
+		<div class="banner-section">
+			<button class="banner-wrapper" onclick={() => bannerFileInput?.click()} disabled={bannerUploading}>
+				{#if displayBanner}
+					<img src={displayBanner} alt="" class="banner-img" loading="lazy" decoding="async" />
+				{:else}
+					<div class="banner-placeholder">
+						<span>🖼️ Click para subir banner</span>
+					</div>
+				{/if}
+				{#if bannerUploading}
+					<div class="banner-overlay">⏳ Subiendo...</div>
+				{:else}
+					<div class="banner-overlay">📷 Cambiar banner</div>
+				{/if}
+			</button>
+			<input
+				type="file"
+				accept="image/*"
+				class="hidden-input"
+				bind:this={bannerFileInput}
+				onchange={handleBannerSelect}
+			/>
+			<span class="banner-hint">3:1 ratio recomendado (1200×400px). Máx 4MB.</span>
+		</div>
+
 		<!-- Avatar section -->
 		<div class="avatar-section">
 			<button class="avatar-wrapper" onclick={() => avatarFileInput?.click()} disabled={avatarUploading}>
@@ -258,8 +413,30 @@
 					</label>
 					<label>
 						<span>Username (@handle)</span>
-						<input type="text" bind:value={profile.username} placeholder="ej: dacewav" maxlength="24" pattern="[a-z0-9_-]+" />
-						<span class="field-hint">Solo letras, números, guiones. Se usa para tu URL pública.</span>
+						<div class="username-input-wrap">
+							<span class="username-prefix">@</span>
+							<input
+								type="text"
+								class="username-input"
+								bind:value={profile.username}
+								oninput={onUsernameInput}
+								placeholder="dacewav"
+								maxlength="24"
+								pattern="[a-z0-9_-]+"
+							/>
+							{#if checkingUsername}
+								<span class="username-status checking">⏳</span>
+							{:else if usernameError}
+								<span class="username-status error">✕</span>
+							{:else if profile.username && profile.username.length >= 3}
+								<span class="username-status ok">✓</span>
+							{/if}
+						</div>
+						{#if usernameError}
+							<span class="field-error">{usernameError}</span>
+						{:else}
+							<span class="field-hint">Solo letras, números, guiones. Se usa para tu URL pública.</span>
+						{/if}
 					</label>
 					<label>
 						<span>Bio (máx. 160 chars)</span>
@@ -297,7 +474,7 @@
 			</fieldset>
 
 			<div class="profile-actions">
-				<button class="save-btn" type="submit" disabled={saving}>
+				<button class="save-btn" type="submit" disabled={saving || !!usernameError}>
 					{#if saving}
 						⏳ Guardando...
 					{:else}
@@ -373,7 +550,7 @@
 		font-family: var(--font-mono);
 	}
 
-	input {
+	input, textarea {
 		padding: var(--space-2) var(--space-3);
 		background: var(--bg);
 		border: 1px solid var(--border);
@@ -386,15 +563,6 @@
 	}
 
 	textarea {
-		padding: var(--space-2) var(--space-3);
-		background: var(--bg);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-sm);
-		color: var(--text);
-		font-family: var(--font-body);
-		font-size: var(--text-sm);
-		outline: none;
-		transition: border-color var(--duration-fast);
 		resize: vertical;
 		min-height: 60px;
 	}
@@ -408,6 +576,51 @@
 		color: var(--text-hint);
 		font-family: var(--font-mono);
 	}
+
+	.field-error {
+		font-size: var(--text-2xs);
+		color: #ef4444;
+		font-family: var(--font-mono);
+	}
+
+	/* Username input */
+	.username-input-wrap {
+		display: flex;
+		align-items: center;
+		gap: 0;
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		transition: border-color var(--duration-fast);
+	}
+
+	.username-input-wrap:focus-within {
+		border-color: var(--accent);
+	}
+
+	.username-prefix {
+		padding-left: var(--space-3);
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		user-select: none;
+	}
+
+	.username-input {
+		border: none !important;
+		background: transparent !important;
+		padding-left: var(--space-1);
+		flex: 1;
+	}
+
+	.username-status {
+		padding-right: var(--space-3);
+		font-size: var(--text-sm);
+	}
+
+	.username-status.checking { color: var(--text-muted); }
+	.username-status.ok { color: #22c55e; }
+	.username-status.error { color: #ef4444; }
 
 	.profile-actions {
 		display: flex;
@@ -452,6 +665,75 @@
 	.save-msg.error {
 		color: #ef4444;
 		background: rgba(239, 68, 68, 0.1);
+	}
+
+	/* Banner */
+	.banner-section {
+		margin-bottom: var(--space-4);
+	}
+
+	.banner-wrapper {
+		position: relative;
+		width: 100%;
+		height: 160px;
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		cursor: pointer;
+		border: 2px dashed var(--border);
+		background: var(--surface);
+		padding: 0;
+		transition: border-color var(--duration-fast);
+	}
+
+	.banner-wrapper:hover {
+		border-color: var(--accent);
+	}
+
+	.banner-wrapper:disabled {
+		cursor: wait;
+	}
+
+	.banner-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.banner-placeholder {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--text-muted);
+		font-size: var(--text-sm);
+		font-family: var(--font-mono);
+	}
+
+	.banner-overlay {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.6);
+		opacity: 0;
+		transition: opacity var(--duration-fast);
+		font-size: var(--text-sm);
+		color: white;
+		font-family: var(--font-mono);
+	}
+
+	.banner-wrapper:hover .banner-overlay {
+		opacity: 1;
+	}
+
+	.banner-hint {
+		display: block;
+		margin-top: var(--space-1);
+		font-size: var(--text-2xs);
+		color: var(--text-hint);
+		font-family: var(--font-mono);
 	}
 
 	/* Avatar */

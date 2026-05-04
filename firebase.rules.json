@@ -1506,9 +1506,62 @@
       }
     },
     "users": {
+      ".read": true,
+      ".indexOn": ["username"],
       "$uid": {
-        ".read": "auth !== null && auth.uid === $uid",
-        ".write": "auth !== null && auth.uid === $uid"
+        ".write": "auth !== null && (auth.uid === $uid || root.child('adminWhitelist/approved').child(auth.uid).exists())",
+        "username": {
+          ".validate": "newData.isString() && newData.val().length <= 24 && newData.val().matches(/^[a-z0-9_-]+$/)"
+        },
+        "bio": {
+          ".validate": "newData.isString() && newData.val().length <= 160"
+        },
+        "artistName": {
+          ".validate": "newData.isString() && newData.val().length <= 100"
+        },
+        "banned": {
+          ".validate": "newData.isBoolean()"
+        },
+        "badges": {
+          "$badge": {
+            ".validate": "newData.isString()"
+          }
+        }
+      }
+    },
+    "kits": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      "$kitId": {
+        ".validate": "newData.hasChildren(['name', 'genre', 'priceMXN', 'priceUSD'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length <= 100"
+        },
+        "description": {
+          ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "genre": {
+          ".validate": "newData.isString() && newData.val().length <= 50"
+        },
+        "priceMXN": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "priceUSD": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "active": {
+          ".validate": "newData.isBoolean()"
+        },
+        "samples": {
+          "$sampleIndex": {
+            "name": {
+              ".validate": "newData.isString()"
+            },
+            "url": {
+              ".validate": "newData.isString()"
+            }
+          }
+        }
       }
     },
     "beatLikes": {

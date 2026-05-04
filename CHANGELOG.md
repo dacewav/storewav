@@ -1,5 +1,166 @@
 # Changelog
 
+## v1.4.0 — 2026-05-04 (Session 63 — Drumkits Section)
+
+### 🥁 Drumkits
+- **Kit type + store** — `src/lib/stores/kits.ts` with Firebase CRUD, `kitsList`, `kitsStats`, `kitGenres`
+- **KitCard component** — cover image, genre badge, sample count, play button, add-to-cart
+- **`/kits` store page** — grid with search, genre pills, empty state
+- **`/kit/[id]` detail page** — cover, description, pricing, sample list with inline audio preview (play/pause per sample)
+- **Admin CRUD** — `/admin/kits` with create/edit/delete, sample management, active toggle
+- **Cart integration** — kits use `kit-{id}` as beatId, same cart system as beats
+- **Store nav** — "Kits" link in desktop nav + mobile menu
+- **Admin nav** — "🥁 Drumkits" in sidebar under Tienda
+- **Firebase rules** — public read, admin write, field validation for kits
+
+### 📁 Files Changed
+- `src/lib/stores/kits.ts` — new store
+- `src/lib/stores/index.ts` — export kit types and functions
+- `src/lib/components/KitCard.svelte` — new component
+- `src/lib/components/index.ts` — export KitCard
+- `src/routes/(store)/kits/+page.svelte` — store page
+- `src/routes/(store)/kit/[id]/+page.svelte` — detail page
+- `src/routes/(admin)/admin/kits/+page.svelte` — admin CRUD
+- `src/routes/(admin)/+layout.svelte` — admin nav link
+- `src/routes/(store)/+layout.svelte` — store nav + mobile menu link
+- `firebase.rules.json` — kits rules
+
+## v1.3.0 — 2026-05-04 (Session 63 — User Profiles Completos + Audit)
+
+### 👤 User Profiles
+- **Banner upload** — `/api/upload/banner` endpoint → R2, 3:1 crop (1200×400), 4MB max
+- **Banner UI** — dashed border placeholder, hover overlay, 3:1 crop with canvas
+- **Username uniqueness** — real-time check against Firebase REST API, debounced 500ms, visual status indicator (⏳/✓/✕)
+- **Username input** — `@` prefix, lowercase alphanumeric + dashes, max 24 chars
+- **Account layout avatar** — now shows R2 custom avatar instead of Google photoURL when available
+
+### 🔧 Admin Users Page (`/admin/users`)
+- **User list** — all Firebase users with avatar, name, username, email, badges, country
+- **Stats cards** — total users, with profile, with badges, banned
+- **Search** — by name, email, username, artist name
+- **Sort** — most recent, name A-Z, most purchases
+- **Badge editor** — toggle badges (first-beat, fan, super-fan, vocal, early-bird, vip) per user
+- **Ban/unban** — toggle ban status with confirmation styling
+- **Profile detail** — expandable panel showing full profile, UID, public profile link
+- **Sidebar link** — added "👤 Usuarios" to Ventas group in admin nav
+- **REST API pattern** — uses auth token via `getAuthToken()` (not Firebase SDK) to work with deployed rules
+
+### 🔒 Firebase Rules
+- **Users path** — public `.read` for profile data, `.write` restricted to owner + admin
+- **`.indexOn: ["username"]`** — enables efficient username queries
+- **Field validation** — username (24 chars, alphanumeric), bio (160 chars), artistName (100 chars), badges, banned
+- **⚠️ NOT DEPLOYED** — rules updated in `firebase.rules.json` but need `firebase deploy --only database`
+
+### 🧪 Browser Testing (Session 63)
+- **Store page** — all 29 Lucide icons verified rendering correctly (search, cart, heart, play, share, etc.)
+- **Beat detail page** — chevronLeft, play, heart, share, shoppingCart, music all ✅
+- **Player** — skipBack, skipForward, pause, play, volumeOn, volumeOff, close all ✅
+- **Filters** — search, close, chevronDown, tag all ✅
+- **Account tabs** — export, shoppingCart, heart, music icons ✅
+- **Admin topbar** — undo, redo, save, export, import, logout all ✅
+- **Profile page** — banner upload, avatar upload, username validation, save to Firebase all ✅
+- **Admin users** — loads users from Firebase, stats display, search, sort all ✅
+- **Mobile 375px** — single column, icons scale correctly ✅
+- **Brand icons** — whatsapp, instagram, youtube render as inline SVG ✅
+
+### ⚠️ Known Issues (deployed rules)
+- `/u/[username]` returns "Usuario no encontrado" — deployed rules block public reads
+- Admin users shows 0 — deployed rules restrict `/users` to own-data-only
+- **Fix**: deploy `firebase.rules.json` → `firebase deploy --only database`
+
+### 👤 User Profiles
+- **Banner upload** — `/api/upload/banner` endpoint → R2, 3:1 crop (1200×400), 4MB max
+- **Banner UI** — drag-to-upload with preview, dashed border placeholder, hover overlay
+- **Username uniqueness** — real-time check against Firebase on input, debounced 500ms, visual status indicator (⏳/✓/✕)
+- **Username input** — `@` prefix, lowercase alphanumeric + dashes, max 24 chars
+- **Account layout avatar** — now shows R2 custom avatar instead of Google photoURL when available
+
+### 🔧 Admin Users Page (`/admin/users`)
+- **User list** — all Firebase users with avatar, name, username, email, badges, country
+- **Stats cards** — total users, with profile, with badges, banned
+- **Search** — by name, email, username, artist name
+- **Sort** — most recent, name A-Z, most purchases
+- **Badge editor** — toggle badges (first-beat, fan, super-fan, vocal, early-bird, vip) per user
+- **Ban/unban** — toggle ban status with confirmation styling
+- **Profile detail** — expandable panel showing full profile, UID, public profile link
+- **Sidebar link** — added "👤 Usuarios" to Ventas group in admin nav
+
+### 🔒 Firebase Rules
+- **Users path** — public `.read` for profile data, `.write` restricted to owner + admin
+- **`.indexOn: ["username"]`** — enables efficient username queries
+- **Field validation** — username (24 chars, alphanumeric), bio (160 chars), artistName (100 chars), badges, banned
+
+### 📁 Files Changed
+- `src/routes/api/upload/banner/+server.ts` — new endpoint
+- `src/routes/(store)/account/profile/+page.svelte` — banner upload, username validation
+- `src/routes/(store)/account/+layout.svelte` — custom avatar display
+- `src/routes/(admin)/admin/users/+page.svelte` — new admin page
+- `src/routes/(admin)/+layout.svelte` — added Users nav link
+- `firebase.rules.json` — updated users rules
+- `CHANGELOG.md` — updated
+
+## v1.2.0 — 2026-05-04 (Session 63 — Lucide Icons Migration)
+
+### ✨ Lucide Icons Migration
+- **Migrated 29 icons** from inline SVG strings to `lucide-svelte` components
+- **`icons.ts` reduced** from 380+ lines of SVG strings → 12-line type re-export
+- **`{@html svg}` eliminated** — removes XSS vector flagged in audit v0.8 (medium risk)
+- **Tree-shakeable** — individual icon imports (`import Heart from 'lucide-svelte/icons/heart'`), no barrel import
+- **Brand icons preserved** — whatsapp, instagram, youtube kept as inline SVG (Lucide doesn't include brand icons)
+- **`filled` prop** — heart filled state uses Lucide's native `fill` prop (no more conditional SVG generation)
+
+### Icon Mapping
+| Old (icons.ts) | New (Lucide) |
+|---|---|
+| heart | Heart |
+| play | Play |
+| pause | Pause |
+| close | X |
+| search | Search |
+| check | Check |
+| warning | TriangleAlert |
+| error | CircleX |
+| volumeOn | Volume2 |
+| volumeOff | VolumeX |
+| music | Music |
+| tag | Tag |
+| sun | Sun |
+| moon | Moon |
+| chevronDown | ChevronDown |
+| chevronLeft | ChevronLeft |
+| chevronUp | ChevronUp |
+| settings | Settings |
+| edit | Pencil |
+| trash | Trash2 |
+| plus | Plus |
+| undo | Undo2 |
+| redo | Redo2 |
+| save | Save |
+| export | Download |
+| share | Share2 |
+| import | Upload |
+| logout | LogOut |
+| skipBack | SkipBack |
+| skipForward | SkipForward |
+| shoppingCart | ShoppingCart |
+| bell | Bell |
+| whatsapp | *(kept as inline SVG)* |
+| instagram | *(kept as inline SVG)* |
+| youtube | *(kept as inline SVG)* |
+
+### 🧪 Testing
+- **228/228 tests passing** (no regressions)
+- **svelte-check: 0 new errors** (12 pre-existing env var errors)
+- **Build: clean** (Cloudflare adapter)
+
+### 📁 Files Changed
+- `package.json` — added `lucide-svelte` dependency
+- `src/lib/icons.ts` — replaced 380+ lines of SVG with type re-export
+- `src/lib/components/Icon.svelte` — rewritten to use Lucide components with brand SVG fallback
+- `CHANGELOG.md` — updated
+
+---
+
 ## v1.1.0 — 2026-05-04 (Session 62 — Mega Audit Implementation)
 
 ### 🔒 Security

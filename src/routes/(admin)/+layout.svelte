@@ -161,6 +161,7 @@
 				{ href: '/admin/beats', label: 'Beats', icon: '🎵', shortcut: 'Ctrl+B' },
 				{ href: '/admin/media', label: 'Media', icon: '🖼️' },
 				{ href: '/admin/testimonials', label: 'Testimonios', icon: '💬' },
+				{ href: '/admin/kits', label: 'Drumkits', icon: '🥁' },
 			]
 		},
 		{
@@ -185,6 +186,7 @@
 			items: [
 				{ href: '/admin/analytics', label: 'Analytics', icon: '📈' },
 				{ href: '/admin/customers', label: 'Clientes', icon: '👥' },
+				{ href: '/admin/users', label: 'Usuarios', icon: '👤' },
 				{ href: '/admin/discounts', label: 'Descuentos', icon: '🏷️' },
 				{ href: '/admin/contracts', label: 'Contratos', icon: '📄' },
 				{ href: '/admin/contracts/editor', label: 'Editor', icon: '✏️' },

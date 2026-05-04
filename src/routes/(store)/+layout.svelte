@@ -495,6 +495,7 @@
 		<!-- Desktop links -->
 		<div class="nav-links hide-mobile">
 			<a href="/#beats" class="nav-link" onclick={(e) => { if (page.url.pathname === '/') { e.preventDefault(); document.getElementById('beats')?.scrollIntoView({ behavior: 'smooth' }); closeMenu(); } }}>{sectionTitle}</a>
+			<a href="/kits" class="nav-link">Kits</a>
 			{#if isAdmin}
 				<a href="/admin" class="nav-link">Admin</a>
 			{/if}
@@ -590,6 +591,10 @@
 				<a href="/#beats" class="mm-link" onclick={(e) => { if (page.url.pathname === '/') { e.preventDefault(); document.getElementById('beats')?.scrollIntoView({ behavior: 'smooth' }); } closeMenu(); }}>
 					<span class="mm-link-icon">🎵</span>
 					<span>{sectionTitle}</span>
+				</a>
+				<a href="/kits" class="mm-link" onclick={closeMenu}>
+					<span class="mm-link-icon">🥁</span>
+					<span>Kits</span>
 				</a>
 				{#if isAdmin}
 					<a href="/admin" class="mm-link" onclick={closeMenu}>
