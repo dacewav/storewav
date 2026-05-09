@@ -13,18 +13,11 @@
 		onclick?: (kit: KitWithId) => void;
 	} = $props();
 
-	let inCart = $derived(false);
-
-	function checkInCart() {
-		const unsub = cart.isInCart(`kit-${kit.id}`).subscribe(v => inCart = v);
-		return unsub;
-	}
-
-	let cleanup = $state<(() => void) | undefined>();
+	let inCart = $state(false);
 
 	$effect(() => {
-		cleanup?.();
-		cleanup = checkInCart();
+		const unsub = cart.isInCart(`kit-${kit.id}`).subscribe(v => inCart = v);
+		return unsub;
 	});
 
 	function handleAddToCart(e: Event) {
