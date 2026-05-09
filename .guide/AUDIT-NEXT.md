@@ -1,4 +1,4 @@
-# 🔍 AUDIT — Estado post-Session 67 (2026-05-10)
+# 🔍 AUDIT — Estado post-Session 69 (2026-05-10)
 
 ## ✅ Completados (actualizado)
 
@@ -10,6 +10,18 @@ Refactorizado en Session 67. `createKitWithId()`, `updateKit()`, `deleteKit()` d
 
 ### 3. Token inválido en uploads ✅
 Root cause: `tokeninfo` de Google falla en Cloudflare Workers. Fix: decodificar JWT directamente (base64url), validar iss/aud/exp localmente. Auth centralizado en `serverAuth.ts`. Deployeado y verificado.
+
+### 5. Rate limiting en `/api/orders` ✅ (Session 69)
+10 req/min por IP. Similar al de `/api/plays`.
+
+### 6. Checkout endpoint CSRF protection ✅ (Session 69)
+Valida `Origin` header contra `ALLOWED_ORIGINS` de `config.ts`.
+
+### 8. Download verification con UUID token ✅ (Session 69)
+Webhook genera UUID token por item → guarda en Firebase `downloadTokens/` → download endpoint verifica token como query param.
+
+### 17. SEO — sitemap dinámico ✅ (Session 69)
+Endpoint `/sitemap.xml` genera sitemap desde Firebase (beats + géneros). Cache 1h. Static `sitemap.xml` eliminado.
 
 ### 19. WAV duration edge cases ✅
 Extraído `audioDuration.ts`, 27 tests nuevos (WAV PCM, stereo, 24-bit, extra chunks, corrupt, truncated, MP3 estimation).
@@ -26,6 +38,16 @@ Progress bar con seek, auto-play next, stop button, related kits, pulse animatio
 - ⧉ Duplicar sample
 - Duración del sample como badge
 
+### Bonus: Config centralizado ✅ (Session 69)
+`src/lib/config.ts` — STORE_DOMAIN, STORE_URL, CDN_URL, FIREBASE_PROJECT_ID, ALLOWED_ORIGINS, EMAIL_FROM.
+Usado en: checkout, webhook, serverAuth, email, abandonedCart.
+
+### Bonus: Loader safety timeout ✅ (Session 69)
+8s timeout en layout — si Firebase settings no cargan, el loader desaparece igual.
+
+### Bonus: Empty catch blocks logging ✅ (Session 69)
+11 catches en 5 API endpoints ahora loggean con `console.warn` + contexto.
+
 ## ⏳ Pendientes de prioridad ALTA
 
 ### 3. Test real de uploads
@@ -36,45 +58,23 @@ Progress bar con seek, auto-play next, stop button, related kits, pulse animatio
 
 ## ⏳ Pendientes de prioridad MEDIA
 
-### 4. Hardcoded URLs en código
-Hay ~15 URLs hardcodeadas de `dacewav.store` y `dacewav-store-3b0f5` dispersas por el código:
+### 4. Hardcoded URLs restantes en código
+Quedan URLs hardcodeadas en uploads y páginas Svelte:
 - `src/routes/api/upload/+server.ts` — `R2_PUBLIC_BASE`, `FIREBASE_PROJECT_ID`
 - `src/routes/api/upload/avatar/+server.ts` — igual
 - `src/routes/api/upload/kit-image/+server.ts` — igual
 - `src/routes/api/upload/kit-zip/+server.ts` — igual
-- `src/routes/api/checkout/+server.ts` — origin fallback
-- `src/routes/api/webhook/stripe/+server.ts` — download URL
 - `src/routes/(store)/beat/[id]/+page.svelte` — canonical, og:url, schema
 - `src/routes/(store)/genre/[slug]/+page.svelte` — canonical, og:url, schema
 - `src/routes/(store)/+page.svelte` — schema
 - `src/routes/(admin)/admin/emails/+page.svelte` — preview link
-**Fix:** Centralizar en una constante de entorno o en `$lib/config.ts`.
-
-### 5. Endpoint `/api/orders` sin rate limiting
-Cualquiera puede consultar órdenes por email sin límite. Posible enumeración de emails.
-**Fix:** Agregar rate limiting por IP (similar al de `/api/plays`).
-
-### 6. Checkout endpoint sin CSRF protection
-`POST /api/checkout` no valida el origin header. Un sitio malicioso podría crear checkouts en nombre del usuario.
-**Fix:** Validar `Origin` o `Referer` header contra dominios permitidos.
-
-### 7. Empty catch blocks (silent failures)
-Hay ~15 `catch {}` vacíos en los API endpoints. Los errores se tragan silenciosamente.
-**Fix:** Al menos loggear el error en dev mode.
-
-### 8. Descarga sin verificación de comprador
-`/api/download/[orderId]/[beatId]` solo verifica que la orden esté pagada, no que el solicitante sea el comprador. Cualquiera con el link puede descargar.
-**Fix:** Agregar token firmado en la URL o verificar Firebase ID token.
+**Fix:** Importar de `$lib/config.ts`.
 
 ## ⏳ Pendientes de prioridad BAJA
 
 ### 9. `@html` con CSS custom injection
 `+layout.svelte` usa `{@html \`<style>${customCSS}</style>\`}`. Aunque `sanitizeCSS()` bloquea patterns peligrosos, es una superficie de ataque.
 **Revisar:** Que `sanitizeCSS()` cubra todos los vectores (data:, vbscript:, -moz-binding, expression).
-
-### 10. Email `from` hardcodeado
-`ventas@dacewav.store` está hardcodeado en `email.ts`. Si cambia el dominio, hay que editar código.
-**Fix:** Mover a template de Firebase o env var.
 
 ### 11. `admin/+page.svelte` usa `JSON.parse(text)` sin try-catch
 Línea 126 — si el JSON es inválido, explota.
@@ -101,10 +101,6 @@ Los contratos generados no tienen firma digital. Son PDFs planos.
 El tipo `Testimonial` tiene ambos campos. Firebase usa `role`, el código legacy usa `stars`.
 **Fix:** Estandarizar a un solo campo.
 
-### 17. SEO — sitemap dinámico
-`static/sitemap.xml` es estático. Debería generarse dinámicamente con los beats.
-**Fix:** Crear endpoint `/sitemap.xml` que genere el sitemap desde Firebase.
-
 ### 18. Accessibility — aria labels en botones admin
 Varios botones del admin no tienen `aria-label` (emojis, emails, etc.).
 
@@ -114,8 +110,8 @@ Todo hardcodeado en español (~150+ strings). Decisión arquitectónica pendient
 
 ## Estado actual del proyecto
 - **Tests:** 270/270 passing
-- **Type check:** 0 new errors (14 pre-existing env var issues)
+- **Type check:** 0 errors, 1 warning (pre-existing)
 - **Build:** OK (Cloudflare adapter)
 - **Firebase rules:** ✅ Deployed 2026-05-10
 - **Deploy:** Cloudflare Pages (via wrangler)
-- **Último commit:** `41d2f78` (admin kits audio upload)
+- **Último commit:** `32632b4` (CSRF, rate limiting, config, sitemap, download tokens)
