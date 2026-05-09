@@ -244,16 +244,27 @@
 		// Initialize custom emojis for store rendering
 		initCustomEmojis();
 
-		// Loader: fade ONLY when settings load from Firebase (no hard timeout)
+		// Loader: fade ONLY when settings load from Firebase, with 8s safety timeout
 		function startLoaderFade() {
 			if (loaderFading) return;
 			loaderFading = true;
 			setTimeout(() => { loaderVisible = false; }, 500);
 		}
 
+		// Safety timeout: fade loader after 8s even if settings never load
+		const loaderSafetyTimeout = setTimeout(() => {
+			if (loaderVisible) {
+				console.warn('[Loader] Safety timeout — settings did not load in 8s');
+				startLoaderFade();
+			}
+		}, 8000);
+
 		// Fade when settings load from Firebase
 		const unsubSettings = settings.subscribe((s) => {
-			if (s.data && !s.loading) startLoaderFade();
+			if (s.data && !s.loading) {
+				clearTimeout(loaderSafetyTimeout);
+				startLoaderFade();
+			}
 		});
 
 		// Detect theme: localStorage > system preference

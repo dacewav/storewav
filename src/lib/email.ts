@@ -49,6 +49,7 @@ type EmailTemplate = {
 };
 
 import { FIREBASE_DB } from '$lib/firebaseDb';
+import { EMAIL_FROM } from '$lib/config';
 
 const defaultTemplate: EmailTemplate = {
 	brandName: 'DACEWAV',
@@ -262,7 +263,7 @@ export async function sendDeliveryEmail(
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
-				from: `${brandName} <ventas@dacewav.store>`,
+				from: `${brandName} <${EMAIL_FROM}>`,
 				to: data.buyerEmail,
 				subject: escapeHtml(interpolateVars(tmpl.emailSubject, vars)),
 				html,

@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { FIREBASE_DB } from '$lib/firebaseDb';
+import { ALLOWED_ORIGINS, STORE_URL } from '$lib/config';
 
 /**
  * POST /api/checkout
@@ -117,6 +118,17 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		return json({ ok: false, error: 'Stripe no configurado — falta STRIPE_SECRET_KEY' }, { status: 500 });
 	}
 
+	// CSRF protection — validate Origin header
+	const origin = request.headers.get('origin') || request.headers.get('referer') || '';
+	const allowedOrigins = ALLOWED_ORIGINS;
+	const originHost = (() => {
+		try { return origin ? new URL(origin).origin : ''; } catch { return ''; }
+	})();
+	if (origin && !allowedOrigins.includes(originHost)) {
+		console.warn(`[Checkout] CSRF rejection — origin: ${origin}`);
+		return json({ ok: false, error: 'Origen no permitido' }, { status: 403 });
+	}
+
 	// Parse body
 	let body: { items?: unknown[]; customerEmail?: string; discountCode?: string; validateOnly?: boolean };
 	try {
@@ -222,12 +234,12 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 	}
 
 	// Create Stripe Checkout Session via REST API
-	const origin = request.headers.get('origin') || 'https://dacewav.store';
+	const checkoutOrigin = originHost || STORE_URL;
 
 	const params = new URLSearchParams();
 	params.append('mode', 'payment');
-	params.append('success_url', `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
-	params.append('cancel_url', `${origin}/checkout/cancel`);
+	params.append('success_url', `${checkoutOrigin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
+	params.append('cancel_url', `${checkoutOrigin}/checkout/cancel`);
 	params.append('payment_intent_data[metadata][items]', metadata.items);
 
 	if (customerEmail) {

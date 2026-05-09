@@ -5,7 +5,7 @@ import { FIREBASE_DB } from '$lib/firebaseDb';
 import { r2KeyFromUrl, sanitizeFilename } from '$lib/r2Presign';
 
 /**
- * GET /api/download/[orderId]/[beatId]/zip
+ * GET /api/download/[orderId]/[beatId]/zip?token=uuid
  * Downloads a zip containing: beat audio + contract PDF.
  * If stems exist in the future, they'll be included too.
  */
@@ -13,6 +13,18 @@ import { r2KeyFromUrl, sanitizeFilename } from '$lib/r2Presign';
 // Reuse order cache from parent endpoint
 const orderCache = new Map<string, { verified: number; items: Array<{ beatId: string; licenseName: string; beatName?: string; priceMXN: number; priceUSD: number }> }>();
 const CACHE_TTL = 5 * 60 * 1000;
+
+/** Verify download token from Firebase */
+async function verifyToken(orderId: string, beatId: string, token: string): Promise<boolean> {
+	try {
+		const resp = await fetch(`${FIREBASE_DB}/downloadTokens/${orderId}_${beatId}.json`);
+		if (!resp.ok) return false;
+		const data = await resp.json() as { token?: string } | null;
+		return data?.token === token;
+	} catch {
+		return false;
+	}
+}
 
 async function verifyAndGetOrder(orderId: string, beatId: string) {
 	const cached = orderCache.get(orderId);
@@ -52,11 +64,22 @@ async function verifyAndGetOrder(orderId: string, beatId: string) {
 	}
 }
 
-export const GET: RequestHandler = async ({ params, platform }) => {
+export const GET: RequestHandler = async ({ params, url, platform }) => {
 	const { orderId, beatId } = params;
+	const token = url.searchParams.get('token');
 
 	if (!orderId || !beatId) {
 		return new Response('Missing parameters', { status: 400 });
+	}
+
+	if (!token) {
+		return new Response('Missing download token', { status: 403 });
+	}
+
+	// Verify token
+	const isTokenValid = await verifyToken(orderId, beatId, token);
+	if (!isTokenValid) {
+		return new Response('Invalid or expired download token', { status: 403 });
 	}
 
 	// Verify order and get item details

@@ -3,8 +3,8 @@ import { getPresignedDownloadUrl, r2KeyFromUrl, sanitizeFilename } from '$lib/r2
 import { FIREBASE_DB } from '$lib/firebaseDb';
 
 /**
- * GET /api/download/[orderId]/[beatId]
- * Secure file download — verifies order is paid, then redirects to a presigned R2 URL.
+ * GET /api/download/[orderId]/[beatId]?token=uuid
+ * Secure file download — verifies order is paid + download token, then redirects to a presigned R2 URL.
  * Falls back to R2 binding or proxy if presigning is unavailable.
  */
 const R2_BUCKET = 'dace-beats';
@@ -40,17 +40,42 @@ async function verifyOrder(orderId: string, beatId: string): Promise<boolean> {
 	}
 }
 
-export const GET: RequestHandler = async ({ params, platform }) => {
+/** Verify download token from Firebase */
+async function verifyToken(orderId: string, beatId: string, token: string): Promise<boolean> {
+	try {
+		const resp = await fetch(`${FIREBASE_DB}/downloadTokens/${orderId}_${beatId}.json`);
+		if (!resp.ok) return false;
+
+		const data = await resp.json() as { token?: string } | null;
+		return data?.token === token;
+	} catch (err) {
+		console.warn(`[Download] Token verification failed for ${orderId}/${beatId}:`, err);
+		return false;
+	}
+}
+
+export const GET: RequestHandler = async ({ params, url, platform }) => {
 	const { orderId, beatId } = params;
+	const token = url.searchParams.get('token');
 
 	if (!orderId || !beatId) {
 		return new Response('Missing parameters', { status: 400 });
+	}
+
+	if (!token) {
+		return new Response('Missing download token', { status: 403 });
 	}
 
 	// Verify order
 	const isAuthorized = await verifyOrder(orderId, beatId);
 	if (!isAuthorized) {
 		return new Response('Unauthorized — order not paid or beat not in order', { status: 403 });
+	}
+
+	// Verify token
+	const isTokenValid = await verifyToken(orderId, beatId, token);
+	if (!isTokenValid) {
+		return new Response('Invalid or expired download token', { status: 403 });
 	}
 
 	// Get beat data to find R2 key

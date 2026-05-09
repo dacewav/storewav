@@ -5,6 +5,7 @@
 
 import { dev } from '$app/environment';
 import { FIREBASE_DB } from '$lib/firebaseDb';
+import { EMAIL_FROM } from '$lib/config';
 
 export type CartAbandonmentData = {
 	uid: string;
@@ -109,7 +110,7 @@ export async function sendAbandonedCartEmail(
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
-				from: `${brandName} <ventas@dacewav.store>`,
+				from: `${brandName} <${EMAIL_FROM}>`,
 				to: data.email,
 				subject: `🛒 Tu carrito te espera en ${brandName} — ${beatNames}`,
 				html,

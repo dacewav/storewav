@@ -7,8 +7,7 @@
  */
 
 import { FIREBASE_DB } from '$lib/firebaseDb';
-
-const FIREBASE_PROJECT_ID = 'dacewav-store-3b0f5';
+import { FIREBASE_PROJECT_ID, CDN_URL } from '$lib/config';
 
 export type AuthUser = { uid: string; email?: string };
 
@@ -151,4 +150,4 @@ export async function authenticateRequest(
 }
 
 /** R2 public CDN base URL */
-export const R2_PUBLIC_BASE = 'https://cdn.dacewav.store';
+export const R2_PUBLIC_BASE = CDN_URL;

@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { generateContractPDF, getContractFile } from '$lib/contractPdf';
 import { sendDeliveryEmail } from '$lib/email';
 import { FIREBASE_DB } from '$lib/firebaseDb';
+import { STORE_URL } from '$lib/config';
 
 /**
  * POST /api/webhook/stripe
@@ -232,8 +233,21 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 						}),
 					});
 
-					// Build secure download URL
-					const downloadUrl = `https://dacewav.store/api/download/${sessionId}/${item.beatId}`;
+					// Generate secure download token (UUID)
+					const downloadToken = crypto.randomUUID();
+					await fetch(`${FIREBASE_DB}/downloadTokens/${sessionId}_${item.beatId}.json`, {
+						method: 'PUT',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							token: downloadToken,
+							orderId: sessionId,
+							beatId: item.beatId,
+							createdAt: Date.now(),
+						}),
+					});
+
+					// Build secure download URL with token
+					const downloadUrl = `${STORE_URL}/api/download/${sessionId}/${item.beatId}?token=${downloadToken}`;
 
 					emailItems.push({
 						beatName: beatData?.name || item.beatName || 'Beat',
