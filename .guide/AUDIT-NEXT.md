@@ -1,34 +1,44 @@
-# 🔍 AUDIT — Próxima sesión (2026-05-10)
+# 🔍 AUDIT — Estado post-Session 67 (2026-05-10)
 
-## Pendientes de prioridad ALTA
+## ✅ Completados
 
-### 1. Firebase rules deploy
-Las rules están reescritas (250 líneas, patrón `$field` catch-all) pero **NUNCA se deployearon**.
-`firebase deploy --only database`
-Sin esto: anonymous writes para kits no están activos en producción, `/u/[username]` no funciona.
+### 1. Firebase rules deploy ✅
+Deployed 2026-05-10.
 
-### 2. Admin kits — usar store functions
-`/admin/kits/+page.svelte` hace fetch directo a Firebase REST API en vez de usar `createKitWithId()`, `updateKit()`, `deleteKit()` del store. Dos code paths para la misma operación.
-**Fix:** Refactorizar para usar `src/lib/stores/kits.ts`.
+### 2. Admin kits — usar store functions ✅
+Refactorizado en Session 67. `createKitWithId()`, `updateKit()`, `deleteKit()` del store. Browser-tested.
+
+### 19. WAV duration edge cases ✅
+Extraído `audioDuration.ts`, 27 tests nuevos (WAV PCM, stereo, 24-bit, extra chunks, corrupt, truncated, MP3 estimation).
+
+### Bonus: KitCard effect_update_depth_exceeded fix ✅
+`$derived` → `$state` para cart subscribe. Browser-tested, 0 errores en consola.
+
+### Bonus: Kit detail page enhancements ✅
+Progress bar con seek, auto-play next, stop button, related kits, pulse animation.
+
+## ⏳ Pendientes de prioridad ALTA
 
 ### 3. Test real de uploads
 - Imagen a R2 via `/api/upload/kit-image` — no testeado con archivo real
 - ZIP con audio real via `/api/upload/kit-zip` — no testeado con samples reales
 - WAV duration parsing no testeado con WAVs reales de producción
+**Bloqueado:** Necesita R2 credentials + archivos de audio reales. El endpoint guarda en `/static/uploads/` en dev mode.
 
-## Pendientes de prioridad MEDIA
+## ⏳ Pendientes de prioridad MEDIA
 
 ### 4. Hardcoded URLs en código
 Hay ~15 URLs hardcodeadas de `dacewav.store` y `dacewav-store-3b0f5` dispersas por el código:
 - `src/routes/api/upload/+server.ts` — `R2_PUBLIC_BASE`, `FIREBASE_PROJECT_ID`
 - `src/routes/api/upload/avatar/+server.ts` — igual
+- `src/routes/api/upload/kit-image/+server.ts` — igual
+- `src/routes/api/upload/kit-zip/+server.ts` — igual
 - `src/routes/api/checkout/+server.ts` — origin fallback
 - `src/routes/api/webhook/stripe/+server.ts` — download URL
 - `src/routes/(store)/beat/[id]/+page.svelte` — canonical, og:url, schema
 - `src/routes/(store)/genre/[slug]/+page.svelte` — canonical, og:url, schema
 - `src/routes/(store)/+page.svelte` — schema
 - `src/routes/(admin)/admin/emails/+page.svelte` — preview link
-
 **Fix:** Centralizar en una constante de entorno o en `$lib/config.ts`.
 
 ### 5. Endpoint `/api/orders` sin rate limiting
@@ -47,7 +57,7 @@ Hay ~15 `catch {}` vacíos en los API endpoints. Los errores se tragan silencios
 `/api/download/[orderId]/[beatId]` solo verifica que la orden esté pagada, no que el solicitante sea el comprador. Cualquiera con el link puede descargar.
 **Fix:** Agregar token firmado en la URL o verificar Firebase ID token.
 
-## Pendientes de prioridad BAJA
+## ⏳ Pendientes de prioridad BAJA
 
 ### 9. `@html` con CSS custom injection
 `+layout.svelte` usa `{@html \`<style>${customCSS}</style>\`}`. Aunque `sanitizeCSS()` bloquea patterns peligrosos, es una superficie de ataque.
@@ -89,17 +99,13 @@ El tipo `Testimonial` tiene ambos campos. Firebase usa `role`, el código legacy
 ### 18. Accessibility — aria labels en botones admin
 Varios botones del admin no tienen `aria-label` (emojis, emails, etc.).
 
-### 19. WAV duration edge cases
-Parser actual solo soporta WAV PCM estándar. WAV comprimido, AIFF, y headers no estándar podrían fallar silenciosamente.
-**Fix:** Agregar fallback a estimación por file size si el parser falla.
-
 ### 20. i18n
 Todo hardcodeado en español (~150+ strings). Decisión arquitectónica pendiente: svelte-i18n vs paraglide.
 **Prioridad:** Baja — la mayoría de usuarios hablan español.
 
 ## Estado actual del proyecto
-- **Tests:** 243/243 passing
-- **Type check:** 0 errors, 0 warnings
+- **Tests:** 270/270 passing
+- **Type check:** 0 new errors (14 pre-existing env var issues)
 - **Build:** OK (Cloudflare adapter)
-- **Firebase rules:** reescritas localmente, NO deployeadas
-- **Último commit:** `2ff8f82` (session 67 prompt)
+- **Firebase rules:** ✅ Deployed 2026-05-10
+- **Último commit:** `e4bb97e` (KitCard fix)
