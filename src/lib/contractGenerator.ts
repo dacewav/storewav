@@ -8,6 +8,7 @@
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 import { getContractTemplate, type ContractClause } from './contractText';
+import { STORE_URL } from './config';
 
 export type ContractData = {
 	orderId: string;
@@ -445,7 +446,7 @@ function buildContract(st: RenderState, data: ContractData, cfg: LicenseConfig, 
 	ensureSpace(st, 50);
 	drawBody(st, `Código de verificación: ${verificationHash}`);
 	st.y -= 2;
-	drawBody(st, 'Verifica este contrato en: https://dacewav.store/verify/' + verificationHash);
+	drawBody(st, 'Verifica este contrato en: ' + STORE_URL + '/verify/' + verificationHash);
 
 	// ── Footer note ──
 	ensureSpace(st, 40);

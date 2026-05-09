@@ -218,6 +218,13 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 					// Store contract in Firebase
 					const contractId = `${sessionId}_${item.beatId}`;
+
+					// Compute verification hash (same algorithm as contractGenerator)
+					const hashInput = `${sessionId}|${beatData?.name || item.beatName}|${item.licenseName}|${customerName}|${customerEmail}|${item.priceUSD}|${new Date().toISOString().split('T')[0]}`;
+					const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(hashInput));
+					const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+					const verificationHash = hashHex.slice(0, 16).toUpperCase();
+
 					await fetch(`${FIREBASE_DB}/contracts/${contractId}.json`, {
 						method: 'PUT',
 						headers: { 'Content-Type': 'application/json' },
@@ -229,8 +236,16 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 							buyerEmail: customerEmail,
 							buyerName: customerName,
 							contractFile,
+							verificationHash,
 							createdAt: Date.now(),
 						}),
+					});
+
+					// Index by hash for fast verification lookup
+					await fetch(`${FIREBASE_DB}/contractHashes/${verificationHash}.json`, {
+						method: 'PUT',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ contractId }),
 					});
 
 					// Generate secure download token (UUID)
