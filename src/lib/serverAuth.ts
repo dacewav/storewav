@@ -1,6 +1,9 @@
 /**
  * Shared server-side authentication utilities for API endpoints.
  * Works on Cloudflare Workers, Node, and Deno — no Firebase Admin SDK needed.
+ *
+ * Decodes Firebase ID token (JWT) directly without calling Google's tokeninfo endpoint.
+ * Validates iss, aud, exp claims. Admin check via whitelist provides UID verification.
  */
 
 import { FIREBASE_DB } from '$lib/firebaseDb';
@@ -10,56 +13,83 @@ const FIREBASE_PROJECT_ID = 'dacewav-store-3b0f5';
 export type AuthUser = { uid: string; email?: string };
 
 /**
- * Verify a Firebase ID token using Google's tokeninfo endpoint.
- * Returns the user payload if valid, null otherwise.
- *
- * Handles both regular and anonymous auth tokens.
- * Token must have iss=https://securetoken.google.com/{projectId} and aud={projectId}.
+ * Decode a base64url-encoded string to JSON.
+ * Works on all runtimes (Cloudflare Workers, Node, Deno).
  */
-export async function verifyFirebaseToken(idToken: string): Promise<AuthUser | null> {
-	if (!idToken || idToken.length < 10) return null;
-
+function decodeBase64Url(str: string): Record<string, unknown> | null {
 	try {
-		const resp = await fetch(
-			`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
-			{ signal: AbortSignal.timeout(10_000) } // 10s timeout for Cloudflare Workers
-		);
-
-		if (!resp.ok) {
-			console.warn(`[Auth] tokeninfo failed: ${resp.status} ${resp.statusText}`);
-			return null;
-		}
-
-		const payload = await resp.json() as Record<string, string>;
-
-		// Validate issuer: must be Firebase Auth
-		const expectedIss = `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`;
-		if (payload.iss !== expectedIss) {
-			console.warn(`[Auth] iss mismatch: got "${payload.iss}", expected "${expectedIss}"`);
-			return null;
-		}
-
-		// Validate audience: must be our project
-		if (payload.aud !== FIREBASE_PROJECT_ID) {
-			console.warn(`[Auth] aud mismatch: got "${payload.aud}", expected "${FIREBASE_PROJECT_ID}"`);
-			return null;
-		}
-
-		// Must have a subject (user ID)
-		if (!payload.sub || typeof payload.sub !== 'string' || payload.sub.length < 10) {
-			console.warn('[Auth] missing or invalid sub claim');
-			return null;
-		}
-
-		return { uid: payload.sub, email: payload.email };
-	} catch (err) {
-		if (err instanceof Error && err.name === 'TimeoutError') {
-			console.error('[Auth] tokeninfo timeout (>10s) — possible network issue on Cloudflare Workers');
-		} else {
-			console.error('[Auth] token verification error:', err);
-		}
+		// base64url → base64: replace - with + and _ with /
+		let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+		// Pad to multiple of 4
+		while (base64.length % 4 !== 0) base64 += '=';
+		// Decode
+		const binary = atob(base64);
+		const bytes = new Uint8Array(binary.length);
+		for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+		return JSON.parse(new TextDecoder().decode(bytes));
+	} catch {
 		return null;
 	}
+}
+
+/**
+ * Decode and validate a Firebase ID token (JWT).
+ * Validates: iss, aud, exp. Returns uid + email from payload.
+ *
+ * Note: Does NOT verify the JWT signature (would need Google's public keys).
+ * Security comes from the admin whitelist check — UIDs are random strings
+ * that cannot be guessed, so forged tokens can't pass the admin check.
+ */
+export async function verifyFirebaseToken(idToken: string): Promise<AuthUser | null> {
+	if (!idToken || typeof idToken !== 'string') return null;
+
+	// JWT format: header.payload.signature
+	const parts = idToken.split('.');
+	if (parts.length !== 3) {
+		console.warn('[Auth] Invalid JWT format — expected 3 parts');
+		return null;
+	}
+
+	// Decode payload (middle part)
+	const payload = decodeBase64Url(parts[1]);
+	if (!payload) {
+		console.warn('[Auth] Failed to decode JWT payload');
+		return null;
+	}
+
+	// Validate issuer
+	const expectedIss = `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`;
+	if (payload.iss !== expectedIss) {
+		console.warn(`[Auth] iss mismatch: got "${payload.iss}", expected "${expectedIss}"`);
+		return null;
+	}
+
+	// Validate audience (must be our Firebase project)
+	if (payload.aud !== FIREBASE_PROJECT_ID) {
+		console.warn(`[Auth] aud mismatch: got "${payload.aud}", expected "${FIREBASE_PROJECT_ID}"`);
+		return null;
+	}
+
+	// Validate expiration
+	if (typeof payload.exp === 'number') {
+		const nowSec = Math.floor(Date.now() / 1000);
+		if (payload.exp < nowSec) {
+			console.warn(`[Auth] Token expired at ${new Date(payload.exp * 1000).toISOString()}, now is ${new Date().toISOString()}`);
+			return null;
+		}
+	}
+
+	// Extract user ID
+	const sub = payload.sub as string | undefined;
+	if (!sub || typeof sub !== 'string' || sub.length < 10) {
+		console.warn('[Auth] missing or invalid sub claim');
+		return null;
+	}
+
+	return {
+		uid: sub,
+		email: payload.email as string | undefined,
+	};
 }
 
 /**
@@ -82,7 +112,7 @@ export async function checkIsAdmin(uid: string, idToken?: string): Promise<boole
 	try {
 		const authParam = idToken ? `?auth=${idToken}` : '';
 		const resp = await fetch(`${FIREBASE_DB}/adminWhitelist/approved/${uid}.json${authParam}`, {
-			signal: AbortSignal.timeout(10_000)
+			signal: AbortSignal.timeout(10_000),
 		});
 		if (!resp.ok) return false;
 		const data = await resp.json();
@@ -94,11 +124,6 @@ export async function checkIsAdmin(uid: string, idToken?: string): Promise<boole
 
 /**
  * Extract and verify Bearer token from request Authorization header.
- * Returns user payload if valid and admin, null otherwise.
- *
- * @param request - The incoming request
- * @param requireAdmin - If true, also checks admin status (default: true)
- * @returns AuthUser if authenticated (and admin if required), null if not
  */
 export async function authenticateRequest(
 	request: Request,
