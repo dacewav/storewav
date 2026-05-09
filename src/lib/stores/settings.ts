@@ -93,9 +93,9 @@ export type BannerSettings = {
 export type Testimonial = {
 	name: string;
 	text: string;
-	stars?: number;
+	stars?: number; // 1-5 star rating (shown as ★★★★★)
 	avatar?: string;
-	role?: string; // Firebase uses role instead of stars
+	role?: string; // Professional role/title (shown when stars is not set)
 };
 
 // ── Hero Visual Settings ──

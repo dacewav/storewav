@@ -61,6 +61,13 @@ function isValidBeatId(id: string): boolean {
 /** Increment plays via Firebase REST API transaction */
 async function incrementPlays(beatId: string): Promise<number | null> {
 	try {
+		// Verify beat exists first
+		const checkResp = await fetch(`${FIREBASE_DB}/beats/${beatId}.json?shallow=true`);
+		if (!checkResp.ok) return null;
+
+		const exists = await checkResp.json();
+		if (!exists) return null;
+
 		// Read current value
 		const readResp = await fetch(`${FIREBASE_DB}/beats/${beatId}/plays.json`);
 		if (!readResp.ok) return null;

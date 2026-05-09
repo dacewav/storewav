@@ -48,7 +48,7 @@ export function sanitizeCSS(raw: string): string {
 	// Remove any HTML tags that might have been injected
 	css = css.replace(/<[^>]*>/g, '');
 
-	// Block javascript: and data: in url()
+	// Block javascript:, data:, vbscript: in url()
 	css = css.replace(/url\s*\(\s*['"]?\s*(?:javascript|data|vbscript):/gi, 'url(blocked:');
 
 	// Block CSS expression() (IE)
@@ -60,8 +60,14 @@ export function sanitizeCSS(raw: string): string {
 	// Block behavior: (IE XSS vector)
 	css = css.replace(/behavior\s*:/gi, '/* blocked:');
 
+	// Block content: property (can inject text/html via data: URIs)
+	css = css.replace(/content\s*:\s*url\s*\(/gi, '/* blocked content-url */');
+
 	// Block @import with external URLs (only allow relative or same-origin)
 	css = css.replace(/@import\s+url\s*\(\s*['"]?\s*https?:\/\//gi, '/* blocked import */');
+
+	// Block @namespace (can redefine XML namespaces)
+	css = css.replace(/@namespace\s+/gi, '/* blocked namespace */');
 
 	return css;
 }

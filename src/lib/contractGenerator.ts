@@ -275,7 +275,7 @@ function getLicenseConfig(data: ContractData): LicenseConfig {
 
 // ─── Contract Builder ───────────────────────────────────────────────
 
-function buildContract(st: RenderState, data: ContractData, cfg: LicenseConfig) {
+function buildContract(st: RenderState, data: ContractData, cfg: LicenseConfig, verificationHash: string) {
 	const contractNo = data.orderId.slice(0, 8).toUpperCase();
 	const formattedDate = data.date;
 
@@ -441,6 +441,12 @@ function buildContract(st: RenderState, data: ContractData, cfg: LicenseConfig) 
 
 	st.y -= LINE_H * 3 + 10;
 
+	// ── Verification hash ──
+	ensureSpace(st, 50);
+	drawBody(st, `Código de verificación: ${verificationHash}`);
+	st.y -= 2;
+	drawBody(st, 'Verifica este contrato en: https://dacewav.store/verify/' + verificationHash);
+
 	// ── Footer note ──
 	ensureSpace(st, 40);
 	drawBody(st, 'Lugar y fecha de firma: Heroica Puebla de Zaragoza, ' + formattedDate);
@@ -490,7 +496,14 @@ export async function generateContractPDF(data: ContractData): Promise<Uint8Arra
 	};
 
 	const cfg = getLicenseConfig(data);
-	buildContract(st, data, cfg);
+
+	// Generate verification hash
+	const hashInput = `${data.orderId}|${data.beatName}|${data.licenseName}|${data.buyerName}|${data.buyerEmail}|${data.priceUSD}|${data.date}`;
+	const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(hashInput));
+	const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+	const verificationHash = hashHex.slice(0, 16).toUpperCase();
+
+	buildContract(st, data, cfg, verificationHash);
 
 	return doc.save();
 }
