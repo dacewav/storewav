@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
-import { FIREBASE_DB } from '$lib/firebaseDb';
-import { PUBLIC_ADMIN_UIDS } from '$env/static/public';
+import { authenticateRequest, R2_PUBLIC_BASE } from '$lib/serverAuth';
 
 /**
  * POST /api/upload/kit-image
@@ -11,46 +10,7 @@ import { PUBLIC_ADMIN_UIDS } from '$env/static/public';
  * Saves to kits/{kitId}/cover.{ext}
  */
 
-const R2_PUBLIC_BASE = 'https://cdn.dacewav.store';
-const FIREBASE_PROJECT_ID = 'dacewav-store-3b0f5';
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-
-async function verifyFirebaseToken(idToken: string): Promise<{ uid: string; email?: string } | null> {
-	try {
-		const resp = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
-		if (!resp.ok) {
-			console.warn('[Kit Image] Token info failed:', resp.status);
-			return null;
-		}
-		const payload = await resp.json() as Record<string, string>;
-		if (payload.iss !== `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`) {
-			console.warn('[Kit Image] Token iss mismatch');
-			return null;
-		}
-		if (payload.aud !== FIREBASE_PROJECT_ID) {
-			console.warn('[Kit Image] Token aud mismatch');
-			return null;
-		}
-		if (!payload.sub) return null;
-		return { uid: payload.sub, email: payload.email };
-	} catch (err) {
-		console.warn('[Kit Image] Token verify error');
-		return null;
-	}
-}
-
-async function checkIsAdmin(uid: string, idToken?: string): Promise<boolean> {
-	const adminUids = (PUBLIC_ADMIN_UIDS ?? '').split(',').map((s: string) => s.trim()).filter(Boolean);
-	if (adminUids.includes(uid)) return true;
-	try {
-		const authParam = idToken ? `?auth=${idToken}` : '';
-		const resp = await fetch(`${FIREBASE_DB}/adminWhitelist/approved/${uid}.json${authParam}`);
-		if (!resp.ok) return false;
-		return (await resp.json()) !== null;
-	} catch {
-		return false;
-	}
-}
 
 export const POST: RequestHandler = async ({ request, platform }) => {
 	let user: { uid: string; email?: string } | null = null;
@@ -58,12 +18,9 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 	if (dev) {
 		user = { uid: 'dev-user', email: 'dev@localhost' };
 	} else {
-		const authHeader = request.headers.get('Authorization');
-		if (!authHeader?.startsWith('Bearer ')) return json({ ok: false, error: 'No autorizado' }, { status: 401 });
-		user = await verifyFirebaseToken(authHeader.slice(7));
-		if (!user) return json({ ok: false, error: 'Token inválido' }, { status: 401 });
-		const isAdmin = await checkIsAdmin(user.uid, authHeader.slice(7));
-		if (!isAdmin) return json({ ok: false, error: 'Solo admins' }, { status: 403 });
+		const auth = await authenticateRequest(request);
+		if (auth?.error) return json({ ok: false, error: auth.error }, { status: auth.status });
+		user = auth!.user;
 	}
 
 	let formData: FormData;
