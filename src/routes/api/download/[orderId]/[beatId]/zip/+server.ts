@@ -46,7 +46,8 @@ async function verifyAndGetOrder(orderId: string, beatId: string) {
 			customerEmail: order.customerEmail || '',
 			customerName: order.customerName || '',
 		};
-	} catch {
+	} catch (err) {
+		console.warn(`[Download ZIP] Order verification failed for ${orderId}:`, err);
 		return null;
 	}
 }
@@ -99,7 +100,9 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 								const buffer = await obj.arrayBuffer();
 								audioData = new Uint8Array(buffer);
 							}
-						} catch { /* Fall through */ }
+						} catch (err) {
+							console.warn(`[Download ZIP] R2 audio fetch failed:`, err);
+						}
 					}
 				}
 
@@ -126,7 +129,9 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 								const buffer = await obj.arrayBuffer();
 								stemsData = new Uint8Array(buffer);
 							}
-						} catch { /* Fall through */ }
+						} catch (err) {
+							console.warn(`[Download ZIP] R2 stems fetch failed:`, err);
+						}
 					}
 				}
 
@@ -139,8 +144,8 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 				}
 			}
 		}
-	} catch {
-		// Audio/stems fetch failed — continue with what we have
+	} catch (err) {
+		console.warn('[Download ZIP] Audio/stems fetch failed:', err);
 	}
 
 	// 2. Generate contract PDF
@@ -158,8 +163,8 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 			date: new Date().toISOString().split('T')[0],
 			contractFile,
 		});
-	} catch {
-		// Contract generation failed — continue with audio only
+	} catch (err) {
+		console.warn('[Download ZIP] Contract PDF generation failed:', err);
 	}
 
 	// 3. Build zip

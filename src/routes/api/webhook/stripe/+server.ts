@@ -69,7 +69,8 @@ function parseItems(metadata: Record<string, unknown> | undefined): Array<{
 		if (!metadata?.items) return [];
 		const parsed = JSON.parse(metadata.items as string);
 		return Array.isArray(parsed) ? parsed : [];
-	} catch {
+	} catch (err) {
+		console.warn('[Stripe Webhook] Failed to parse metadata items:', err);
 		return [];
 	}
 }
@@ -185,8 +186,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 								};
 							}
 						}
-					} catch {
-						// Non-critical
+					} catch (err) {
+						console.warn(`[Stripe Webhook] Failed to fetch beat ${item.beatId}:`, err);
 					}
 				}
 

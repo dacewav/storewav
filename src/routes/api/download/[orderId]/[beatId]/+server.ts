@@ -34,7 +34,8 @@ async function verifyOrder(orderId: string, beatId: string): Promise<boolean> {
 		const items = order.items?.map(i => i.beatId) ?? [];
 		orderCache.set(orderId, { verified: Date.now(), items });
 		return items.includes(beatId);
-	} catch {
+	} catch (err) {
+		console.warn(`[Download] Order verification failed for ${orderId}:`, err);
 		return false;
 	}
 }
@@ -112,8 +113,8 @@ export const GET: RequestHandler = async ({ params, platform }) => {
 					headers.set('Cache-Control', 'private, no-store');
 					return new Response(obj.body, { headers });
 				}
-			} catch {
-				// Fall through to proxy
+			} catch (err) {
+				console.warn('[Download] R2 binding failed, falling back to proxy:', err);
 			}
 		}
 	}

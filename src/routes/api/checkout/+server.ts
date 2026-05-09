@@ -176,8 +176,9 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 				type: validation.type,
 				amount: validation.amount,
 			};
-		} catch {
+		} catch (err) {
 			// If discount fetch fails, proceed without discount
+			console.warn('[Checkout] Discount fetch failed, proceeding without:', err);
 		}
 	}
 
@@ -298,9 +299,9 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 			// NOTE: usedCount is incremented in the Stripe webhook on successful payment,
 			// not here — to avoid counting abandoned checkouts.
-		} catch {
+		} catch (err) {
 			// Non-critical — order will be created by webhook if this fails
-			console.warn('[Checkout] Failed to save order to Firebase');
+			console.warn('[Checkout] Failed to save order to Firebase:', err);
 		}
 
 		return json({ ok: true, url: session.url, sessionId: session.id });

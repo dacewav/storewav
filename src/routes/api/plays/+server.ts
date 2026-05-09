@@ -78,7 +78,8 @@ async function incrementPlays(beatId: string): Promise<number | null> {
 
 		if (!writeResp.ok) return null;
 		return newValue;
-	} catch {
+	} catch (err) {
+		console.warn(`[Plays] Failed to increment plays for ${beatId}:`, err);
 		return null;
 	}
 }
