@@ -1,12 +1,15 @@
 # 🔍 AUDIT — Estado post-Session 67 (2026-05-10)
 
-## ✅ Completados
+## ✅ Completados (actualizado)
 
 ### 1. Firebase rules deploy ✅
 Deployed 2026-05-10.
 
 ### 2. Admin kits — usar store functions ✅
 Refactorizado en Session 67. `createKitWithId()`, `updateKit()`, `deleteKit()` del store. Browser-tested.
+
+### 3. Token inválido en uploads ✅
+Root cause: `tokeninfo` de Google falla en Cloudflare Workers. Fix: decodificar JWT directamente (base64url), validar iss/aud/exp localmente. Auth centralizado en `serverAuth.ts`. Deployeado y verificado.
 
 ### 19. WAV duration edge cases ✅
 Extraído `audioDuration.ts`, 27 tests nuevos (WAV PCM, stereo, 24-bit, extra chunks, corrupt, truncated, MP3 estimation).
@@ -16,6 +19,12 @@ Extraído `audioDuration.ts`, 27 tests nuevos (WAV PCM, stereo, 24-bit, extra ch
 
 ### Bonus: Kit detail page enhancements ✅
 Progress bar con seek, auto-play next, stop button, related kits, pulse animation.
+
+### Bonus: Admin kits — audio upload directo ✅
+- 🎵 Subir audio por sample (upload directo a R2, auto-llena URL)
+- ⠿ Drag & drop reorder
+- ⧉ Duplicar sample
+- Duración del sample como badge
 
 ## ⏳ Pendientes de prioridad ALTA
 
@@ -108,4 +117,5 @@ Todo hardcodeado en español (~150+ strings). Decisión arquitectónica pendient
 - **Type check:** 0 new errors (14 pre-existing env var issues)
 - **Build:** OK (Cloudflare adapter)
 - **Firebase rules:** ✅ Deployed 2026-05-10
-- **Último commit:** `e4bb97e` (KitCard fix)
+- **Deploy:** Cloudflare Pages (via wrangler)
+- **Último commit:** `41d2f78` (admin kits audio upload)
