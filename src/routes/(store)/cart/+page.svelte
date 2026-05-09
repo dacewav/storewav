@@ -137,7 +137,7 @@
 							{/if}
 						</div>
 						<div class="item-info">
-							<a href="/beat/{item.beatId}" class="item-name">{item.beatName}</a>
+							<a href={item.beatId.startsWith('kit-') ? `/kit/${item.beatId.slice(4)}` : `/beat/${item.beatId}`} class="item-name">{item.beatName}</a>
 							<span class="item-license">{item.licenseName}</span>
 						</div>
 						<div class="item-price">

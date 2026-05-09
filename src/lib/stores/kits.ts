@@ -98,6 +98,26 @@ export async function createKit(kit: Omit<Kit, 'createdAt' | 'updatedAt'>): Prom
 	}
 }
 
+/** Create a new kit with a specific ID (PUT instead of POST) */
+export async function createKitWithId(id: string, kit: Omit<Kit, 'createdAt' | 'updatedAt'>): Promise<boolean> {
+	try {
+		const { getAuthInstance } = await import('$lib/firebase');
+		const auth = await getAuthInstance();
+		const token = await auth?.currentUser?.getIdToken(true);
+		if (!token) return false;
+		const { FIREBASE_DB } = await import('$lib/firebaseDb');
+
+		const resp = await fetch(`${FIREBASE_DB}/kits/${id}.json?auth=${token}`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ ...kit, createdAt: Date.now(), updatedAt: Date.now() }),
+		});
+		return resp.ok;
+	} catch {
+		return false;
+	}
+}
+
 /** Update an existing kit */
 export async function updateKit(id: string, patch: Partial<Kit>): Promise<boolean> {
 	try {

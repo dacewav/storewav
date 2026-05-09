@@ -19,22 +19,22 @@ async function verifyFirebaseToken(idToken: string): Promise<{ uid: string; emai
 	try {
 		const resp = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
 		if (!resp.ok) {
-			console.error('[Kit Image] Token info failed:', resp.status, await resp.text().catch(() => ''));
+			console.warn('[Kit Image] Token info failed:', resp.status);
 			return null;
 		}
 		const payload = await resp.json() as Record<string, string>;
 		if (payload.iss !== `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`) {
-			console.error('[Kit Image] Token iss mismatch:', payload.iss, 'expected:', FIREBASE_PROJECT_ID);
+			console.warn('[Kit Image] Token iss mismatch');
 			return null;
 		}
 		if (payload.aud !== FIREBASE_PROJECT_ID) {
-			console.error('[Kit Image] Token aud mismatch:', payload.aud, 'expected:', FIREBASE_PROJECT_ID);
+			console.warn('[Kit Image] Token aud mismatch');
 			return null;
 		}
 		if (!payload.sub) return null;
 		return { uid: payload.sub, email: payload.email };
 	} catch (err) {
-		console.error('[Kit Image] Token verify error:', err);
+		console.warn('[Kit Image] Token verify error');
 		return null;
 	}
 }
@@ -59,7 +59,6 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		user = { uid: 'dev-user', email: 'dev@localhost' };
 	} else {
 		const authHeader = request.headers.get('Authorization');
-		console.error('[Kit Image] Auth check — dev:', dev, 'hasHeader:', !!authHeader, 'startsBearer:', authHeader?.startsWith('Bearer '));
 		if (!authHeader?.startsWith('Bearer ')) return json({ ok: false, error: 'No autorizado' }, { status: 401 });
 		user = await verifyFirebaseToken(authHeader.slice(7));
 		if (!user) return json({ ok: false, error: 'Token inválido' }, { status: 401 });

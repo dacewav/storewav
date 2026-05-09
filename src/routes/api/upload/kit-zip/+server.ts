@@ -19,13 +19,91 @@ const MAX_ZIP_SIZE = 200 * 1024 * 1024; // 200MB
 const MAX_SAMPLE_SIZE = 50 * 1024 * 1024; // 50MB per sample
 const AUDIO_EXTENSIONS = ['.mp3', '.wav', '.flac', '.ogg', '.m4a', '.aac', '.wma', '.aiff', '.aif'];
 
+const MIME_MAP: Record<string, string> = {
+	'.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.flac': 'audio/flac',
+	'.ogg': 'audio/ogg', '.m4a': 'audio/mp4', '.aac': 'audio/aac',
+	'.wma': 'audio/x-ms-wma', '.aiff': 'audio/aiff', '.aif': 'audio/aiff',
+};
+
 function isAudioFile(name: string): boolean {
 	const lower = name.toLowerCase();
 	return AUDIO_EXTENSIONS.some(ext => lower.endsWith(ext));
 }
 
+function getMimeType(name: string): string {
+	const ext = name.toLowerCase().slice(name.lastIndexOf('.'));
+	return MIME_MAP[ext] || 'audio/mpeg';
+}
+
 function sanitizeFilename(name: string): string {
 	return name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100);
+}
+
+/**
+ * Parse WAV header to get duration in seconds.
+ * Returns null if not a valid WAV or can't parse.
+ */
+function getWavDuration(data: Uint8Array): number | null {
+	try {
+		if (data.length < 44) return null;
+		const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+		// Check RIFF header
+		const riff = String.fromCharCode(data[0], data[1], data[2], data[3]);
+		if (riff !== 'RIFF') return null;
+		const wave = String.fromCharCode(data[8], data[9], data[10], data[11]);
+		if (wave !== 'WAVE') return null;
+		// Find data chunk
+		let offset = 12;
+		while (offset < data.length - 8) {
+			const chunkId = String.fromCharCode(data[offset], data[offset + 1], data[offset + 2], data[offset + 3]);
+			const chunkSize = view.getUint32(offset + 4, true);
+			if (chunkId === 'data') {
+				// Byte rate is at offset 28 in the fmt chunk, but we need to find it
+				// The fmt chunk should come before data
+				break;
+			}
+			offset += 8 + chunkSize;
+		}
+		// Get byte rate from fmt chunk (offset 28)
+		if (data.length < 32) return null;
+		const byteRate = view.getUint32(28, true);
+		if (byteRate === 0) return null;
+		// Find data chunk size
+		offset = 12;
+		while (offset < data.length - 8) {
+			const chunkId = String.fromCharCode(data[offset], data[offset + 1], data[offset + 2], data[offset + 3]);
+			const chunkSize = view.getUint32(offset + 4, true);
+			if (chunkId === 'data') {
+				return Math.round((chunkSize / byteRate) * 10) / 10; // round to 0.1s
+			}
+			offset += 8 + chunkSize;
+		}
+		return null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Estimate MP3 duration from file size.
+ * Assumes 128kbps CBR as fallback. Returns seconds.
+ */
+function getMp3DurationEstimate(fileSize: number): number | null {
+	if (fileSize < 1024) return null;
+	// Try to read actual bitrate from first frame header
+	// For now, estimate at 128kbps = 16000 bytes/sec
+	const BYTES_PER_SEC_128K = 16000;
+	return Math.round((fileSize / BYTES_PER_SEC_128K) * 10) / 10;
+}
+
+/**
+ * Get audio duration from raw bytes. Tries WAV parsing, falls back to MP3 estimation.
+ */
+function getAudioDuration(data: Uint8Array, filename: string): number | null {
+	const ext = filename.toLowerCase().slice(filename.lastIndexOf('.'));
+	if (ext === '.wav') return getWavDuration(data);
+	if (ext === '.mp3') return getMp3DurationEstimate(data.length);
+	return null; // Other formats: let frontend calculate
 }
 
 async function verifyFirebaseToken(idToken: string): Promise<{ uid: string; email?: string } | null> {
@@ -94,7 +172,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		const files = unzipSync(zipBuffer);
 
 		const bucket = platform?.env?.MEDIA;
-		const samples: { name: string; url: string }[] = [];
+		const samples: { name: string; url: string; duration?: number }[] = [];
 		const errors: string[] = [];
 
 		for (const [entryName, entryData] of Object.entries(files)) {
@@ -109,19 +187,29 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			// Flatten path: take only filename, not nested dirs
 			const flatName = sanitizeFilename(entryName.split('/').pop() || entryName);
 			const r2Path = `kits/${kitId}/samples/${flatName}`;
+			const mimeType = getMimeType(flatName);
+			const duration = getAudioDuration(entryData, flatName);
+
+			const sample: { name: string; url: string; duration?: number } = {
+				name: flatName.replace(/\.[^.]+$/, ''),
+				url: '', // set below
+			};
+			if (duration != null && duration > 0) sample.duration = duration;
 
 			if (bucket) {
 				await bucket.put(r2Path, entryData, {
-					httpMetadata: { contentType: 'audio/mpeg', cacheControl: 'public, max-age=31536000' }
+					httpMetadata: { contentType: mimeType, cacheControl: 'public, max-age=31536000' }
 				});
-				samples.push({ name: flatName.replace(/\.[^.]+$/, ''), url: `${R2_PUBLIC_BASE}/${r2Path}` });
+				sample.url = `${R2_PUBLIC_BASE}/${r2Path}`;
+				samples.push(sample);
 			} else if (dev) {
 				const { mkdirSync, writeFileSync, existsSync } = await import('node:fs');
 				const { join } = await import('node:path');
 				const dir = join(process.cwd(), 'static', 'uploads', 'kits', kitId, 'samples');
 				if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 				writeFileSync(join(dir, flatName), entryData);
-				samples.push({ name: flatName.replace(/\.[^.]+$/, ''), url: `/uploads/kits/${kitId}/samples/${flatName}` });
+				sample.url = `/uploads/kits/${kitId}/samples/${flatName}`;
+				samples.push(sample);
 			}
 		}
 

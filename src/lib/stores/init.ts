@@ -7,6 +7,7 @@ import { settings } from './settings';
 import { initTheme } from './theme';
 import { initAuth } from './auth';
 import { beats } from './beats';
+import { kits } from './kits';
 import { initConnection } from './connection';
 import { initOfflineQueue, destroyOfflineQueue } from './settings';
 import { initThemePresets, destroyThemePresets } from './themePresets';
@@ -27,6 +28,7 @@ export async function initStores() {
 		initTheme(),
 		initAuth(),
 		beats.subscribeFirebase(),
+		kits.subscribeFirebase(),
 		initConnection(),
 		initOfflineQueue(),
 		initThemePresets(),
@@ -34,7 +36,7 @@ export async function initStores() {
 	]);
 
 	if (dev) console.log('[Init] Stores initialized:', results.map((r, i) => {
-		const names = ['settings', 'theme', 'auth', 'beats', 'connection', 'offlineQueue', 'themePresets', 'floating'];
+		const names = ['settings', 'theme', 'auth', 'beats', 'kits', 'connection', 'offlineQueue', 'themePresets', 'floating'];
 		return `${names[i]}: ${r.status}`;
 	}));
 }
@@ -42,6 +44,7 @@ export async function initStores() {
 export function destroyStores() {
 	settings.unsubscribe();
 	beats.unsubscribe();
+	kits.unsubscribe();
 	destroyOfflineQueue();
 	destroyThemePresets();
 	destroyFloating();

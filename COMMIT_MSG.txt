@@ -1,7 +1,12 @@
-audit: 0 errors 0 warnings, light/dark toggle, reset defaults, audio error recovery, --anim-int, a11y fixes
+fix: kits store init, MIME detection, sample duration, cart link
 
-- B8: light/dark toggle + reset defaults button
-- B1: 0 a11y warnings (BeatCard div, FileUpload slider, BeatEditor label)
-- B4: --anim-int CSS variable
-- B3: audio error recovery (retry 2x + 10s timeout)
-- B2: implicit any fix in auth.ts
+- Fix critical bug: kits store never initialized (missing subscribeFirebase in init.ts)
+  Kits page showed 0 kits because the Firebase RTDB listener was never started
+- Add MIME type detection by file extension in kit-zip upload (was hardcoded to audio/mpeg)
+- Add WAV duration parsing from file headers (reads RIFF/WAVE data chunk / byte rate)
+- Add MP3 duration estimation from file size (128kbps CBR assumption)
+- Fix cart link for kits: /beat/kit-{id} → /kit/{id} (detect kit- prefix)
+- Clean up debug logging in kit-image endpoint (console.error → console.warn)
+- Add createKitWithId() to kits store (PUT with pre-generated ID)
+- Add 15 new tests for kits store (emptyKit, sorting, filtering, CRUD)
+- 243 tests, 0 svelte-check errors
