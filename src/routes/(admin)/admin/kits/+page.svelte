@@ -318,6 +318,157 @@
 		}
 	}
 
+	/* ───── Audio file upload for individual samples ───── */
+	let uploadingSample = $state<number | null>(null); // index of sample being uploaded
+	let uploadingSampleName = $state('');
+
+	async function handleSampleAudioUpload(e: Event, index: number) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file || !editing) return;
+
+		const audioExts = ['.mp3', '.wav', '.flac', '.ogg', '.m4a', '.aac', '.aiff'];
+		const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+		if (!audioExts.includes(ext)) {
+			alert('Solo archivos de audio (MP3, WAV, FLAC, OGG, M4A, AAC, AIFF)');
+			return;
+		}
+		if (file.size > 100 * 1024 * 1024) { alert('Máximo 100MB'); return; }
+
+		uploadingSample = index;
+		uploadingSampleName = file.name;
+		try {
+			const token = await getAuthToken();
+			if (!token) { alert('Sesión expirada.'); return; }
+
+			// Upload via general upload endpoint (works for any authenticated admin)
+			const path = `kits/${editing!.id}/samples/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+			const fd = new FormData();
+			fd.append('file', file);
+			fd.append('path', path);
+
+			const resp = await fetch('/api/upload', {
+				method: 'POST',
+				headers: { Authorization: `Bearer ${token}` },
+				body: fd,
+			});
+			const data = await resp.json();
+			if (data.ok && data.url) {
+				// Auto-fill sample name from filename (without extension)
+				const sampleName = file.name.replace(/\.[^.]+$/, '');
+				editing.samples = editing.samples.map((s, i) =>
+					i === index ? { ...s, name: s.name || sampleName, url: data.url } : s
+				);
+			} else {
+				alert(data.error || 'Error al subir audio');
+			}
+		} catch (err) {
+			console.error('[Sample Upload]', err);
+			alert('Error al subir audio');
+		} finally {
+			uploadingSample = null;
+			uploadingSampleName = '';
+			// Reset input
+			(e.target as HTMLInputElement).value = '';
+		}
+	}
+
+	/** Quick-add a sample via file upload (no existing row needed) */
+	async function quickAddSample(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file || !editing) return;
+
+		const audioExts = ['.mp3', '.wav', '.flac', '.ogg', '.m4a', '.aac', '.aiff'];
+		const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+		if (!audioExts.includes(ext)) {
+			alert('Solo archivos de audio');
+			return;
+		}
+		if (file.size > 100 * 1024 * 1024) { alert('Máximo 100MB'); return; }
+
+		// Add empty sample first
+		const newIndex = editing.samples.length;
+		editing.samples = [...editing.samples, { name: '', url: '' }];
+		// Then upload
+		uploadingSample = newIndex;
+		uploadingSampleName = file.name;
+		try {
+			const token = await getAuthToken();
+			if (!token) { alert('Sesión expirada.'); return; }
+
+			const path = `kits/${editing!.id}/samples/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+			const fd = new FormData();
+			fd.append('file', file);
+			fd.append('path', path);
+
+			const resp = await fetch('/api/upload', {
+				method: 'POST',
+				headers: { Authorization: `Bearer ${token}` },
+				body: fd,
+			});
+			const data = await resp.json();
+			if (data.ok && data.url) {
+				const sampleName = file.name.replace(/\.[^.]+$/, '');
+				editing.samples = editing.samples.map((s, i) =>
+					i === newIndex ? { name: sampleName, url: data.url } : s
+				);
+			} else {
+				alert(data.error || 'Error al subir audio');
+				// Remove the empty sample we added
+				editing.samples = editing.samples.filter((_, i) => i !== newIndex);
+			}
+		} catch (err) {
+			console.error('[Quick Add]', err);
+			alert('Error al subir');
+			editing.samples = editing.samples.filter((_, i) => i !== newIndex);
+		} finally {
+			uploadingSample = null;
+			uploadingSampleName = '';
+			input.value = '';
+		}
+	}
+
+	/* ───── Drag & drop reorder ───── */
+	let dragSampleIdx = $state<number | null>(null);
+	let dragOverSampleIdx = $state<number | null>(null);
+
+	function handleSampleDragStart(e: DragEvent, idx: number) {
+		dragSampleIdx = idx;
+		if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+	}
+
+	function handleSampleDragOver(e: DragEvent, idx: number) {
+		e.preventDefault();
+		dragOverSampleIdx = idx;
+	}
+
+	function handleSampleDrop(e: DragEvent, idx: number) {
+		e.preventDefault();
+		if (dragSampleIdx === null || dragSampleIdx === idx || !editing) return;
+		const arr = [...editing.samples];
+		const [moved] = arr.splice(dragSampleIdx, 1);
+		arr.splice(idx, 0, moved);
+		editing.samples = arr;
+		dragSampleIdx = null;
+		dragOverSampleIdx = null;
+	}
+
+	function handleSampleDragEnd() {
+		dragSampleIdx = null;
+		dragOverSampleIdx = null;
+	}
+
+	/* ───── Duplicate sample ───── */
+	function duplicateSample(index: number) {
+		if (!editing) return;
+		const copy = { ...editing.samples[index] };
+		copy.name = copy.name + ' (copy)';
+		const arr = [...editing.samples];
+		arr.splice(index + 1, 0, copy);
+		editing.samples = arr;
+	}
+
 	/* ───── Preview audio ───── */
 	let previewAudio = $state<HTMLAudioElement | null>(null);
 	let previewIdx = $state<number | null>(null);
@@ -440,6 +591,14 @@
 				<div class="samples-header">
 					<h3>🎧 Samples ({editing.samples.length})</h3>
 					<div class="samples-actions">
+						<label class="btn-small upload-audio-btn">
+							{#if uploadingSample !== null}
+								⏳ {uploadingSampleName || 'Subiendo...'}
+							{:else}
+								🎵 Subir audio
+							{/if}
+							<input type="file" accept=".mp3,.wav,.flac,.ogg,.m4a,.aac,.aiff,.aif" hidden onchange={quickAddSample} disabled={uploadingSample !== null} />
+						</label>
 						<label class="btn-small upload-zip-btn">
 							{#if uploadingZip}
 								⏳ {zipProgress || 'Subiendo...'}
@@ -477,8 +636,17 @@
 				{#if editing.samples.length > 0}
 					<div class="sample-list">
 						{#each editing.samples as sample, i}
-							<div class="sample-item">
-								<span class="sample-num">{(i + 1).toString().padStart(2, '0')}</span>
+							<div
+								class="sample-item"
+								class:dragging={dragSampleIdx === i}
+								class:drag-over={dragOverSampleIdx === i}
+								draggable="true"
+								ondragstart={(e) => handleSampleDragStart(e, i)}
+								ondragover={(e) => handleSampleDragOver(e, i)}
+								ondrop={(e) => handleSampleDrop(e, i)}
+								ondragend={handleSampleDragEnd}
+							>
+								<span class="sample-num" title="Arrastrar para reordenar">⠿</span>
 								{#if sample.url}
 									<button
 										class="sample-play-btn"
@@ -498,14 +666,28 @@
 									placeholder="Nombre"
 									oninput={() => updateSample(i, 'name', sample.name)}
 								/>
-								<input
-									type="text"
-									class="sample-url-input"
-									bind:value={sample.url}
-									placeholder="URL del audio"
-									oninput={() => updateSample(i, 'url', sample.url)}
-								/>
+								<div class="sample-url-wrap">
+									{#if uploadingSample === i}
+										<span class="sample-uploading">⏳ {uploadingSampleName}</span>
+									{:else}
+										<input
+											type="text"
+											class="sample-url-input"
+											bind:value={sample.url}
+											placeholder="URL del audio o sube archivo"
+											oninput={() => updateSample(i, 'url', sample.url)}
+										/>
+									{/if}
+								</div>
+								{#if sample.duration}
+									<span class="sample-duration">{Math.round(sample.duration)}s</span>
+								{/if}
 								<div class="sample-controls">
+									<label class="btn-icon-tiny" title="Subir archivo de audio">
+										🎵
+										<input type="file" accept=".mp3,.wav,.flac,.ogg,.m4a,.aac,.aiff" hidden onchange={(e) => handleSampleAudioUpload(e, i)} disabled={uploadingSample !== null} />
+									</label>
+									<button class="btn-icon-tiny" onclick={() => duplicateSample(i)} title="Duplicar" aria-label="Duplicar">⧉</button>
 									<button class="btn-icon-tiny" onclick={() => moveSample(i, -1)} disabled={i === 0} aria-label="Subir">↑</button>
 									<button class="btn-icon-tiny" onclick={() => moveSample(i, 1)} disabled={i === editing.samples.length - 1} aria-label="Bajar">↓</button>
 									<button class="btn-icon-tiny danger" onclick={() => removeSample(i)} aria-label="Eliminar">✕</button>
@@ -516,7 +698,7 @@
 				{:else}
 					<div class="empty-samples">
 						<span>Sin samples</span>
-						<span class="hint">Sube un ZIP, pega un link de Drive, o agrégalo manualmente</span>
+						<span class="hint">Sube un audio, ZIP, pega un link, o agrégalo manualmente</span>
 					</div>
 				{/if}
 			</div>
@@ -771,10 +953,6 @@
 		display: flex; align-items: center; gap: var(--space-2);
 		padding: var(--space-2) var(--space-3); background: var(--bg);
 	}
-	.sample-num {
-		font-family: var(--font-mono); font-size: var(--text-2xs);
-		color: var(--text-muted); width: 24px; flex-shrink: 0; text-align: center;
-	}
 	.sample-play-btn {
 		width: 28px; height: 28px; border-radius: 50%;
 		background: rgba(var(--accent-rgb), 0.1); border: none;
@@ -802,6 +980,32 @@
 	.sample-url-input:focus { border-color: var(--accent); background: var(--surface); color: var(--text); }
 
 	.sample-controls { display: flex; gap: 2px; flex-shrink: 0; }
+
+	.sample-url-wrap { flex: 1; min-width: 0; }
+	.sample-uploading {
+		display: flex; align-items: center; gap: var(--space-1);
+		padding: var(--space-1) var(--space-2); font-size: var(--text-2xs);
+		color: var(--accent); font-family: var(--font-mono);
+		animation: pulse 1s infinite;
+	}
+	.sample-duration {
+		font-family: var(--font-mono); font-size: var(--text-2xs);
+		color: var(--text-muted); flex-shrink: 0; width: 36px; text-align: right;
+	}
+
+	/* Drag & drop */
+	.sample-item.dragging { opacity: 0.4; }
+	.sample-item.drag-over {
+		border-top: 2px solid var(--accent);
+		margin-top: -2px;
+	}
+	.sample-num {
+		cursor: grab; user-select: none;
+		font-family: var(--font-mono); font-size: var(--text-2xs);
+		color: var(--text-muted); width: 24px; flex-shrink: 0; text-align: center;
+		letter-spacing: 2px;
+	}
+	.sample-num:active { cursor: grabbing; }
 
 	.empty-samples {
 		padding: var(--space-6); text-align: center;
