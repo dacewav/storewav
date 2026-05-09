@@ -106,7 +106,7 @@ async function initGSI(
 ): Promise<void> {
 	await loadGSI();
 
-	const google = (window as any).google;
+	const google = window.google;
 	if (!google?.accounts?.id) {
 		if (dev) console.log('[OneTap] GSI not available');
 		return;
@@ -127,11 +127,9 @@ async function initGSI(
 	});
 
 	// Show the One Tap prompt
-	/** Type for Google Identity Services prompt notification */
-	type GsiPromptNotification = { getMomentType: () => string };
-
-	google.accounts.id.prompt((notification: GsiPromptNotification) => {
-		if (dev) console.log('[OneTap] Prompt:', notification.getMomentType());
+	google.accounts.id.prompt((notification: object) => {
+		const n = notification as { getMomentType: () => string };
+		if (dev) console.log('[OneTap] Prompt:', n.getMomentType());
 	});
 
 	initialized = true;
@@ -157,7 +155,7 @@ export async function signInWithIdToken(idToken: string): Promise<void> {
 export function dismissOneTap() {
 	if (!browser) return;
 	// GSI dismiss
-	const google = (window as any).google;
+	const google = window.google;
 	if (google?.accounts?.id) {
 		google.accounts.id.cancel();
 	}

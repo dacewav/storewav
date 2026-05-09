@@ -12,6 +12,7 @@
 	import { getBeatSlug } from '$lib/slug';
 	import { getRecommendations } from '$lib/stores/recommendations';
 	import { likeCounts } from '$lib/stores/likes';
+	import { STORE_URL } from '$lib/config';
 	import type { Action } from 'svelte/action';
 	import type { Beat } from '$lib/stores/beats';
 
@@ -147,10 +148,10 @@
 	{#if beat}
 		<title>{beat.name} — {beat.artist ?? ''}</title>
 		<meta name="description" content={stripEmojis(beat.description ?? '') || `${beat.name}${beat.artist ? ` de ${beat.artist}` : ''}. ${beat.bpm} BPM, ${beat.key}, ${beat.genre}.`} />
-		<link rel="canonical" href="https://dacewav.store/beat/{getBeatSlug(beat)}" />
+		<link rel="canonical" href="{STORE_URL}/beat/{getBeatSlug(beat)}" />
 		<meta property="og:title" content="{beat.name}{beat.artist ? ` — ${beat.artist}` : ''}" />
 		<meta property="og:description" content={stripEmojis(beat.description ?? '') || `${beat.bpm} BPM · ${beat.key} · ${beat.genre}`} />
-		<meta property="og:url" content="https://dacewav.store/beat/{getBeatSlug(beat)}" />
+		<meta property="og:url" content="{STORE_URL}/beat/{getBeatSlug(beat)}" />
 		{#if beat.imageUrl}
 			<meta property="og:image" content={beat.imageUrl} />
 			<meta name="twitter:image" content={beat.imageUrl} />
@@ -169,7 +170,7 @@
 			byArtist: { '@type': 'MusicGroup', name: beat.artist ?? (s?.brand?.name ?? 'DACEWAV') },
 			genre: beat.genre,
 			image: beat.imageUrl || undefined,
-			url: `https://dacewav.store/beat/${getBeatSlug(beat)}`,
+			url: `${STORE_URL}/beat/${getBeatSlug(beat)}`,
 			offers: beat.licenses?.length ? {
 				'@type': 'Offer',
 				price: Math.min(...beat.licenses.map(l => l.priceUSD)),
@@ -181,9 +182,9 @@
 			'@context': 'https://schema.org',
 			'@type': 'BreadcrumbList',
 			itemListElement: [
-				{ '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://dacewav.store' },
-				{ '@type': 'ListItem', position: 2, name: 'Catálogo', item: 'https://dacewav.store/#beats' },
-				{ '@type': 'ListItem', position: 3, name: beat.name, item: `https://dacewav.store/beat/${getBeatSlug(beat)}` }
+				{ '@type': 'ListItem', position: 1, name: 'Inicio', item: STORE_URL },
+				{ '@type': 'ListItem', position: 2, name: 'Catálogo', item: `${STORE_URL}/#beats` },
+				{ '@type': 'ListItem', position: 3, name: beat.name, item: `${STORE_URL}/beat/${getBeatSlug(beat)}` }
 			]
 		}))}</script>`}
 	{:else}

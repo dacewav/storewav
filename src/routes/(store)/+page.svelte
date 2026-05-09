@@ -13,6 +13,7 @@
 	import type { IconName } from '$lib/icons';
 	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
 	import { hexToRgba, genreGradient } from '$lib/visualUtils';
+	import { STORE_URL } from '$lib/config';
 	import type { Beat } from '$lib/stores/beats';
 
 	let beatsLoading = $derived($beatsStore.loading);
@@ -275,10 +276,10 @@
 		'@context': 'https://schema.org',
 		'@type': 'WebSite',
 		name: heroTitle,
-		url: 'https://dacewav.store',
+		url: STORE_URL,
 		potentialAction: {
 			'@type': 'SearchAction',
-			target: 'https://dacewav.store/?q={search_term_string}',
+			target: STORE_URL + '/?q={search_term_string}',
 			'query-input': 'required name=search_term_string'
 		}
 	}))}</script>`}

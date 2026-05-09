@@ -4,6 +4,7 @@
 
 import { sendAbandonedCartEmail } from '$lib/abandonedCart';
 import { FIREBASE_DB } from '$lib/firebaseDb';
+import { STORE_URL } from '$lib/config';
 
 const ABANDON_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -56,7 +57,7 @@ export async function processAbandonedCarts(env: Record<string, string | undefin
 					items: cart.items,
 					totalMXN: cart.totalMXN,
 					totalUSD: cart.totalUSD,
-					cartUrl: 'https://dacewav.store/cart',
+					cartUrl: `${STORE_URL}/cart`,
 					lastUpdated: cart.lastUpdated,
 				},
 				{ RESEND_API_KEY: env.RESEND_API_KEY }

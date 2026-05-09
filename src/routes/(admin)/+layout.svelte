@@ -308,7 +308,7 @@
 					<span class="preview-label">👁 Preview en vivo</span>
 					<div class="preview-actions">
 						<button class="preview-btn" onclick={() => window.open('/', '_blank')} title="Abrir en nueva pestaña">↗</button>
-						<button class="preview-btn" onclick={togglePreview} title="Cerrar preview">✕</button>
+						<button class="preview-btn" onclick={togglePreview} title="Cerrar preview" aria-label="Cerrar preview">✕</button>
 					</div>
 				</div>
 				<iframe src="/" class="preview-iframe" title="Vista previa de la tienda"></iframe>

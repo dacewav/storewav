@@ -1,20 +1,37 @@
 /**
  * R2 Presigned URL generator — AWS SDK v3
  * Generates time-limited download URLs for R2 objects.
+ *
+ * AWS SDK is loaded dynamically to avoid bloating the worker bundle.
  */
 
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+let _s3: any = null;
+let _sdkLoaded = false;
+let _sdkPromise: Promise<any> | null = null;
 
-let _s3: S3Client | null = null;
+async function loadSDK() {
+	if (_sdkLoaded) return;
+	if (!_sdkPromise) {
+		_sdkPromise = Promise.all([
+			import('@aws-sdk/client-s3'),
+			import('@aws-sdk/s3-request-presigner'),
+		]).then(([s3, presigner]) => {
+			_sdkLoaded = true;
+			return { S3Client: s3.S3Client, GetObjectCommand: s3.GetObjectCommand, getSignedUrl: presigner.getSignedUrl };
+		});
+	}
+	return _sdkPromise;
+}
 
-function getS3Client(env: {
+async function getS3Client(env: {
 	R2_ACCOUNT_ID: string;
 	R2_ACCESS_KEY_ID: string;
 	R2_SECRET_ACCESS_KEY: string;
-}): S3Client {
+}): Promise<any> {
 	if (!_s3) {
-		_s3 = new S3Client({
+		const sdk = await loadSDK();
+		if (!sdk) throw new Error('Failed to load AWS SDK');
+		_s3 = new sdk.S3Client({
 			region: 'auto',
 			endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
 			credentials: {
@@ -43,12 +60,14 @@ export async function getPresignedDownloadUrl(
 	},
 	expiresIn = 3600
 ): Promise<string> {
-	const s3 = getS3Client(env);
-	const command = new GetObjectCommand({
+	const sdk = await loadSDK();
+	if (!sdk) throw new Error('Failed to load AWS SDK');
+	const s3 = await getS3Client(env);
+	const command = new sdk.GetObjectCommand({
 		Bucket: bucket,
 		Key: key,
 	});
-	return getSignedUrl(s3, command, { expiresIn });
+	return sdk.getSignedUrl(s3, command, { expiresIn });
 }
 
 /**

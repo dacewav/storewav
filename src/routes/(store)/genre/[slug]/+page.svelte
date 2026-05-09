@@ -5,6 +5,7 @@
 	import { BeatCard, EmptyState, Skeleton } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { getBeatSlug } from '$lib/slug';
+	import { STORE_URL } from '$lib/config';
 	import type { Beat } from '$lib/stores/beats';
 
 	let slug = $derived(page.params.slug ?? '');
@@ -71,10 +72,10 @@
 <svelte:head>
 	<title>{genreName} — {brandName}</title>
 	<meta name="description" content="Beats de {genreName}. Explora instrumentales de {genreName.toLowerCase()} profesionales para tu próximo hit." />
-	<link rel="canonical" href="https://dacewav.store/genre/{slug}" />
+	<link rel="canonical" href="{STORE_URL}/genre/{slug}" />
 	<meta property="og:title" content="{genreName} — {brandName}" />
 	<meta property="og:description" content="Beats de {genreName} profesionales" />
-	<meta property="og:url" content="https://dacewav.store/genre/{slug}" />
+	<meta property="og:url" content="{STORE_URL}/genre/{slug}" />
 	<meta property="og:type" content="music.genre" />
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="{genreName} — {brandName}" />
@@ -82,8 +83,8 @@
 		'@context': 'https://schema.org',
 		'@type': 'MusicGenre',
 		name: genreName,
-		url: `https://dacewav.store/genre/${slug}`,
-		description: `Beats de ${genreName.toLowerCase()} profesionales`
+		url: STORE_URL + '/genre/' + slug,
+		description: 'Beats de ' + genreName.toLowerCase() + ' profesionales'
 	})}</script>`}
 </svelte:head>
 

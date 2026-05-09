@@ -49,7 +49,7 @@ type EmailTemplate = {
 };
 
 import { FIREBASE_DB } from '$lib/firebaseDb';
-import { EMAIL_FROM } from '$lib/config';
+import { EMAIL_FROM, STORE_URL } from '$lib/config';
 
 const defaultTemplate: EmailTemplate = {
 	brandName: 'DACEWAV',
@@ -229,7 +229,7 @@ export async function sendDeliveryEmail(
 			<p style="color: #888; font-size: 13px; margin-bottom: 12px;">
 				${escapeHtml(tmpl.footerText)}
 			</p>
-			<a href="https://dacewav.store/account/orders"
+			<a href="${STORE_URL}/account/orders"
 				style="display: inline-block; padding: 10px 24px; background: #222; color: #fff;
 				text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;
 				border: 1px solid #333;">

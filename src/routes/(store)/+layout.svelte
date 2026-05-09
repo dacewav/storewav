@@ -11,6 +11,7 @@
 	import { initOneTap, signInWithIdToken, dismissOneTap } from '$lib/oneTap';
 	import { PUBLIC_GOOGLE_CLIENT_ID } from '$env/static/public';
 	import { sanitizeCSS } from '$lib/sanitize';
+	import { STORE_URL } from '$lib/config';
 
 	let { children } = $props();
 
@@ -381,8 +382,8 @@
 
 <svelte:head>
 	<meta name="description" content="{brandName} — {metaDesc}" />
-	<link rel="canonical" href="https://dacewav.store{page.url.pathname}" />
-	<meta property="og:url" content="https://dacewav.store{page.url.pathname}" />
+	<link rel="canonical" href="{STORE_URL}{page.url.pathname}" />
+	<meta property="og:url" content="{STORE_URL}{page.url.pathname}" />
 	<meta property="og:site_name" content={brandName} />
 	<meta property="og:image" content="/og-image.svg" />
 	<meta name="twitter:card" content="summary_large_image" />

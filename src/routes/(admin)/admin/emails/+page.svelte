@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { analytics } from '$lib/stores';
 	import { FIREBASE_DB } from '$lib/firebaseDb';
+	import { STORE_URL } from '$lib/config';
 
 	type EmailTemplate = {
 		// Branding
@@ -166,7 +167,7 @@
 			<p style="color: #888; font-size: 13px; margin-bottom: 12px;">
 				${t.footerText}
 			</p>
-			<a href="https://dacewav.store/account/orders"
+			<a href="{STORE_URL}/account/orders"
 				style="display: inline-block; padding: 10px 24px; background: #222; color: #fff;
 				text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;
 				border: 1px solid #333;">
