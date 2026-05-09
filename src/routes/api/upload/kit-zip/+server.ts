@@ -4,6 +4,7 @@ import type { RequestHandler } from './$types';
 import { FIREBASE_DB } from '$lib/firebaseDb';
 import { PUBLIC_ADMIN_UIDS } from '$env/static/public';
 import { unzipSync } from 'fflate';
+import { getAudioDuration } from '$lib/audioDuration';
 
 /**
  * POST /api/upload/kit-zip
@@ -37,73 +38,6 @@ function getMimeType(name: string): string {
 
 function sanitizeFilename(name: string): string {
 	return name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100);
-}
-
-/**
- * Parse WAV header to get duration in seconds.
- * Returns null if not a valid WAV or can't parse.
- */
-function getWavDuration(data: Uint8Array): number | null {
-	try {
-		if (data.length < 44) return null;
-		const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
-		// Check RIFF header
-		const riff = String.fromCharCode(data[0], data[1], data[2], data[3]);
-		if (riff !== 'RIFF') return null;
-		const wave = String.fromCharCode(data[8], data[9], data[10], data[11]);
-		if (wave !== 'WAVE') return null;
-		// Find data chunk
-		let offset = 12;
-		while (offset < data.length - 8) {
-			const chunkId = String.fromCharCode(data[offset], data[offset + 1], data[offset + 2], data[offset + 3]);
-			const chunkSize = view.getUint32(offset + 4, true);
-			if (chunkId === 'data') {
-				// Byte rate is at offset 28 in the fmt chunk, but we need to find it
-				// The fmt chunk should come before data
-				break;
-			}
-			offset += 8 + chunkSize;
-		}
-		// Get byte rate from fmt chunk (offset 28)
-		if (data.length < 32) return null;
-		const byteRate = view.getUint32(28, true);
-		if (byteRate === 0) return null;
-		// Find data chunk size
-		offset = 12;
-		while (offset < data.length - 8) {
-			const chunkId = String.fromCharCode(data[offset], data[offset + 1], data[offset + 2], data[offset + 3]);
-			const chunkSize = view.getUint32(offset + 4, true);
-			if (chunkId === 'data') {
-				return Math.round((chunkSize / byteRate) * 10) / 10; // round to 0.1s
-			}
-			offset += 8 + chunkSize;
-		}
-		return null;
-	} catch {
-		return null;
-	}
-}
-
-/**
- * Estimate MP3 duration from file size.
- * Assumes 128kbps CBR as fallback. Returns seconds.
- */
-function getMp3DurationEstimate(fileSize: number): number | null {
-	if (fileSize < 1024) return null;
-	// Try to read actual bitrate from first frame header
-	// For now, estimate at 128kbps = 16000 bytes/sec
-	const BYTES_PER_SEC_128K = 16000;
-	return Math.round((fileSize / BYTES_PER_SEC_128K) * 10) / 10;
-}
-
-/**
- * Get audio duration from raw bytes. Tries WAV parsing, falls back to MP3 estimation.
- */
-function getAudioDuration(data: Uint8Array, filename: string): number | null {
-	const ext = filename.toLowerCase().slice(filename.lastIndexOf('.'));
-	if (ext === '.wav') return getWavDuration(data);
-	if (ext === '.mp3') return getMp3DurationEstimate(data.length);
-	return null; // Other formats: let frontend calculate
 }
 
 async function verifyFirebaseToken(idToken: string): Promise<{ uid: string; email?: string } | null> {

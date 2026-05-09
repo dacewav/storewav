@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { kits, settings, player, cart } from '$lib/stores';
+	import { kits, settings, cart } from '$lib/stores';
 	import { Skeleton, EmptyState } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { onMount } from 'svelte';
-	import type { KitSample } from '$lib/stores/kits';
+	import type { KitSample, KitWithId } from '$lib/stores/kits';
 
 	let kitId = $derived(page.params.id);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
@@ -18,6 +18,15 @@
 		return k ? { id: kitId, ...k } : null;
 	});
 
+	/** Related kits: same genre, excluding current */
+	let relatedKits = $derived.by(() => {
+		if (!kitsData.data || !kit) return [];
+		return Object.entries(kitsData.data)
+			.filter(([id, k]) => id !== kitId && k.active && k.genre === kit.genre)
+			.slice(0, 4)
+			.map(([id, k]) => ({ id, ...k }));
+	});
+
 	let inCart = $derived(false);
 
 	$effect(() => {
@@ -27,30 +36,93 @@
 		}
 	});
 
-	let playingSample = $state<string | null>(null);
+	// Player state
+	let playingSampleUrl = $state<string | null>(null);
+	let playingSampleIdx = $state<number>(-1);
 	let audioEl = $state<HTMLAudioElement | undefined>();
+	let currentTime = $state(0);
+	let duration = $state(0);
 	let copied = $state(false);
+	let rafId = $state<number | null>(null);
 
 	let totalDuration = $derived(
 		kit?.samples?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0
 	);
 
-	function playSample(sample: KitSample) {
-		if (playingSample === sample.url) {
-			// Stop
-			audioEl?.pause();
-			playingSample = null;
+	function formatTime(sec: number): string {
+		if (!sec || !isFinite(sec)) return '0:00';
+		const m = Math.floor(sec / 60);
+		const s = Math.floor(sec % 60);
+		return `${m}:${s.toString().padStart(2, '0')}`;
+	}
+
+	function tickProgress() {
+		if (audioEl && playingSampleUrl) {
+			currentTime = audioEl.currentTime || 0;
+			duration = audioEl.duration || 0;
+			rafId = requestAnimationFrame(tickProgress);
+		}
+	}
+
+	function playSample(sample: KitSample, idx: number) {
+		if (playingSampleUrl === sample.url) {
+			// Toggle pause/play
+			if (audioEl?.paused) {
+				audioEl.play();
+				rafId = requestAnimationFrame(tickProgress);
+			} else {
+				audioEl?.pause();
+				if (rafId) cancelAnimationFrame(rafId);
+			}
 			return;
 		}
 
 		// Stop previous
-		audioEl?.pause();
+		stopPlayback();
 
-		playingSample = sample.url;
+		playingSampleUrl = sample.url;
+		playingSampleIdx = idx;
+		currentTime = 0;
+		duration = sample.duration || 0;
 		audioEl = new Audio(sample.url);
-		audioEl.addEventListener('ended', () => { playingSample = null; });
-		audioEl.addEventListener('error', () => { playingSample = null; });
-		audioEl.play().catch(() => { playingSample = null; });
+		audioEl.addEventListener('ended', onEnded);
+		audioEl.addEventListener('error', onEnded);
+		audioEl.addEventListener('loadedmetadata', () => {
+			duration = audioEl?.duration || sample.duration || 0;
+		});
+		audioEl.play().then(() => {
+			rafId = requestAnimationFrame(tickProgress);
+		}).catch(() => { onEnded(); });
+	}
+
+	function onEnded() {
+		// Auto-play next sample
+		if (kit?.samples && playingSampleIdx >= 0 && playingSampleIdx < kit.samples.length - 1) {
+			const nextIdx = playingSampleIdx + 1;
+			playSample(kit.samples[nextIdx], nextIdx);
+			return;
+		}
+		stopPlayback();
+	}
+
+	function stopPlayback() {
+		if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+		audioEl?.removeEventListener('ended', onEnded);
+		audioEl?.removeEventListener('error', onEnded);
+		audioEl?.pause();
+		audioEl = undefined;
+		playingSampleUrl = null;
+		playingSampleIdx = -1;
+		currentTime = 0;
+		duration = 0;
+	}
+
+	function seekTo(e: MouseEvent, sample: KitSample) {
+		if (!audioEl || playingSampleUrl !== sample.url || !duration) return;
+		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+		const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+		audioEl.currentTime = pct * duration;
+		currentTime = audioEl.currentTime;
 	}
 
 	function addToCart() {
@@ -82,6 +154,7 @@
 
 	onMount(() => {
 		return () => {
+			if (rafId) cancelAnimationFrame(rafId);
 			audioEl?.pause();
 			audioEl = undefined;
 		};
@@ -144,7 +217,7 @@
 						<span class="meta-item">🎵 {kit.samples.length} samples</span>
 					{/if}
 					{#if totalDuration > 0}
-						<span class="meta-item">⏱️ {Math.floor(totalDuration / 60)}:{(totalDuration % 60).toString().padStart(2, '0')}</span>
+						<span class="meta-item">⏱️ {formatTime(totalDuration)}</span>
 					{/if}
 				</div>
 
@@ -171,26 +244,78 @@
 		<!-- Samples -->
 		{#if kit.samples?.length}
 			<section class="samples-section">
-				<h2 class="section-title">🎧 Samples</h2>
+				<div class="samples-header">
+					<h2 class="section-title">🎧 Samples</h2>
+					{#if playingSampleUrl}
+						<button class="stop-btn" onclick={stopPlayback} aria-label="Detener">
+							<Icon name="pause" size={12} /> Detener
+						</button>
+					{/if}
+				</div>
 				<div class="samples-list">
 					{#each kit.samples as sample, i}
+						{@const isPlaying = playingSampleUrl === sample.url}
+						{@const progressPct = isPlaying && duration > 0 ? (currentTime / duration) * 100 : 0}
 						<button
 							class="sample-row"
-							class:playing={playingSample === sample.url}
-							onclick={() => playSample(sample)}
+							class:playing={isPlaying}
+							class:paused={isPlaying && audioEl?.paused}
+							onclick={() => playSample(sample, i)}
 						>
 							<span class="sample-num">{(i + 1).toString().padStart(2, '0')}</span>
 							<span class="sample-play">
-								{#if playingSample === sample.url}
+								{#if isPlaying && !audioEl?.paused}
 									<Icon name="pause" size={14} />
 								{:else}
 									<Icon name="play" size={14} />
 								{/if}
 							</span>
 							<span class="sample-name">{sample.name}</span>
-							{#if sample.duration}
-								<span class="sample-duration">{Math.round(sample.duration)}s</span>
+							{#if isPlaying}
+								<span class="sample-time">{formatTime(currentTime)} / {formatTime(duration || sample.duration || 0)}</span>
+							{:else if sample.duration}
+								<span class="sample-duration">{formatTime(sample.duration)}</span>
 							{/if}
+						</button>
+						{#if isPlaying && duration > 0}
+							<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+							<div
+								class="progress-bar"
+								role="slider"
+								tabindex="0"
+								aria-label="Progreso"
+								aria-valuenow={Math.round(progressPct)}
+								aria-valuemin={0}
+								aria-valuemax={100}
+								onclick={(e) => seekTo(e, sample)}
+								onkeydown={(e) => { if (e.key === 'ArrowRight' && audioEl) { audioEl.currentTime = Math.min(duration, audioEl.currentTime + 5); } if (e.key === 'ArrowLeft' && audioEl) { audioEl.currentTime = Math.max(0, audioEl.currentTime - 5); } }}
+							>
+								<div class="progress-fill" style="width: {progressPct}%"></div>
+							</div>
+						{/if}
+					{/each}
+				</div>
+			</section>
+		{/if}
+
+		<!-- Related kits -->
+		{#if relatedKits.length > 0}
+			<section class="related-section">
+				<h2 class="section-title">🔥 Más de {kit.genre}</h2>
+				<div class="related-grid">
+					{#each relatedKits as related (related.id)}
+						<button class="related-card" onclick={() => goto(`/kit/${related.id}`)}>
+							<div class="related-cover">
+								{#if related.imageUrl}
+									<img src={related.imageUrl} alt={related.name} loading="lazy" />
+								{:else}
+									<div class="related-ph">🥁</div>
+								{/if}
+							</div>
+							<div class="related-info">
+								<span class="related-name">{related.name}</span>
+								<span class="related-meta">{related.samples?.length || 0} samples · ${related.priceMXN} MXN</span>
+							</div>
 						</button>
 					{/each}
 				</div>
@@ -408,12 +533,37 @@
 		margin-top: var(--space-4);
 	}
 
+	.samples-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-4);
+	}
+
 	.section-title {
 		font-family: var(--font-display);
 		font-size: var(--text-lg);
 		font-weight: 700;
 		color: var(--text);
-		margin-bottom: var(--space-4);
+		margin: 0;
+	}
+
+	.stop-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		padding: var(--space-1) var(--space-3);
+		background: rgba(239, 68, 68, 0.1);
+		border: 1px solid rgba(239, 68, 68, 0.3);
+		border-radius: var(--radius-sm);
+		color: #ef4444;
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+	.stop-btn:hover {
+		background: rgba(239, 68, 68, 0.2);
 	}
 
 	.samples-list {
@@ -439,6 +589,7 @@
 		color: var(--text);
 		text-align: left;
 		width: 100%;
+		position: relative;
 	}
 
 	.sample-row:hover {
@@ -473,6 +624,12 @@
 	.sample-row.playing .sample-play {
 		background: var(--accent);
 		color: var(--bg);
+		animation: pulse-ring 1.5s ease-in-out infinite;
+	}
+
+	@keyframes pulse-ring {
+		0%, 100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.3); }
+		50% { box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0); }
 	}
 
 	.sample-name {
@@ -487,13 +644,131 @@
 		color: var(--text-muted);
 	}
 
+	.sample-time {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--accent);
+		font-weight: 600;
+	}
+
+	/* Progress bar */
+	.progress-bar {
+		height: 3px;
+		background: var(--border);
+		cursor: pointer;
+		position: relative;
+		transition: height var(--duration-fast);
+	}
+	.progress-bar:hover {
+		height: 6px;
+	}
+	.progress-fill {
+		height: 100%;
+		background: var(--accent);
+		border-radius: 0 2px 2px 0;
+		transition: width 0.1s linear;
+		position: relative;
+	}
+	.progress-fill::after {
+		content: '';
+		position: absolute;
+		right: -3px;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--accent);
+		opacity: 0;
+		transition: opacity var(--duration-fast);
+	}
+	.progress-bar:hover .progress-fill::after {
+		opacity: 1;
+	}
+
+	/* Related kits */
+	.related-section {
+		margin-top: var(--space-10);
+	}
+
+	.related-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		gap: var(--space-3);
+	}
+
+	.related-card {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		cursor: pointer;
+		transition: all var(--duration-fast);
+		text-align: left;
+		padding: 0;
+		font: inherit;
+		color: inherit;
+		width: 100%;
+	}
+	.related-card:hover {
+		border-color: rgba(var(--accent-rgb), 0.3);
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-lg);
+	}
+
+	.related-cover {
+		aspect-ratio: 1;
+		overflow: hidden;
+		background: var(--surface2);
+	}
+	.related-cover img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform var(--duration-normal);
+	}
+	.related-card:hover .related-cover img {
+		transform: scale(1.05);
+	}
+	.related-ph {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 2rem;
+	}
+
+	.related-info {
+		padding: var(--space-2) var(--space-3);
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+	.related-name {
+		font-family: var(--font-display);
+		font-size: var(--text-sm);
+		font-weight: 700;
+		color: var(--text);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.related-meta {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+	}
+
 	@media (max-width: 600px) {
 		.kit-layout {
 			grid-template-columns: 1fr;
 		}
-
 		.kit-cover {
 			max-width: 300px;
+		}
+		.related-grid {
+			grid-template-columns: repeat(2, 1fr);
 		}
 	}
 </style>

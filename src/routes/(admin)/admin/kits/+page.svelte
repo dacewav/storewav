@@ -3,6 +3,7 @@
 	import { EmptyState, ImageCropper } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { FIREBASE_DB } from '$lib/firebaseDb';
+	import { createKitWithId, updateKit, deleteKit as storeDeleteKit } from '$lib/stores/kits';
 	import type { Kit, KitSample } from '$lib/stores/kits';
 
 	let kits = $state<(Kit & { id: string })[]>([]);
@@ -249,13 +250,6 @@
 		if (!editing || !editing.name.trim()) return;
 		saving = true;
 		try {
-			const token = await getAuthToken();
-			if (!token) {
-				alert('Sesión expirada. Recarga la página e inicia sesión de nuevo.');
-				saving = false;
-				return;
-			}
-			const authParam = `?auth=${token}`;
 			const body = {
 				name: editing.name.trim(),
 				description: editing.description?.trim() || '',
@@ -265,24 +259,26 @@
 				priceMXN: editing.priceMXN,
 				priceUSD: editing.priceUSD,
 				active: editing.active,
-				updatedAt: Date.now(),
 			};
 
 			if (isNew) {
-				// Use PUT with the pre-generated stable ID (same ID used for uploads)
-				await fetch(`${FIREBASE_DB}/kits/${editing!.id}.json${authParam}`, {
-					method: 'PUT',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ ...body, createdAt: Date.now() }),
-				});
-				kits = [...kits, { id: editing!.id, ...body }];
+				const ok = await createKitWithId(editing!.id, body);
+				if (ok) {
+					kits = [...kits, { id: editing!.id, ...body }];
+				} else {
+					alert('Error al crear kit — ¿sesión expirada?');
+					saving = false;
+					return;
+				}
 			} else {
-				await fetch(`${FIREBASE_DB}/kits/${editing.id}.json${authParam}`, {
-					method: 'PATCH',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(body),
-				});
-				kits = kits.map(k => k.id === editing!.id ? { ...k, ...body } : k);
+				const ok = await updateKit(editing.id, body);
+				if (ok) {
+					kits = kits.map(k => k.id === editing!.id ? { ...k, ...body } : k);
+				} else {
+					alert('Error al actualizar kit');
+					saving = false;
+					return;
+				}
 			}
 			editing = null;
 			imagePreview = null;
@@ -296,27 +292,27 @@
 
 	async function toggleActive(kit: Kit & { id: string }) {
 		try {
-			const token = await getAuthToken();
-			if (!token) { alert('Sesión expirada.'); return; }
 			const newActive = !kit.active;
-			await fetch(`${FIREBASE_DB}/kits/${kit.id}/active.json?auth=${token}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(newActive),
-			});
-			kits = kits.map(k => k.id === kit.id ? { ...k, active: newActive } : k);
+			const ok = await updateKit(kit.id, { active: newActive });
+			if (ok) {
+				kits = kits.map(k => k.id === kit.id ? { ...k, active: newActive } : k);
+			} else {
+				alert('Error al cambiar estado — ¿sesión expirada?');
+			}
 		} catch (err) {
 			console.error('[Admin Kits] Toggle failed:', err);
 		}
 	}
 
-	async function deleteKit(kit: Kit & { id: string }) {
+	async function deleteKitHandler(kit: Kit & { id: string }) {
 		if (!confirm(`¿Eliminar "${kit.name}"? Esta acción no se puede deshacer.`)) return;
 		try {
-			const token = await getAuthToken();
-			if (!token) { alert('Sesión expirada.'); return; }
-			await fetch(`${FIREBASE_DB}/kits/${kit.id}.json?auth=${token}`, { method: 'DELETE' });
-			kits = kits.filter(k => k.id !== kit.id);
+			const ok = await storeDeleteKit(kit.id);
+			if (ok) {
+				kits = kits.filter(k => k.id !== kit.id);
+			} else {
+				alert('Error al eliminar — ¿sesión expirada?');
+			}
 		} catch (err) {
 			console.error('[Admin Kits] Delete failed:', err);
 		}
@@ -597,7 +593,7 @@
 						<button class="btn-small" onclick={() => toggleActive(kit)}>
 							{kit.active ? '🔴 Ocultar' : '🟢 Mostrar'}
 						</button>
-						<button class="btn-icon danger" onclick={() => deleteKit(kit)} aria-label="Eliminar">🗑️</button>
+						<button class="btn-icon danger" onclick={() => deleteKitHandler(kit)} aria-label="Eliminar">🗑️</button>
 					</div>
 				</div>
 			{/each}
