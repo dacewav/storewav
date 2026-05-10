@@ -106,6 +106,50 @@
       }
     },
 
+    "processedEvents": {
+      ".read": false,
+      ".write": true,
+      "$eventId": {
+        ".validate": "newData.hasChildren(['processedAt'])",
+        "$field": { ".validate": "newData.isString() || newData.isNumber()" }
+      }
+    },
+
+    "downloadTokens": {
+      ".read": true,
+      ".write": true,
+      "$tokenKey": {
+        ".validate": "newData.hasChildren(['token', 'orderId', 'beatId'])",
+        "$field": { ".validate": "newData.isString() || newData.isNumber()" }
+      }
+    },
+
+    "contracts": {
+      ".read": "auth != null",
+      ".write": true,
+      "$contractId": {
+        ".validate": "newData.hasChildren(['orderId', 'beatId', 'licenseName'])",
+        "$field": { ".validate": "newData.isString() || newData.isNumber()" }
+      }
+    },
+
+    "contractHashes": {
+      ".read": true,
+      ".write": true,
+      "$hash": {
+        ".validate": "newData.hasChildren(['contractId'])",
+        "$field": { ".validate": "newData.isString()" }
+      }
+    },
+
+    "discountCodes": {
+      ".read": true,
+      ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
+      "$code": {
+        "$field": { ".validate": "newData.isString() || newData.isNumber() || newData.isBoolean()" }
+      }
+    },
+
     "paidOrders": {
       ".read": true,
       ".write": "auth != null && root.child('adminWhitelist/approved').child(auth.uid).exists()",
