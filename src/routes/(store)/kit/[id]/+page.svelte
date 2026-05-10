@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { kits, settings, cart } from '$lib/stores';
+	import { kits, settings, cart, player as globalPlayer } from '$lib/stores';
 	import { Skeleton, EmptyState } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { onMount } from 'svelte';
@@ -77,8 +77,9 @@
 			return;
 		}
 
-		// Stop previous
+		// Stop previous + pause global player
 		stopPlayback();
+		globalPlayer.pause();
 
 		playingSampleUrl = sample.url;
 		playingSampleIdx = idx;

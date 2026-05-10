@@ -100,6 +100,44 @@ function detachAudioListeners() {
 	audioListenersAttached = false;
 }
 
+/** Shared Web Audio API — singleton for waveform visualization */
+let sharedAudioCtx: AudioContext | null = null;
+let sharedAnalyser: AnalyserNode | null = null;
+let sharedSourceNode: MediaElementAudioSourceNode | null = null;
+
+/**
+ * Ensure the shared AudioContext + AnalyserNode exists.
+ * MUST be called from a user gesture context (click handler)
+ * so the AudioContext is not suspended.
+ */
+function ensureAudioContext() {
+	if (!browser || sharedAudioCtx) return;
+	const a = getAudio();
+	if (!a) return;
+
+	try {
+		sharedAudioCtx = new AudioContext();
+		sharedAnalyser = sharedAudioCtx.createAnalyser();
+		sharedAnalyser.fftSize = 256;
+		sharedAnalyser.smoothingTimeConstant = 0.75;
+		sharedSourceNode = sharedAudioCtx.createMediaElementSource(a);
+		sharedSourceNode.connect(sharedAnalyser);
+		sharedAnalyser.connect(sharedAudioCtx.destination);
+	} catch {
+		// Already connected or unsupported — silent fail
+	}
+}
+
+/**
+ * Get the shared AnalyserNode (read-only, does NOT create).
+ * Returns null if AudioContext hasn't been initialized yet.
+ */
+export function getSharedAnalyser(fftBars: number): AnalyserNode | null {
+	if (!sharedAnalyser) return null;
+	sharedAnalyser.fftSize = fftBars * 4;
+	return sharedAnalyser;
+}
+
 function play(beat: { id: string; name: string; artist: string; imageUrl: string; audioUrl: string; genre?: string }, retries = 2) {
 	const a = getAudio();
 	if (!a) return; // SSR guard
@@ -109,6 +147,12 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 		console.warn('[Player] Beat sin audio:', beat.name);
 		store.update((s) => ({ ...s, playing: false }));
 		return;
+	}
+
+	// Init Web Audio API on user gesture (play click)
+	ensureAudioContext();
+	if (sharedAudioCtx?.state === 'suspended') {
+		sharedAudioCtx.resume();
 	}
 
 	// Track recently played (lazy import to avoid circular deps)
@@ -198,6 +242,9 @@ function pause() {
 function resume() {
 	const a = getAudio();
 	if (!a) return;
+	if (sharedAudioCtx?.state === 'suspended') {
+		sharedAudioCtx.resume();
+	}
 	a.play();
 	store.update((s) => ({ ...s, playing: true }));
 }
@@ -233,43 +280,6 @@ function stop() {
 	store.set(DEFAULT);
 }
 
-/** Shared Web Audio API — singleton for waveform visualization */
-let sharedAudioCtx: AudioContext | null = null;
-let sharedAnalyser: AnalyserNode | null = null;
-let sharedSourceNode: MediaElementAudioSourceNode | null = null;
-
-/**
- * Get or create a shared AnalyserNode connected to the audio element.
- * This avoids the "only one MediaElementSourceNode per element" limitation.
- * @param fftBars - Number of bars desired (used to calculate fftSize)
- */
-export function getSharedAnalyser(fftBars: number): AnalyserNode | null {
-	if (!browser) return null;
-	const a = getAudio();
-	if (!a) return null;
-
-	if (!sharedAudioCtx) {
-		try {
-			sharedAudioCtx = new AudioContext();
-			sharedAnalyser = sharedAudioCtx.createAnalyser();
-			sharedSourceNode = sharedAudioCtx.createMediaElementSource(a);
-			sharedSourceNode.connect(sharedAnalyser);
-			sharedAnalyser.connect(sharedAudioCtx.destination);
-		} catch {
-			return null;
-		}
-	}
-	if (sharedAnalyser) {
-		sharedAnalyser.fftSize = fftBars * 4;
-		sharedAnalyser.smoothingTimeConstant = 0.75;
-	}
-	// Resume AudioContext if suspended (autoplay policy)
-	if (sharedAudioCtx.state === 'suspended') {
-		sharedAudioCtx.resume();
-	}
-	return sharedAnalyser;
-}
-
 export const player = {
 	subscribe: store.subscribe,
 	play,
@@ -281,7 +291,7 @@ export const player = {
 	stop,
 	/** Exponer el Audio element interno (para waveform live, etc.) */
 	getAudioElement: () => getAudio(),
-	/** Get shared analyser for waveform visualization */
+	/** Get shared analyser for waveform visualization (read-only, no creation) */
 	getAnalyser: getSharedAnalyser,
 	/** Progreso 0-1 */
 	progress: derived(store, ($s) => ($s.duration > 0 ? $s.currentTime / $s.duration : 0)),
