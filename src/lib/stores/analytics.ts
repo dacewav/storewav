@@ -8,6 +8,7 @@
  */
 
 import { getDb } from '$lib/firebase';
+import { auth } from './auth';
 
 type AnalyticsEvent = {
 	ts: number;
@@ -24,6 +25,12 @@ const MAX_QUEUE_SIZE = 50; // Drop oldest if exceeded
 
 let queue: AnalyticsEvent[] = [];
 let flushTimer: ReturnType<typeof setInterval> | null = null;
+let authReady = false;
+
+// Track auth state — set flag once user is authenticated
+auth.subscribe((s) => {
+	authReady = !!s.user && s.adminChecked;
+});
 
 /** Get today's date key for path partitioning */
 function todayKey(): string {
@@ -33,20 +40,18 @@ function todayKey(): string {
 async function flush() {
 	if (queue.length === 0) return;
 
+	// Only write when authenticated — Firebase rules require auth
+	if (!authReady) {
+		// Drop events silently — no permission to write
+		queue.length = 0;
+		return;
+	}
+
 	const batch = queue.splice(0, BATCH_SIZE);
 
 	try {
 		const db = await getDb();
 		if (!db) return;
-
-		// Check if user is authenticated — Firebase rules require auth for writes
-		const { getAuthInstance } = await import('$lib/firebase');
-		const auth = await getAuthInstance();
-		if (!auth?.currentUser) {
-			// Not authenticated — re-queue and skip (don't spam permission_denied)
-			queue.unshift(...batch);
-			return;
-		}
 
 		const { ref, push } = await import('firebase/database');
 		const dateKey = todayKey();
@@ -57,7 +62,6 @@ async function flush() {
 		}
 	} catch {
 		// Silencioso — analytics no debe romper la app
-		// Re-encolar eventos fallidos
 		queue.unshift(...batch);
 	}
 }
