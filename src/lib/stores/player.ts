@@ -53,6 +53,8 @@ let audioListenersAttached = false;
 function getAudio(): HTMLAudioElement | null {
 	if (!audio && browser) {
 		audio = new Audio();
+		// Note: crossOrigin NOT set — R2 CDN may not have CORS headers.
+		// Waveform live mode will fall back to static visualization.
 		audio.volume = loadVolume();
 		attachAudioListeners();
 	}
@@ -109,11 +111,13 @@ let sharedSourceNode: MediaElementAudioSourceNode | null = null;
  * Ensure the shared AudioContext + AnalyserNode exists.
  * MUST be called from a user gesture context (click handler)
  * so the AudioContext is not suspended.
+ * Returns true if analyser is ready, false if CORS blocks it.
  */
-function ensureAudioContext() {
-	if (!browser || sharedAudioCtx) return;
+function ensureAudioContext(): boolean {
+	if (!browser) return false;
+	if (sharedAnalyser) return true;
 	const a = getAudio();
-	if (!a) return;
+	if (!a) return false;
 
 	try {
 		sharedAudioCtx = new AudioContext();
@@ -123,8 +127,12 @@ function ensureAudioContext() {
 		sharedSourceNode = sharedAudioCtx.createMediaElementSource(a);
 		sharedSourceNode.connect(sharedAnalyser);
 		sharedAnalyser.connect(sharedAudioCtx.destination);
+		return true;
 	} catch {
-		// Already connected or unsupported — silent fail
+		// Already connected or CORS blocked — waveform will use static mode
+		sharedAnalyser = null;
+		sharedAudioCtx = null;
+		return false;
 	}
 }
 
@@ -134,7 +142,10 @@ function ensureAudioContext() {
  */
 export function getSharedAnalyser(fftBars: number): AnalyserNode | null {
 	if (!sharedAnalyser) return null;
-	sharedAnalyser.fftSize = fftBars * 4;
+	// fftSize must be a power of two
+	const desired = fftBars * 4;
+	const pow2 = Math.pow(2, Math.round(Math.log2(desired)));
+	sharedAnalyser.fftSize = Math.max(32, Math.min(2048, pow2));
 	return sharedAnalyser;
 }
 
