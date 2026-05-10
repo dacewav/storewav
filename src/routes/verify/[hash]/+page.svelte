@@ -23,7 +23,10 @@
 	<h1>🔍 Verificar Contrato</h1>
 
 	{#if loading}
-		<p class="loading">Verificando...</p>
+		<div class="loading">
+			<div class="spinner"></div>
+			<p>Verificando...</p>
+		</div>
 	{:else if result?.verified}
 		<div class="result success">
 			<h2>✅ Contrato Verificado</h2>
@@ -53,7 +56,9 @@
 		font-family: system-ui, -apple-system, sans-serif;
 	}
 	h1 { font-size: 1.5rem; margin-bottom: 24px; }
-	.loading { color: #888; }
+	.loading { color: #888; text-align: center; }
+	.spinner { width: 24px; height: 24px; border: 3px solid #333; border-top-color: #dc2626; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+	@keyframes spin { to { transform: rotate(360deg); } }
 	.result { padding: 24px; border-radius: 12px; }
 	.success { background: #0a2a1a; border: 1px solid #1a5a3a; }
 	.error { background: #2a0a0a; border: 1px solid #5a1a1a; }

@@ -62,7 +62,8 @@ async function checkAdmin(uid: string, email?: string | null): Promise<boolean> 
 	}
 
 	// Dev mode: any authenticated user is admin (safe — dev is only true in vite dev)
-	if (dev) {
+	// Double check: never grant in production even if dev flag is somehow true
+	if (dev && typeof window !== 'undefined' && window.location.hostname === 'localhost') {
 		console.log('[Auth] Dev mode — granting admin access to:', uid);
 		return true;
 	}

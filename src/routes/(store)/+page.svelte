@@ -518,6 +518,7 @@
 		padding: clamp(4rem, 12vw, 7rem) var(--container-padding) clamp(2.5rem, 8vw, 5rem);
 		text-align: center;
 		overflow: hidden;
+		will-change: transform;
 	}
 
 	.hero::before {
@@ -592,6 +593,7 @@
 		color: var(--text);
 		animation: fadeInUp 0.7s var(--ease-out) 1.55s both;
 		overflow-wrap: break-word;
+		will-change: transform;
 	}
 
 	.glow-word {

@@ -124,8 +124,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 	const originHost = (() => {
 		try { return origin ? new URL(origin).origin : ''; } catch { return ''; }
 	})();
-	if (origin && !allowedOrigins.includes(originHost)) {
-		console.warn(`[Checkout] CSRF rejection — origin: ${origin}`);
+	if (!originHost || !allowedOrigins.includes(originHost)) {
+		console.warn(`[Checkout] CSRF rejection — origin: "${origin}"`);
 		return json({ ok: false, error: 'Origen no permitido' }, { status: 403 });
 	}
 

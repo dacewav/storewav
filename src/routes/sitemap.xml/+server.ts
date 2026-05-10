@@ -14,6 +14,11 @@ interface Beat {
 	updatedAt?: number;
 }
 
+interface SitemapEntry {
+	loc: string;
+	lastmod?: string;
+}
+
 function escapeXml(str: string): string {
 	return str
 		.replace(/&/g, '&amp;')
@@ -29,12 +34,13 @@ function getBeatSlug(beat: { name?: string; id: string }): string {
 }
 
 export const GET: RequestHandler = async () => {
-	const urls: string[] = [];
+	const entries: SitemapEntry[] = [];
 
 	// Static pages
-	urls.push(`${STORE_URL}/`);
-	urls.push(`${STORE_URL}/cart`);
-	urls.push(`${STORE_URL}/account`);
+	entries.push({ loc: `${STORE_URL}/` });
+	entries.push({ loc: `${STORE_URL}/cart` });
+	entries.push({ loc: `${STORE_URL}/account` });
+	entries.push({ loc: `${STORE_URL}/kits` });
 
 	// Fetch beats from Firebase
 	try {
@@ -47,7 +53,7 @@ export const GET: RequestHandler = async () => {
 					const lastmod = beat.updatedAt
 						? new Date(beat.updatedAt).toISOString().split('T')[0]
 						: undefined;
-					urls.push(`${STORE_URL}/beat/${slug}${lastmod ? `|${lastmod}` : ''}`);
+					entries.push({ loc: `${STORE_URL}/beat/${slug}`, lastmod });
 				}
 			}
 		}
@@ -63,7 +69,7 @@ export const GET: RequestHandler = async () => {
 			if (genres) {
 				for (const [, genre] of Object.entries(genres)) {
 					const slug = (genre.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-					if (slug) urls.push(`${STORE_URL}/genre/${slug}`);
+					if (slug) entries.push({ loc: `${STORE_URL}/genre/${slug}` });
 				}
 			}
 		}
@@ -74,12 +80,11 @@ export const GET: RequestHandler = async () => {
 	// Build XML
 	const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(u => {
-		const [loc, lastmod] = u.split('|');
-		let entry = `  <url>\n    <loc>${escapeXml(loc)}</loc>`;
-		if (lastmod) entry += `\n    <lastmod>${lastmod}</lastmod>`;
+${entries.map(e => {
+		let entry = `  <url>\n    <loc>${escapeXml(e.loc)}</loc>`;
+		if (e.lastmod) entry += `\n    <lastmod>${e.lastmod}</lastmod>`;
 		entry += `\n    <changefreq>daily</changefreq>`;
-		entry += `\n    <priority>${loc === `${STORE_URL}/` ? '1.0' : '0.8'}</priority>`;
+		entry += `\n    <priority>${e.loc === `${STORE_URL}/` ? '1.0' : '0.8'}</priority>`;
 		entry += `\n  </url>`;
 		return entry;
 	}).join('\n')}

@@ -20,6 +20,7 @@
 	let orderDiscount = $state<{ code: string; type: string; amount: number } | null>(null);
 	let orderTotalMXN = $state(0);
 	let orderTotalUSD = $state(0);
+	let downloadTokens = $state<Record<string, string>>({});
 
 	onMount(async () => {
 		// Clear cart on successful payment
@@ -32,8 +33,12 @@
 			try {
 				const resp = await fetch(`/api/orders?sessionId=${encodeURIComponent(sessionId)}`);
 				if (resp.ok) {
-					const result = await resp.json() as { ok: boolean; order?: Record<string, unknown> };
+					const result = await resp.json() as { ok: boolean; order?: Record<string, unknown>; downloadTokens?: Record<string, string> };
 					if (result.ok && result.order) {
+						// Capture download tokens from API
+						if (result.downloadTokens) {
+							downloadTokens = result.downloadTokens;
+						}
 						const data = result.order;
 						if (data.items && Array.isArray(data.items)) {
 							orderItems = (data.items as Array<{
@@ -80,8 +85,12 @@
 		item.downloading = true;
 
 		try {
-			// Use secure download endpoint — serves file directly
-			const url = `/api/download/${sessionId}/${item.beatId}`;
+			const token = downloadTokens[item.beatId];
+			if (!token) {
+				toast.error('Token de descarga no disponible. Revisá tu email para el link.');
+				return;
+			}
+			const url = `/api/download/${sessionId}/${item.beatId}?token=${token}`;
 			const a = document.createElement('a');
 			a.href = url;
 			a.download = `${item.beatName}.mp3`;
@@ -102,7 +111,12 @@
 		downloadingZip = true;
 
 		try {
-			const url = `/api/download/${sessionId}/${beatId}/zip`;
+			const token = downloadTokens[beatId];
+			if (!token) {
+				toast.error('Token de descarga no disponible. Revisá tu email para el link.');
+				return;
+			}
+			const url = `/api/download/${sessionId}/${beatId}/zip?token=${token}`;
 			const a = document.createElement('a');
 			a.href = url;
 			a.download = `${beatName}_dacewav.zip`;

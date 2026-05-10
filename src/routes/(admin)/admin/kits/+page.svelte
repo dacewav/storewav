@@ -641,6 +641,8 @@
 								class:dragging={dragSampleIdx === i}
 								class:drag-over={dragOverSampleIdx === i}
 								draggable="true"
+								role="listitem"
+								aria-roledescription="Arrastrar para reordenar"
 								ondragstart={(e) => handleSampleDragStart(e, i)}
 								ondragover={(e) => handleSampleDragOver(e, i)}
 								ondrop={(e) => handleSampleDrop(e, i)}

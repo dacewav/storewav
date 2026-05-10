@@ -122,8 +122,8 @@
 
 		{#if authState.user && authState.adminChecked && !authState.isAdmin}
 			<div class="uid-display">
-				<p class="uid-label">Tu UID (copialo y agregalo como admin):</p>
-				<code class="uid-code">{authState.user.uid}</code>
+				<p class="uid-label">Tu cuenta no tiene permisos de administrador.</p>
+				<p class="uid-label" style="margin-top: 4px; opacity: 0.7;">Contactá al propietario de la tienda para obtener acceso.</p>
 			</div>
 		{/if}
 
@@ -493,18 +493,6 @@
 		font-size: var(--text-2xs);
 		color: var(--text-secondary);
 		margin-bottom: var(--space-2);
-	}
-
-	.uid-code {
-		display: block;
-		font-family: var(--font-mono);
-		font-size: var(--text-xs);
-		color: var(--accent);
-		word-break: break-all;
-		user-select: all;
-		padding: var(--space-2);
-		background: rgba(0,0,0,0.2);
-		border-radius: var(--radius-sm);
 	}
 
 	.uid-link {

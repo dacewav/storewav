@@ -63,12 +63,18 @@ function onEnded() {
 	store.update((s) => ({ ...s, playing: false }));
 }
 
+function onError() {
+	store.update((s) => ({ ...s, playing: false }));
+	console.warn('[Player] Error de audio — posible problema de red');
+}
+
 function attachAudioListeners() {
 	if (!audio || audioListenersAttached) return;
 	audioListenersAttached = true;
 	audio.addEventListener('timeupdate', onTimeUpdate);
 	audio.addEventListener('loadedmetadata', onLoadedMetadata);
 	audio.addEventListener('ended', onEnded);
+	audio.addEventListener('error', onError);
 }
 
 /** Cleanup listeners (para hot reload / SPA navigation) */
@@ -77,6 +83,7 @@ function detachAudioListeners() {
 	audio.removeEventListener('timeupdate', onTimeUpdate);
 	audio.removeEventListener('loadedmetadata', onLoadedMetadata);
 	audio.removeEventListener('ended', onEnded);
+	audio.removeEventListener('error', onError);
 	audioListenersAttached = false;
 }
 

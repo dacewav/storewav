@@ -66,7 +66,28 @@ export const GET: RequestHandler = async ({ url, getClientAddress }) => {
 			if (!order) {
 				return json({ ok: false, error: 'Orden no encontrada' }, { status: 404 });
 			}
-			return json({ ok: true, order });
+
+			// Fetch download tokens for each item in the order
+			const items = order.items as Array<{ beatId?: string }> | undefined;
+			const downloadTokens: Record<string, string> = {};
+			if (Array.isArray(items)) {
+				await Promise.allSettled(
+					items.map(async (item) => {
+						if (!item.beatId) return;
+						try {
+							const tokenResp = await fetch(`${FIREBASE_DB}/downloadTokens/${sessionId}_${item.beatId}.json`);
+							if (tokenResp.ok) {
+								const tokenData = await tokenResp.json() as { token?: string } | null;
+								if (tokenData?.token) {
+									downloadTokens[item.beatId] = tokenData.token;
+								}
+							}
+						} catch { /* non-critical */ }
+					})
+				);
+			}
+
+			return json({ ok: true, order, downloadTokens });
 		} catch (err) {
 			console.error('[Orders] Error:', err);
 			return json({ ok: false, error: 'Error del servidor' }, { status: 500 });

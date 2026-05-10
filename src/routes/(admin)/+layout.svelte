@@ -281,10 +281,12 @@
 				{/if}
 				<div class="group-label">{group.label}</div>
 				{#each group.items as item}
+					{@const isActive = item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
 					<a
 						href={item.href}
 						class="si"
-						class:active={item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
+						class:active={isActive}
+						aria-current={isActive ? 'page' : undefined}
 						title={sidebarCollapsed ? item.label : ''}
 						onclick={closeSidebar}
 					>
