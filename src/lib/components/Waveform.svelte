@@ -61,44 +61,37 @@
 		liveHeights = Array(bars).fill(0.05);
 	});
 
-	let audioCtx: AudioContext | null = null;
 	let analyser: AnalyserNode | null = null;
-	let sourceNode: MediaElementAudioSourceNode | null = null;
 	let rafId: number | null = null;
-	let currentAudioUrl: string | null = null;
+	let liveActive = $state(false);
 
 	function setupLiveAnalysis() {
 		if (!browser || mode !== 'live') return;
 
-		const audio = getAudioElement();
-		if (!audio || audio.src === currentAudioUrl) return;
-		currentAudioUrl = audio.src;
+		// Use shared analyser from player store (singleton — no duplicate MediaElementSource)
+		analyser = player.getAnalyser(bars);
+		if (!analyser) return;
 
-		teardownLive();
-
-		try {
-			audioCtx = new AudioContext();
-			analyser = audioCtx.createAnalyser();
-			analyser.fftSize = bars * 4;
-			analyser.smoothingTimeConstant = 0.75;
-
-			sourceNode = audioCtx.createMediaElementSource(audio);
-			sourceNode.connect(analyser);
-			analyser.connect(audioCtx.destination);
-
-			tickLive();
-		} catch {
-			teardownLive();
-		}
+		liveActive = true;
+		tickLive();
 	}
 
 	function tickLive() {
-		let isPlayingNow = false;
-		player.subscribe((s) => { isPlayingNow = s.playing; })();
+		if (!analyser) {
+			liveActive = false;
+			return;
+		}
 
-		if (!analyser || !isPlayingNow) {
+		const s = playerState;
+		if (!s.playing) {
+			// Fade out: decay existing heights
 			liveHeights = liveHeights.map((h: number) => Math.max(0.05, h * 0.92));
-			if (isPlayingNow) rafId = requestAnimationFrame(tickLive);
+			// Keep animating until nearly flat
+			if (liveHeights.some((h: number) => h > 0.06)) {
+				rafId = requestAnimationFrame(tickLive);
+			} else {
+				liveActive = false;
+			}
 			return;
 		}
 
@@ -122,28 +115,9 @@
 			cancelAnimationFrame(rafId);
 			rafId = null;
 		}
-		if (sourceNode) {
-			sourceNode.disconnect();
-			sourceNode = null;
-		}
-		if (analyser) {
-			analyser.disconnect();
-			analyser = null;
-		}
-		if (audioCtx) {
-			audioCtx.close();
-			audioCtx = null;
-		}
-		currentAudioUrl = null;
-	}
-
-	function getAudioElement(): HTMLAudioElement | null {
-		if (!browser) return null;
-		try {
-			return player.getAudioElement();
-		} catch {
-			return null;
-		}
+		liveActive = false;
+		// Don't disconnect shared analyser — it's managed by the player store
+		analyser = null;
 	}
 
 	$effect(() => {
@@ -154,7 +128,10 @@
 		return () => { teardownLive(); };
 	});
 
-	let barHeights: number[] = $derived(mode === 'live' ? liveHeights : staticHeights);
+	// Show static waveform when not playing (or in static mode), live heights when playing
+	let barHeights: number[] = $derived(
+		mode === 'live' && (isPlaying || liveActive) ? liveHeights : staticHeights
+	);
 	let svgWidth = $derived(bars * step);
 	let progressX = $derived(progress * svgWidth);
 </script>

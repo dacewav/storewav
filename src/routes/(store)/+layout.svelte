@@ -312,8 +312,9 @@
 			cursorY = e.clientY;
 		}
 
-		// Cursor glow lerp — smooth follow (0.08 factor)
+		// Cursor glow lerp — smooth follow (0.08 factor). Skip on touch devices.
 		let cursorRaf: number;
+		const isTouchDevice = window.matchMedia('(hover: none)').matches;
 		function lerpCursor() {
 			cursorLerpX += (cursorX - cursorLerpX) * 0.08;
 			cursorLerpY += (cursorY - cursorLerpY) * 0.08;
@@ -323,7 +324,7 @@
 			}
 			cursorRaf = requestAnimationFrame(lerpCursor);
 		}
-		lerpCursor();
+		if (!isTouchDevice) lerpCursor();
 
 		function onKeydown(e: KeyboardEvent) {
 			if (e.key === 'Escape' && menuOpen) closeMenu();

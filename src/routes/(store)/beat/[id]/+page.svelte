@@ -139,9 +139,8 @@
 		});
 	}
 
-	// Accent RGB for dynamic styles (shared store — reads CSS var once)
-	let accentRgb = $state('220, 38, 38');
-	accentRgbStore.subscribe(v => { accentRgb = v; });
+	// Accent RGB for dynamic styles (shared store)
+	let accentRgb = $derived($accentRgbStore);
 </script>
 
 <svelte:head>
@@ -234,8 +233,23 @@
 					<span class="cover-genre">{beat.genre}</span>
 				</div>
 
-				<!-- Waveform -->
-				<div class="beat-waveform">
+				<!-- Waveform (click to seek) -->
+				<div
+					class="beat-waveform"
+					role="slider"
+					aria-label="Posición de audio"
+					tabindex="0"
+					onclick={(e) => {
+						const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+						const pct = (e.clientX - rect.left) / rect.width;
+						const state = $player;
+						if (state.duration > 0) player.seek(pct * state.duration);
+					}}
+					onkeydown={(e) => {
+						if (e.key === 'ArrowRight') player.seek($player.currentTime + 5);
+						if (e.key === 'ArrowLeft') player.seek($player.currentTime - 5);
+					}}
+				>
 					<Waveform bars={80} height={48} mode="live" />
 				</div>
 
@@ -564,6 +578,12 @@
 		background: var(--surface);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
+		cursor: pointer;
+		transition: border-color var(--duration-fast);
+	}
+
+	.beat-waveform:hover {
+		border-color: rgba(var(--accent-rgb), 0.3);
 	}
 
 	.beat-play-btn {

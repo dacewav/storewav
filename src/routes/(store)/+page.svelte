@@ -175,6 +175,9 @@
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
 
+	// Check if all active beats are featured (hide empty catalog section)
+	let allBeatsFeatured = $derived(beats.length > 0 && beats.every(b => b.featured));
+
 	// Filtered + sorted beats — excludes featured from main grid
 	let filteredBeats = $derived.by(() => {
 		let list = [...beats];
@@ -409,7 +412,8 @@
 </div>
 {/if}
 
-<!-- Beats section -->
+<!-- Beats section (hide when all beats are featured — they're already shown above) -->
+{#if !allBeatsFeatured}
 <section class="section" use:reveal={{}} id="beats">
 	<div class="section-header">
 		<h2 class="section-title" style={sectionTitleStyle}>{sectionTitle}</h2>
@@ -467,6 +471,7 @@
 		<EmptyState icon="🎵" title="No hay beats todavía" subtitle="Pronto habrá contenido disponible." />
 	{/if}
 </section>
+{/if}
 
 <!-- For You recommendations (after catalog — user has context to appreciate personalization) -->
 {#if forYouBeats.length > 0}

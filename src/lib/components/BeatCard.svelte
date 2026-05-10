@@ -45,8 +45,7 @@
 	});
 
 	// Card style engine: merge global (from settings) + per-beat
-	let accentRgb = $state('220, 38, 38');
-	accentRgbStore.subscribe(v => { accentRgb = v; });
+	let accentRgb = $derived($accentRgbStore);
 	let globalCardStyle = $derived($settings.data?.cardStyle ?? {});
 	// Per-beat animation intensity from cardAnim.intensity (0-200 → 0-100 for CSS var)
 	let perBeatOverrides = $derived({

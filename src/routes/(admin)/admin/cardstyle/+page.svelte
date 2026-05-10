@@ -7,8 +7,7 @@
 	import { getAllPresets, type CardPreset, type PresetId } from '$lib/cardStyleEngine';
 
 	let cardStyle = $state<Record<string, unknown>>($settings.data?.cardStyle ?? {});
-	let accentRgb = $state('220, 38, 38');
-	accentRgbStore.subscribe(v => { accentRgb = v; });
+	let accentRgb = $derived($accentRgbStore);
 
 	function updateCardStyle(newStyle: Record<string, unknown>) {
 		cardStyle = newStyle;

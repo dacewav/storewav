@@ -20,6 +20,19 @@ export type PlayerState = {
 	muted: boolean;
 };
 
+/** Load persisted volume from localStorage */
+function loadVolume(): number {
+	if (!browser) return 0.8;
+	try {
+		const saved = localStorage.getItem('player-volume');
+		if (saved !== null) {
+			const v = parseFloat(saved);
+			if (!isNaN(v) && v >= 0 && v <= 1) return v;
+		}
+	} catch {}
+	return 0.8;
+}
+
 const DEFAULT: PlayerState = {
 	playing: false,
 	beatId: null,
@@ -29,7 +42,7 @@ const DEFAULT: PlayerState = {
 	audioUrl: '',
 	currentTime: 0,
 	duration: 0,
-	volume: 0.8,
+	volume: loadVolume(),
 	muted: false
 };
 
@@ -40,7 +53,7 @@ let audioListenersAttached = false;
 function getAudio(): HTMLAudioElement | null {
 	if (!audio && browser) {
 		audio = new Audio();
-		audio.volume = DEFAULT.volume;
+		audio.volume = loadVolume();
 		attachAudioListeners();
 	}
 	return audio;
@@ -200,6 +213,7 @@ function setVolume(vol: number) {
 	if (!a) return;
 	a.volume = vol;
 	store.update((s) => ({ ...s, volume: vol, muted: vol === 0 }));
+	try { localStorage.setItem('player-volume', String(vol)); } catch {}
 }
 
 function toggleMute() {
@@ -219,6 +233,43 @@ function stop() {
 	store.set(DEFAULT);
 }
 
+/** Shared Web Audio API — singleton for waveform visualization */
+let sharedAudioCtx: AudioContext | null = null;
+let sharedAnalyser: AnalyserNode | null = null;
+let sharedSourceNode: MediaElementAudioSourceNode | null = null;
+
+/**
+ * Get or create a shared AnalyserNode connected to the audio element.
+ * This avoids the "only one MediaElementSourceNode per element" limitation.
+ * @param fftBars - Number of bars desired (used to calculate fftSize)
+ */
+export function getSharedAnalyser(fftBars: number): AnalyserNode | null {
+	if (!browser) return null;
+	const a = getAudio();
+	if (!a) return null;
+
+	if (!sharedAudioCtx) {
+		try {
+			sharedAudioCtx = new AudioContext();
+			sharedAnalyser = sharedAudioCtx.createAnalyser();
+			sharedSourceNode = sharedAudioCtx.createMediaElementSource(a);
+			sharedSourceNode.connect(sharedAnalyser);
+			sharedAnalyser.connect(sharedAudioCtx.destination);
+		} catch {
+			return null;
+		}
+	}
+	if (sharedAnalyser) {
+		sharedAnalyser.fftSize = fftBars * 4;
+		sharedAnalyser.smoothingTimeConstant = 0.75;
+	}
+	// Resume AudioContext if suspended (autoplay policy)
+	if (sharedAudioCtx.state === 'suspended') {
+		sharedAudioCtx.resume();
+	}
+	return sharedAnalyser;
+}
+
 export const player = {
 	subscribe: store.subscribe,
 	play,
@@ -230,6 +281,8 @@ export const player = {
 	stop,
 	/** Exponer el Audio element interno (para waveform live, etc.) */
 	getAudioElement: () => getAudio(),
+	/** Get shared analyser for waveform visualization */
+	getAnalyser: getSharedAnalyser,
 	/** Progreso 0-1 */
 	progress: derived(store, ($s) => ($s.duration > 0 ? $s.currentTime / $s.duration : 0)),
 	/** Tiempo formateado */
