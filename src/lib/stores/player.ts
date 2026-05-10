@@ -161,10 +161,13 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 	}
 
 	// Init Web Audio API on user gesture (play click)
-	ensureAudioContext();
-	if (sharedAudioCtx?.state === 'suspended') {
-		sharedAudioCtx.resume();
-	}
+	// NOTE: createMediaElementSource requires CORS headers on R2.
+	// Until CORS is configured, waveform uses static mode.
+	// Uncomment below when R2 CORS is set up:
+	// ensureAudioContext();
+	// if (sharedAudioCtx?.state === 'suspended') {
+	// 	sharedAudioCtx.resume();
+	// }
 
 	// Track recently played (lazy import to avoid circular deps)
 	if (beat.genre) {
