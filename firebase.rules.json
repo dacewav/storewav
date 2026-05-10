@@ -98,7 +98,7 @@
     },
 
     "orders": {
-      ".read": "auth != null && (root.child('adminWhitelist/approved').child(auth.uid).exists() || auth.token.firebase.sign_in_provider == 'anonymous')",
+      ".read": true,
       ".write": true,
       "$sessionId": {
         ".validate": "newData.hasChildren(['status', 'createdAt'])",
