@@ -53,8 +53,7 @@ let audioListenersAttached = false;
 function getAudio(): HTMLAudioElement | null {
 	if (!audio && browser) {
 		audio = new Audio();
-		// Note: crossOrigin NOT set — R2 CDN may not have CORS headers.
-		// Waveform live mode will fall back to static visualization.
+		audio.crossOrigin = 'anonymous'; // R2 CORS configured — enables Web Audio API
 		audio.volume = loadVolume();
 		attachAudioListeners();
 	}
@@ -161,13 +160,10 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 	}
 
 	// Init Web Audio API on user gesture (play click)
-	// NOTE: createMediaElementSource requires CORS headers on R2.
-	// Until CORS is configured, waveform uses static mode.
-	// Uncomment below when R2 CORS is set up:
-	// ensureAudioContext();
-	// if (sharedAudioCtx?.state === 'suspended') {
-	// 	sharedAudioCtx.resume();
-	// }
+	ensureAudioContext();
+	if (sharedAudioCtx?.state === 'suspended') {
+		sharedAudioCtx.resume();
+	}
 
 	// Track recently played (lazy import to avoid circular deps)
 	if (beat.genre) {
