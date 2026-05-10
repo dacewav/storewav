@@ -91,12 +91,7 @@
 				return;
 			}
 			const url = `/api/download/${sessionId}/${item.beatId}?token=${token}`;
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `${item.beatName}.mp3`;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
+			window.open(url, '_blank');
 			item.downloadUrl = url;
 			analytics.track('download', 'start', { lbl: item.beatId });
 		} catch {
@@ -117,12 +112,7 @@
 				return;
 			}
 			const url = `/api/download/${sessionId}/${beatId}/zip?token=${token}`;
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `${beatName}_dacewav.zip`;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
+			window.open(url, '_blank');
 			analytics.track('download', 'zip', { lbl: beatId });
 		} catch {
 			toast.error('Error al descargar el paquete. Intenta de nuevo.');

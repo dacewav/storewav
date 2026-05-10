@@ -85,25 +85,14 @@
 	}
 
 	function downloadBeat(orderId: string, beatId: string, beatName: string) {
-		// Use the secure download endpoint
 		const url = `/api/download/${orderId}/${beatId}`;
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `${beatName}.mp3`;
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
+		window.open(url, '_blank');
 		analytics.track('download', 'orders_page', { lbl: beatId });
 	}
 
 	function downloadZip(orderId: string, beatId: string, beatName: string) {
 		const url = `/api/download/${orderId}/${beatId}/zip`;
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `${beatName}_dacewav.zip`;
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
+		window.open(url, '_blank');
 		analytics.track('download', 'zip_orders', { lbl: beatId });
 	}
 </script>
