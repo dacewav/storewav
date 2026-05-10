@@ -195,17 +195,19 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		try {
 			const updateData: Record<string, unknown> = {
 				status: 'paid',
-				customerEmail,
 				customerName,
 				paymentIntentId,
 				paidAt: Date.now(),
 			};
 
+			// Only include non-null fields (Firebase rejects null values)
+			if (customerEmail) updateData.customerEmail = customerEmail;
+
 			// Include discount info in order record
 			if (discountCode) {
 				updateData.discountCode = discountCode;
-				updateData.discountType = discountType;
-				updateData.discountAmount = discountAmount;
+				if (discountType) updateData.discountType = discountType;
+				if (discountAmount !== null) updateData.discountAmount = discountAmount;
 			}
 
 			await fetch(`${FIREBASE_DB}/orders/${sessionId}.json`, {
@@ -301,11 +303,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 							beatId: item.beatId,
 							beatName: beatData?.name || item.beatName,
 							licenseName: item.licenseName,
-							buyerEmail: customerEmail,
 							buyerName: customerName,
 							contractFile,
 							verificationHash,
 							createdAt: Date.now(),
+							...(customerEmail ? { buyerEmail: customerEmail } : {}),
 						}),
 					});
 

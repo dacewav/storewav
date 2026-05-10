@@ -293,9 +293,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 					priceUSD: i.priceUSD,
 				})),
 				status: 'pending',
-				customerEmail: customerEmail || null,
 				createdAt: Date.now(),
 			};
+
+			// Only include non-null fields (Firebase rejects null values)
+			if (customerEmail) orderData.customerEmail = customerEmail;
 
 			if (appliedDiscount) {
 				orderData.discountCode = appliedDiscount.code;

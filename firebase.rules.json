@@ -125,7 +125,7 @@
     },
 
     "contracts": {
-      ".read": "auth != null",
+      ".read": true,
       ".write": true,
       "$contractId": {
         ".validate": "newData.hasChildren(['orderId', 'beatId', 'licenseName'])",
