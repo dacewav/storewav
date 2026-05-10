@@ -16,14 +16,12 @@
 - **Webhook idempotency:** processedEvents en Firebase, evita duplicados en retries de Stripe. Marca evento antes del procesamiento pesado. Usa `event.id` con fallback a `sessionId`.
 - **processedEvents cleanup:** Limpieza automática probabilística (1% por webhook) de eventos >30 días. Batch paralelo (max 50).
 - **Download token TTL (7 días):** Tokens expiran después de 7 días. Verificación en ambos endpoints (`/download` y `/download/zip`). Tokens legacy sin `createdAt` siguen funcionando.
-- **Order cache cleanup:** Auto-limpieza cada 10 min de entradas stale en el Map de memoria del endpoint `/download`.
+- **Order cache cleanup:** Auto-limpieza probabilística (10%) de entradas stale en el Map de memoria del endpoint `/download`. Cloudflare-safe (no setInterval).
 - **favicon.ico:** Generado 16×16 32-bit ICO con círculo naranja. Resuelve 404 en requests de browsers.
+- **Download key fallback:** Descargas ahora intentan clave normalizada y con `/` prefijo para compatibilidad con keys legacy en R2.
+- **R2 credentials test:** ✅ Verificado end-to-end — ListObjects, PutObject, presigned GET URLs funcionan. Account ID: `b9915d52e9ac118230931e40d46ab3ce`.
 
 ## ⏳ Pendientes
-
-### Test real de uploads
-**Bloqueado:** Necesita R2 S3 credentials (Access Key ID + Secret Access Key).
-Crear en: Cloudflare Dashboard → R2 → Manage R2 API Tokens → Create API Token (Object Read & Write, bucket: dace-beats).
 
 ### i18n
 Todo en español. Recomendación: `paraglide-js`. Prioridad baja.
@@ -32,4 +30,5 @@ Todo en español. Recomendación: `paraglide-js`. Prioridad baja.
 - **Tests:** 280/280 passing (15 test files)
 - **Type check:** 0 errors, 1 warning (pre-existing — missing PUBLIC_* env vars in local)
 - **Build:** OK (Cloudflare adapter) — requires env vars in deployment
-- **Último commit:** pendiente de commit (session 70 changes)
+- **R2:** ✅ Read/Write/Presign verified
+- **Último commit:** `c63b20b` + pending download key fallback fix

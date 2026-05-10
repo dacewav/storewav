@@ -123,23 +123,25 @@ export const GET: RequestHandler = async ({ params, url, platform }) => {
 	if (r2AccountId && r2AccessKeyId && r2SecretAccessKey) {
 		const key = r2KeyFromUrl(audioUrl);
 		if (key) {
+			const r2Env = { R2_ACCOUNT_ID: r2AccountId, R2_ACCESS_KEY_ID: r2AccessKeyId, R2_SECRET_ACCESS_KEY: r2SecretAccessKey };
 			try {
-				const presignedUrl = await getPresignedDownloadUrl(
-					R2_BUCKET,
-					key,
-					{ R2_ACCOUNT_ID: r2AccountId, R2_ACCESS_KEY_ID: r2AccessKeyId, R2_SECRET_ACCESS_KEY: r2SecretAccessKey },
-					PRESIGNED_EXPIRY
-				);
+				// Try normalized key first (no leading slash)
+				const presignedUrl = await getPresignedDownloadUrl(R2_BUCKET, key, r2Env, PRESIGNED_EXPIRY);
 				return new Response(null, {
 					status: 302,
-					headers: {
-						Location: presignedUrl,
-						'Cache-Control': 'private, no-store',
-					},
+					headers: { Location: presignedUrl, 'Cache-Control': 'private, no-store' },
 				});
 			} catch (err) {
-				console.error('[Download] Presign failed, falling back:', err);
-				// Fall through to R2 binding / proxy
+				// Fallback: try with leading slash (legacy R2 keys)
+				try {
+					const presignedUrl = await getPresignedDownloadUrl(R2_BUCKET, `/${key}`, r2Env, PRESIGNED_EXPIRY);
+					return new Response(null, {
+						status: 302,
+						headers: { Location: presignedUrl, 'Cache-Control': 'private, no-store' },
+					});
+				} catch {
+					console.error('[Download] Presign failed (both keys), falling back:', err);
+				}
 			}
 		}
 	}
@@ -149,18 +151,20 @@ export const GET: RequestHandler = async ({ params, url, platform }) => {
 	if (r2) {
 		const key = r2KeyFromUrl(audioUrl);
 		if (key) {
-			try {
-				const obj = await r2.get(key);
-				if (obj) {
-					const headers = new Headers();
-					headers.set('Content-Type', obj.httpMetadata?.contentType || 'audio/mpeg');
-					headers.set('Content-Disposition', `attachment; filename="${sanitizeFilename(beatName)}.mp3"`);
-					headers.set('Cache-Control', 'private, no-store');
-					return new Response(obj.body, { headers });
-				}
-			} catch (err) {
-				console.warn('[Download] R2 binding failed, falling back to proxy:', err);
+			// Try normalized key first, then with leading slash (legacy keys)
+			for (const tryKey of [key, `/${key}`]) {
+				try {
+					const obj = await r2.get(tryKey);
+					if (obj) {
+						const headers = new Headers();
+						headers.set('Content-Type', obj.httpMetadata?.contentType || 'audio/mpeg');
+						headers.set('Content-Disposition', `attachment; filename="${sanitizeFilename(beatName)}.mp3"`);
+						headers.set('Cache-Control', 'private, no-store');
+						return new Response(obj.body, { headers });
+					}
+				} catch { /* try next key */ }
 			}
+			console.warn('[Download] R2 binding: object not found for either key');
 		}
 	}
 

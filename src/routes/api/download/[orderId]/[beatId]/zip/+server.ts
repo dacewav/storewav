@@ -126,14 +126,15 @@ export const GET: RequestHandler = async ({ params, url, platform }) => {
 				if (r2) {
 					const key = r2KeyFromUrl(beat.audioUrl);
 					if (key) {
-						try {
-							const obj = await r2.get(key);
-							if (obj) {
-								const buffer = await obj.arrayBuffer();
-								audioData = new Uint8Array(buffer);
-							}
-						} catch (err) {
-							console.warn(`[Download ZIP] R2 audio fetch failed:`, err);
+						for (const tryKey of [key, `/${key}`]) {
+							try {
+								const obj = await r2.get(tryKey);
+								if (obj) {
+									const buffer = await obj.arrayBuffer();
+									audioData = new Uint8Array(buffer);
+									break;
+								}
+							} catch { /* try next key */ }
 						}
 					}
 				}
@@ -155,14 +156,15 @@ export const GET: RequestHandler = async ({ params, url, platform }) => {
 				if (r2) {
 					const key = r2KeyFromUrl(beat.stemsUrl);
 					if (key) {
-						try {
-							const obj = await r2.get(key);
-							if (obj) {
-								const buffer = await obj.arrayBuffer();
-								stemsData = new Uint8Array(buffer);
-							}
-						} catch (err) {
-							console.warn(`[Download ZIP] R2 stems fetch failed:`, err);
+						for (const tryKey of [key, `/${key}`]) {
+							try {
+								const obj = await r2.get(tryKey);
+								if (obj) {
+									const buffer = await obj.arrayBuffer();
+									stemsData = new Uint8Array(buffer);
+									break;
+								}
+							} catch { /* try next key */ }
 						}
 					}
 				}
