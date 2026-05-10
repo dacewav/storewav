@@ -14,13 +14,22 @@ import { r2KeyFromUrl, sanitizeFilename } from '$lib/r2Presign';
 const orderCache = new Map<string, { verified: number; items: Array<{ beatId: string; licenseName: string; beatName?: string; priceMXN: number; priceUSD: number }> }>();
 const CACHE_TTL = 5 * 60 * 1000;
 
-/** Verify download token from Firebase */
+/** Verify download token from Firebase (7-day TTL) */
+const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 async function verifyToken(orderId: string, beatId: string, token: string): Promise<boolean> {
 	try {
 		const resp = await fetch(`${FIREBASE_DB}/downloadTokens/${orderId}_${beatId}.json`);
 		if (!resp.ok) return false;
-		const data = await resp.json() as { token?: string } | null;
-		return data?.token === token;
+		const data = await resp.json() as { token?: string; createdAt?: number } | null;
+		if (!data || data.token !== token) return false;
+
+		// Check TTL — reject tokens older than 7 days
+		if (data.createdAt && Date.now() - data.createdAt > TOKEN_TTL) {
+			console.warn(`[Download ZIP] Expired token for ${orderId}/${beatId}`);
+			return false;
+		}
+
+		return true;
 	} catch {
 		return false;
 	}

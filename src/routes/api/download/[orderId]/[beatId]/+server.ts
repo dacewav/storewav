@@ -14,6 +14,15 @@ const PRESIGNED_EXPIRY = 3600; // 1 hour
 const orderCache = new Map<string, { verified: number; items: string[] }>();
 const CACHE_TTL = 5 * 60 * 1000;
 
+// Probabilistic cleanup of stale cache entries (10% of requests)
+function maybeCleanupCache(): void {
+	if (Math.random() > 0.1) return;
+	const cutoff = Date.now() - CACHE_TTL;
+	for (const [key, entry] of orderCache) {
+		if (entry.verified < cutoff) orderCache.delete(key);
+	}
+}
+
 async function verifyOrder(orderId: string, beatId: string): Promise<boolean> {
 	const cached = orderCache.get(orderId);
 	if (cached && Date.now() - cached.verified < CACHE_TTL) {
@@ -40,14 +49,23 @@ async function verifyOrder(orderId: string, beatId: string): Promise<boolean> {
 	}
 }
 
-/** Verify download token from Firebase */
+/** Verify download token from Firebase (7-day TTL) */
+const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 async function verifyToken(orderId: string, beatId: string, token: string): Promise<boolean> {
 	try {
 		const resp = await fetch(`${FIREBASE_DB}/downloadTokens/${orderId}_${beatId}.json`);
 		if (!resp.ok) return false;
 
-		const data = await resp.json() as { token?: string } | null;
-		return data?.token === token;
+		const data = await resp.json() as { token?: string; createdAt?: number } | null;
+		if (!data || data.token !== token) return false;
+
+		// Check TTL — reject tokens older than 7 days
+		if (data.createdAt && Date.now() - data.createdAt > TOKEN_TTL) {
+			console.warn(`[Download] Expired token for ${orderId}/${beatId} (created ${new Date(data.createdAt).toISOString()})`);
+			return false;
+		}
+
+		return true;
 	} catch (err) {
 		console.warn(`[Download] Token verification failed for ${orderId}/${beatId}:`, err);
 		return false;
@@ -65,6 +83,8 @@ export const GET: RequestHandler = async ({ params, url, platform }) => {
 	if (!token) {
 		return new Response('Missing download token', { status: 403 });
 	}
+
+	maybeCleanupCache();
 
 	// Verify order
 	const isAuthorized = await verifyOrder(orderId, beatId);

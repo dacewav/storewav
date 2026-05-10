@@ -76,6 +76,40 @@ function parseItems(metadata: Record<string, unknown> | undefined): Array<{
 	}
 }
 
+/** Cleanup processedEvents older than 30 days */
+const PROCESSED_EVENT_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
+async function cleanupProcessedEvents(): Promise<void> {
+	try {
+		const resp = await fetch(`${FIREBASE_DB}/processedEvents.json`);
+		if (!resp.ok) return;
+
+		const events = await resp.json() as Record<string, { processedAt?: number }> | null;
+		if (!events) return;
+
+		const cutoff = Date.now() - PROCESSED_EVENT_TTL;
+		const toDelete: string[] = [];
+
+		for (const [id, data] of Object.entries(events)) {
+			if (data.processedAt && data.processedAt < cutoff) {
+				toDelete.push(id);
+			}
+		}
+
+		if (toDelete.length === 0) return;
+
+		console.log(`[Stripe Webhook] Cleaning up ${toDelete.length} expired processedEvents`);
+		// Delete in parallel (batch of up to 50)
+		const batch = toDelete.slice(0, 50);
+		await Promise.allSettled(
+			batch.map((id) =>
+				fetch(`${FIREBASE_DB}/processedEvents/${id}.json`, { method: 'DELETE' })
+			)
+		);
+	} catch (err) {
+		console.warn('[Stripe Webhook] cleanupProcessedEvents error:', err);
+	}
+}
+
 export const POST: RequestHandler = async ({ request, platform }) => {
 	const webhookSecret = platform?.env?.STRIPE_WEBHOOK_SECRET || (typeof process !== 'undefined' ? process.env?.STRIPE_WEBHOOK_SECRET : undefined);
 	const resendKey = platform?.env?.RESEND_API_KEY || (typeof process !== 'undefined' ? process.env?.RESEND_API_KEY : undefined);
@@ -97,7 +131,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 	}
 
 	// Parse event
-	let event: { type: string; data: { object: Record<string, unknown> } };
+	let event: { id?: string; type: string; data: { object: Record<string, unknown> } };
 	try {
 		event = JSON.parse(rawBody);
 	} catch {
@@ -108,6 +142,40 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 	if (event.type === 'checkout.session.completed') {
 		const session = event.data.object;
 		const sessionId = session.id as string;
+		const eventId = event.id || sessionId; // Use event.id when available, fallback to sessionId
+
+		// ── Idempotency: skip if already processed ──
+		try {
+			const existingResp = await fetch(`${FIREBASE_DB}/processedEvents/${eventId}.json`);
+			if (existingResp.ok) {
+				const existing = await existingResp.json() as { processedAt?: number } | null;
+				if (existing?.processedAt) {
+					console.log(`[Stripe Webhook] Event ${eventId} already processed at ${existing.processedAt}, skipping`);
+					return json({ received: true, duplicate: true });
+				}
+			}
+		} catch (err) {
+			console.warn('[Stripe Webhook] Idempotency check failed, proceeding:', err);
+		}
+
+		// Mark event as processed (before heavy work — prevents duplicate processing on timeout retries)
+		try {
+			await fetch(`${FIREBASE_DB}/processedEvents/${eventId}.json`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ processedAt: Date.now(), sessionId }),
+			});
+		} catch (err) {
+			console.warn('[Stripe Webhook] Failed to mark event as processed:', err);
+		}
+
+		// ── Auto-cleanup: remove processedEvents older than 30 days (probabilistic, 1% chance) ──
+		if (Math.random() < 0.01) {
+			cleanupProcessedEvents().catch((err) =>
+				console.warn('[Stripe Webhook] processedEvents cleanup failed:', err)
+			);
+		}
+
 		const customerEmail = (session.customer_email as string) || (session.customer_details as { email?: string })?.email || null;
 		const customerName = (session.customer_details as { name?: string })?.name || 'Cliente';
 		const paymentIntentId = session.payment_intent as string;
