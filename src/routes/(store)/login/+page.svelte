@@ -3,6 +3,7 @@
 	import { auth, loginWithGoogle, loginWithEmailLink, completeEmailLinkSignIn, loginAnonymously, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import { dev } from '$app/environment';
+	import { onMount } from 'svelte';
 	import type { LabelSettings } from '$lib/stores/settings';
 
 	let loading = $state(false);
@@ -22,18 +23,13 @@
 	let loginNote = $derived(labels.loginNote ?? 'Solo administradores autorizados');
 
 	// Check for email link completion on mount
-	let emailLinkChecked = $state(false);
-	$effect(() => {
-		if (emailLinkChecked) return;
-		emailLinkChecked = true;
+	onMount(async () => {
 		const urlParams = new URLSearchParams(window.location.search);
 		if (urlParams.get('complete') === 'email') {
-			completeEmailLinkSignIn().then((email) => {
-				if (email) {
-					emailSent = false;
-					// User is now logged in, auth state will redirect
-				}
-			});
+			const email = await completeEmailLinkSignIn();
+			if (email) {
+				emailSent = false;
+			}
 		}
 	});
 

@@ -6,6 +6,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import { getBeatSlug } from '$lib/slug';
 	import { STORE_URL } from '$lib/config';
+	import { escapeJsonLd } from '$lib/sanitize';
 	import type { Beat } from '$lib/stores/beats';
 
 	let slug = $derived(page.params.slug ?? '');
@@ -79,13 +80,13 @@
 	<meta property="og:type" content="music.genre" />
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="{genreName} — {brandName}" />
-	{@html `<script type="application/ld+json">${JSON.stringify({
+	{@html `<script type="application/ld+json">${escapeJsonLd(JSON.stringify({
 		'@context': 'https://schema.org',
 		'@type': 'MusicGenre',
 		name: genreName,
 		url: STORE_URL + '/genre/' + slug,
 		description: 'Beats de ' + genreName.toLowerCase() + ' profesionales'
-	})}</script>`}
+	}))}</script>`}
 </svelte:head>
 
 <div class="genre-page">
