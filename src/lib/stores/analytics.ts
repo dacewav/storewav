@@ -39,6 +39,15 @@ async function flush() {
 		const db = await getDb();
 		if (!db) return;
 
+		// Check if user is authenticated — Firebase rules require auth for writes
+		const { getAuthInstance } = await import('$lib/firebase');
+		const auth = await getAuthInstance();
+		if (!auth?.currentUser) {
+			// Not authenticated — re-queue and skip (don't spam permission_denied)
+			queue.unshift(...batch);
+			return;
+		}
+
 		const { ref, push } = await import('firebase/database');
 		const dateKey = todayKey();
 		const eventsRef = ref(db, `analytics/events/${dateKey}`);
