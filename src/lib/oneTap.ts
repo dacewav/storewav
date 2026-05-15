@@ -13,6 +13,26 @@ import { dev } from '$app/environment';
 let initialized = false;
 let gsiLoaded = false;
 
+const DISMISS_KEY = 'one-tap-dismissed';
+const DISMISS_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+/** Check if user previously dismissed One Tap */
+function isDismissed(): boolean {
+	if (typeof localStorage === 'undefined') return false;
+	try {
+		const raw = localStorage.getItem(DISMISS_KEY);
+		if (!raw) return false;
+		const ts = parseInt(raw, 10);
+		return Date.now() - ts < DISMISS_TTL;
+	} catch { return false; }
+}
+
+/** Mark One Tap as dismissed */
+function markDismissed(): void {
+	if (typeof localStorage === 'undefined') return;
+	try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
+}
+
 /** Check if browser supports FedCM */
 function hasFedCMSupport(): boolean {
 	if (typeof window === 'undefined') return false;
@@ -44,6 +64,12 @@ export async function initOneTap(
 	clientId: string
 ): Promise<void> {
 	if (!browser || initialized || !clientId) return;
+
+	// Skip if user previously dismissed
+	if (isDismissed()) {
+		initialized = true;
+		return;
+	}
 
 	try {
 		// Try FedCM first (modern browsers) — silent fallback if not available
@@ -89,12 +115,13 @@ async function initFedCM(
 			initialized = true;
 		} else {
 			if (dev) console.log('[OneTap] FedCM: no credential returned (user not signed in or declined)');
-			// Don't fall back to GSI — it produces noisy console errors when user isn't signed in
+			markDismissed();
 			initialized = true;
 		}
 	} catch {
 		// FedCM failed (user not signed in, browser blocked it, etc.) — silent in production
 		if (dev) console.log('[OneTap] FedCM not available or user not signed in');
+		markDismissed();
 		initialized = true;
 	}
 }
@@ -156,6 +183,7 @@ export async function signInWithIdToken(idToken: string): Promise<void> {
 /** Dismiss the credential prompt */
 export function dismissOneTap() {
 	if (!browser) return;
+	markDismissed();
 	// GSI dismiss
 	const google = window.google;
 	if (google?.accounts?.id) {

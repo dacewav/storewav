@@ -9,7 +9,7 @@
 	import Waveform from '$lib/components/Waveform.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import { staggerReveal } from '$lib/actions';
-	import { getBeatSlug } from '$lib/slug';
+	import { getBeatSlug, generateSlug } from '$lib/slug';
 	import { getRecommendations } from '$lib/stores/recommendations';
 	import { likeCounts } from '$lib/stores/likes';
 	import { STORE_URL } from '$lib/config';
@@ -44,14 +44,26 @@
 	let beatsRaw = $derived($beatsStore);
 	let s = $derived($settings.data);
 
-	// Current beat — look up by slug first, then by ID (use allBeats so inactive featured beats work)
+	// Current beat — look up by slug first, then by ID, then partial match
 	let beat = $derived.by(() => {
 		const param = page.params.id;
-		// Try slug match first using shared slug function
+		if (!param || allBeats.length === 0) return null;
+		// 1. Exact slug match
 		const bySlug = allBeats.find(b => getBeatSlug(b) === param);
 		if (bySlug) return bySlug;
-		// Fallback to ID
-		return allBeats.find(b => b.id === param) ?? null;
+		// 2. Exact ID match
+		const byId = allBeats.find(b => b.id === param);
+		if (byId) return byId;
+		// 3. Partial match: param contained in ID or vice versa (for legacy/broken URLs)
+		const byPartial = allBeats.find(b => b.id.includes(param) || param.includes(b.id));
+		if (byPartial) return byPartial;
+		// 4. Fuzzy slug match: normalize both and compare (handles trailing hyphens, extra chars)
+		const normalizedParam = param.replace(/-+$/, '').replace(/^-+/, '');
+		const byFuzzy = allBeats.find(b => {
+			const slug = generateSlug(b.name);
+			return slug === normalizedParam || slug.replace(/-+$/, '') === normalizedParam;
+		});
+		return byFuzzy ?? null;
 	});
 	let loading = $derived(beatsRaw.loading);
 

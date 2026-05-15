@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
 	import { AdminTopbar, CommandPalette, AdminOnboard } from '$lib/components';
+	import Icon from '$lib/components/Icon.svelte';
 	import { auth, settings, saveStatus as saveStatusStore, canUndo, canRedo, undoField, redoField, pendingCount, initCustomEmojis, destroyCustomEmojis } from '$lib/stores';
 	import { adminTheme } from '$lib/stores/adminTheme';
 	import { goto } from '$app/navigation';
@@ -13,6 +14,10 @@
 	let authState = $derived($auth);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 
+	// Auth guard: track whether auth check has completed AND user is authorized
+	let authAuthorized = $state(false);
+	let authDenied = $state(false);
+
 	// Auth redirect — uses raw subscription, NOT $effect (prevents effect_update_depth_exceeded)
 	onMount(() => {
 		// Initialize custom emojis for admin (picker + previews)
@@ -20,13 +25,19 @@
 
 		let done = false;
 		const unsub = auth.subscribe((state) => {
-			if (done || state.loading || !state.adminChecked) return;
+			if (state.loading || !state.adminChecked) return;
+			if (done) return;
 			done = true;
 			if (!state.user) {
+				authDenied = true;
 				goto('/login');
 			} else if (!state.isAdmin) {
 				console.warn('[Admin] Not admin, UID:', state.user.uid);
+				authDenied = true;
 				goto('/');
+			} else {
+				// User is authenticated AND is admin — allow rendering
+				authAuthorized = true;
 			}
 		});
 		return () => {
@@ -160,49 +171,49 @@
 		{
 			label: 'Tienda',
 			items: [
-				{ href: '/admin', label: 'Dashboard', icon: '📊', shortcut: 'Ctrl+D' },
-				{ href: '/admin/beats', label: 'Beats', icon: '🎵', shortcut: 'Ctrl+B' },
-				{ href: '/admin/media', label: 'Media', icon: '🖼️' },
-				{ href: '/admin/testimonials', label: 'Testimonios', icon: '💬' },
-				{ href: '/admin/kits', label: 'Drumkits', icon: '🥁' },
+				{ href: '/admin', label: 'Dashboard', icon: 'layoutDashboard', shortcut: 'Ctrl+D' },
+				{ href: '/admin/beats', label: 'Beats', icon: 'music', shortcut: 'Ctrl+B' },
+				{ href: '/admin/media', label: 'Media', icon: 'image' },
+				{ href: '/admin/testimonials', label: 'Testimonios', icon: 'messageSquare' },
+				{ href: '/admin/kits', label: 'Drumkits', icon: 'drum' },
 			]
 		},
 		{
 			label: 'Secciones',
 			items: [
-				{ href: '/admin/hero', label: 'Hero & Contenido', icon: '🏠', shortcut: 'Ctrl+H' },
-				{ href: '/admin/floating', label: 'Banner & Floating', icon: '✨' },
+				{ href: '/admin/hero', label: 'Hero & Contenido', icon: 'home', shortcut: 'Ctrl+H' },
+				{ href: '/admin/floating', label: 'Banner & Floating', icon: 'sparkles' },
 			]
 		},
 		{
 			label: 'Visual',
 			items: [
-				{ href: '/admin/theme', label: 'Colores & Fuentes', icon: '🎨', shortcut: 'Ctrl+T' },
-				{ href: '/admin/effects', label: 'Effects & Glow', icon: '✨' },
-				{ href: '/admin/cardstyle', label: 'Cards & Hover', icon: '🃏' },
-				{ href: '/admin/animations', label: 'Animaciones', icon: '🎬' },
-				{ href: '/admin/brand', label: 'Brand & Layout', icon: '🏢' },
+				{ href: '/admin/theme', label: 'Colores & Fuentes', icon: 'palette', shortcut: 'Ctrl+T' },
+				{ href: '/admin/effects', label: 'Effects & Glow', icon: 'sparkles' },
+				{ href: '/admin/cardstyle', label: 'Cards & Hover', icon: 'layers' },
+				{ href: '/admin/animations', label: 'Animaciones', icon: 'film' },
+				{ href: '/admin/brand', label: 'Brand & Layout', icon: 'building' },
 			]
 		},
 		{
 			label: 'Ventas',
 			items: [
-				{ href: '/admin/analytics', label: 'Analytics', icon: '📈' },
-				{ href: '/admin/customers', label: 'Clientes', icon: '👥' },
-				{ href: '/admin/users', label: 'Usuarios', icon: '👤' },
-				{ href: '/admin/discounts', label: 'Descuentos', icon: '🏷️' },
-				{ href: '/admin/contracts', label: 'Contratos', icon: '📄' },
-				{ href: '/admin/contracts/editor', label: 'Editor', icon: '✏️' },
-				{ href: '/admin/emails', label: 'Emails', icon: '✉️' },
-				{ href: '/admin/comments', label: 'Comentarios', icon: '💬' },
-				{ href: '/admin/notifications', label: 'Notificaciones', icon: '🔔' },
+				{ href: '/admin/analytics', label: 'Analytics', icon: 'barChart' },
+				{ href: '/admin/customers', label: 'Clientes', icon: 'users' },
+				{ href: '/admin/users', label: 'Usuarios', icon: 'user' },
+				{ href: '/admin/discounts', label: 'Descuentos', icon: 'tag' },
+				{ href: '/admin/contracts', label: 'Contratos', icon: 'fileText' },
+				{ href: '/admin/contracts/editor', label: 'Editor', icon: 'edit' },
+				{ href: '/admin/emails', label: 'Emails', icon: 'mail' },
+				{ href: '/admin/comments', label: 'Comentarios', icon: 'messageSquare' },
+				{ href: '/admin/notifications', label: 'Notificaciones', icon: 'bell' },
 			]
 		},
 		{
 			label: 'Sistema',
 			items: [
-				{ href: '/admin/features', label: 'Features & Log', icon: '⚡' },
-				{ href: '/admin/emojis', label: 'Emojis', icon: '😀' },
+				{ href: '/admin/features', label: 'Features & Log', icon: 'zap' },
+				{ href: '/admin/emojis', label: 'Emojis', icon: 'smile' },
 			]
 		}
 	];
@@ -240,106 +251,115 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <div class="admin-layout">
-	{#if authState.loading}
-		<div class="auth-loading">
-			<div class="auth-spinner"></div>
-			<span>Conectando...</span>
+	{#if !authAuthorized && !authDenied}
+		<!-- Auth check in progress — show full-screen loading, NO admin content -->
+		<div class="auth-guard-screen">
+			<div class="auth-guard-spinner"></div>
+			<span class="auth-guard-text">Verificando acceso...</span>
+		</div>
+	{:else if authDenied}
+		<!-- Auth failed — redirect in progress -->
+		<div class="auth-guard-screen">
+			<div class="auth-guard-spinner"></div>
+			<span class="auth-guard-text">Redirigiendo...</span>
 		</div>
 	{:else if authState.error}
 		<div class="auth-error" role="alert">
 			⚠️ Error de autenticación: {authState.error}
 		</div>
-	{/if}
-	<AdminTopbar {brandName} saveStatus={currentSaveStatus} pendingCount={pendingWritesCount} {previewOpen} adminTheme={currentAdminTheme} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar} onTogglePreview={togglePreview} onToggleTheme={() => adminTheme.toggle()} onOpenPalette={() => (paletteOpen = true)}>
-		<span class="admin-section-label">{sectionLabel}</span>
-	</AdminTopbar>
+	{:else}
+		<!-- Auth verified & authorized — render admin UI -->
+		<AdminTopbar {brandName} saveStatus={currentSaveStatus} pendingCount={pendingWritesCount} {previewOpen} adminTheme={currentAdminTheme} onSave={() => { if (currentSaveStatus === 'saving') { toast.show('Guardando...'); } else { toast.success('Guardado ✓'); } }} onUndo={undoEnabled ? undoField : undefined} onRedo={redoEnabled ? redoField : undefined} onToggleSidebar={toggleSidebar} onTogglePreview={togglePreview} onToggleTheme={() => adminTheme.toggle()} onOpenPalette={() => (paletteOpen = true)}>
+			<span class="admin-section-label">{sectionLabel}</span>
+		</AdminTopbar>
 
-	{#if breadcrumbs.length > 1}
-		<nav class="breadcrumb" aria-label="Navegación">
-			{#each breadcrumbs as crumb, i}
-				{#if i > 0}<span class="bc-sep">/</span>{/if}
-				{#if i < breadcrumbs.length - 1}
-					<a href={crumb.href} class="bc-link">{crumb.label}</a>
-				{:else}
-					<span class="bc-current">{crumb.label}</span>
-				{/if}
+		{#if breadcrumbs.length > 1}
+			<nav class="breadcrumb" aria-label="Navegación">
+				{#each breadcrumbs as crumb, i}
+					{#if i > 0}<span class="bc-sep">/</span>{/if}
+					{#if i < breadcrumbs.length - 1}
+						<a href={crumb.href} class="bc-link">{crumb.label}</a>
+					{:else}
+						<span class="bc-current">{crumb.label}</span>
+					{/if}
+				{/each}
+			</nav>
+		{/if}
+
+		<CommandPalette bind:open={paletteOpen} />
+		<AdminOnboard />
+
+		<div class="admin-body">
+			{#if sidebarOpen}
+				<div class="sidebar-backdrop" onclick={closeSidebar} onkeydown={(e) => e.key === 'Escape' && closeSidebar()} role="button" tabindex="-1" aria-label="Cerrar menú"></div>
+			{/if}
+			<aside class="sidebar" class:open={sidebarOpen} class:collapsed={sidebarCollapsed}>
+				<button class="sidebar-collapse-btn" onclick={toggleSidebarCollapsed} title={sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'} aria-label={sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}>
+					<span class="collapse-icon" class:rotated={sidebarCollapsed}>◀</span>
+				</button>
+				{#each navGroups as group, gi}
+					{#if gi > 0}
+						<div class="sep"></div>
+					{/if}
+					<div class="group-label">{group.label}</div>
+					{#each group.items as item}
+						{@const isActive = item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
+						<a
+							href={item.href}
+							class="si"
+							class:active={isActive}
+							aria-current={isActive ? 'page' : undefined}
+							title={sidebarCollapsed ? item.label : ''}
+							onclick={closeSidebar}
+						>
+							<span class="si-icon"><Icon name={item.icon} size={16} /></span>
+							<span class="si-label">{item.label}</span>
+							{#if item.shortcut && !sidebarCollapsed}
+								<span class="si-shortcut">{item.shortcut}</span>
+							{/if}
+						</a>
+					{/each}
+				{/each}
+			</aside>
+
+			<main class="admin-content" class:preview-open={previewOpen}>
+				{@render children()}
+			</main>
+
+			{#if previewOpen}
+				<div class="preview-panel">
+					<div class="preview-header">
+						<span class="preview-label">👁 Preview en vivo</span>
+						<div class="preview-actions">
+							<button class="preview-btn" onclick={() => window.open('/', '_blank')} title="Abrir en nueva pestaña">↗</button>
+							<button class="preview-btn" onclick={togglePreview} title="Cerrar preview" aria-label="Cerrar preview">✕</button>
+						</div>
+					</div>
+					<iframe src="/" class="preview-iframe" title="Vista previa de la tienda"></iframe>
+				</div>
+			{/if}
+		</div>
+
+		<!-- Mobile bottom nav (reduced to key sections) -->
+		<nav class="bottom-nav">
+			{#each [
+				{ href: '/admin', label: 'Home', icon: 'layoutDashboard' },
+				{ href: '/admin/beats', label: 'Beats', icon: 'music' },
+				{ href: '/admin/hero', label: 'Hero', icon: 'home' },
+				{ href: '/admin/theme', label: 'Tema', icon: 'palette' },
+				{ href: '/admin/brand', label: 'Brand', icon: 'building' }
+			] as item}
+				<a
+					href={item.href}
+					class="bn-item"
+					class:active={item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
+				>
+					<span class="bn-icon"><Icon name={item.icon} size={18} /></span>
+					<span class="bn-label">{item.label}</span>
+				</a>
 			{/each}
 		</nav>
 	{/if}
-
-	<CommandPalette bind:open={paletteOpen} />
-	<AdminOnboard />
-
-	<div class="admin-body">
-		{#if sidebarOpen}
-			<div class="sidebar-backdrop" onclick={closeSidebar} onkeydown={(e) => e.key === 'Escape' && closeSidebar()} role="button" tabindex="-1" aria-label="Cerrar menú"></div>
-		{/if}
-		<aside class="sidebar" class:open={sidebarOpen} class:collapsed={sidebarCollapsed}>
-			<button class="sidebar-collapse-btn" onclick={toggleSidebarCollapsed} title={sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'} aria-label={sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}>
-				<span class="collapse-icon" class:rotated={sidebarCollapsed}>◀</span>
-			</button>
-			{#each navGroups as group, gi}
-				{#if gi > 0}
-					<div class="sep"></div>
-				{/if}
-				<div class="group-label">{group.label}</div>
-				{#each group.items as item}
-					{@const isActive = item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
-					<a
-						href={item.href}
-						class="si"
-						class:active={isActive}
-						aria-current={isActive ? 'page' : undefined}
-						title={sidebarCollapsed ? item.label : ''}
-						onclick={closeSidebar}
-					>
-						<span class="si-icon">{item.icon}</span>
-						<span class="si-label">{item.label}</span>
-						{#if item.shortcut && !sidebarCollapsed}
-							<span class="si-shortcut">{item.shortcut}</span>
-						{/if}
-					</a>
-				{/each}
-			{/each}
-		</aside>
-
-		<main class="admin-content" class:preview-open={previewOpen}>
-			{@render children()}
-		</main>
-
-		{#if previewOpen}
-			<div class="preview-panel">
-				<div class="preview-header">
-					<span class="preview-label">👁 Preview en vivo</span>
-					<div class="preview-actions">
-						<button class="preview-btn" onclick={() => window.open('/', '_blank')} title="Abrir en nueva pestaña">↗</button>
-						<button class="preview-btn" onclick={togglePreview} title="Cerrar preview" aria-label="Cerrar preview">✕</button>
-					</div>
-				</div>
-				<iframe src="/" class="preview-iframe" title="Vista previa de la tienda"></iframe>
-			</div>
-		{/if}
-	</div>
-
-	<!-- Mobile bottom nav (reduced to key sections) -->
-	<nav class="bottom-nav">
-		{#each [
-			{ href: '/admin', label: 'Home', icon: '📊' },
-			{ href: '/admin/beats', label: 'Beats', icon: '🎵' },
-			{ href: '/admin/hero', label: 'Hero', icon: '🏠' },
-			{ href: '/admin/theme', label: 'Tema', icon: '🎨' },
-			{ href: '/admin/brand', label: 'Brand', icon: '🏢' }
-		] as item}
-			<a
-				href={item.href}
-				class="bn-item"
-				class:active={item.href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(item.href)}
-			>
-				<span class="bn-icon">{item.icon}</span>
-				<span class="bn-label">{item.label}</span>
-			</a>
-		{/each}
-	</nav>
 </div>
 
 <style>
@@ -703,25 +723,31 @@
 		}
 	}
 
-	.auth-loading {
+	/* Auth guard: full-screen loading until auth verified */
+	.auth-guard-screen {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: var(--space-3);
-		padding: var(--space-4);
-		background: var(--surface);
-		border-bottom: 1px solid var(--border);
-		color: var(--text-secondary);
-		font-size: var(--text-sm);
+		gap: var(--space-4);
+		height: 100dvh;
+		background: var(--bg);
 	}
 
-	.auth-spinner {
-		width: 16px;
-		height: 16px;
-		border: 2px solid var(--border);
+	.auth-guard-spinner {
+		width: 28px;
+		height: 28px;
+		border: 3px solid var(--border);
 		border-top-color: var(--accent);
 		border-radius: 50%;
 		animation: spin 0.6s linear infinite;
+	}
+
+	.auth-guard-text {
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+		letter-spacing: 0.04em;
 	}
 
 	@keyframes spin {

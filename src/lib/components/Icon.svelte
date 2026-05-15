@@ -34,6 +34,23 @@
 	import SkipForward from 'lucide-svelte/icons/skip-forward';
 	import ShoppingCart from 'lucide-svelte/icons/shopping-cart';
 	import Bell from 'lucide-svelte/icons/bell';
+	import LayoutDashboard from 'lucide-svelte/icons/layout-dashboard';
+	import Image from 'lucide-svelte/icons/image';
+	import MessageSquare from 'lucide-svelte/icons/message-square';
+	import Drum from 'lucide-svelte/icons/drum';
+	import Home from 'lucide-svelte/icons/home';
+	import Sparkles from 'lucide-svelte/icons/sparkles';
+	import Palette from 'lucide-svelte/icons/palette';
+	import Layers from 'lucide-svelte/icons/layers';
+	import Building2 from 'lucide-svelte/icons/building-2';
+	import BarChart3 from 'lucide-svelte/icons/bar-chart-3';
+	import Users from 'lucide-svelte/icons/users';
+	import User from 'lucide-svelte/icons/user';
+	import FileText from 'lucide-svelte/icons/file-text';
+	import Mail from 'lucide-svelte/icons/mail';
+	import Zap from 'lucide-svelte/icons/zap';
+	import Smile from 'lucide-svelte/icons/smile';
+	import Film from 'lucide-svelte/icons/film';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const lucideMap: Record<string, any> = {
@@ -69,6 +86,23 @@
 		skipForward: SkipForward,
 		shoppingCart: ShoppingCart,
 		bell: Bell,
+		layoutDashboard: LayoutDashboard,
+		image: Image,
+		messageSquare: MessageSquare,
+		drum: Drum,
+		home: Home,
+		sparkles: Sparkles,
+		palette: Palette,
+		layers: Layers,
+		building: Building2,
+		barChart: BarChart3,
+		users: Users,
+		user: User,
+		fileText: FileText,
+		mail: Mail,
+		zap: Zap,
+		smile: Smile,
+		film: Film,
 	};
 
 	// Brand icons — no Lucide equivalent, kept as inline SVG

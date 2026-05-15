@@ -177,7 +177,7 @@
 		if (url) {
 			const link = document.createElement('link');
 			link.rel = 'preload';
-			link.as = 'audio';
+			link.as = 'media';
 			link.href = url;
 			if (!document.querySelector(`link[href="${url}"]`)) {
 				document.head.appendChild(link);
@@ -525,7 +525,7 @@
 		position: absolute;
 		top: 50%;
 		left: 50%;
-		transform: translate(-50%, -50%) scale(0.8);
+		transform: translate(-50%, -50%) scale(0.85);
 		width: 48px;
 		height: 48px;
 		border-radius: 50%;
@@ -536,7 +536,7 @@
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		opacity: 0;
+		opacity: 0.35;
 		transition: all var(--duration-normal) var(--ease-out);
 		box-shadow: var(--glow-accent);
 		z-index: 2;

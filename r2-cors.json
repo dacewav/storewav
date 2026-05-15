@@ -1,0 +1,13 @@
+[
+  {
+    "AllowedOrigins": [
+      "https://dacewav.store",
+      "https://www.dacewav.store",
+      "http://localhost:5173",
+      "http://localhost:4173"
+    ],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedHeaders": ["*"],
+    "MaxAgeSeconds": 86400
+  }
+]

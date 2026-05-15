@@ -337,7 +337,7 @@
 		{/each}
 	</div>
 	{/if}
-	{#if beats.length > 0}
+	{#if beats.length >= 3}
 	<div class="hero-stats">
 		<div class="stat">
 			<div class="stat-num" use:countUp={beats.length || 0}>0</div>

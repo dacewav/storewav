@@ -11,4 +11,7 @@ export type IconName =
 	| 'settings' | 'edit' | 'trash' | 'plus' | 'undo' | 'redo'
 	| 'save' | 'export' | 'share' | 'import' | 'logout'
 	| 'skipBack' | 'skipForward' | 'shoppingCart' | 'bell'
+	| 'layoutDashboard' | 'image' | 'messageSquare' | 'drum' | 'home'
+	| 'sparkles' | 'palette' | 'layers' | 'building' | 'barChart'
+	| 'users' | 'user' | 'fileText' | 'mail' | 'zap' | 'smile' | 'film'
 	| 'whatsapp' | 'instagram' | 'youtube';

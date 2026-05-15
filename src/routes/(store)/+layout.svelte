@@ -245,25 +245,32 @@
 		// Initialize custom emojis for store rendering
 		initCustomEmojis();
 
-		// Loader: fade ONLY when settings load from Firebase, with 8s safety timeout
+		// Loader: fade ONLY when settings load from Firebase, with 5s safety timeout
 		function startLoaderFade() {
 			if (loaderFading) return;
 			loaderFading = true;
 			setTimeout(() => { loaderVisible = false; }, 500);
 		}
 
-		// Safety timeout: fade loader after 8s even if settings never load
+		// Show "Conectando..." message after 3s
+		let loaderSlow = $state(false);
+		const loaderSlowTimeout = setTimeout(() => {
+			if (loaderVisible) loaderSlow = true;
+		}, 3000);
+
+		// Safety timeout: fade loader after 5s even if settings never load
 		const loaderSafetyTimeout = setTimeout(() => {
 			if (loaderVisible) {
-				console.warn('[Loader] Safety timeout — settings did not load in 8s');
+				console.warn('[Loader] Safety timeout — settings did not load in 5s');
 				startLoaderFade();
 			}
-		}, 8000);
+		}, 5000);
 
 		// Fade when settings load from Firebase
 		const unsubSettings = settings.subscribe((s) => {
 			if (s.data && !s.loading) {
 				clearTimeout(loaderSafetyTimeout);
+				clearTimeout(loaderSlowTimeout);
 				startLoaderFade();
 			}
 		});
@@ -441,6 +448,9 @@
 {#if loaderEnabled && loaderVisible}
 <div id="loader" class:fading={loaderFading}>
 	<div class="loader-spinner"></div>
+	{#if loaderSlow}
+		<span class="loader-slow-msg">Conectando...</span>
+	{/if}
 </div>
 {/if}
 

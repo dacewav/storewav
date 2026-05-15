@@ -349,7 +349,7 @@ body::before {
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.12) 0%, transparent 70%);
   transform: translate(-50%, -50%);
   transition: opacity 0.3s;
   opacity: 0;
@@ -447,8 +447,10 @@ body:hover #cursor-glow {
   z-index: var(--z-loader);
   background: var(--bg);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--space-4);
   transition: opacity 0.5s ease;
 }
 
@@ -464,6 +466,19 @@ body:hover #cursor-glow {
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: loaderSpin 0.7s linear infinite;
+}
+
+.loader-slow-msg {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  animation: loaderFadeIn 0.4s ease;
+}
+
+@keyframes loaderFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes loaderSpin {
@@ -725,9 +740,9 @@ body:hover #cursor-glow {
   --surface-active: #e0e0e0;
 
   --text: #0a0a0a;
-  --text-secondary: rgba(10, 10, 10, 0.55);
-  --text-muted: rgba(10, 10, 10, 0.25);
-  --text-hint: rgba(10, 10, 10, 0.15);
+  --text-secondary: rgba(10, 10, 10, 0.7);
+  --text-muted: rgba(10, 10, 10, 0.4);
+  --text-hint: rgba(10, 10, 10, 0.22);
 
   --border: rgba(0, 0, 0, 0.08);
   --border2: rgba(0, 0, 0, 0.15);

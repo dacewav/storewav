@@ -12,8 +12,10 @@ export function generateSlug(name: string): string {
 		.replace(/[^a-z0-9\s-]/g, '') // Remove special chars
 		.replace(/\s+/g, '-') // Spaces to hyphens
 		.replace(/-+/g, '-') // Collapse multiple hyphens
-		.replace(/^-|-$/g, '') // Trim leading/trailing hyphens
-		.slice(0, 80); // Max length
+		.replace(/^-+/, '') // Trim leading hyphens
+		.replace(/-+$/, '') // Trim trailing hyphens (applied AFTER collapse)
+		.slice(0, 80) // Max length
+		.replace(/-+$/, ''); // Final trim after slice (in case slice cut mid-word)
 }
 
 /** Get the slug for a beat (uses name) */
