@@ -21,6 +21,7 @@
 	let lastScrollY = $state(0);
 	let loaderVisible = $state(true);
 	let loaderFading = $state(false);
+	let loaderSlow = $state(false);
 	let cursorX = $state(-500);
 	let cursorY = $state(-500);
 	let cursorLerpX = $state(-500);
@@ -253,7 +254,6 @@
 		}
 
 		// Show "Conectando..." message after 3s
-		let loaderSlow = $state(false);
 		const loaderSlowTimeout = setTimeout(() => {
 			if (loaderVisible) loaderSlow = true;
 		}, 3000);
