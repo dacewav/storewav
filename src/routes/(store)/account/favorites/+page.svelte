@@ -5,6 +5,7 @@
 	import type { LabelSettings } from '$lib/stores/settings';
 	import { BeatCard, EmptyState, Skeleton } from '$lib/components';
 	import { staggerReveal } from '$lib/actions';
+	import { getBeatSlug } from '$lib/slug';
 
 	let authState = $derived($auth);
 	let uid = $derived(authState.user?.uid);
@@ -60,7 +61,7 @@
 				<BeatCard
 					{beat}
 					onplay={() => handlePlay(beat)}
-					onclick={() => goto(`/beat/${beat.id}`)}
+					onclick={() => goto(`/beat/${getBeatSlug(beat)}`)}
 					labelFrom={labels.priceFrom ?? 'Desde'}
 				/>
 			{/each}

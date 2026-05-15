@@ -3,6 +3,7 @@
 	import { cart, cartCount, cartTotalMXN, cartTotalUSD, settings, analytics, allBeatsList } from '$lib/stores';
 	import type { CartItem } from '$lib/stores/cart';
 	import { Icon, EmptyState } from '$lib/components';
+	import { getBeatSlug } from '$lib/slug';
 
 	let s = $derived($settings.data);
 	let items = $derived($cart);
@@ -166,7 +167,7 @@
 							{/if}
 						</div>
 						<div class="item-info">
-							<a href={item.beatId.startsWith('kit-') ? `/kit/${item.beatId.slice(4)}` : `/beat/${item.beatId}`} class="item-name" class:invalid-name={isInvalid}>{item.beatName}</a>
+							<a href={item.beatId.startsWith('kit-') ? `/kit/${item.beatId.slice(4)}` : (() => { const b = allBeats.find(x => x.id === item.beatId); return b ? `/beat/${getBeatSlug(b)}` : `/beat/${item.beatId}`; })()} class="item-name" class:invalid-name={isInvalid}>{item.beatName}</a>
 							<span class="item-license">{item.licenseName}</span>
 							{#if isInvalid}
 								<span class="item-invalid-badge">No disponible</span>

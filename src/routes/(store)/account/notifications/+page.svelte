@@ -6,9 +6,12 @@
 	import { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, initNotifications, destroyNotifications } from '$lib/stores/notifications';
 	import { auth, settings } from '$lib/stores';
 	import { goto } from '$app/navigation';
+	import { getBeatSlug } from '$lib/slug';
+	import { beatsList } from '$lib/stores';
 
 	let loading = $state(true);
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
+	let beats = $derived($beatsList);
 
 	onMount(() => {
 		const unsub = auth.subscribe((state) => {
@@ -50,7 +53,10 @@
 
 	async function handleClick(n: { id: string; beatId?: string; read: boolean }) {
 		if (!n.read) await markAsRead(n.id);
-		if (n.beatId) goto(`/beat/${n.beatId}`);
+		if (n.beatId) {
+			const beat = beats.find(b => b.id === n.beatId);
+			goto(beat ? `/beat/${getBeatSlug(beat)}` : `/beat/${n.beatId}`);
+		}
 	}
 </script>
 
