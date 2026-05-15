@@ -141,6 +141,9 @@
 
 	// Accent RGB for dynamic styles (shared store)
 	let accentRgb = $derived($accentRgbStore);
+
+	// Waveform progress for ARIA attributes
+	let waveformPct = $derived($player.duration > 0 ? Math.round(($player.currentTime / $player.duration) * 100) : 0);
 </script>
 
 <svelte:head>
@@ -238,6 +241,9 @@
 					class="beat-waveform"
 					role="slider"
 					aria-label="Posición de audio"
+					aria-valuemin={0}
+					aria-valuemax={100}
+					aria-valuenow={waveformPct}
 					tabindex="0"
 					onclick={(e) => {
 						const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -440,7 +446,8 @@
 {#if beat && beat.licenses?.length && selectedLicense >= 0 && beat.licenses[selectedLicense]}
 	{@const lic = beat.licenses[selectedLicense]}
 	{@const isInCart = $cart.some(c => c.beatId === beat.id && c.licenseIndex === selectedLicense)}
-	<div class="sticky-purchase-bar">
+	{@const hasPlayer = $player.beatId !== null}
+	<div class="sticky-purchase-bar" style={hasPlayer ? 'bottom: 72px' : ''}>
 		<div class="sp-info">
 			<span class="sp-name">{lic.name}</span>
 			<span class="sp-price">${lic.priceMXN}</span>

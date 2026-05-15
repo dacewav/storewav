@@ -136,16 +136,25 @@ function ensureAudioContext(): boolean {
 }
 
 /**
- * Get the shared AnalyserNode (read-only, does NOT create).
- * Returns null if AudioContext hasn't been initialized yet.
+ * Get a dedicated AnalyserNode for a component.
+ * Each caller gets its own analyser with the correct fftSize,
+ * connected to the shared source node. Returns null if AudioContext
+ * hasn't been initialized yet.
  */
 export function getSharedAnalyser(fftBars: number): AnalyserNode | null {
-	if (!sharedAnalyser) return null;
-	// fftSize must be a power of two
-	const desired = fftBars * 4;
-	const pow2 = Math.pow(2, Math.round(Math.log2(desired)));
-	sharedAnalyser.fftSize = Math.max(32, Math.min(2048, pow2));
-	return sharedAnalyser;
+	if (!sharedAudioCtx || !sharedSourceNode) return null;
+	try {
+		// Create a dedicated analyser per component (avoids fftSize conflicts)
+		const analyser = sharedAudioCtx.createAnalyser();
+		const desired = fftBars * 4;
+		const pow2 = Math.pow(2, Math.round(Math.log2(desired)));
+		analyser.fftSize = Math.max(32, Math.min(2048, pow2));
+		analyser.smoothingTimeConstant = 0.75;
+		sharedSourceNode.connect(analyser);
+		return analyser;
+	} catch {
+		return null;
+	}
 }
 
 function play(beat: { id: string; name: string; artist: string; imageUrl: string; audioUrl: string; genre?: string }, retries = 2) {

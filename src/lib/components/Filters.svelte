@@ -105,6 +105,8 @@
 
 	function clearAll() {
 		filters = { search: '', genre: '', key: '', sort: 'newest', tags: [], priceMin: 0, priceMax: 0 };
+		localPriceMin = 0;
+		localPriceMax = 0;
 		onchange?.(filters);
 	}
 

@@ -75,7 +75,10 @@
 
 	// Admin theme
 	let currentAdminTheme = $state<'dark' | 'light'>('dark');
-	onMount(() => adminTheme.subscribe((t) => (currentAdminTheme = t)));
+	onMount(() => {
+		const unsub = adminTheme.subscribe((t) => (currentAdminTheme = t));
+		return unsub;
+	});
 
 	// Toast on save status changes
 	let lastStatus = $state('');

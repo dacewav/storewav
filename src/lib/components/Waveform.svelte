@@ -95,14 +95,21 @@
 			return;
 		}
 
-		const data = new Uint8Array(analyser.frequencyBinCount);
+		const binCount = analyser.frequencyBinCount;
+		if (binCount === 0) {
+			liveHeights = Array(bars).fill(0.05);
+			rafId = requestAnimationFrame(tickLive);
+			return;
+		}
+
+		const data = new Uint8Array(binCount);
 		analyser.getByteFrequencyData(data);
 
-		const step = Math.floor(data.length / bars);
+		const step = Math.max(1, Math.floor(data.length / bars));
 		liveHeights = Array.from({ length: bars }, (_, i) => {
 			let sum = 0;
 			for (let j = 0; j < step; j++) {
-				sum += data[i * step + j];
+				sum += data[i * step + j] ?? 0;
 			}
 			return 0.05 + (sum / step / 255) * 0.95;
 		});
