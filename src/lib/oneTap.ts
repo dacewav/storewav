@@ -46,18 +46,19 @@ export async function initOneTap(
 	if (!browser || initialized || !clientId) return;
 
 	try {
-		// Try FedCM first (modern browsers)
+		// Try FedCM first (modern browsers) — silent fallback if not available
 		if (hasFedCMSupport()) {
 			if (dev) console.log('[OneTap] FedCM supported, using native API');
 			await initFedCM(onCredential, clientId);
 			return;
 		}
 
-		// Fallback to GSI (legacy)
-		if (dev) console.log('[OneTap] FedCM not supported, falling back to GSI');
-		await initGSI(onCredential, clientId);
+		// No FedCM — skip GSI (produces noisy console errors when user isn't signed in)
+		if (dev) console.log('[OneTap] FedCM not supported, skipping One Tap');
+		initialized = true;
 	} catch (err) {
 		if (dev) console.error('[OneTap] Init failed:', err);
+		initialized = true;
 	}
 }
 
@@ -88,12 +89,13 @@ async function initFedCM(
 			initialized = true;
 		} else {
 			if (dev) console.log('[OneTap] FedCM: no credential returned (user not signed in or declined)');
-			// Fall back to GSI for active prompt
-			await initGSI(onCredential, clientId);
+			// Don't fall back to GSI — it produces noisy console errors when user isn't signed in
+			initialized = true;
 		}
-	} catch (err) {
-		if (dev) console.warn('[OneTap] FedCM failed, falling back to GSI:', err);
-		await initGSI(onCredential, clientId);
+	} catch {
+		// FedCM failed (user not signed in, browser blocked it, etc.) — silent in production
+		if (dev) console.log('[OneTap] FedCM not available or user not signed in');
+		initialized = true;
 	}
 }
 

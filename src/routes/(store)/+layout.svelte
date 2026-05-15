@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { onNavigate, goto } from '$app/navigation';
 	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis, cartCount, unreadCount } from '$lib/stores';
-	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji, AuthButton } from '$lib/components';
+	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji, AuthButton, OfflineBanner } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { initLikes, destroyLikes } from '$lib/stores/likes';
 	import { initWishlistSync, destroyWishlistSync } from '$lib/stores/wishlist';
@@ -679,6 +679,7 @@
 	emptyTitle={settingsData?.labels?.wishlistEmptyTitle ?? 'Sin favoritos'}
 	emptySub={settingsData?.labels?.wishlistEmptySub ?? 'Añade beats a tu lista para verlos aquí'}
 />
+<OfflineBanner />
 <ToastContainer />
 
 <style>

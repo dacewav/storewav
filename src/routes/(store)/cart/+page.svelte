@@ -281,6 +281,19 @@
 	{/if}
 </div>
 
+<!-- Sticky mobile checkout bar -->
+{#if count > 0}
+	<div class="mobile-checkout-bar">
+		<div class="mcb-info">
+			<span class="mcb-count">{count} item{count !== 1 ? 's' : ''}</span>
+			<span class="mcb-total">${totalMXN} MXN</span>
+		</div>
+		<button class="mcb-btn" onclick={handleCheckout} disabled={checkingOut}>
+			{checkingOut ? 'Procesando...' : 'Pagar con Stripe'}
+		</button>
+	</div>
+{/if}
+
 <style>
 	.cart-page {
 		padding: var(--space-6) var(--container-padding) var(--space-16);
@@ -807,6 +820,91 @@
 
 		.item-price {
 			align-items: flex-start;
+		}
+	}
+
+	/* ── Mobile Checkout Bar ── */
+	.mobile-checkout-bar {
+		display: none;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: var(--z-nav);
+		background: var(--bg);
+		border-top: 1px solid var(--border);
+		padding: var(--space-3) var(--container-padding);
+		padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+		backdrop-filter: blur(16px);
+		gap: var(--space-3);
+		align-items: center;
+		animation: slideUp 0.25s var(--ease-out);
+	}
+
+	@keyframes slideUp {
+		from { transform: translateY(100%); opacity: 0; }
+		to { transform: translateY(0); opacity: 1; }
+	}
+
+	.mcb-info {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: var(--space-2);
+	}
+
+	.mcb-count {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-secondary);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.mcb-total {
+		font-family: var(--font-display);
+		font-size: var(--text-lg);
+		font-weight: 800;
+		color: var(--accent);
+	}
+
+	.mcb-btn {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--space-3);
+		background: var(--accent);
+		color: var(--bg);
+		border: none;
+		border-radius: var(--radius-lg);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		cursor: pointer;
+		min-height: 48px;
+		transition: all var(--duration-normal) var(--ease-out);
+	}
+
+	.mcb-btn:hover:not(:disabled) {
+		background: var(--accent-dim);
+		box-shadow: var(--glow-sm);
+	}
+
+	.mcb-btn:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	@media (max-width: 900px) {
+		.mobile-checkout-bar {
+			display: block;
+		}
+
+		/* Add bottom padding so content isn't hidden behind sticky bar */
+		.cart-page {
+			padding-bottom: calc(var(--space-16) + 120px);
 		}
 	}
 </style>

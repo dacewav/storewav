@@ -171,6 +171,19 @@
 	class:lazy-placeholder={lazy && !isVisible}
 	use:tilt={{ max: 6 }}
 	onclick={() => onclick?.(beat)}
+	onmouseenter={() => {
+		// Preload audio metadata on hover for instant playback
+		const url = beat.audioUrl || beat.previewUrl;
+		if (url) {
+			const link = document.createElement('link');
+			link.rel = 'preload';
+			link.as = 'audio';
+			link.href = url;
+			if (!document.querySelector(`link[href="${url}"]`)) {
+				document.head.appendChild(link);
+			}
+		}
+	}}
 	onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onclick?.(beat); } }}
 	role="button"
 	tabindex="0"

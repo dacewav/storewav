@@ -176,7 +176,7 @@
 	});
 
 	// Live preview
-	let previewCSS = $derived(cardStyleToCSS({ ...value } as any, accentRgb));
+	let previewCSS = $derived(cardStyleToCSS(value as CardStyleConfig, accentRgb));
 	let allKeyframes = $derived(getAllKeyframes());
 
 	// Shorthand

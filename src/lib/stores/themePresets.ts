@@ -86,7 +86,7 @@ function createThemePresetsStore() {
 				return false;
 			}
 			// Apply theme via settings store
-			await settings.set({ theme: preset.theme } as any);
+			await settings.update({ theme: preset.theme });
 			toast.success(`Tema "${preset.name}" aplicado`);
 			return true;
 		} catch (e) {
