@@ -100,7 +100,12 @@ export async function initWishlistSync(uid: string | null) {
 					const newIds = localIds.filter(id => !firebaseIds.includes(id));
 					if (newIds.length > 0) {
 						// Merge anonymous items into Firebase
-						const mergedData: Record<string, { addedAt: number }> = { ...firebaseData } as any;
+						const mergedData: Record<string, { addedAt: number }> = {};
+						if (firebaseData) {
+							for (const [k, v] of Object.entries(firebaseData)) {
+								mergedData[k] = { addedAt: v.addedAt ?? Date.now() };
+							}
+						}
 						for (const id of newIds) {
 							mergedData[id] = { addedAt: Date.now() };
 						}

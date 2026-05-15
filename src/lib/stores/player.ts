@@ -53,7 +53,8 @@ let audioListenersAttached = false;
 function getAudio(): HTMLAudioElement | null {
 	if (!audio && browser) {
 		audio = new Audio();
-		audio.crossOrigin = 'anonymous'; // R2 CORS configured — enables Web Audio API
+		// DON'T set crossOrigin — it causes CORS preflight that blocks audio entirely on CDNs without CORS.
+		// Waveform uses static mode until CORS is configured on the CDN.
 		audio.volume = loadVolume();
 		attachAudioListeners();
 	}
@@ -79,7 +80,7 @@ function onEnded() {
 
 function onError() {
 	store.update((s) => ({ ...s, playing: false }));
-	console.warn('[Player] Error de audio — posible problema de red');
+	console.warn('[Player] Error de audio — posible problema de red o CORS');
 }
 
 function attachAudioListeners() {
@@ -110,7 +111,10 @@ let sharedSourceNode: MediaElementAudioSourceNode | null = null;
  * Ensure the shared AudioContext + AnalyserNode exists.
  * MUST be called from a user gesture context (click handler)
  * so the AudioContext is not suspended.
- * Returns true if analyser is ready, false if CORS blocks it.
+ *
+ * NOTE: crossOrigin is NOT set here — if the CDN doesn't support CORS,
+ * the waveform gracefully falls back to static mode while audio still plays.
+ * To enable live waveform, configure CORS on the CDN to allow the store origin.
  */
 function ensureAudioContext(): boolean {
 	if (!browser) return false;
@@ -128,7 +132,7 @@ function ensureAudioContext(): boolean {
 		sharedAnalyser.connect(sharedAudioCtx.destination);
 		return true;
 	} catch {
-		// Already connected or CORS blocked — waveform will use static mode
+		// Already connected — waveform will use static mode
 		sharedAnalyser = null;
 		sharedAudioCtx = null;
 		return false;
@@ -158,7 +162,7 @@ export function getSharedAnalyser(fftBars: number): AnalyserNode | null {
 }
 
 function play(beat: { id: string; name: string; artist: string; imageUrl: string; audioUrl: string; genre?: string }, retries = 2) {
-	const a = getAudio();
+	let a = getAudio();
 	if (!a) return; // SSR guard
 
 	// Si no hay audioUrl, no intentar reproducir
@@ -168,7 +172,8 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 		return;
 	}
 
-	// Init Web Audio API on user gesture (play click)
+	// Init Web Audio API on user gesture (play click) — MUST happen before setting playing=true
+	// so the waveform effect finds the analyser ready
 	ensureAudioContext();
 	if (sharedAudioCtx?.state === 'suspended') {
 		sharedAudioCtx.resume();
@@ -221,7 +226,7 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 
 	// Timeout: if metadata doesn't load in 10s, abort
 	const timeoutId = setTimeout(() => {
-		if (a.readyState < 2) { // HAVE_CURRENT_DATA
+		if (a && a.readyState < 2) { // HAVE_CURRENT_DATA
 			a.pause();
 			a.src = '';
 			store.update((s) => ({ ...s, playing: false }));
@@ -233,13 +238,14 @@ function play(beat: { id: string; name: string; artist: string; imageUrl: string
 	const onMetaWithTimeout = () => {
 		clearTimeout(timeoutId);
 		onLoadedMetadata();
-		a.removeEventListener('loadedmetadata', onMetaWithTimeout);
+		a?.removeEventListener('loadedmetadata', onMetaWithTimeout);
 	};
 	a.removeEventListener('loadedmetadata', onLoadedMetadata);
 	a.addEventListener('loadedmetadata', onMetaWithTimeout);
 
 	tryPlay();
 
+	// Set playing state AFTER AudioContext is ready (waveform effect will find analyser)
 	store.update((s) => ({
 		...s,
 		playing: true,

@@ -47,11 +47,8 @@
 	// Current beat — look up by slug first, then by ID (use allBeats so inactive featured beats work)
 	let beat = $derived.by(() => {
 		const param = page.params.id;
-		// Try slug match first
-		const bySlug = allBeats.find(b => {
-			const slug = b.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
-			return slug === param;
-		});
+		// Try slug match first using shared slug function
+		const bySlug = allBeats.find(b => getBeatSlug(b) === param);
 		if (bySlug) return bySlug;
 		// Fallback to ID
 		return allBeats.find(b => b.id === param) ?? null;
@@ -423,7 +420,7 @@
 						<BeatCard
 							beat={rb}
 							onplay={() => handleRelatedPlay(rb)}
-							onclick={() => goto(`/beat/${rb.id}`)}
+							onclick={() => goto(`/beat/${getBeatSlug(rb)}`)}
 							labelFrom={labelFrom}
 						/>
 					{/each}

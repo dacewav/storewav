@@ -381,7 +381,7 @@
 	</div>
 	<div class="recent-scroll">
 		{#each recentBeats as rBeat (rBeat.id)}
-			<button class="recent-card" onclick={() => goto(`/beat/${rBeat.id}`)}>
+			<button class="recent-card" onclick={() => goto(`/beat/${getBeatSlug(rBeat)}`)}>
 				<div class="recent-cover">
 					{#if rBeat.imageUrl}
 						<img src={rBeat.imageUrl} alt={rBeat.name} loading="lazy" decoding="async" />

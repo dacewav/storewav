@@ -40,6 +40,9 @@
 	let barRadius = $derived(rounded ? barW / 2 : 0);
 	let step = $derived(barW + gap);
 
+	// Unique IDs per instance to avoid SVG gradient/filter collisions
+	const uid = Math.random().toString(36).slice(2, 8);
+
 	// ── Static mode ──
 	// Organic heights using overlapping sine waves (more natural than pure hash)
 	const staticHeights: number[] = $derived(
@@ -65,12 +68,22 @@
 	let rafId: number | null = null;
 	let liveActive = $state(false);
 
-	function setupLiveAnalysis() {
+	function setupLiveAnalysis(): (() => void) | void {
 		if (!browser || mode !== 'live') return;
 
 		// Use shared analyser from player store (singleton — no duplicate MediaElementSource)
 		analyser = player.getAnalyser(bars);
-		if (!analyser) return;
+		if (!analyser) {
+			// AudioContext may still be initializing — retry once after a short delay
+			const retryTimeout = setTimeout(() => {
+				analyser = player.getAnalyser(bars);
+				if (analyser) {
+					liveActive = true;
+					tickLive();
+				}
+			}, 150);
+			return () => clearTimeout(retryTimeout);
+		}
 
 		liveActive = true;
 		tickLive();
@@ -130,14 +143,21 @@
 	$effect(() => {
 		if (mode !== 'live' || !browser) return;
 		if (playerState.playing && playerState.audioUrl) {
-			setupLiveAnalysis();
+			const cleanup = setupLiveAnalysis();
+			return () => {
+				if (cleanup) cleanup();
+				teardownLive();
+			};
 		}
 		return () => { teardownLive(); };
 	});
 
 	// Show static waveform when not playing (or in static mode), live heights when playing
+	// In live mode, keep last live heights when paused (don't reset to static)
 	let barHeights: number[] = $derived(
-		mode === 'live' && (isPlaying || liveActive) ? liveHeights : staticHeights
+		mode === 'live' && (isPlaying || liveActive) ? liveHeights
+		: mode === 'live' && liveHeights.length > 0 && liveHeights.some(h => h > 0.06) ? liveHeights
+		: staticHeights
 	);
 	let svgWidth = $derived(bars * step);
 	let progressX = $derived(progress * svgWidth);
@@ -156,12 +176,12 @@
 >
 	<defs>
 		<!-- Gradient for active bars: accent → lighter -->
-		<linearGradient id="wf-grad" x1="0" y1="0" x2="1" y2="0">
+		<linearGradient id="wf-grad-{uid}" x1="0" y1="0" x2="1" y2="0">
 			<stop offset="0%" stop-color={color} stop-opacity="1" />
 			<stop offset="100%" stop-color={color} stop-opacity="0.5" />
 		</linearGradient>
 		<!-- Glow filter for playback position -->
-		<filter id="wf-glow" x="-50%" y="-50%" width="200%" height="200%">
+		<filter id="wf-glow-{uid}" x="-50%" y="-50%" width="200%" height="200%">
 			<feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
 			<feMerge>
 				<feMergeNode in="blur" />
@@ -181,9 +201,9 @@
 			width={barW}
 			height={barH}
 			rx={barRadius}
-			fill={isActive ? 'url(#wf-grad)' : bgColor}
+			fill={isActive ? `url(#wf-grad-${uid})` : bgColor}
 			opacity={isActive ? (isAtCursor ? 1 : 0.9) : 0.4}
-			filter={isAtCursor ? 'url(#wf-glow)' : undefined}
+			filter={isAtCursor ? `url(#wf-glow-${uid})` : undefined}
 			class:wf-bar-active={isActive}
 			class:wf-bar-cursor={isAtCursor}
 		/>

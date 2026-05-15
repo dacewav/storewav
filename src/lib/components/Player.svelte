@@ -47,6 +47,10 @@
 		<!-- Gradient progress track -->
 		<div class="progress-track" role="slider" aria-label="Progreso" aria-valuenow={Math.round(progressVal * 100)} aria-valuemin={0} aria-valuemax={100} tabindex="0"
 			onclick={handleSeek}
+			onkeydown={(e) => {
+				if (e.key === 'ArrowLeft') player.seek(Math.max(0, ps.currentTime - 5));
+				if (e.key === 'ArrowRight') player.seek(Math.min(ps.duration, ps.currentTime + 5));
+			}}
 		>
 			<div class="progress-fill" style="width: {progressVal * 100}%"></div>
 			<div class="progress-glow" style="left: {progressVal * 100}%"></div>

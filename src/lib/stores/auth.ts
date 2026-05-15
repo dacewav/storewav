@@ -35,14 +35,14 @@ const store = writable<AuthState>({ user: null, isAdmin: false, adminChecked: fa
 let unsub: (() => void) | null = null;
 
 /** RTDB get with timeout — prevents hanging when Firebase reconnects post-auth */
-async function getWithTimeout(dbRef: { key: string | null }, timeoutMs = 5000) {
+async function getWithTimeout(dbRef: import('firebase/database').DatabaseReference, timeoutMs = 5000) {
 	const { get } = await import('firebase/database');
 	return new Promise<Awaited<ReturnType<typeof get>> | null>((resolve) => {
 		const timer = setTimeout(() => {
 			console.warn('[Auth] RTDB read timed out after', timeoutMs, 'ms');
 			resolve(null);
 		}, timeoutMs);
-		get(dbRef as any).then((snap) => {
+		get(dbRef).then((snap) => {
 			clearTimeout(timer);
 			resolve(snap);
 		}).catch((err) => {
@@ -83,14 +83,14 @@ async function checkAdmin(uid: string, email?: string | null): Promise<boolean> 
 
 			// Check adminWhitelist/approved/{uid}
 			const approvedSnap = await getWithTimeout(ref(db, `adminWhitelist/approved/${uid}`));
-			if (approvedSnap && (approvedSnap as any).exists()) {
+			if (approvedSnap && typeof approvedSnap.exists === 'function' && approvedSnap.exists()) {
 				if (dev) console.log('[Auth] Admin confirmed via Firebase whitelist');
 				return true;
 			}
 
 			// Fallback: legacy admins/{uid} (backward compat)
 			const legacySnap = await getWithTimeout(ref(db, `admins/${uid}`));
-			if (legacySnap && (legacySnap as any).val() === true) {
+			if (legacySnap && typeof legacySnap.val === 'function' && legacySnap.val() === true) {
 				if (dev) console.log('[Auth] Admin confirmed via legacy admins/');
 				return true;
 			}
