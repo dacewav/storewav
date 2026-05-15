@@ -5,7 +5,7 @@
 	import { toast } from '$lib/toastStore';
 	import { genreGradient } from '$lib/visualUtils';
 	import Icon from './Icon.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import {
 		mergeCardStyles,
 		cardStyleToCSS,
@@ -23,18 +23,46 @@
 		beat,
 		onplay,
 		onclick,
-		labelFrom = 'Desde'
+		labelFrom = 'Desde',
+		lazy = false
 	}: {
 		beat: Beat & { id: string };
 		onplay?: (beat: Beat & { id: string }) => void;
 		onclick?: (beat: Beat & { id: string }) => void;
 		labelFrom?: string;
+		lazy?: boolean;
 	} = $props();
 
 	let inWishlist = $derived(wishlist.isIn(beat.id));
 	let playing = $state(false);
 	let justLiked = $state(false);
 	let isCurrentBeat = $derived($player.beatId === beat.id && $player.playing);
+
+	// Lazy loading: only render image/waveform when visible
+	let isVisible = $state(!lazy);
+	let cardEl: HTMLDivElement | null = $state(null);
+	let observer: IntersectionObserver | null = null;
+
+	onMount(() => {
+		if (lazy && cardEl) {
+			observer = new IntersectionObserver(
+				(entries) => {
+					for (const entry of entries) {
+						if (entry.isIntersecting) {
+							isVisible = true;
+							observer?.disconnect();
+						}
+					}
+				},
+				{ rootMargin: '200px' }
+			);
+			observer.observe(cardEl);
+		}
+	});
+
+	onDestroy(() => {
+		observer?.disconnect();
+	});
 	let beatLikeCount = $derived($likeCounts[beat.id] ?? 0);
 
 	// Subscribe to like count for this beat (so cards show ❤️ N without needing LikeButton)
@@ -140,12 +168,14 @@
 	class="beat-card"
 	class:has-shimmer={hasShimmer}
 	class:play-pulse={playing}
+	class:lazy-placeholder={lazy && !isVisible}
 	use:tilt={{ max: 6 }}
 	onclick={() => onclick?.(beat)}
 	onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onclick?.(beat); } }}
 	role="button"
 	tabindex="0"
 	style={inlineCSS || undefined}
+	bind:this={cardEl}
 >
 	<!-- Shimmer overlay (on outer, covers glow area) -->
 	{#if hasShimmer}
@@ -170,8 +200,14 @@
 
 		<!-- Cover -->
 		<div class="beat-cover">
-			{#if beat.imageUrl}
-				<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" style={imageCSS || undefined} />
+			{#if isVisible}
+				{#if beat.imageUrl}
+					<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" style={imageCSS || undefined} />
+				{:else}
+					<div class="beat-cover-placeholder" style="background: {genreGradient(beat.genre)}">
+						<span class="placeholder-genre">{beat.genre}</span>
+					</div>
+				{/if}
 			{:else}
 				<div class="beat-cover-placeholder" style="background: {genreGradient(beat.genre)}">
 					<span class="placeholder-genre">{beat.genre}</span>
@@ -258,6 +294,15 @@
 		transition: all var(--duration-normal) var(--ease-out);
 		--hover-scale: 1;
 		--hover-translate-y: -3px;
+	}
+
+	/* Lazy loading placeholder state */
+	.beat-card.lazy-placeholder .beat-card-inner {
+		background: var(--surface2);
+	}
+
+	.beat-card.lazy-placeholder .beat-info {
+		opacity: 0.5;
 	}
 
 	/* ── Inner card (background, border, shadow, content) ── */

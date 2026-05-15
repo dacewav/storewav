@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { wishlist, beatsList, player } from '$lib/stores';
+	import { wishlist, beatsList, player, lowestPrice } from '$lib/stores';
 	import { EmptyState } from '$lib/components';
 	import Icon from './Icon.svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { goto } from '$app/navigation';
+	import { getBeatSlug } from '$lib/slug';
 
 	let {
 		open = $bindable(false),
@@ -99,11 +100,16 @@
 						</button>
 						<div class="wish-info">
 							<div class="wish-title">{beat.name}</div>
-							<div class="wish-meta">{beat.genre} · {beat.bpm} BPM</div>
+							<div class="wish-meta">{beat.genre} · {beat.bpm} BPM · Desde ${lowestPrice(beat)}</div>
 						</div>
-						<button class="wish-remove" onclick={() => removeWithAnimation(beat.id)} aria-label="Quitar">
-							<Icon name="close" size={12} />
-						</button>
+						<div class="wish-actions">
+							<button class="wish-view" onclick={() => { open = false; goto(`/beat/${getBeatSlug(beat)}`); }} aria-label="Ver beat" title="Ver beat">
+								<Icon name="export" size={12} />
+							</button>
+								<button class="wish-remove" onclick={() => removeWithAnimation(beat.id)} aria-label="Quitar">
+								<Icon name="close" size={12} />
+							</button>
+						</div>
 					</div>
 				{/each}
 			{/if}
@@ -296,6 +302,32 @@
 		cursor: pointer;
 		transition: all var(--duration-fast);
 		flex-shrink: 0;
+	}
+
+	.wish-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--space-1);
+		flex-shrink: 0;
+	}
+
+	.wish-view {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		border: none;
+		border-radius: 50%;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.wish-view:hover {
+		background: rgba(var(--accent-rgb), 0.1);
+		color: var(--accent);
 	}
 
 	.wish-remove:hover {

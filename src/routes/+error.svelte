@@ -6,23 +6,47 @@
 
 	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
 	let labels = $derived(($settings.data?.labels ?? {}) as LabelSettings);
-	let errorTitle = $derived(labels.errorTitle ?? 'Página no encontrada');
 	let errorBtn = $derived(labels.errorBtn ?? 'Volver al inicio');
+
+	// Dynamic error info based on status code
+	let status = $derived(page.status ?? 500);
+	let is404 = $derived(status === 404);
+	let errorTitle = $derived(
+		is404
+			? (labels.errorTitle ?? 'Página no encontrada')
+			: status >= 500
+				? 'Error del servidor'
+					: 'Algo salió mal'
+	);
+	let errorMessage = $derived(
+		is404
+			? `La ruta <code>${page.url.pathname}</code> no existe.`
+			: status >= 500
+				? 'Ocurrió un error en el servidor. Intenta de nuevo más tarde.'
+					: 'Ocurrió un error inesperado. Intenta de nuevo.'
+	);
 </script>
 
 <svelte:head>
-	<title>404 — {brandName}</title>
+	<title>{status} — {brandName}</title>
+	<meta name="robots" content="noindex" />
 </svelte:head>
 
 <div class="error-page">
-	<div class="error-code">404</div>
+	<div class="error-code">{status}</div>
 	<div class="error-title">{errorTitle}</div>
 	<p class="error-sub">
-		La ruta <code>{page.url.pathname}</code> no existe.
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+		{@html errorMessage}
 	</p>
-	<Button variant="primary" onclick={() => window.location.href = '/'}>
-		{errorBtn}
-	</Button>
+	<div class="error-actions">
+		<Button variant="primary" onclick={() => window.location.href = '/'}>
+			{errorBtn}
+		</Button>
+		<Button variant="ghost" onclick={() => window.location.reload()}>
+			Recargar
+		</Button>
+	</div>
 </div>
 
 <style>
@@ -69,5 +93,12 @@
 		border-radius: var(--radius-sm);
 		border: 1px solid var(--border);
 		color: var(--accent);
+	}
+
+	.error-actions {
+		display: flex;
+		gap: var(--space-3);
+		flex-wrap: wrap;
+		justify-content: center;
 	}
 </style>

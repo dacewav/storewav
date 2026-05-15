@@ -26,7 +26,16 @@
 		});
 		analytics.track('beat', 'play', { lbl: beat.id, meta: beat.name });
 	}
+
+	let brandName = $derived($settings.data?.brand?.name ?? 'DACEWAV');
+	let pageTitle = $derived(`${likedBeats.length} favorito${likedBeats.length !== 1 ? 's' : ''} — ${brandName}`);
 </script>
+
+<svelte:head>
+	<title>{pageTitle}</title>
+	<meta name="description" content={`Tus beats favoritos en ${brandName}. Explora y gestiona tu colección personal.`} />
+	<meta name="robots" content="noindex" />
+</svelte:head>
 
 <div class="favorites-section">
 	<h2>❤️ Mis favoritos</h2>

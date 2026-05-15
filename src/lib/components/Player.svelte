@@ -39,10 +39,7 @@
 		player.seek(pct * ps.duration);
 	}
 
-	function handleSeekKey(e: KeyboardEvent) {
-		if (e.key === 'ArrowRight') player.seek(ps.currentTime + 5);
-		if (e.key === 'ArrowLeft') player.seek(ps.currentTime - 5);
-	}
+	// Keyboard shortcuts handled globally in +layout.svelte (avoid double-seek)
 </script>
 
 {#if showBar}
@@ -50,7 +47,6 @@
 		<!-- Gradient progress track -->
 		<div class="progress-track" role="slider" aria-label="Progreso" aria-valuenow={Math.round(progressVal * 100)} aria-valuemin={0} aria-valuemax={100} tabindex="0"
 			onclick={handleSeek}
-			onkeydown={handleSeekKey}
 		>
 			<div class="progress-fill" style="width: {progressVal * 100}%"></div>
 			<div class="progress-glow" style="left: {progressVal * 100}%"></div>

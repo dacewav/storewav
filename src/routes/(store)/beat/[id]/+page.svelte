@@ -251,10 +251,6 @@
 						const state = $player;
 						if (state.duration > 0) player.seek(pct * state.duration);
 					}}
-					onkeydown={(e) => {
-						if (e.key === 'ArrowRight') player.seek($player.currentTime + 5);
-						if (e.key === 'ArrowLeft') player.seek($player.currentTime - 5);
-					}}
 				>
 					<Waveform bars={80} height={48} mode="live" />
 				</div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { cart, cartCount, cartTotalMXN, cartTotalUSD, settings, analytics } from '$lib/stores';
+	import { cart, cartCount, cartTotalMXN, cartTotalUSD, settings, analytics, allBeatsList } from '$lib/stores';
 	import type { CartItem } from '$lib/stores/cart';
 	import { Icon, EmptyState } from '$lib/components';
 
@@ -19,6 +19,19 @@
 	let discountError = $state('');
 	let appliedDiscount = $state<{ code: string; type: 'percent' | 'fixed'; amount: number } | null>(null);
 	let discountJustApplied = $state(false);
+
+	// Cart validation: check if beats still exist and are active
+	let allBeats = $derived($allBeatsList);
+	let invalidItems = $derived(
+		items.filter(item => !allBeats.some(b => b.id === item.beatId))
+	);
+	let hasInvalidItems = $derived(invalidItems.length > 0);
+
+	function removeInvalidItems() {
+		for (const item of invalidItems) {
+			cart.remove(item.beatId, item.licenseIndex);
+		}
+	}
 
 	async function applyDiscount() {
 		if (!discountCode.trim()) return;
@@ -67,6 +80,14 @@
 
 	async function handleCheckout() {
 		if (count === 0) return;
+
+		// Validate: remove inactive beats before checkout
+		if (hasInvalidItems) {
+			removeInvalidItems();
+			checkoutError = 'Algunos beats ya no están disponibles y fueron removidos del carrito.';
+			return;
+		}
+
 		checkingOut = true;
 		checkoutError = '';
 
@@ -125,8 +146,16 @@
 		<div class="cart-layout">
 			<!-- Items list -->
 			<div class="cart-items">
+				{#if hasInvalidItems}
+					<div class="cart-warning">
+						<Icon name="warning" size={14} />
+						<span>Algunos beats ya no están disponibles. Se removerán al iniciar el pago.</span>
+						<button onclick={removeInvalidItems}>Remover ahora</button>
+					</div>
+				{/if}
 				{#each items as item (item.beatId + '-' + item.licenseIndex)}
-					<div class="cart-item">
+					{@const isInvalid = !allBeats.some(b => b.id === item.beatId)}
+					<div class="cart-item" class:invalid={isInvalid}>
 						<div class="item-image">
 							{#if item.imageUrl}
 								<img src={item.imageUrl} alt={item.beatName} loading="lazy" decoding="async" />
@@ -137,8 +166,11 @@
 							{/if}
 						</div>
 						<div class="item-info">
-							<a href={item.beatId.startsWith('kit-') ? `/kit/${item.beatId.slice(4)}` : `/beat/${item.beatId}`} class="item-name">{item.beatName}</a>
+							<a href={item.beatId.startsWith('kit-') ? `/kit/${item.beatId.slice(4)}` : `/beat/${item.beatId}`} class="item-name" class:invalid-name={isInvalid}>{item.beatName}</a>
 							<span class="item-license">{item.licenseName}</span>
+							{#if isInvalid}
+								<span class="item-invalid-badge">No disponible</span>
+							{/if}
 						</div>
 						<div class="item-price">
 							<span class="price-mxn">${item.priceMXN} MXN</span>
@@ -424,6 +456,61 @@
 		border-color: #ef4444;
 		color: #ef4444;
 		background: rgba(239, 68, 68, 0.08);
+	}
+
+	/* Cart validation */
+	.cart-warning {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-3) var(--space-4);
+		background: rgba(245, 158, 11, 0.08);
+		border: 1px solid rgba(245, 158, 11, 0.2);
+		border-radius: var(--radius-lg);
+		color: #f59e0b;
+		font-size: var(--text-sm);
+		margin-bottom: var(--space-4);
+		flex-wrap: wrap;
+	}
+
+	.cart-warning button {
+		margin-left: auto;
+		padding: 4px 12px;
+		background: rgba(245, 158, 11, 0.15);
+		border: 1px solid rgba(245, 158, 11, 0.3);
+		border-radius: var(--radius-sm);
+		color: #f59e0b;
+		font-size: var(--text-xs);
+		cursor: pointer;
+		transition: all var(--duration-fast);
+	}
+
+	.cart-warning button:hover {
+		background: rgba(245, 158, 11, 0.25);
+	}
+
+	.cart-item.invalid {
+		opacity: 0.6;
+		background: rgba(239, 68, 68, 0.03);
+	}
+
+	.item-name.invalid-name {
+		text-decoration: line-through;
+		color: var(--text-muted);
+	}
+
+	.item-invalid-badge {
+		display: inline-block;
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: #ef4444;
+		background: rgba(239, 68, 68, 0.08);
+		border: 1px solid rgba(239, 68, 68, 0.15);
+		border-radius: var(--radius-sm);
+		padding: 2px 8px;
+		margin-top: 4px;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
 	/* ── Summary ── */
