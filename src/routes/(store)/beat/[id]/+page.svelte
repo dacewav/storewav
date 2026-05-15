@@ -45,9 +45,12 @@
 	let s = $derived($settings.data);
 
 	// Current beat — look up by slug first, then by ID, then partial match
+	// Don't attempt lookup until beats have loaded (prevents "not found" flash on direct page load)
 	let beat = $derived.by(() => {
 		const param = page.params.id;
-		if (!param || allBeats.length === 0) return null;
+		// Wait for beats to load from Firebase before attempting lookup
+		if (!param || beatsRaw.loading) return null;
+		if (allBeats.length === 0) return null;
 		// 1. Exact slug match
 		const bySlug = allBeats.find(b => getBeatSlug(b) === param);
 		if (bySlug) return bySlug;
