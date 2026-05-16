@@ -77,7 +77,7 @@
 
 	.skeleton-bc-cover {
 		position: relative;
-		aspect-ratio: 1;
+		aspect-ratio: 16/9;
 		background: linear-gradient(90deg, var(--surface2) 25%, rgba(var(--accent-rgb), 0.06) 50%, var(--surface2) 75%);
 		background-size: 200% 100%;
 		animation: shimmer 1.8s ease-in-out infinite;
