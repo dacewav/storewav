@@ -692,6 +692,32 @@
 	{/if}
 </div>
 
+<!-- Bottom nav bar (mobile only) -->
+<nav class="bottom-nav" aria-label="Navegación móvil">
+	<a href="/" class="bottom-nav-item" class:active={page.url.pathname === '/'}>
+		<Icon name="home" size={18} />
+		<span>Inicio</span>
+	</a>
+	<a href="/#beats" class="bottom-nav-item" onclick={(e) => { if (page.url.pathname === '/') { e.preventDefault(); document.getElementById('beats')?.scrollIntoView({ behavior: 'smooth' }); } }}>
+		<Icon name="search" size={18} />
+		<span>Buscar</span>
+	</a>
+	<button class="bottom-nav-item" onclick={() => wishlistOpen = true}>
+		<Icon name="heart" size={18} />
+		<span>Fav</span>
+		{#if wishCount > 0}<span class="bottom-nav-badge">{wishCount}</span>{/if}
+	</button>
+	<a href="/cart" class="bottom-nav-item" class:active={page.url.pathname === '/cart'}>
+		<Icon name="shoppingCart" size={18} />
+		<span>Carrito</span>
+		{#if $cartCount > 0}<span class="bottom-nav-badge">{$cartCount}</span>{/if}
+	</a>
+	<a href="/account" class="bottom-nav-item" class:active={page.url.pathname.startsWith('/account')}>
+		<Icon name="user" size={18} />
+		<span>Cuenta</span>
+	</a>
+</nav>
+
 <Player />
 <WishlistPanel
 	bind:open={wishlistOpen}
@@ -1378,6 +1404,75 @@
 	@keyframes fadeIn {
 		from { opacity: 0; transform: scale(1.01); }
 		to { opacity: 1; transform: scale(1); }
+	}
+
+	/* ── Bottom Nav (mobile only) ── */
+	.bottom-nav {
+		display: none;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: var(--z-nav);
+		background: var(--nav-bg-scrolled);
+		backdrop-filter: blur(16px);
+		border-top: 1px solid var(--border);
+		padding: var(--space-1) 0 env(safe-area-inset-bottom, 0);
+	}
+
+	.bottom-nav-item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 2px;
+		padding: var(--space-2) 0;
+		flex: 1;
+		min-height: 48px;
+		color: var(--text-muted);
+		text-decoration: none;
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.04em;
+		transition: color var(--duration-fast);
+		position: relative;
+	}
+
+	.bottom-nav-item.active,
+	.bottom-nav-item:hover {
+		color: var(--accent);
+	}
+
+	.bottom-nav-badge {
+		position: absolute;
+		top: 2px;
+		right: calc(50% - 18px);
+		font-family: var(--font-mono);
+		font-size: 9px;
+		min-width: 14px;
+		height: 14px;
+		padding: 0 3px;
+		border-radius: var(--radius-full);
+		background: var(--accent);
+		color: var(--bg);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		line-height: 1;
+	}
+
+	@media (max-width: 768px) {
+		.bottom-nav {
+			display: flex;
+		}
+
+		.main.has-player {
+			padding-bottom: 140px; /* player + bottom nav */
+		}
 	}
 
 	/* ── Animation presets ── */
