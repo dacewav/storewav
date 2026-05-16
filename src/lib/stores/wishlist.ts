@@ -192,16 +192,16 @@ function clear() {
 	}
 }
 
-/** Cleanup on logout */
+/** Cleanup on logout / account switch */
 export function destroyWishlistSync() {
 	if (_unsub) { _unsub(); _unsub = null; }
 	currentUid = null;
-	// Clear UID tracking so next login starts fresh
-	if (browser) localStorage.removeItem(STORAGE_UID_KEY);
-	// Reload from localStorage (now anonymous — no UID match).
-	// This clears stale logged-in items from the store while
-	// preserving any anonymous browsing items.
-	store.set(loadLocal());
+	// Clear all wishlist localStorage so next account starts clean
+	if (browser) {
+		localStorage.removeItem(STORAGE_UID_KEY);
+		localStorage.removeItem(STORAGE_KEY);
+	}
+	store.set([]);
 }
 
 export const wishlist = {

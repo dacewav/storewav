@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { cart, cartCount, cartTotalMXN, cartTotalUSD, settings, analytics, allBeatsList } from '$lib/stores';
+	import { cart, cartCount, cartTotalMXN, cartTotalUSD, settings, analytics, allBeatsList, allKitsList } from '$lib/stores';
 	import type { CartItem } from '$lib/stores/cart';
 	import { Icon, EmptyState } from '$lib/components';
 	import { getBeatSlug } from '$lib/slug';
@@ -21,10 +21,17 @@
 	let appliedDiscount = $state<{ code: string; type: 'percent' | 'fixed'; amount: number } | null>(null);
 	let discountJustApplied = $state(false);
 
-	// Cart validation: check if beats still exist and are active
+	// Cart validation: check if beats/kits still exist and are active
 	let allBeats = $derived($allBeatsList);
+	let allKits = $derived($allKitsList);
 	let invalidItems = $derived(
-		items.filter(item => !allBeats.some(b => b.id === item.beatId))
+		items.filter(item => {
+			if (item.beatId.startsWith('kit-')) {
+				const kitId = item.beatId.slice(4);
+				return !allKits.some(k => k.id === kitId);
+			}
+			return !allBeats.some(b => b.id === item.beatId);
+		})
 	);
 	let hasInvalidItems = $derived(invalidItems.length > 0);
 
@@ -160,7 +167,7 @@
 					</div>
 				{/if}
 				{#each items as item (item.beatId + '-' + item.licenseIndex)}
-					{@const isInvalid = !allBeats.some(b => b.id === item.beatId)}
+					{@const isInvalid = item.beatId.startsWith('kit-') ? !allKits.some(k => k.id === item.beatId.slice(4)) : !allBeats.some(b => b.id === item.beatId)}
 					<div class="cart-item" class:invalid={isInvalid}>
 						<div class="item-image">
 							{#if item.imageUrl}
@@ -356,6 +363,8 @@
 		letter-spacing: 0.04em;
 		transition: color var(--duration-fast);
 		margin-top: var(--space-2);
+		margin-bottom: var(--space-4);
+		grid-column: 1 / -1;
 	}
 
 	.continue-shopping:hover {
@@ -899,7 +908,8 @@
 
 	@media (max-width: 900px) {
 		.mobile-checkout-bar {
-			display: block;
+			display: flex;
+			flex-direction: column;
 		}
 
 		/* Add bottom padding so content isn't hidden behind sticky bar */

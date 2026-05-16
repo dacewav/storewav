@@ -132,6 +132,14 @@ function createCartStore() {
 		} catch { /* silent */ }
 	}
 
+	/** Reset cart — clear items + localStorage. Called on auth account switch. */
+	function reset() {
+		items.set([]);
+		if (typeof localStorage !== 'undefined') {
+			try { localStorage.removeItem(STORAGE_KEY); } catch { /* */ }
+		}
+	}
+
 	function isInCart(beatId: string, licenseIndex?: number) {
 		return derived(items, ($items) => {
 			if (licenseIndex !== undefined) {
@@ -148,6 +156,7 @@ function createCartStore() {
 		add,
 		remove,
 		clear,
+		reset,
 		isInCart
 	};
 }

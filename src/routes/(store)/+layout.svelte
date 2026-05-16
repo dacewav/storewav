@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { onNavigate, goto } from '$app/navigation';
-	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis, cartCount, unreadCount } from '$lib/stores';
+	import { settings, wishlist, auth, player, visibleFloatingElements, initCustomEmojis, destroyCustomEmojis, cart, cartCount, unreadCount } from '$lib/stores';
 	import { ToastContainer, Player, WishlistPanel, Particles, FloatingElement, InlineEmoji, AuthButton, OfflineBanner, AdBlockerBanner } from '$lib/components';
 	import Icon from '$lib/components/Icon.svelte';
 	import { initLikes, destroyLikes } from '$lib/stores/likes';
@@ -109,8 +109,16 @@
 	let isAdmin = $derived($auth.isAdmin);
 
 	// Init likes + wishlist sync + cart abandonment tracking when auth changes
+	let lastAuthUid: string | null = null;
 	$effect(() => {
 		const uid = $auth.user?.uid ?? null;
+
+		// Reset per-user stores when account changes (logout or switch)
+		if (lastAuthUid !== null && lastAuthUid !== uid) {
+			cart.reset();
+		}
+		lastAuthUid = uid;
+
 		initLikes(uid);
 		initWishlistSync(uid);
 		initNotifications(uid);
