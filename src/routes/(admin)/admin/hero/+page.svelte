@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { settings } from '$lib/stores';
 	import { Card, EmojiInput , Collapsible} from '$lib/components';
-	import type { HeroVisualSettings, HeroSettings, ThemeSettings, HeroColorSegment, SectionSettings, CtaSettings, LabelSettings } from '$lib/stores/settings';
+	import type { HeroVisualSettings, HeroSettings, ThemeSettings, HeroColorSegment, SectionSettings, CtaSettings, LabelSettings, HowItWorksSettings } from '$lib/stores/settings';
 	import { handleShiftArrows } from '$lib/themeShared';
 
 	let s = $derived($settings.data);
@@ -12,6 +12,7 @@
 	let section = $derived((s?.section ?? {}) as SectionSettings);
 	let cta = $derived((s?.cta ?? {}) as CtaSettings);
 	let labels = $derived((s?.labels ?? {}) as LabelSettings);
+	let howItWorks = $derived((s?.howItWorks ?? { enabled: true, title: '¿Cómo funciona?', steps: [] }) as HowItWorksSettings);
 
 	let local = $state<Record<string, number>>({});
 	let localInit = false;
@@ -437,6 +438,38 @@
 				<input id="cta-u" type="text" value={cta.buttonUrl ?? ''} oninput={(e) => updateDebounced('cta.buttonUrl', e.currentTarget.value)} />
 			</div>
 		</div>
+	</Collapsible>
+
+	<!-- How It Works -->
+	<Collapsible id="how-it-works" icon="📋" title="¿Cómo funciona?" open={false}>
+		<div class="field">
+			<label for="hiw-enabled">
+				<input id="hiw-enabled" type="checkbox" checked={howItWorks.enabled !== false} onchange={(e) => update('howItWorks.enabled', e.currentTarget.checked)} />
+				Mostrar sección
+			</label>
+		</div>
+		<div class="field">
+			<label for="hiw-title">Título</label>
+			<input id="hiw-title" type="text" value={howItWorks.title ?? ''} oninput={(e) => updateDebounced('howItWorks.title', e.currentTarget.value)} />
+		</div>
+		{#each howItWorks.steps as step, i}
+			<div class="row segment-row">
+				<div class="field" style="flex:0 0 60px">
+					<label for="hiw-icon-{i}">Icono</label>
+					<input id="hiw-icon-{i}" type="text" value={step.icon} oninput={(e) => { const steps = [...howItWorks.steps]; steps[i] = { ...steps[i], icon: e.currentTarget.value }; update('howItWorks.steps', steps); }} />
+				</div>
+				<div class="field" style="flex:1">
+					<label for="hiw-title-{i}">Título</label>
+					<input id="hiw-title-{i}" type="text" value={step.title} oninput={(e) => { const steps = [...howItWorks.steps]; steps[i] = { ...steps[i], title: e.currentTarget.value }; update('howItWorks.steps', steps); }} />
+				</div>
+				<div class="field" style="flex:2">
+					<label for="hiw-desc-{i}">Descripción</label>
+					<input id="hiw-desc-{i}" type="text" value={step.desc} oninput={(e) => { const steps = [...howItWorks.steps]; steps[i] = { ...steps[i], desc: e.currentTarget.value }; update('howItWorks.steps', steps); }} />
+				</div>
+				<button class="btn-remove" onclick={() => { const steps = howItWorks.steps.filter((_: unknown, idx: number) => idx !== i); update('howItWorks.steps', steps); }} aria-label="Eliminar paso" title="Eliminar">✕</button>
+			</div>
+		{/each}
+		<button class="btn-add" onclick={() => { const steps = [...howItWorks.steps, { icon: '✨', title: '', desc: '' }]; update('howItWorks.steps', steps); }}>+ Añadir paso</button>
 	</Collapsible>
 
 	{#each Object.entries(labelGroups) as [group, fields]}

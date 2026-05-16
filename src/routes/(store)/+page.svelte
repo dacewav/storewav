@@ -9,7 +9,7 @@
 	import { getForYouRecommendations } from '$lib/stores/recommendations';
 	import { getBeatSlug } from '$lib/slug';
 	import { sanitizeHtml, escapeJsonLd } from '$lib/sanitize';
-	import type { HeroVisualSettings, LabelSettings, AnimationSettings } from '$lib/stores/settings';
+	import type { HeroVisualSettings, LabelSettings, AnimationSettings, HowItWorksSettings } from '$lib/stores/settings';
 	import type { IconName } from '$lib/icons';
 	import { staggerReveal, reveal, siblingBlur, countUp, parallax } from '$lib/actions';
 	import { hexToRgba, genreGradient } from '$lib/visualUtils';
@@ -114,6 +114,7 @@
 
 	// Animations
 	let anim = $derived((s?.animations ?? {}) as AnimationSettings);
+	let howItWorks = $derived((s?.howItWorks ?? { enabled: true, title: '¿Cómo funciona?', steps: [] }) as HowItWorksSettings);
 	let animDuration = $derived(anim.animDuration ?? 2);
 	let animDelay = $derived(anim.animDelay ?? 0);
 	let animEasing = $derived(anim.animEasing ?? 'ease-in-out');
@@ -372,26 +373,20 @@
 {/if}
 
 <!-- Cómo funciona -->
+{#if howItWorks.enabled && howItWorks.steps.length > 0}
 <section class="how-it-works" use:reveal={{}}>
-	<h2 class="how-title">¿Cómo funciona?</h2>
+	<h2 class="how-title">{howItWorks.title}</h2>
 	<div class="how-steps">
-		<div class="how-step">
-			<div class="how-icon">🎵</div>
-			<h3 class="how-step-title">Escucha</h3>
-			<p class="how-step-desc">Explora nuestro catálogo y reproduce previews de alta calidad.</p>
-		</div>
-		<div class="how-step">
-			<div class="how-icon">🛒</div>
-			<h3 class="how-step-title">Elige licencia</h3>
-			<p class="how-step-desc">Selecciona la licencia que mejor se adapte a tu proyecto.</p>
-		</div>
-		<div class="how-step">
-			<div class="how-icon">⬇️</div>
-			<h3 class="how-step-title">Descarga al instante</h3>
-			<p class="how-step-desc">Recibe tus archivos al momento, listos para producir.</p>
-		</div>
+		{#each howItWorks.steps as step}
+			<div class="how-step">
+				<div class="how-icon">{step.icon}</div>
+				<h3 class="how-step-title">{step.title}</h3>
+				<p class="how-step-desc">{step.desc}</p>
+			</div>
+		{/each}
 	</div>
 </section>
+{/if}
 
 <!-- Genre showcase -->
 {#if genreList.length > 0}

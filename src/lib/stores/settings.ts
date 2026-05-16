@@ -54,6 +54,18 @@ export type CtaSettings = {
 	buttonUrl: string;
 };
 
+export type HowItWorksStep = {
+	icon: string;
+	title: string;
+	desc: string;
+};
+
+export type HowItWorksSettings = {
+	enabled: boolean;
+	title: string;
+	steps: HowItWorksStep[];
+};
+
 export type LinkItem = {
 	label: string;
 	url: string;
@@ -390,6 +402,7 @@ export type SettingsData = {
 	theme: ThemeSettings;
 	section: SectionSettings;
 	cta: CtaSettings;
+	howItWorks: HowItWorksSettings;
 	layout: LayoutSettings;
 	links: LinkItem[];
 	brand: BrandSettings;
@@ -554,6 +567,15 @@ const DEFAULT: SettingsData = {
 		subtitle: 'Contáctanos por WhatsApp y te ayudamos a encontrar el beat perfecto para tu proyecto.',
 		buttonText: 'Escríbenos',
 		buttonUrl: 'https://wa.me'
+	},
+	howItWorks: {
+		enabled: true,
+		title: '¿Cómo funciona?',
+		steps: [
+			{ icon: '🎵', title: 'Escucha', desc: 'Explora nuestro catálogo y reproduce previews de alta calidad.' },
+			{ icon: '🛒', title: 'Elige licencia', desc: 'Selecciona la licencia que mejor se adapte a tu proyecto.' },
+			{ icon: '⬇️', title: 'Descarga al instante', desc: 'Recibe tus archivos al momento, listos para producir.' }
+		]
 	},
 	layout: {
 		cardsPerRow: 3,

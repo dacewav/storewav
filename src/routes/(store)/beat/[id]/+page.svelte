@@ -239,7 +239,7 @@
 				<!-- Cover with parallax -->
 				<div class="beat-cover" use:parallaxCover>
 					{#if beat.imageUrl}
-						<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
+						<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" style="view-transition-name: beat-img-{beat.id}" onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />
 					{:else}
 						<div class="beat-cover-placeholder">
 							<Icon name="music" size={64} />
@@ -279,7 +279,7 @@
 				<!-- Header -->
 				<div class="beat-header" use:staggerReveal={{ delay: 60 }}>
 					<div class="beat-title-row">
-						<h1 class="beat-title">{beat.name}</h1>
+						<h1 class="beat-title" style="view-transition-name: beat-title-{beat.id}">{beat.name}</h1>
 						<div class="beat-title-actions">
 							<LikeButton beatId={beat.id} showCount />
 							<button

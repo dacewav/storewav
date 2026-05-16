@@ -293,7 +293,7 @@
 		<div class="beat-cover">
 			{#if isVisible}
 				{#if beat.imageUrl}
-					<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" style={imageCSS || undefined} />
+					<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" style="view-transition-name: beat-img-{beat.id}; {imageCSS || undefined}" />
 				{:else}
 					<div class="beat-cover-placeholder" style="background: {genreGradient(beat.genre)}">
 						<span class="placeholder-genre">{beat.genre}</span>
@@ -356,7 +356,7 @@
 
 		<!-- Info -->
 		<div class="beat-info" style={layoutCSS || undefined}>
-			<div class="beat-title" style={titleCSS || undefined}>{beat.name}</div>
+			<div class="beat-title" style="view-transition-name: beat-title-{beat.id}; {titleCSS || undefined}">{beat.name}</div>
 			<div class="beat-meta">
 				<span>{beat.bpm} BPM</span>
 				<span class="meta-dot">·</span>
