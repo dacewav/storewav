@@ -67,7 +67,7 @@
 
 <div class="playlists-section">
 	<h2>🎵 Mis Playlists</h2>
-	<p class="section-desc">Creá colecciones de beats para tus proyectos.</p>
+	<p class="section-desc">Crea colecciones de beats para tus proyectos.</p>
 
 	<!-- Create new playlist -->
 	<div class="create-form">
@@ -98,7 +98,7 @@
 		<div class="empty-state">
 			<span class="empty-icon">🎶</span>
 			<p>No tienes playlists todavía.</p>
-			<p class="empty-hint">Creá una arriba para empezar a guardar beats.</p>
+			<p class="empty-hint">Crea una arriba para empezar a guardar beats.</p>
 		</div>
 	{:else}
 		<div class="playlist-layout">
@@ -165,7 +165,7 @@
 					<!-- Beats in playlist -->
 					{#if selectedPlaylist.beatIds.length === 0}
 						<div class="empty-detail">
-							<p>Playlist vacía. Agregá beats con el botón de arriba.</p>
+							<p>Playlist vacía. Agrega beats con el botón de arriba.</p>
 						</div>
 					{:else}
 						<div class="playlist-beats">

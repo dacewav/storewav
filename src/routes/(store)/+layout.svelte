@@ -75,6 +75,7 @@
 	let loaderEnabled = $derived(settingsData?.loader?.enabled !== false);
 	let footerText = $derived(settingsData?.brand?.footerText ?? 'Todos los derechos reservados');
 	let metaDesc = $derived(settingsData?.brand?.metaDescription ?? 'Beats que rompen');
+	let whatsappNum = $derived((settingsData?.brand?.whatsapp ?? '').replace(/^\+/, ''));
 	let navLinks = $derived(settingsData?.links ?? []);
 	let sectionTitle = $derived(settingsData?.section?.title ?? 'Catálogo');
 	let accent = $derived(settingsData?.theme?.accent ?? '#dc2626');
@@ -673,20 +674,36 @@
 	<!-- Footer -->
 	{#if footerVisible}
 	<footer class="footer">
-		<div class="footer-left">
+		<div class="footer-col footer-brand-col">
 			<div class="footer-brand">
 			{#if brandSplit.last}
 				{brandSplit.first}<em>{brandSplit.last}</em>
 			{:else}
 				{brandName}
 			{/if}
+			</div>
+			<p class="footer-desc">{metaDesc}</p>
+			<div class="footer-copy">© {new Date().getFullYear()} {brandName}</div>
 		</div>
-			<div class="footer-sub">{footerText}</div>
+		<div class="footer-col">
+			<div class="footer-col-title">Links</div>
+			<div class="footer-links">
+				{#each navLinks as link}
+					<a href={link.url} class="footer-link" target="_blank" rel="noopener">{link.label}</a>
+				{/each}
+			</div>
 		</div>
-		<div class="footer-links">
-			{#each navLinks as link}
-				<a href={link.url} class="footer-link" target="_blank" rel="noopener">{link.label}</a>
-			{/each}
+		<div class="footer-col">
+			<div class="footer-col-title">Contacto</div>
+			<div class="footer-links">
+				{#if whatsappNum}
+					<a href="https://wa.me/{whatsappNum}" class="footer-link footer-social" target="_blank" rel="noopener">
+						<Icon name="whatsapp" size={14} /> WhatsApp
+					</a>
+				{/if}
+				<a href="/" class="footer-link">Inicio</a>
+				<a href="/kits" class="footer-link">Kits</a>
+			</div>
 		</div>
 	</footer>
 	{/if}
@@ -1292,9 +1309,9 @@
 		border-top: 1px solid var(--border);
 		padding: var(--space-12) var(--container-padding) var(--space-16);
 		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: var(--space-8);
-		align-items: end;
+		grid-template-columns: 1.5fr 1fr 1fr;
+		gap: var(--space-10);
+		align-items: start;
 	}
 
 	.footer::before {
@@ -1313,11 +1330,13 @@
 		font-size: var(--text-lg);
 		font-weight: 800;
 		color: var(--text);
-		transition: color var(--duration-fast);
+		transition: all var(--duration-normal) var(--ease-out);
+		display: inline-block;
 	}
 
 	.footer-brand:hover {
 		color: var(--accent);
+		text-shadow: 0 0 20px rgba(var(--accent-rgb), 0.3);
 	}
 
 	.footer-brand em {
@@ -1325,18 +1344,34 @@
 		font-style: normal;
 	}
 
-	.footer-sub {
+	.footer-desc {
 		font-size: var(--text-2xs);
+		color: var(--text-secondary);
+		margin-top: var(--space-3);
+		line-height: 1.6;
+		max-width: 280px;
+	}
+
+	.footer-copy {
+		font-size: 10px;
 		color: var(--text-hint);
-		margin-top: 4px;
-		letter-spacing: 0.02em;
+		margin-top: var(--space-4);
+		letter-spacing: 0.03em;
+	}
+
+	.footer-col-title {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--text-muted);
+		margin-bottom: var(--space-4);
 	}
 
 	.footer-links {
 		display: flex;
-		gap: 1.5rem;
-		flex-wrap: wrap;
-		align-items: center;
+		flex-direction: column;
+		gap: var(--space-2);
 	}
 
 	.footer-link {
@@ -1371,6 +1406,10 @@
 		width: 100%;
 	}
 
+	.footer-social {
+		gap: var(--space-2);
+	}
+
 	/* ── Responsive ── */
 	@media (max-width: 768px) {
 		.hamburger {
@@ -1384,6 +1423,7 @@
 
 		.footer {
 			grid-template-columns: 1fr;
+			gap: var(--space-8);
 		}
 	}
 

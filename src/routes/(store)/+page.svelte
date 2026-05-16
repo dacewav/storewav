@@ -516,7 +516,7 @@
 	{:else if beatsLoading}
 		<div class="beat-grid" use:staggerReveal={{ delay: 80 }}>
 			{#each Array(6) as _}
-				<Skeleton lines={3} />
+				<Skeleton variant="beatcard" />
 			{/each}
 		</div>
 	{:else}

@@ -110,7 +110,7 @@
 
 <div class="orders-page">
 	<h1 class="page-title">Mis órdenes</h1>
-	<p class="page-sub">Ingresá tu email para ver tus compras y descargar tus beats.</p>
+	<p class="page-sub">Ingresa tu email para ver tus compras y descargar tus beats.</p>
 
 	<form class="search-form" onsubmit={(e) => { e.preventDefault(); searchOrders(); }}>
 		<div class="search-row">

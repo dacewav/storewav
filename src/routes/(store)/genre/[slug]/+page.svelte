@@ -109,7 +109,7 @@
 	{#if loading}
 		<div class="genre-grid">
 			{#each Array(6) as _}
-				<Skeleton lines={3} />
+				<Skeleton variant="beatcard" />
 			{/each}
 		</div>
 	{:else if genreBeats.length > 0}

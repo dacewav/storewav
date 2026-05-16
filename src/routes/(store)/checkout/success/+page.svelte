@@ -140,7 +140,7 @@
 				<p class="success-greeting">Gracias, {customerName}</p>
 			{/if}
 			<p class="success-subtitle">
-				Tu compra ha sido procesada correctamente. Descargá tus archivos ahora — también recibirás un email con los links y tu contrato.
+				Tu compra ha sido procesada correctamente. Descarga tus archivos ahora — también recibirás un email con los links y tu contrato.
 			</p>
 
 			{#if orderItems.length > 0}

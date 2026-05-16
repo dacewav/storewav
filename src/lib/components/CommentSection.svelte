@@ -141,7 +141,7 @@
 				<div class="comment-input-wrap">
 					<textarea
 						class="comment-input"
-						placeholder="Escribí un comentario...  :emoji:"
+						placeholder="Escribe un comentario...  :emoji:"
 						bind:value={commentText}
 						bind:this={inputEl}
 						oninput={handleInput}

@@ -342,7 +342,7 @@
 
 <div class="profile-section">
 	<h2>✏️ Editar perfil</h2>
-	<p class="profile-desc">Completá tu info para que los productores te conozcan.</p>
+	<p class="profile-desc">Completa tu info para que los productores te conozcan.</p>
 
 	{#if loading}
 		<div class="profile-loading">Cargando perfil...</div>
