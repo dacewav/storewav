@@ -277,7 +277,11 @@ function resume() {
 function seek(time: number) {
 	const a = getAudio();
 	if (!a) return;
+	// Clamp to valid range
+	if (!isFinite(time) || time < 0) return;
+	if (a.duration && time > a.duration) time = a.duration;
 	a.currentTime = time;
+	store.update((s) => ({ ...s, currentTime: time }));
 }
 
 function setVolume(vol: number) {

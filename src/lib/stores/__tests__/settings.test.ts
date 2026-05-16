@@ -31,9 +31,9 @@ describe('migrateOldData', () => {
 		expect(result.hero.glowWord).toBe('test');
 	});
 
-	it('sets default glowWord to "rompen." if not provided', () => {
+	it('sets default glowWord to "store." if not provided', () => {
 		const result = migrateOldData({});
-		expect(result.hero.glowWord).toBe('rompen.');
+		expect(result.hero.glowWord).toBe('store.');
 	});
 
 	it('creates heroVisual from theme flat keys', () => {

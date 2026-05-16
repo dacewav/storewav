@@ -401,10 +401,10 @@ export type SettingsData = {
 
 const DEFAULT: SettingsData = {
 	hero: {
-		title: 'DACEWAV',
-		subtitle: 'Trap · R&B · Drill · Beats profesionales para tu próximo hit',
+		title: 'YUGEN',
+		subtitle: 'Beats profesionales para tu próximo hit',
 		eyebrow: 'En vivo · Producción profesional',
-		glowWord: 'rompen.'
+		glowWord: 'store.'
 	},
 	heroVisual: {
 		glowOn: true,
@@ -573,17 +573,17 @@ const DEFAULT: SettingsData = {
 		{ label: 'WhatsApp', url: 'https://wa.me', icon: 'whatsapp' }
 	],
 	brand: {
-		name: 'DACEWAV',
+		name: 'YUGEN',
 		logo: '',
 		favicon: '',
 		ogImage: '',
 		footerText: 'Todos los derechos reservados · 2026',
-		metaDescription: 'Beats que rompen',
+		metaDescription: 'Beats profesionales',
 		whatsapp: ''
 	},
 	loader: {
 		enabled: true,
-		brandText: 'DACEWAV'
+		brandText: 'YUGEN'
 	},
 	banner: {
 		enabled: false,
@@ -1116,7 +1116,7 @@ export function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	// Glow word: settings/heroTitleCustom > theme/heroTitleCustom > nested > default
 	if (d.heroTitleCustom) hero.glowWord = d.heroTitleCustom;
 	else if (t.heroTitleCustom) hero.glowWord = t.heroTitleCustom;
-	else if (!hero.glowWord) hero.glowWord = 'rompen.';
+	else if (!hero.glowWord) hero.glowWord = 'store.';
 	// Clean empty strings so DEFAULT fallback kicks in via ?? in templates
 	if (hero.title === '') delete hero.title;
 	if (hero.subtitle === '') delete hero.subtitle;
@@ -1160,7 +1160,7 @@ export function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	if (!d.brand || typeof d.brand !== 'object') d.brand = {};
 	const brand = d.brand as Record<string, unknown>;
 	if (d.siteName) brand.name = d.siteName;
-	if (!brand.name) brand.name = 'DACEWAV';
+	if (!brand.name) brand.name = 'YUGEN';
 	if (d.logoUrl) brand.logo = d.logoUrl;
 	else if (t.logoUrl) brand.logo = t.logoUrl;
 	if (d.faviconUrl) brand.favicon = d.faviconUrl;
@@ -1169,7 +1169,7 @@ export function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	else if (t.ogImageUrl) brand.ogImage = t.ogImageUrl;
 	if (d.whatsapp) brand.whatsapp = d.whatsapp;
 	if (!brand.footerText) brand.footerText = 'Todos los derechos reservados · 2026';
-	if (!brand.metaDescription) brand.metaDescription = 'Beats que rompen';
+	if (!brand.metaDescription) brand.metaDescription = 'Beats profesionales';
 
 	// Merge banner from flat keys — prefer non-empty flat keys
 	if (!d.banner || typeof d.banner !== 'object') d.banner = {};
@@ -1190,7 +1190,7 @@ export function migrateOldData(raw: Record<string, unknown>): SettingsData {
 	if (!banner.speed) banner.speed = DEFAULT.banner.speed;
 
 	// Merge loader
-	if (!d.loader || typeof d.loader !== 'object') d.loader = { enabled: true, brandText: brand.name || 'DACEWAV' };
+	if (!d.loader || typeof d.loader !== 'object') d.loader = { enabled: true, brandText: brand.name || 'YUGEN' };
 
 	// Merge cardStyle from flat keys
 	if (!d.cardStyle || typeof d.cardStyle !== 'object') {
