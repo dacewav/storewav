@@ -53,8 +53,9 @@ let audioListenersAttached = false;
 function getAudio(): HTMLAudioElement | null {
 	if (!audio && browser) {
 		audio = new Audio();
-		// DON'T set crossOrigin — it causes CORS preflight that blocks audio entirely on CDNs without CORS.
-		// Waveform uses static mode until CORS is configured on the CDN.
+		// DON'T set crossOrigin — the CDN only CORS-allows the production origin.
+		// Without crossOrigin, audio plays fine but waveform uses static mode (tainted canvas).
+		// createMediaElementSource is wrapped in try-catch to handle this gracefully.
 		audio.volume = loadVolume();
 		attachAudioListeners();
 	}

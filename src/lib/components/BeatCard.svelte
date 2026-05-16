@@ -252,7 +252,7 @@
 		if (url) {
 			const link = document.createElement('link');
 			link.rel = 'preload';
-			link.as = 'media';
+			link.as = 'audio';
 			link.href = url;
 			if (!document.querySelector(`link[href="${url}"]`)) {
 				document.head.appendChild(link);
