@@ -24,6 +24,7 @@
 	}>>([]);
 	let searched = $state(false);
 	let error = $state('');
+	let downloadTokens = $state<Record<string, string>>({});
 
 	async function searchOrders() {
 		if (!email.trim()) return;
@@ -57,11 +58,15 @@
 					totalMXN: number;
 					totalUSD: number;
 				}>;
+				downloadTokens?: Record<string, string>;
 				error?: string;
 			};
 
 			if (result.ok && result.orders) {
 				orders = result.orders;
+				if (result.downloadTokens) {
+					downloadTokens = result.downloadTokens;
+				}
 			} else {
 				error = result.error || 'Error al buscar órdenes';
 			}
@@ -85,13 +90,15 @@
 	}
 
 	function downloadBeat(orderId: string, beatId: string, beatName: string) {
-		const url = `/api/download/${orderId}/${beatId}`;
+		const token = downloadTokens[beatId];
+		const url = `/api/download/${orderId}/${beatId}${token ? `?token=${token}` : ''}`;
 		window.open(url, '_blank');
 		analytics.track('download', 'orders_page', { lbl: beatId });
 	}
 
 	function downloadZip(orderId: string, beatId: string, beatName: string) {
-		const url = `/api/download/${orderId}/${beatId}/zip`;
+		const token = downloadTokens[beatId];
+		const url = `/api/download/${orderId}/${beatId}/zip${token ? `?token=${token}` : ''}`;
 		window.open(url, '_blank');
 		analytics.track('download', 'zip_orders', { lbl: beatId });
 	}

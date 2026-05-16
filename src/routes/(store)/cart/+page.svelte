@@ -145,6 +145,11 @@
 		</EmptyState>
 	{:else}
 		<div class="cart-layout">
+			<!-- Continue shopping -->
+			<a href="/" class="continue-shopping">
+				← Seguir comprando
+			</a>
+
 			<!-- Items list -->
 			<div class="cart-items">
 				{#if hasInvalidItems}
@@ -187,11 +192,6 @@
 					</div>
 				{/each}
 			</div>
-
-			<!-- Continue shopping -->
-			<a href="/" class="continue-shopping">
-				← Seguir comprando
-			</a>
 
 			<!-- Summary -->
 			<div class="cart-summary">

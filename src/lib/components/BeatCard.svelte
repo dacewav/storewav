@@ -33,7 +33,8 @@
 		lazy?: boolean;
 	} = $props();
 
-	let inWishlist = $derived(wishlist.isIn(beat.id));
+	let wishIds = $derived($wishlist);
+	let inWishlist = $derived(wishIds.includes(beat.id));
 	let playing = $state(false);
 	let justLiked = $state(false);
 	let isCurrentBeat = $derived($player.beatId === beat.id && $player.playing);
@@ -115,7 +116,7 @@
 
 	function handleWishlist(e: MouseEvent) {
 		e.stopPropagation();
-		const wasIn = $inWishlist;
+		const wasIn = inWishlist;
 
 		// Set burst BEFORE toggle (toggle triggers re-render that may replace DOM)
 		if (!wasIn) {
@@ -233,8 +234,8 @@
 			</button>
 
 			<!-- Wishlist -->
-			<button class="beat-wish" class:active={$inWishlist} onclick={handleWishlist} aria-label="{$inWishlist ? 'Quitar de' : 'Añadir a'} favoritos" aria-pressed={$inWishlist}>
-				<Icon name="heart" size={14} filled={$inWishlist} />
+			<button class="beat-wish" class:active={inWishlist} onclick={handleWishlist} aria-label="{inWishlist ? 'Quitar de' : 'Añadir a'} favoritos" aria-pressed={inWishlist}>
+				<Icon name="heart" size={14} filled={inWishlist} />
 				{#if justLiked}
 					<span class="wish-burst"></span>
 				{/if}
@@ -557,20 +558,20 @@
 		}
 		.beat-play {
 			transform: translate(-50%, -50%) scale(1) !important;
-			width: 56px;
-			height: 56px;
+			width: 48px;
+			height: 48px;
 		}
 		.beat-wish,
 		.beat-cart-btn {
-			width: 40px;
-			height: 40px;
+			width: 36px;
+			height: 36px;
 		}
 		.beat-wish {
 			top: var(--space-2);
 			right: var(--space-2);
 		}
 		.beat-cart-btn {
-			top: calc(var(--space-2) + 44px);
+			top: calc(var(--space-2) + 40px);
 			right: var(--space-2);
 		}
 	}

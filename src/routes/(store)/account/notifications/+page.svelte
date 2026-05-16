@@ -315,6 +315,12 @@
 		opacity: 1;
 	}
 
+	@media (hover: none) {
+		.delete-btn {
+			opacity: 0.5;
+		}
+	}
+
 	.delete-btn:hover {
 		background: var(--danger-glow);
 		color: var(--danger);
