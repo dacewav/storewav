@@ -293,7 +293,7 @@
 		<div class="beat-cover">
 			{#if isVisible}
 				{#if beat.imageUrl}
-					<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" style={imageCSS || undefined} />
+					<img src={beat.imageUrl} alt={beat.name} loading="lazy" decoding="async" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" style={imageCSS || undefined} />
 				{:else}
 					<div class="beat-cover-placeholder" style="background: {genreGradient(beat.genre)}">
 						<span class="placeholder-genre">{beat.genre}</span>

@@ -309,6 +309,23 @@
 			<input id="hv-pt" type="number" step="0.5" min="0" max="20" value={hv.padTop ?? 0} oninput={(e) => update('heroVisual.padTop', +e.currentTarget.value)} />
 		</div>
 	</Collapsible>
+
+	<!-- Background Video -->
+	<Collapsible id="hero-video" icon="🎬" title="Video de fondo" open={false}>
+		<p class="field-desc">URL de un video MP4 para el fondo del hero. Si se configura, reemplaza el gradiente animado.</p>
+		<div class="field">
+			<label for="hv-video-url">URL del video (MP4)</label>
+			<input id="hv-video-url" type="text" value={hv.videoUrl ?? ''} placeholder="https://cdn.example.com/hero.mp4" oninput={(e) => update('heroVisual.videoUrl', e.currentTarget.value)} />
+		</div>
+		{#if hv.videoUrl}
+			<div class="video-preview">
+				<video src={hv.videoUrl} autoplay muted loop playsinline class="video-preview-player">
+					<track kind="captions" />
+				</video>
+				<button class="btn-remove" onclick={() => update('heroVisual.videoUrl', '')} aria-label="Quitar video">✕ Quitar video</button>
+			</div>
+		{/if}
+	</Collapsible>
 </div>
 
 
@@ -611,5 +628,21 @@
 		.row { flex-direction: column; }
 		.segment-row { flex-direction: column; }
 		.color-row { flex-direction: column; }
+	}
+
+	.video-preview {
+		margin-top: var(--space-3);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+	}
+
+	.video-preview-player {
+		width: 100%;
+		max-height: 200px;
+		object-fit: cover;
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border);
+		background: var(--surface);
 	}
 </style>
