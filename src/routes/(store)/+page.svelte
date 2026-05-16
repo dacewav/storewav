@@ -114,7 +114,15 @@
 
 	// Animations
 	let anim = $derived((s?.animations ?? {}) as AnimationSettings);
-	let howItWorks = $derived((s?.howItWorks ?? { enabled: true, title: '¿Cómo funciona?', steps: [] }) as HowItWorksSettings);
+	let howItWorks = $derived((s?.howItWorks ?? {
+		enabled: true,
+		title: '¿Cómo funciona?',
+		steps: [
+			{ icon: '🎵', title: 'Escucha', desc: 'Explora nuestro catálogo y reproduce previews de alta calidad.' },
+			{ icon: '🛒', title: 'Elige licencia', desc: 'Selecciona la licencia que mejor se adapte a tu proyecto.' },
+			{ icon: '⬇️', title: 'Descarga al instante', desc: 'Recibe tus archivos al momento, listos para producir.' }
+		]
+	}) as HowItWorksSettings);
 	let animDuration = $derived(anim.animDuration ?? 2);
 	let animDelay = $derived(anim.animDelay ?? 0);
 	let animEasing = $derived(anim.animEasing ?? 'ease-in-out');
