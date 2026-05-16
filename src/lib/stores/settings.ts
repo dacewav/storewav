@@ -144,6 +144,9 @@ export type HeroVisualSettings = {
 	padTop: number; // rem
 	textClr: string;            // hero text color override
 	logoTextGap: number;        // px, gap between logo and text
+
+	// Video background
+	videoUrl?: string;          // URL to hero background video (mp4)
 };
 
 // ── Theme Settings ──

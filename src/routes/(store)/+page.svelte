@@ -289,7 +289,13 @@
 </svelte:head>
 
 <!-- Hero -->
-<section class="hero" style="{hv.gradOn ? `--hero-grad: ${heroGradStyle}` : ''}; min-height: {s?.theme?.heroMinHeight ?? 60}vh">
+<section class="hero" style="{hv.gradOn ? `--hero-grad: ${heroGradStyle}` : ''}; min-height: {s?.theme?.heroMinHeight ?? 100}vh">
+	{#if hv.videoUrl}
+		<video class="hero-video" autoplay muted loop playsinline>
+			<source src={hv.videoUrl} type="video/mp4" />
+		</video>
+		<div class="hero-video-overlay"></div>
+	{/if}
 	{#if heroEyebrow && hv.eyebrowOn !== false}
 	<div class="hero-eyebrow" style={eyebrowStyle}>
 		<span class="dot" style="background: {eyebrowClr}"></span>
@@ -337,23 +343,69 @@
 		{/each}
 	</div>
 	{/if}
-	{#if beats.length >= 3}
-	<div class="hero-stats">
-		<div class="stat">
+	<!-- Scroll indicator -->
+	<div class="hero-scroll-indicator" aria-hidden="true">
+		<div class="scroll-arrow"></div>
+	</div>
+</section>
+
+<!-- Stats section (standalone) -->
+{#if beats.length >= 3}
+<section class="stats-section" use:reveal={{}}>
+	<div class="stats-grid">
+		<div class="stat-item">
 			<div class="stat-num" use:countUp={beats.length || 0}>0</div>
 			<div class="stat-label">{labels.statBeats ?? 'beats'}</div>
 		</div>
-		<div class="stat">
+		<div class="stat-divider"></div>
+		<div class="stat-item">
 			<div class="stat-num" use:countUp={genreList.length || 0}>0</div>
 			<div class="stat-label">{labels.statGenres ?? 'géneros'}</div>
 		</div>
-		<div class="stat">
+		<div class="stat-divider"></div>
+		<div class="stat-item">
 			<div class="stat-num" use:countUp={licenseCount}>0</div>
 			<div class="stat-label">{labels.statLicenses ?? 'licencias'}</div>
 		</div>
 	</div>
-	{/if}
 </section>
+{/if}
+
+<!-- Cómo funciona -->
+<section class="how-it-works" use:reveal={{}}>
+	<h2 class="how-title">¿Cómo funciona?</h2>
+	<div class="how-steps">
+		<div class="how-step">
+			<div class="how-icon">🎵</div>
+			<h3 class="how-step-title">Escucha</h3>
+			<p class="how-step-desc">Explora nuestro catálogo y reproduce previews de alta calidad.</p>
+		</div>
+		<div class="how-step">
+			<div class="how-icon">🛒</div>
+			<h3 class="how-step-title">Elige licencia</h3>
+			<p class="how-step-desc">Selecciona la licencia que mejor se adapte a tu proyecto.</p>
+		</div>
+		<div class="how-step">
+			<div class="how-icon">⬇️</div>
+			<h3 class="how-step-title">Descarga al instante</h3>
+			<p class="how-step-desc">Recibe tus archivos al momento, listos para producir.</p>
+		</div>
+	</div>
+</section>
+
+<!-- Genre showcase -->
+{#if genreList.length > 0}
+<section class="genre-showcase" use:reveal={{}}>
+	<h2 class="genre-showcase-title">Explora por género</h2>
+	<div class="genre-chips">
+		{#each genreList as genre}
+			<a href="/genre/{genre}" class="genre-chip">
+				{genre}
+			</a>
+		{/each}
+	</div>
+</section>
+{/if}
 
 <!-- Featured beats -->
 {#if featuredBeats.length > 0}
@@ -520,10 +572,64 @@
 	.hero {
 		position: relative;
 		z-index: var(--z-content);
-		padding: clamp(4rem, 12vw, 7rem) var(--container-padding) clamp(2.5rem, 8vw, 5rem);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: var(--container-padding);
+		min-height: 100vh;
 		text-align: center;
 		overflow: hidden;
 		will-change: transform;
+		gap: var(--space-4);
+	}
+
+	/* Hero video background */
+	.hero-video {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	.hero-video-overlay {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(180deg,
+			rgba(0,0,0,0.45) 0%,
+			rgba(0,0,0,0.65) 50%,
+			var(--bg) 100%
+		);
+		z-index: 1;
+		pointer-events: none;
+	}
+
+	/* Scroll indicator */
+	.hero-scroll-indicator {
+		position: absolute;
+		bottom: clamp(1.5rem, 4vw, 2.5rem);
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: var(--z-content);
+		animation: fadeInUp 0.6s var(--ease-out) 2.2s both;
+	}
+
+	.scroll-arrow {
+		width: 24px;
+		height: 24px;
+		border-right: 2px solid var(--text-muted);
+		border-bottom: 2px solid var(--text-muted);
+		transform: rotate(45deg);
+		animation: scrollBounce 2s ease-in-out infinite;
+		opacity: 0.5;
+	}
+
+	@keyframes scrollBounce {
+		0%, 100% { transform: rotate(45deg) translateY(0); opacity: 0.5; }
+		50% { transform: rotate(45deg) translateY(6px); opacity: 1; }
 	}
 
 	.hero::before {
@@ -672,23 +778,36 @@
 		transform: translateY(-1px);
 	}
 
-	.hero-stats {
+	/* ── Stats Section (standalone) ── */
+	.stats-section {
+		position: relative;
+		z-index: var(--z-content);
+		padding: var(--space-10) var(--container-padding);
+		max-width: var(--container-max);
+		margin: 0 auto;
+	}
+
+	.stats-grid {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		gap: clamp(1.5rem, 5vw, 3rem);
 		flex-wrap: wrap;
-		margin-top: clamp(2rem, 5vw, 3rem);
-		padding-top: 2rem;
-		border-top: 1px solid var(--border);
-		position: relative;
-		z-index: var(--z-content);
-		animation: fadeInUp 0.6s var(--ease-out) 1.85s both;
+	}
+
+	.stat-item {
+		text-align: center;
+	}
+
+	.stat-divider {
+		width: 1px;
+		height: 40px;
+		background: var(--border);
 	}
 
 	.stat-num {
 		font-family: var(--font-display);
-		font-size: clamp(1.5rem, 4vw, 2rem);
+		font-size: clamp(1.8rem, 5vw, 2.5rem);
 		font-weight: 800;
 		color: var(--text);
 		transition: all var(--duration-fast) var(--ease-out);
@@ -700,6 +819,116 @@
 		color: var(--text-secondary);
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
+		margin-top: var(--space-1);
+	}
+
+	/* ── How It Works ── */
+	.how-it-works {
+		position: relative;
+		z-index: var(--z-content);
+		padding: var(--section-padding) var(--container-padding);
+		max-width: var(--container-max);
+		margin: 0 auto;
+		text-align: center;
+	}
+
+	.how-title {
+		font-family: var(--font-display);
+		font-size: clamp(1.5rem, 4vw, 2rem);
+		font-weight: 800;
+		color: var(--text);
+		margin-bottom: var(--space-8);
+		letter-spacing: -0.02em;
+	}
+
+	.how-steps {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: var(--space-6);
+	}
+
+	.how-step {
+		padding: var(--space-6);
+		border-radius: var(--radius-xl);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		transition: all var(--duration-normal) var(--ease-out);
+	}
+
+	.how-step:hover {
+		border-color: rgba(var(--accent-rgb), 0.3);
+		transform: translateY(-2px);
+		box-shadow: var(--glow-sm);
+	}
+
+	.how-icon {
+		font-size: 2.5rem;
+		margin-bottom: var(--space-3);
+	}
+
+	.how-step-title {
+		font-family: var(--font-display);
+		font-size: var(--text-lg);
+		font-weight: 700;
+		color: var(--text);
+		margin-bottom: var(--space-2);
+	}
+
+	.how-step-desc {
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+		line-height: 1.7;
+	}
+
+	/* ── Genre Showcase ── */
+	.genre-showcase {
+		position: relative;
+		z-index: var(--z-content);
+		padding: var(--space-8) var(--container-padding) var(--space-4);
+		max-width: var(--container-max);
+		margin: 0 auto;
+		text-align: center;
+	}
+
+	.genre-showcase-title {
+		font-family: var(--font-display);
+		font-size: clamp(1.2rem, 3vw, 1.5rem);
+		font-weight: 700;
+		color: var(--text);
+		margin-bottom: var(--space-4);
+		letter-spacing: -0.01em;
+	}
+
+	.genre-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		justify-content: center;
+	}
+
+	.genre-chip {
+		display: inline-flex;
+		align-items: center;
+		padding: var(--space-2) var(--space-4);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-full);
+		background: var(--surface);
+		color: var(--text-secondary);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		text-decoration: none;
+		letter-spacing: 0.04em;
+		transition: all var(--duration-fast) var(--ease-out);
+		min-height: 36px;
+	}
+
+	.genre-chip:hover {
+		border-color: rgba(var(--accent-rgb), 0.5);
+		color: var(--accent);
+		background: rgba(var(--accent-rgb), 0.06);
+		transform: translateY(-1px);
+		box-shadow: var(--glow-sm);
 	}
 
 	/* ── Section Divider ── */
@@ -1080,7 +1309,7 @@
 
 	@media (max-width: 768px) {
 		.hero {
-			padding: clamp(2.5rem, 10vw, 4rem) var(--container-padding) clamp(2rem, 6vw, 3rem);
+			min-height: 80vh;
 		}
 	}
 
@@ -1091,8 +1320,7 @@
 		}
 
 		.hero {
-			padding: clamp(2rem, 8vw, 3rem) var(--container-padding) clamp(1.5rem, 5vw, 2.5rem);
-			min-height: auto !important;
+			min-height: 70vh;
 		}
 
 		.hero-title {
@@ -1104,18 +1332,23 @@
 			margin-bottom: var(--space-4);
 		}
 
-		.hero-stats {
+		.stats-grid {
 			gap: var(--space-3);
-			padding-top: var(--space-4);
-			margin-top: var(--space-4);
-			/* 2x2 grid on mobile */
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			justify-items: center;
+			flex-direction: column;
+		}
+
+		.stat-divider {
+			width: 40px;
+			height: 1px;
 		}
 
 		.stat-num {
 			font-size: var(--text-xl);
+		}
+
+		.how-steps {
+			grid-template-columns: 1fr;
+			gap: var(--space-4);
 		}
 
 		.section-header {
