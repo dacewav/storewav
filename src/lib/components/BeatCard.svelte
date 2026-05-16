@@ -294,6 +294,9 @@
 			<div class="beat-price" style={priceCSS || undefined}>
 				<span class="price-from">{labelFrom}</span>
 				<span class="price-amount">${lowestPrice(beat)}</span>
+				{#if beat.licenses?.length > 1}
+					<span class="price-lic-count">· {beat.licenses.length} licencias</span>
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -333,8 +336,13 @@
 	}
 
 	.beat-card:hover .beat-card-inner {
-		border-color: var(--hover-border-color, var(--border-hover-accent));
-		box-shadow: var(--card-shadow-hover);
+		border-color: var(--hover-border-color, rgba(var(--accent-rgb), 0.25));
+		box-shadow:
+			var(--card-shadow-hover),
+			0 0 0 1px rgba(var(--accent-rgb), 0.15),
+			0 8px 32px rgba(0,0,0,0.3),
+			inset 0 0 20px rgba(var(--accent-rgb), 0.03);
+		backdrop-filter: blur(8px);
 	}
 
 	.beat-card:hover {
@@ -795,5 +803,12 @@
 		font-size: var(--text-lg);
 		font-weight: 800;
 		color: var(--accent);
+	}
+
+	.price-lic-count {
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		letter-spacing: 0.04em;
 	}
 </style>
