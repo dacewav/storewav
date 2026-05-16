@@ -44,4 +44,5 @@ export { default as CommentSection } from './CommentSection.svelte';
 export { default as CommentCard } from './CommentCard.svelte';
 export { default as BadgeDisplay } from './BadgeDisplay.svelte';
 export { default as KitCard } from './KitCard.svelte';
+export { default as AdBlockerBanner } from './AdBlockerBanner.svelte';
 // Toast.svelte eliminado — usar ToastContainer + toastStore en su lugar

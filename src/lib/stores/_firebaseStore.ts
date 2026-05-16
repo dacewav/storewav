@@ -2,7 +2,8 @@
  * Utilidad base para stores que leen de Firebase Realtime Database.
  * Patrón: writable + onValue + cleanup automático.
  *
- * Incluye retry con exponential backoff para errores de conexión.
+ * Incluye retry con exponential backoff para errores de conexión
+ * y localStorage cache para fallback cuando Firebase está bloqueado.
  *
  * Uso:
  *   export const settings = createFirebaseStore<SettingsType>('settings');
@@ -10,26 +11,81 @@
 
 import { writable, type Writable } from 'svelte/store';
 import { getDb } from '$lib/firebase';
+import { browser } from '$app/environment';
 
 export type StoreState<T> = {
 	data: T | null;
 	loading: boolean;
 	error: string | null;
+	/** True when data came from localStorage cache (Firebase blocked) */
+	stale: boolean;
 };
 
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 1000; // 1s, doubles each retry → max ~31s
+const CACHE_PREFIX = 'oc_store_';
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-function sleep(ms: number) {
-	return new Promise(r => setTimeout(r, ms));
+// ── Ad blocker detection (shared across stores) ──
+let _firebaseBlocked: boolean | null = null; // null = not checked yet
+
+/** Check if Firebase is likely blocked by an ad blocker */
+export async function isFirebaseBlocked(): Promise<boolean> {
+	if (_firebaseBlocked !== null) return _firebaseBlocked;
+	if (!browser) { _firebaseBlocked = false; return false; }
+
+	try {
+		// Try a lightweight fetch to Firebase RTDB root — ad blockers intercept this
+		const controller = new AbortController();
+		const timer = setTimeout(() => controller.abort(), 3000);
+		const resp = await fetch('https://dacewav-store-3b0f5-default-rtdb.firebaseio.com/.json?shallow=true', {
+			signal: controller.signal,
+			mode: 'no-cors' // We just want to check if the request is blocked
+		});
+		clearTimeout(timer);
+		// no-cors returns opaque response — if we get here, request wasn't blocked
+		_firebaseBlocked = false;
+	} catch {
+		// AbortError = timeout (slow network, not blocked)
+		// TypeError = likely blocked by extension (network error)
+		_firebaseBlocked = navigator.onLine; // If online but fetch failed → blocked
+		if (_firebaseBlocked) {
+			console.warn('[Firebase] Likely blocked by ad blocker');
+		}
+	}
+	return _firebaseBlocked;
+}
+
+/** Get cached data from localStorage */
+function getCached<T>(path: string): { data: T; timestamp: number } | null {
+	if (!browser) return null;
+	try {
+		const raw = localStorage.getItem(CACHE_PREFIX + path);
+		if (!raw) return null;
+		const parsed = JSON.parse(raw);
+		if (Date.now() - parsed.timestamp > CACHE_TTL_MS) {
+			localStorage.removeItem(CACHE_PREFIX + path);
+			return null;
+		}
+		return parsed;
+	} catch { return null; }
+}
+
+/** Cache data to localStorage */
+function setCache<T>(path: string, data: T): void {
+	if (!browser) return;
+	try {
+		localStorage.setItem(CACHE_PREFIX + path, JSON.stringify({ data, timestamp: Date.now() }));
+	} catch { /* quota exceeded — silent */ }
 }
 
 /**
  * Crea un store reactivo conectado a un path de Firebase.
  * - Se suscribe al montar (lazy)
  * - Se desuscribe al destruir (cleanup)
- * - Expone loading/error states
+ * - Expone loading/error/stale states
  * - Reintenta con exponential backoff en errores de conexión
+ * - Cachea datos exitosos en localStorage para fallback offline/ad-blocker
  */
 export function createFirebaseStore<T>(
 	path: string,
@@ -38,7 +94,8 @@ export function createFirebaseStore<T>(
 	const store: Writable<StoreState<T>> = writable({
 		data: defaultValue,
 		loading: true,
-		error: null
+		error: null,
+		stale: false
 	});
 
 	let unsub: (() => void) | null = null;
@@ -51,7 +108,12 @@ export function createFirebaseStore<T>(
 		try {
 			const db = await getDb();
 			if (!db) {
-				store.set({ data: defaultValue, loading: false, error: 'Firebase no inicializado' });
+				// Firebase not available — try cache before falling back to default
+				const cached = getCached<T>(path);
+				const fallbackData = cached ? cached.data : defaultValue;
+				const isBlocked = await isFirebaseBlocked();
+				const errorMsg = isBlocked ? 'Firebase bloqueado (ad blocker)' : 'Firebase no inicializado';
+				store.set({ data: fallbackData, loading: false, error: errorMsg, stale: !!cached });
 				return;
 			}
 
@@ -62,12 +124,16 @@ export function createFirebaseStore<T>(
 				dbRef,
 				(snap) => {
 					retryCount = 0; // reset on success
-					store.set({ data: snap.val() ?? defaultValue, loading: false, error: null });
+					const val = snap.val() ?? defaultValue;
+					store.set({ data: val, loading: false, error: null, stale: false });
+					// Cache successful data for offline/ad-blocker fallback
+					if (val !== null) setCache(path, val);
 				},
 				(err) => {
 					console.error(`[Store:${path}]`, err.message);
-					// Don't set defaultValue on error — let consumers handle null data
-					store.set({ data: null, loading: false, error: err.message });
+					// Try cache before falling back to null
+					const cached = getCached<T>(path);
+					store.set({ data: cached ? cached.data : null, loading: false, error: err.message, stale: !!cached });
 					scheduleRetry();
 				}
 			);
@@ -75,7 +141,9 @@ export function createFirebaseStore<T>(
 			retryCount = 0;
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : String(err);
-			store.set({ data: defaultValue, loading: false, error: msg });
+			// Try cache before falling back to defaultValue
+			const cached = getCached<T>(path);
+			store.set({ data: cached ? cached.data : defaultValue, loading: false, error: msg, stale: !!cached });
 			scheduleRetry();
 		}
 	}

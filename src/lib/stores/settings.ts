@@ -1336,24 +1336,29 @@ let _themeData: Record<string, unknown> | null = null;
 const settingsStore = writable<StoreState<SettingsData>>({
 	data: null,
 	loading: true,
-	error: null
+	error: null,
+	stale: false
 });
 
 // Listen to base settings store
 base.subscribe((state) => {
 	_rawData = state.data as Record<string, unknown> | null;
 	if (state.loading) {
-		settingsStore.set({ data: null, loading: true, error: null });
+		settingsStore.set({ data: null, loading: true, error: null, stale: false });
 	} else if (state.error) {
-		// Firebase failed — use defaults so site is usable (ad blockers, network issues)
+		// Firebase failed — use cached data or defaults so site is usable (ad blockers, network issues)
 		console.warn('[Settings] Firebase error, using defaults:', state.error);
-		settingsStore.set({ data: DEFAULT, loading: false, error: state.error });
+		// If base store returned cached data (stale), use it; otherwise use DEFAULT
+		const fallbackData = _rawData && typeof _rawData === 'object'
+			? migrateOldData({ ..._rawData, _theme: _themeData })
+			: DEFAULT;
+		settingsStore.set({ data: fallbackData, loading: false, error: state.error, stale: state.stale });
 	} else if (_rawData && typeof _rawData === 'object') {
 		const merged = { ..._rawData, _theme: _themeData };
-		settingsStore.set({ data: migrateOldData(merged), loading: false, error: null });
+		settingsStore.set({ data: migrateOldData(merged), loading: false, error: null, stale: false });
 	} else {
 		// No data, no error, not loading — first load with empty Firebase
-		settingsStore.set({ data: DEFAULT, loading: false, error: null });
+		settingsStore.set({ data: DEFAULT, loading: false, error: null, stale: false });
 	}
 });
 
@@ -1368,7 +1373,7 @@ async function subscribeThemeForMigration() {
 			_themeData = snap.val();
 			if (_rawData && typeof _rawData === 'object') {
 				const merged = { ..._rawData, _theme: _themeData };
-				settingsStore.set({ data: migrateOldData(merged), loading: false, error: null });
+				settingsStore.set({ data: migrateOldData(merged), loading: false, error: null, stale: false });
 			}
 		});
 	} catch { /* silent */ }
