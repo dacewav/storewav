@@ -12,7 +12,15 @@
 	let section = $derived((s?.section ?? {}) as SectionSettings);
 	let cta = $derived((s?.cta ?? {}) as CtaSettings);
 	let labels = $derived((s?.labels ?? {}) as LabelSettings);
-	let howItWorks = $derived((s?.howItWorks ?? { enabled: true, title: '¿Cómo funciona?', steps: [] }) as HowItWorksSettings);
+	let howItWorks = $derived((s?.howItWorks ?? {
+		enabled: true,
+		title: '¿Cómo funciona?',
+		steps: [
+			{ icon: '🎵', title: 'Escucha', desc: 'Explora nuestro catálogo y reproduce previews de alta calidad.' },
+			{ icon: '🛒', title: 'Elige licencia', desc: 'Selecciona la licencia que mejor se adapte a tu proyecto.' },
+			{ icon: '⬇️', title: 'Descarga al instante', desc: 'Recibe tus archivos al momento, listos para producir.' }
+		]
+	}) as HowItWorksSettings);
 
 	let local = $state<Record<string, number>>({});
 	let localInit = false;
