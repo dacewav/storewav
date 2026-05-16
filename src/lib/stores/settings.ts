@@ -1345,8 +1345,9 @@ base.subscribe((state) => {
 	if (state.loading) {
 		settingsStore.set({ data: null, loading: true, error: null });
 	} else if (state.error) {
-		// Firebase failed — keep loading true so loader stays visible
-		settingsStore.set({ data: null, loading: true, error: state.error });
+		// Firebase failed — use defaults so site is usable (ad blockers, network issues)
+		console.warn('[Settings] Firebase error, using defaults:', state.error);
+		settingsStore.set({ data: DEFAULT, loading: false, error: state.error });
 	} else if (_rawData && typeof _rawData === 'object') {
 		const merged = { ..._rawData, _theme: _themeData };
 		settingsStore.set({ data: migrateOldData(merged), loading: false, error: null });

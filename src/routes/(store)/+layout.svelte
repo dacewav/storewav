@@ -253,18 +253,19 @@
 			setTimeout(() => { loaderVisible = false; }, 500);
 		}
 
-		// Show "Conectando..." message after 3s
+		// Show "Conectando..." message after 1.5s
 		const loaderSlowTimeout = setTimeout(() => {
 			if (loaderVisible) loaderSlow = true;
-		}, 3000);
+		}, 1500);
 
-		// Safety timeout: fade loader after 5s even if settings never load
+		// Safety timeout: fade loader after 2s even if settings never load
+		// (shorter for users with ad blockers that block Firebase)
 		const loaderSafetyTimeout = setTimeout(() => {
 			if (loaderVisible) {
-				console.warn('[Loader] Safety timeout — settings did not load in 5s');
+				console.warn('[Loader] Safety timeout — using default settings (Firebase may be blocked)');
 				startLoaderFade();
 			}
-		}, 5000);
+		}, 2000);
 
 		// Fade when settings load from Firebase
 		const unsubSettings = settings.subscribe((s) => {
