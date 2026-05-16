@@ -11,7 +11,7 @@
 	import { sanitizeHtml, escapeJsonLd } from '$lib/sanitize';
 	import type { HeroVisualSettings, LabelSettings, AnimationSettings } from '$lib/stores/settings';
 	import type { IconName } from '$lib/icons';
-	import { staggerReveal, reveal, siblingBlur, countUp } from '$lib/actions';
+	import { staggerReveal, reveal, siblingBlur, countUp, parallax } from '$lib/actions';
 	import { hexToRgba, genreGradient } from '$lib/visualUtils';
 	import { STORE_URL } from '$lib/config';
 	import type { Beat } from '$lib/stores/beats';
@@ -351,7 +351,7 @@
 
 <!-- Stats section (standalone) -->
 {#if beats.length >= 3}
-<section class="stats-section" use:reveal={{}}>
+<section class="stats-section" use:reveal={{}} use:parallax={{ speed: 0.04 }}>
 	<div class="stats-grid">
 		<div class="stat-item">
 			<div class="stat-num" use:countUp={beats.length || 0}>0</div>
@@ -395,7 +395,7 @@
 
 <!-- Genre showcase -->
 {#if genreList.length > 0}
-<section class="genre-showcase" use:reveal={{}}>
+<section class="genre-showcase" use:reveal={{}} use:parallax={{ speed: 0.03 }}>
 	<h2 class="genre-showcase-title">Explora por género</h2>
 	<div class="genre-chips">
 		{#each genreList as genre}

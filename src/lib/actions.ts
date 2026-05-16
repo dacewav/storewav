@@ -104,6 +104,43 @@ export const reveal: Action<HTMLElement, { threshold?: number }> = (node, params
 	};
 };
 
+/** Parallax scroll effect — subtle translateY on scroll */
+export const parallax: Action<HTMLElement, { speed?: number; direction?: 'up' | 'down' }> = (node, params = {}) => {
+	const speed = params.speed ?? 0.08;
+	const direction = params.direction ?? 'up';
+	const sign = direction === 'up' ? -1 : 1;
+	let ticking = false;
+
+	function onScroll() {
+		if (ticking) return;
+		ticking = true;
+		requestAnimationFrame(() => {
+			const rect = node.getBoundingClientRect();
+			const viewH = window.innerHeight;
+			// Only apply when element is in viewport
+			if (rect.bottom > 0 && rect.top < viewH) {
+				const center = rect.top + rect.height / 2 - viewH / 2;
+				const offset = center * speed * sign;
+				node.style.transform = `translateY(${offset}px)`;
+			}
+			ticking = false;
+		});
+	}
+
+	// Skip on touch devices (perf)
+	if (typeof window !== 'undefined' && !window.matchMedia('(hover: none)').matches) {
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+
+	return {
+		destroy() {
+			if (typeof window !== 'undefined') {
+				window.removeEventListener('scroll', onScroll);
+			}
+		}
+	};
+};
+
 /** Sibling hover effect — configurable effect on sibling cards (blur, dim, scale-down, none) */
 export const siblingBlur: Action<HTMLElement, {
 	blur?: number;

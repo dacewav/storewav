@@ -37,12 +37,21 @@
 	let inWishlist = $derived(wishIds.includes(beat.id));
 	let playing = $state(false);
 	let justLiked = $state(false);
+	let cartPop = $state(false);
+	let flyingThumb: { x: number; y: number; src: string } | null = $state(null);
 	let isCurrentBeat = $derived($player.beatId === beat.id && $player.playing);
 
 	// Lazy loading: only render image/waveform when visible
 	let isVisible = $state(!lazy);
 	let cardEl: HTMLDivElement | null = $state(null);
 	let observer: IntersectionObserver | null = null;
+
+	// Swipe gesture state
+	let touchStartX = $state(0);
+	let touchStartY = $state(0);
+	let swipeDeltaX = $state(0);
+	let swiping = $state(false);
+	let swipeAction: 'like' | 'cart' | null = $state(null);
 
 	onMount(() => {
 		if (lazy && cardEl) {
@@ -64,6 +73,42 @@
 	onDestroy(() => {
 		observer?.disconnect();
 	});
+
+	// Swipe gesture handlers
+	function handleTouchStart(e: TouchEvent) {
+		touchStartX = e.touches[0].clientX;
+		touchStartY = e.touches[0].clientY;
+		swiping = true;
+		swipeDeltaX = 0;
+		swipeAction = null;
+	}
+
+	function handleTouchMove(e: TouchEvent) {
+		if (!swiping) return;
+		const dx = e.touches[0].clientX - touchStartX;
+		const dy = e.touches[0].clientY - touchStartY;
+		// Only swipe horizontally
+		if (Math.abs(dy) > Math.abs(dx)) { swiping = false; return; }
+		swipeDeltaX = dx;
+		if (dx > 60) swipeAction = 'like';
+		else if (dx < -60) swipeAction = 'cart';
+		else swipeAction = null;
+	}
+
+	function handleTouchEnd() {
+		if (!swiping) return;
+		if (swipeAction === 'like' && !inWishlist) {
+			wishlist.toggle(beat.id);
+			justLiked = true;
+			setTimeout(() => { justLiked = false; }, 500);
+			toast.show('❤️ Añadido a favoritos');
+		} else if (swipeAction === 'cart') {
+			handleAddToCart(new MouseEvent('click'));
+		}
+		swiping = false;
+		swipeDeltaX = 0;
+		swipeAction = null;
+	}
 	let beatLikeCount = $derived($likeCounts[beat.id] ?? 0);
 
 	// Subscribe to like count for this beat (so cards show ❤️ N without needing LikeButton)
@@ -160,6 +205,34 @@
 			priceMXN: lic.priceMXN,
 			priceUSD: lic.priceUSD,
 		});
+
+		// Card pop animation
+		cartPop = true;
+		setTimeout(() => { cartPop = false; }, 400);
+
+		// Flying thumbnail to cart
+		if (beat.imageUrl) {
+			const card = cardEl?.getBoundingClientRect();
+			const cartIcon = document.querySelector('.icon-btn[title="Carrito"], .bottom-nav-item[href="/cart"]');
+			if (card && cartIcon) {
+				const cartRect = cartIcon.getBoundingClientRect();
+				const startX = card.left + card.width / 2 - 24;
+				const startY = card.top + card.height / 3 - 24;
+				const dx = cartRect.left + cartRect.width / 2 - 24 - startX;
+				const dy = cartRect.top + cartRect.height / 2 - 24 - startY;
+				flyingThumb = { x: startX, y: startY, src: beat.imageUrl };
+				// Set CSS custom properties for the flight path
+				requestAnimationFrame(() => {
+					const el = document.querySelector('.flying-thumb') as HTMLElement;
+					if (el) {
+						el.style.setProperty('--fly-dx', `${dx}px`);
+						el.style.setProperty('--fly-dy', `${dy}px`);
+					}
+				});
+				setTimeout(() => { flyingThumb = null; }, 700);
+			}
+		}
+
 		analytics.track('cart', 'add', { lbl: beat.id, val: lic.priceMXN, meta: lic.name });
 		toast.show(`🛒 ${lic.name} agregado`);
 	}
@@ -169,6 +242,7 @@
 	class="beat-card"
 	class:has-shimmer={hasShimmer}
 	class:play-pulse={playing}
+	class:cart-pop={cartPop}
 	class:lazy-placeholder={lazy && !isVisible}
 	use:tilt={{ max: 6 }}
 	onclick={() => onclick?.(beat)}
@@ -186,6 +260,9 @@
 		}
 	}}
 	onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onclick?.(beat); } }}
+	ontouchstart={handleTouchStart}
+	ontouchmove={handleTouchMove}
+	ontouchend={handleTouchEnd}
 	role="button"
 	tabindex="0"
 	style={inlineCSS || undefined}
@@ -238,6 +315,11 @@
 				<Icon name="heart" size={14} filled={inWishlist} />
 				{#if justLiked}
 					<span class="wish-burst"></span>
+					<span class="heart-particle p1">❤️</span>
+					<span class="heart-particle p2">💖</span>
+					<span class="heart-particle p3">💗</span>
+					<span class="heart-particle p4">❤️</span>
+					<span class="heart-particle p5">💕</span>
 				{/if}
 			</button>
 
@@ -300,7 +382,29 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Swipe gesture overlays (mobile) -->
+	{#if swiping && swipeDeltaX !== 0}
+		{#if swipeAction === 'like'}
+			<div class="swipe-overlay swipe-like">
+				<span class="swipe-icon">❤️</span>
+			</div>
+		{:else if swipeAction === 'cart'}
+			<div class="swipe-overlay swipe-cart">
+				<span class="swipe-icon">🛒</span>
+			</div>
+		{/if}
+	{/if}
 </div>
+
+{#if flyingThumb}
+	<img
+		class="flying-thumb"
+		src={flyingThumb.src}
+		alt=""
+		style="left: {flyingThumb.x}px; top: {flyingThumb.y}px"
+	/>
+{/if}
 
 <style>
 	/* ── Outer card (glow, transforms, animations) ── */
@@ -311,6 +415,7 @@
 		transition: all var(--duration-normal) var(--ease-out);
 		--hover-scale: 1;
 		--hover-translate-y: -3px;
+		touch-action: pan-y;
 	}
 
 	/* Lazy loading placeholder state */
@@ -810,5 +915,106 @@
 		font-size: var(--text-2xs);
 		color: var(--text-muted);
 		letter-spacing: 0.04em;
+	}
+
+	/* ── Cart Pop Animation ── */
+	.beat-card.cart-pop {
+		animation: cartPopAnim 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	@keyframes cartPopAnim {
+		0% { transform: scale(1); }
+		40% { transform: scale(1.06); }
+		100% { transform: scale(1); }
+	}
+
+	/* ── Heart Particles ── */
+	.heart-particle {
+		position: absolute;
+		font-size: 12px;
+		pointer-events: none;
+		z-index: 10;
+		animation: heartFly 0.6s ease-out forwards;
+	}
+
+	.heart-particle.p1 { animation-delay: 0s; --hx: -18px; --hy: -24px; --hr: -25deg; }
+	.heart-particle.p2 { animation-delay: 0.05s; --hx: 14px; --hy: -28px; --hr: 20deg; }
+	.heart-particle.p3 { animation-delay: 0.1s; --hx: -10px; --hy: -18px; --hr: -15deg; }
+	.heart-particle.p4 { animation-delay: 0.08s; --hx: 20px; --hy: -16px; --hr: 30deg; }
+	.heart-particle.p5 { animation-delay: 0.12s; --hx: -6px; --hy: -30px; --hr: -10deg; }
+
+	@keyframes heartFly {
+		0% {
+			transform: translate(0, 0) rotate(0deg) scale(0.5);
+			opacity: 1;
+		}
+		60% {
+			opacity: 1;
+		}
+		100% {
+			transform: translate(var(--hx), var(--hy)) rotate(var(--hr)) scale(1.2);
+			opacity: 0;
+		}
+	}
+
+	/* ── Flying Thumbnail ── */
+	.flying-thumb {
+		position: fixed;
+		width: 48px;
+		height: 48px;
+		border-radius: var(--radius-md);
+		object-fit: cover;
+		z-index: 9999;
+		pointer-events: none;
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+		animation: flyToCart 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+	}
+
+	@keyframes flyToCart {
+		0% {
+			transform: translate(0, 0) scale(1) rotate(0deg);
+			opacity: 1;
+		}
+		50% {
+			transform: translate(60px, -120px) scale(0.7) rotate(10deg);
+			opacity: 0.9;
+		}
+		100% {
+			transform: translate(var(--fly-dx, 200px), var(--fly-dy, -400px)) scale(0.2) rotate(20deg);
+			opacity: 0;
+		}
+	}
+
+	/* ── Swipe Gesture Overlays ── */
+	.swipe-overlay {
+		position: absolute;
+		inset: 0;
+		border-radius: var(--card-radius);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 5;
+		pointer-events: none;
+		transition: opacity 0.15s;
+	}
+
+	.swipe-like {
+		background: rgba(239, 68, 68, 0.15);
+		border: 2px solid rgba(239, 68, 68, 0.4);
+	}
+
+	.swipe-cart {
+		background: rgba(var(--accent-rgb), 0.15);
+		border: 2px solid rgba(var(--accent-rgb), 0.4);
+	}
+
+	.swipe-icon {
+		font-size: 2rem;
+		animation: swipePop 0.2s ease-out;
+	}
+
+	@keyframes swipePop {
+		0% { transform: scale(0.5); opacity: 0; }
+		100% { transform: scale(1); opacity: 1; }
 	}
 </style>
