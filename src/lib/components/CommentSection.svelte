@@ -189,7 +189,7 @@
 		</form>
 	{:else}
 		<div class="login-prompt">
-			<p>Iniciá sesión para comentar</p>
+			<p>Inicia sesión para comentar</p>
 		</div>
 	{/if}
 

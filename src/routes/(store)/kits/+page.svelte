@@ -62,7 +62,7 @@
 	<header class="kits-header">
 		<h1 class="kits-title">🥁 Drumkits</h1>
 		<p class="kits-sub">Sample packs y drumkits para tu producción.</p>
-		<div class="kits-count">{filteredKits.length} kits</div>
+		<div class="kits-count">{filteredKits.length} {filteredKits.length === 1 ? 'kit' : 'kits'}</div>
 	</header>
 
 	<!-- Filters -->

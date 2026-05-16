@@ -120,9 +120,12 @@ export function createFirebaseStore<T>(
 			const { ref, onValue } = await import('firebase/database');
 			const dbRef = ref(db, path);
 
+			let initialCallbackFired = false; // tracks if onValue ever fired (for timeout only)
+
 			unsub = onValue(
 				dbRef,
 				(snap) => {
+					initialCallbackFired = true;
 					retryCount = 0; // reset on success
 					const val = snap.val() ?? defaultValue;
 					store.set({ data: val, loading: false, error: null, stale: false });
@@ -130,6 +133,7 @@ export function createFirebaseStore<T>(
 					if (val !== null) setCache(path, val);
 				},
 				(err) => {
+					initialCallbackFired = true;
 					console.error(`[Store:${path}]`, err.message);
 					// Try cache before falling back to null
 					const cached = getCached<T>(path);
@@ -137,6 +141,17 @@ export function createFirebaseStore<T>(
 					scheduleRetry();
 				}
 			);
+
+			// Safety timeout: if onValue never fires (e.g. 401 from Firebase rules),
+			// force loading=false after 5s so the UI doesn't hang forever
+			setTimeout(() => {
+				if (!initialCallbackFired && !destroyed) {
+					console.warn(`[Store:${path}] onValue timeout (5s) — falling back to cache`);
+					const cached = getCached<T>(path);
+					store.set({ data: cached ? cached.data : defaultValue, loading: false, error: 'timeout', stale: !!cached });
+				}
+			}, 5000);
+
 			// Connection established — reset retries
 			retryCount = 0;
 		} catch (err) {

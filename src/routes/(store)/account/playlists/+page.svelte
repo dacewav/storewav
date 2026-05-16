@@ -97,7 +97,7 @@
 	{#if playlistList.length === 0}
 		<div class="empty-state">
 			<span class="empty-icon">🎶</span>
-			<p>No tenés playlists todavía.</p>
+			<p>No tienes playlists todavía.</p>
 			<p class="empty-hint">Creá una arriba para empezar a guardar beats.</p>
 		</div>
 	{:else}

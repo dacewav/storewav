@@ -74,8 +74,8 @@
 		<div class="account-login">
 			<div class="login-card">
 				<div class="login-icon">🔐</div>
-				<h1>Iniciá sesión</h1>
-				<p>Necesitás una cuenta para ver tu perfil, órdenes y favoritos.</p>
+				<h1>Inicia sesión</h1>
+				<p>Necesitas una cuenta para ver tu perfil, órdenes y favoritos.</p>
 				<a href="/" class="back-btn">Volver al catálogo</a>
 			</div>
 		</div>

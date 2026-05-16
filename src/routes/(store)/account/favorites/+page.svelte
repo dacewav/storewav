@@ -44,14 +44,14 @@
 	{#if !uid}
 		<EmptyState
 			icon="🔐"
-			title="Iniciá sesión"
-			subtitle="Necesitás una cuenta para ver tus favoritos"
+			title="Inicia sesión"
+			subtitle="Necesitas una cuenta para ver tus favoritos"
 		/>
 	{:else if likedBeats.length === 0}
 		<EmptyState
 			icon="🤍"
 			title="Sin favoritos todavía"
-			subtitle="Dale ❤️ a los beats que te gusten y aparecerán acá"
+			subtitle="Dale ❤️ a los beats que te gusten y aparecerán aquí"
 		/>
 		<a href="/" class="back-link">Explorar catálogo</a>
 	{:else}

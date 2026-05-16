@@ -7,7 +7,7 @@
 
 <div class="dashboard">
 	<h2>👋 Hola, {user?.displayName?.split(' ')[0] || 'artista'}</h2>
-	<p class="dashboard-sub">Desde acá podés gestionar tu cuenta, ver tus compras y favoritos.</p>
+	<p class="dashboard-sub">Desde aquí puedes gestionar tu cuenta, ver tus compras y favoritos.</p>
 
 	<div class="dashboard-cards">
 		<a href="/account/profile" class="dash-card">

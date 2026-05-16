@@ -361,7 +361,7 @@
 	<div class="section-header">
 		<h2 class="section-title" style={sectionTitleStyle}>🔥 Destacados</h2>
 		<div class="section-line"></div>
-		<div class="section-badge">{featuredBeats.length} beats</div>
+		<div class="section-badge">{featuredBeats.length} {featuredBeats.length === 1 ? 'beat' : 'beats'}</div>
 	</div>
 	<div class="beat-grid" style="--cards-per-row: {cardsPerRow}" use:staggerReveal={{ delay: 60 }}>
 		{#each featuredBeats as beat, i (beat.id)}
@@ -418,7 +418,7 @@
 	<div class="section-header">
 		<h2 class="section-title" style={sectionTitleStyle}>{sectionTitle}</h2>
 		<div class="section-line"></div>
-		<div class="section-badge">{filteredBeats.length ? `${filteredBeats.length} beats` : '—'}</div>
+		<div class="section-badge">{filteredBeats.length ? `${filteredBeats.length} ${filteredBeats.length === 1 ? 'beat' : 'beats'}` : '—'}</div>
 	</div>
 
 	<!-- Filters (includes genre pills) -->

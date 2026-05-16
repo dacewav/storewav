@@ -23,7 +23,7 @@
 
 	async function handleToggle() {
 		if (!uid) {
-			toast.show('Iniciá sesión para guardar favoritos');
+			toast.show('Inicia sesión para guardar favoritos');
 			return;
 		}
 		if (loading) return;
@@ -51,7 +51,7 @@
 	class:compact
 	class:animating
 	onclick={handleToggle}
-	title={uid ? (isLikedVal ? 'Quitar de favoritos' : 'Agregar a favoritos') : 'Iniciá sesión para guardar'}
+	title={uid ? (isLikedVal ? 'Quitar de favoritos' : 'Agregar a favoritos') : 'Inicia sesión para guardar'}
 	aria-label={isLikedVal ? 'Quitar like' : 'Dar like'}
 >
 	<span class="like-icon">

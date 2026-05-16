@@ -87,7 +87,7 @@
 	{:else if $notifications.length === 0}
 		<div class="notif-empty">
 			<span class="empty-icon">🔕</span>
-			<p>No tenés notificaciones</p>
+			<p>No tienes notificaciones</p>
 			<p class="empty-hint">Cuando un beat de tu wishlist tenga descuento, vas a verlo acá.</p>
 		</div>
 	{:else}

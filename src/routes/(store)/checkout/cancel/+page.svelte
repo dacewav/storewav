@@ -14,7 +14,7 @@
 		<div class="cancel-icon">😔</div>
 		<h1 class="cancel-title">Pago cancelado</h1>
 		<p class="cancel-subtitle">
-			No se realizó ningún cargo. Tu carrito sigue intacto — podés completar la compra cuando quieras.
+			No se realizó ningún cargo. Tu carrito sigue intacto — puedes completar la compra cuando quieras.
 		</p>
 		<div class="cancel-actions">
 			<a href="/cart" class="action-btn primary">
