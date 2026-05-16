@@ -33,6 +33,12 @@
 	let mobileSearch = $state('');
 	let recentSearches = $state<string[]>([]);
 
+	// Pull-to-refresh state
+	let ptrActive = $state(false);
+	let ptrPulling = $state(false);
+	let ptrDelta = $state(0);
+	let ptrStartY = $state(0);
+
 	// Load recent searches from localStorage
 	$effect(() => {
 		if (typeof localStorage === 'undefined') return;
@@ -230,9 +236,14 @@
 		}
 	});
 
-	// Page transitions — View Transitions API with CSS fallback
+	// Page transitions — View Transitions API with directional animations
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
+		// Detect forward vs back navigation
+		const from = navigation.from?.url.pathname ?? '';
+		const to = navigation.to?.url.pathname ?? '';
+		const isForward = to.length > from.length || !from.startsWith(to);
+		document.documentElement.dataset.navDirection = isForward ? 'forward' : 'back';
 		return new Promise((resolve) => {
 			document.startViewTransition(async () => {
 				resolve();
@@ -382,6 +393,39 @@
 		window.addEventListener('mousemove', onMouseMove, { passive: true });
 		window.addEventListener('keydown', onKeydown);
 
+		// Pull-to-refresh (mobile only)
+		let mainEl: HTMLElement | null = null;
+		function ptrTouchStart(e: TouchEvent) {
+			if (window.scrollY > 10 || ptrActive) return;
+			ptrStartY = e.touches[0].clientY;
+			ptrPulling = true;
+		}
+		function ptrTouchMove(e: TouchEvent) {
+			if (!ptrPulling) return;
+			const dy = e.touches[0].clientY - ptrStartY;
+			if (dy < 0) { ptrDelta = 0; ptrPulling = false; return; }
+			ptrDelta = Math.min(dy * 0.5, 80);
+		}
+		function ptrTouchEnd() {
+			if (!ptrPulling) return;
+			if (ptrDelta > 50) {
+				ptrActive = true;
+				// Reload page data
+				setTimeout(() => { window.location.reload(); }, 300);
+			} else {
+				ptrDelta = 0;
+			}
+			ptrPulling = false;
+		}
+		if (isTouchDevice) {
+			mainEl = document.getElementById('main-content');
+			if (mainEl) {
+				mainEl.addEventListener('touchstart', ptrTouchStart, { passive: true });
+				mainEl.addEventListener('touchmove', ptrTouchMove, { passive: true });
+				mainEl.addEventListener('touchend', ptrTouchEnd, { passive: true });
+			}
+		}
+
 		// Reveal handled by use:reveal action per-element
 
 		return () => {
@@ -394,6 +438,11 @@
 			window.removeEventListener('mousemove', onMouseMove);
 			window.removeEventListener('keydown', onKeydown);
 			cancelAnimationFrame(cursorRaf);
+			if (mainEl && isTouchDevice) {
+				mainEl.removeEventListener('touchstart', ptrTouchStart);
+				mainEl.removeEventListener('touchmove', ptrTouchMove);
+				mainEl.removeEventListener('touchend', ptrTouchEnd);
+			}
 		};
 	});
 </script>
@@ -667,7 +716,13 @@
 	{/if}
 
 	<!-- Main -->
-	<main class="main" class:has-player={hasPlayer} class:content-ready={!loaderVisible} id="main-content">
+	<main class="main" class:has-player={hasPlayer} class:content-ready={!loaderVisible} id="main-content" style="transform: translateY({ptrDelta}px)">
+		{#if ptrDelta > 10 || ptrActive}
+			<div class="ptr-indicator" class:ptr-active={ptrActive} style="opacity: {Math.min(ptrDelta / 50, 1)}">
+				<div class="ptr-spinner" class:spinning={ptrActive}></div>
+				<span class="ptr-text">{ptrActive ? 'Actualizando...' : ptrDelta > 50 ? 'Soltar para actualizar' : 'Desliza para actualizar'}</span>
+			</div>
+		{/if}
 		{@render children()}
 	</main>
 
@@ -1302,6 +1357,36 @@
 		padding-bottom: 80px;
 	}
 
+	/* ── Pull to Refresh ── */
+	.ptr-indicator {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		padding: var(--space-3) 0;
+		font-family: var(--font-mono);
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		letter-spacing: 0.04em;
+	}
+
+	.ptr-spinner {
+		width: 16px;
+		height: 16px;
+		border: 2px solid var(--border);
+		border-top-color: var(--accent);
+		border-radius: 50%;
+		transition: transform 0.2s;
+	}
+
+	.ptr-spinner.spinning {
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
+
 	/* ── Footer ── */
 	.footer {
 		position: relative;
@@ -1429,21 +1514,57 @@
 
 	/* ── View Transitions ── */
 	::view-transition-old(root) {
-		animation: fadeOut 0.15s ease-in;
+		animation: vt-old 0.2s ease-in;
 	}
 
 	::view-transition-new(root) {
-		animation: fadeIn 0.2s ease-out;
+		animation: vt-new 0.25s ease-out;
 	}
 
-	@keyframes fadeOut {
+	/* Forward: slide left */
+	[data-nav-direction="forward"]::view-transition-old(root) {
+		animation: vt-slide-out-left 0.2s ease-in;
+	}
+	[data-nav-direction="forward"]::view-transition-new(root) {
+		animation: vt-slide-in-right 0.25s ease-out;
+	}
+
+	/* Back: slide right */
+	[data-nav-direction="back"]::view-transition-old(root) {
+		animation: vt-slide-out-right 0.2s ease-in;
+	}
+	[data-nav-direction="back"]::view-transition-new(root) {
+		animation: vt-slide-in-left 0.25s ease-out;
+	}
+
+	@keyframes vt-old {
 		from { opacity: 1; transform: scale(1); }
 		to { opacity: 0; transform: scale(0.98); }
 	}
 
-	@keyframes fadeIn {
+	@keyframes vt-new {
 		from { opacity: 0; transform: scale(1.01); }
 		to { opacity: 1; transform: scale(1); }
+	}
+
+	@keyframes vt-slide-out-left {
+		from { opacity: 1; transform: translateX(0); }
+		to { opacity: 0; transform: translateX(-30px); }
+	}
+
+	@keyframes vt-slide-in-right {
+		from { opacity: 0; transform: translateX(30px); }
+		to { opacity: 1; transform: translateX(0); }
+	}
+
+	@keyframes vt-slide-out-right {
+		from { opacity: 1; transform: translateX(0); }
+		to { opacity: 0; transform: translateX(30px); }
+	}
+
+	@keyframes vt-slide-in-left {
+		from { opacity: 0; transform: translateX(-30px); }
+		to { opacity: 1; transform: translateX(0); }
 	}
 
 	/* ── Bottom Nav (mobile only) ── */
