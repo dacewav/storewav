@@ -19,9 +19,9 @@
   --surface-active: #1e1414;
 
   --text: #f5eeee;
-  --text-secondary: rgba(245, 238, 238, 0.55);
-  --text-muted: rgba(245, 238, 238, 0.25);
-  --text-hint: rgba(245, 238, 238, 0.15);
+  --text-secondary: color-mix(in srgb, var(--text) 55%, transparent);
+  --text-muted: color-mix(in srgb, var(--text) 25%, transparent);
+  --text-hint: color-mix(in srgb, var(--text) 15%, transparent);
 
   --accent: #dc2626;
   --accent-dim: #b91c1c;
@@ -740,9 +740,9 @@ body:hover #cursor-glow {
   --surface-active: #e0e0e0;
 
   --text: #0a0a0a;
-  --text-secondary: rgba(10, 10, 10, 0.7);
-  --text-muted: rgba(10, 10, 10, 0.4);
-  --text-hint: rgba(10, 10, 10, 0.22);
+  --text-secondary: color-mix(in srgb, var(--text) 70%, transparent);
+  --text-muted: color-mix(in srgb, var(--text) 40%, transparent);
+  --text-hint: color-mix(in srgb, var(--text) 22%, transparent);
 
   --border: rgba(0, 0, 0, 0.08);
   --border2: rgba(0, 0, 0, 0.15);
